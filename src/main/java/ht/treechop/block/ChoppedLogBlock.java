@@ -1,5 +1,6 @@
 package ht.treechop.block;
 
+import ht.treechop.TreeChopMod;
 import ht.treechop.state.properties.BlockStateProperties;
 import ht.treechop.state.properties.ChoppedLogShape;
 import ht.treechop.util.ChopUtil;
@@ -219,8 +220,12 @@ public class ChoppedLogBlock extends Block {
                 Collections.singletonList(blockPos),
                 ChopUtil.HORIZONTAL_AND_ABOVE,
                 checkPos -> isBlockALog(world, checkPos),
-                256
+                TreeChopMod.maxTreeSize
         );
+
+        if (supportedBlocks.size() >= TreeChopMod.maxTreeSize) {
+            TreeChopMod.LOGGER.warn(String.format("Max tree size reached: %d >= %d blocks", supportedBlocks.size(), TreeChopMod.maxTreeSize));
+        }
 
         int numChopsToFell = ChopUtil.numChopsToFell(supportedBlocks.size());
 

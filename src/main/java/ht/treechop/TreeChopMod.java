@@ -14,6 +14,7 @@ public class TreeChopMod
     public static final Logger LOGGER = LogManager.getLogger();
     public static final String MOD_ID = "treechop";
     public static boolean breakLeaves = true;
+    public static int maxTreeSize = 256;
 
     public TreeChopMod() {
         MinecraftForge.EVENT_BUS.register(new ForgeEventHandler());

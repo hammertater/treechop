@@ -1,16 +1,23 @@
 package ht.treechop.util;
 
+import com.sun.jna.platform.unix.X11;
 import ht.treechop.TreeChopMod;
 import ht.treechop.block.ChoppedLogBlock;
 import ht.treechop.init.ModBlocks;
 import ht.treechop.state.properties.BlockStateProperties;
 import ht.treechop.state.properties.ChoppedLogShape;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.LeavesBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.concurrent.TickDelayedTask;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
+import org.apache.commons.lang3.RandomUtils;
+import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,6 +25,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -122,9 +131,10 @@ public class ChopUtil {
         return isBlockALog(world.getBlockState(pos));
     }
 
-    static public Set<BlockPos> getConnectedBlocksMatchingCondition(Collection<BlockPos> startingPoints, BlockPos[] searchOffsets, Predicate<? super BlockPos> matchingCondition, int maxNumBlocks) {
+    static public Set<BlockPos> getConnectedBlocksMatchingCondition(Collection<BlockPos> startingPoints, BlockPos[] searchOffsets, Predicate<? super BlockPos> matchingCondition, int maxNumBlocks, AtomicInteger iterationCounter) {
         Set<BlockPos> connectedBlocks = new HashSet<>();
         List<BlockPos> newConnectedBlocks = new LinkedList<>(startingPoints);
+        iterationCounter.set(0);
         do {
             connectedBlocks.addAll(newConnectedBlocks);
             if (connectedBlocks.size() >= maxNumBlocks) {
@@ -133,14 +143,20 @@ public class ChopUtil {
 
             newConnectedBlocks = newConnectedBlocks.stream()
                     .flatMap((blockPos) -> Arrays.stream(searchOffsets).map(blockPos::add)
-                            .filter(pos2 -> !connectedBlocks.contains(pos2))
+                            .filter(pos1 -> !connectedBlocks.contains(pos1))
                             .filter(matchingCondition)
                     )
                     .limit(maxNumBlocks - connectedBlocks.size())
                     .collect(Collectors.toList());
+
+            iterationCounter.incrementAndGet();
         } while (!newConnectedBlocks.isEmpty());
 
         return connectedBlocks;
+    }
+
+    static public Set<BlockPos> getConnectedBlocksMatchingCondition(Collection<BlockPos> startingPoints, BlockPos[] searchOffsets, Predicate<? super BlockPos> matchingCondition, int maxNumBlocks) {
+        return getConnectedBlocksMatchingCondition(startingPoints, searchOffsets, matchingCondition, maxNumBlocks, new AtomicInteger());
     }
 
     static public BlockState chipBlock(IWorld world, BlockPos blockPos, int numChops, Entity agent) {
@@ -152,51 +168,52 @@ public class ChopUtil {
     }
 
     public static void fellTree(IWorld world, Collection<BlockPos> treeBlocks, Entity agent) {
-        AtomicReference<BlockPos> aMinPos = new AtomicReference<>(new BlockPos(treeBlocks.iterator().next()));
-        AtomicReference<BlockPos> aMaxPos = new AtomicReference<>(new BlockPos(aMinPos.get()));
-        treeBlocks.forEach(blockPos -> {
-            aMinPos.set(new BlockPos(
-                    Math.min(blockPos.getX(), aMinPos.get().getX()),
-                    Math.min(blockPos.getY(), aMinPos.get().getY()),
-                    Math.min(blockPos.getZ(), aMinPos.get().getZ())
-            ));
-            aMaxPos.set(new BlockPos(
-                    Math.max(blockPos.getX(), aMaxPos.get().getX()),
-                    Math.max(blockPos.getY(), aMaxPos.get().getY()),
-                    Math.max(blockPos.getZ(), aMaxPos.get().getZ())
-            ));
-        });
+        final int FELL_NOISE_INTERVAL = 16;
+        final int MAX_NOISE_ATTEMPTS = (FELL_NOISE_INTERVAL) * 8;
 
-        BlockPos minPos = new BlockPos(aMinPos.get()).add(-7, -2, -7);
-        BlockPos maxPos = new BlockPos(aMaxPos.get()).add(7, 7, 7);
+        // Break leaves
         if (TreeChopMod.breakLeaves) {
-            Set<BlockPos> leaves = getConnectedBlocksMatchingCondition(
+            AtomicInteger blockCounter = new AtomicInteger(0);
+            AtomicInteger iterationCounter = new AtomicInteger();
+            getConnectedBlocksMatchingCondition(
                     treeBlocks,
                     ADJACENTS,
                     pos -> {
-                        Set<ResourceLocation> tags = world.getBlockState(pos).getBlock().getTags();
-                        return (
-                                (
-                                        pos.getX() >= minPos.getX() &&
-                                                pos.getY() >= minPos.getY() &&
-                                                pos.getZ() >= minPos.getZ() &&
-                                                pos.getX() <= maxPos.getX() &&
-                                                pos.getY() <= maxPos.getY() &&
-                                                pos.getZ() <= maxPos.getZ()
-                                ) && (
-                                        tags.contains(BlockTags.LEAVES.func_230234_a_()) ||
-                                                tags.contains(BlockTags.BEEHIVES.func_230234_a_()) ||
-                                                tags.contains(BlockTags.BEE_GROWABLES.func_230234_a_())
-                                )
-                        );
+                        BlockState blockState = world.getBlockState(pos);
+                        if (blockState.getBlock() instanceof LeavesBlock &&
+                                iterationCounter.get() + 1 == blockState.get(LeavesBlock.DISTANCE)) {
+                            if (!blockState.get(LeavesBlock.PERSISTENT)) {
+                                if (blockCounter.get() < MAX_NOISE_ATTEMPTS && Math.floorMod(blockCounter.getAndIncrement(), FELL_NOISE_INTERVAL) == 0) {
+                                    world.destroyBlock(pos, true);
+                                }
+                                else {
+                                    destroyBlockQuietly(world, pos);
+                                }
+                            }
+                            return true;
+                        }
+                        return false;
                     },
-                    treeBlocks.size() * 2 + 64
+                    1024,
+                    iterationCounter
             );
-
-            leaves.forEach(pos -> world.destroyBlock(pos, true, agent)); // p_225521_2_ is whether to spawn drops
         }
 
-        treeBlocks.forEach(pos -> world.destroyBlock(pos, true, agent)); // p_225521_2_ is whether to spawn drops
+        // Break logs
+        for (BlockPos pos : treeBlocks) {
+            AtomicInteger blockCounter = new AtomicInteger(0);
+            if (blockCounter.get() < MAX_NOISE_ATTEMPTS && Math.floorMod(blockCounter.getAndIncrement(), FELL_NOISE_INTERVAL) == 0) {
+                world.destroyBlock(pos, true);
+            }
+            else {
+                destroyBlockQuietly(world, pos);
+            }
+        }
+    }
+
+    public static void destroyBlockQuietly(IWorld world, BlockPos pos) {
+        Block.spawnDrops(world.getBlockState(pos), (World) world, pos);
+        world.removeBlock(pos, false);
     }
 
     static public int numChopsToFell(int numBlocks) {
@@ -207,17 +224,4 @@ public class ChopUtil {
         final double invBase = 1 / (Math.log(2));
         return Math.log(x) * invBase;
     }
-
-    static public Stream<BlockPos> getPositionsWithOffsets(Collection<BlockPos> startingPoints, BlockPos[] searchOffsets) {
-        return startingPoints.stream()
-                .flatMap(pos -> Arrays.stream(searchOffsets).map(pos::add));
-    }
-
-//    static public boolean allMatch(Collection<BlockPos> posList, Predicate<? super BlockPos> matchingCondition) {
-//        posList.
-//                .allMatch((blockPos) -> Arrays.stream(searchOffsets)
-//                        .map(blockPos::add)
-//                        .allMatch(matchingCondition)
-//                );
-//    }
 }
