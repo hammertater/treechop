@@ -10,7 +10,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
-version = '1.0'
+version = '0.3'
 group = 'ht.treechop'
 archivesBaseName = 'TreeChop'
 
