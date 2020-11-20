@@ -1,0 +1,340 @@
+{
+  "variants": {
+    "shape=pillar,chops=1": {
+      "model": "treechop:block/chopped_log1"
+    },
+    "shape=pillar,chops=2": {
+      "model": "treechop:block/chopped_log2"
+    },
+    "shape=pillar,chops=3": {
+      "model": "treechop:block/chopped_log3"
+    },
+    "shape=pillar,chops=4": {
+      "model": "treechop:block/chopped_log4"
+    },
+    "shape=pillar,chops=5": {
+      "model": "treechop:block/chopped_log5"
+    },
+    "shape=pillar,chops=6": {
+      "model": "treechop:block/chopped_log6"
+    },
+    "shape=pillar,chops=7": {
+      "model": "treechop:block/chopped_log7"
+    },
+    "shape=corner_nw,chops=1": {
+      "model": "treechop:block/chopped_corner_log1"
+    },
+    "shape=corner_nw,chops=2": {
+      "model": "treechop:block/chopped_corner_log2"
+    },
+    "shape=corner_nw,chops=3": {
+      "model": "treechop:block/chopped_corner_log3"
+    },
+    "shape=corner_nw,chops=4": {
+      "model": "treechop:block/chopped_corner_log4"
+    },
+    "shape=corner_nw,chops=5": {
+      "model": "treechop:block/chopped_corner_log5"
+    },
+    "shape=corner_nw,chops=6": {
+      "model": "treechop:block/chopped_corner_log6"
+    },
+    "shape=corner_nw,chops=7": {
+      "model": "treechop:block/chopped_corner_log7"
+    },
+    "shape=corner_ne,chops=1": {
+      "model": "treechop:block/chopped_corner_log1",
+      "y": 90
+    },
+    "shape=corner_ne,chops=2": {
+      "model": "treechop:block/chopped_corner_log2",
+      "y": 90
+    },
+    "shape=corner_ne,chops=3": {
+      "model": "treechop:block/chopped_corner_log3",
+      "y": 90
+    },
+    "shape=corner_ne,chops=4": {
+      "model": "treechop:block/chopped_corner_log4",
+      "y": 90
+    },
+    "shape=corner_ne,chops=5": {
+      "model": "treechop:block/chopped_corner_log5",
+      "y": 90
+    },
+    "shape=corner_ne,chops=6": {
+      "model": "treechop:block/chopped_corner_log6",
+      "y": 90
+    },
+    "shape=corner_ne,chops=7": {
+      "model": "treechop:block/chopped_corner_log7",
+      "y": 90
+    },
+    "shape=corner_se,chops=1": {
+      "model": "treechop:block/chopped_corner_log1",
+      "y": 180
+    },
+    "shape=corner_se,chops=2": {
+      "model": "treechop:block/chopped_corner_log2",
+      "y": 180
+    },
+    "shape=corner_se,chops=3": {
+      "model": "treechop:block/chopped_corner_log3",
+      "y": 180
+    },
+    "shape=corner_se,chops=4": {
+      "model": "treechop:block/chopped_corner_log4",
+      "y": 180
+    },
+    "shape=corner_se,chops=5": {
+      "model": "treechop:block/chopped_corner_log5",
+      "y": 180
+    },
+    "shape=corner_se,chops=6": {
+      "model": "treechop:block/chopped_corner_log6",
+      "y": 180
+    },
+    "shape=corner_se,chops=7": {
+      "model": "treechop:block/chopped_corner_log7",
+      "y": 180
+    },
+    "shape=corner_sw,chops=1": {
+      "model": "treechop:block/chopped_corner_log1",
+      "y": 270
+    },
+    "shape=corner_sw,chops=2": {
+      "model": "treechop:block/chopped_corner_log2",
+      "y": 270
+    },
+    "shape=corner_sw,chops=3": {
+      "model": "treechop:block/chopped_corner_log3",
+      "y": 270
+    },
+    "shape=corner_sw,chops=4": {
+      "model": "treechop:block/chopped_corner_log4",
+      "y": 270
+    },
+    "shape=corner_sw,chops=5": {
+      "model": "treechop:block/chopped_corner_log5",
+      "y": 270
+    },
+    "shape=corner_sw,chops=6": {
+      "model": "treechop:block/chopped_corner_log6",
+      "y": 270
+    },
+    "shape=corner_sw,chops=7": {
+      "model": "treechop:block/chopped_corner_log7",
+      "y": 270
+    },
+    "shape=end_w,chops=1": {
+      "model": "treechop:block/chopped_end_log1",
+      "y": 180
+    },
+    "shape=end_w,chops=2": {
+      "model": "treechop:block/chopped_end_log2",
+      "y": 180
+    },
+    "shape=end_w,chops=3": {
+      "model": "treechop:block/chopped_end_log3",
+      "y": 180
+    },
+    "shape=end_w,chops=4": {
+      "model": "treechop:block/chopped_end_log4",
+      "y": 180
+    },
+    "shape=end_w,chops=5": {
+      "model": "treechop:block/chopped_end_log5",
+      "y": 180
+    },
+    "shape=end_w,chops=6": {
+      "model": "treechop:block/chopped_end_log6",
+      "y": 180
+    },
+    "shape=end_w,chops=7": {
+      "model": "treechop:block/chopped_end_log7",
+      "y": 180
+    },
+    "shape=end_n,chops=1": {
+      "model": "treechop:block/chopped_end_log1",
+      "y": 270
+    },
+    "shape=end_n,chops=2": {
+      "model": "treechop:block/chopped_end_log2",
+      "y": 270
+    },
+    "shape=end_n,chops=3": {
+      "model": "treechop:block/chopped_end_log3",
+      "y": 270
+    },
+    "shape=end_n,chops=4": {
+      "model": "treechop:block/chopped_end_log4",
+      "y": 270
+    },
+    "shape=end_n,chops=5": {
+      "model": "treechop:block/chopped_end_log5",
+      "y": 270
+    },
+    "shape=end_n,chops=6": {
+      "model": "treechop:block/chopped_end_log6",
+      "y": 270
+    },
+    "shape=end_n,chops=7": {
+      "model": "treechop:block/chopped_end_log7",
+      "y": 270
+    },
+    "shape=end_e,chops=1": {
+      "model": "treechop:block/chopped_end_log1"
+    },
+    "shape=end_e,chops=2": {
+      "model": "treechop:block/chopped_end_log2"
+    },
+    "shape=end_e,chops=3": {
+      "model": "treechop:block/chopped_end_log3"
+    },
+    "shape=end_e,chops=4": {
+      "model": "treechop:block/chopped_end_log4"
+    },
+    "shape=end_e,chops=5": {
+      "model": "treechop:block/chopped_end_log5"
+    },
+    "shape=end_e,chops=6": {
+      "model": "treechop:block/chopped_end_log6"
+    },
+    "shape=end_e,chops=7": {
+      "model": "treechop:block/chopped_end_log7"
+    },
+    "shape=end_s,chops=1": {
+      "model": "treechop:block/chopped_end_log1",
+      "y": 90
+    },
+    "shape=end_s,chops=2": {
+      "model": "treechop:block/chopped_end_log2",
+      "y": 90
+    },
+    "shape=end_s,chops=3": {
+      "model": "treechop:block/chopped_end_log3",
+      "y": 90
+    },
+    "shape=end_s,chops=4": {
+      "model": "treechop:block/chopped_end_log4",
+      "y": 90
+    },
+    "shape=end_s,chops=5": {
+      "model": "treechop:block/chopped_end_log5",
+      "y": 90
+    },
+    "shape=end_s,chops=6": {
+      "model": "treechop:block/chopped_end_log6",
+      "y": 90
+    },
+    "shape=end_s,chops=7": {
+      "model": "treechop:block/chopped_end_log7",
+      "y": 90
+    },
+    "shape=side_w,chops=1": {
+      "model": "treechop:block/chopped_side_log1",
+      "y": 180
+    },
+    "shape=side_w,chops=2": {
+      "model": "treechop:block/chopped_side_log2",
+      "y": 180
+    },
+    "shape=side_w,chops=3": {
+      "model": "treechop:block/chopped_side_log3",
+      "y": 180
+    },
+    "shape=side_w,chops=4": {
+      "model": "treechop:block/chopped_side_log4",
+      "y": 180
+    },
+    "shape=side_w,chops=5": {
+      "model": "treechop:block/chopped_side_log5",
+      "y": 180
+    },
+    "shape=side_w,chops=6": {
+      "model": "treechop:block/chopped_side_log6",
+      "y": 180
+    },
+    "shape=side_w,chops=7": {
+      "model": "treechop:block/chopped_side_log7",
+      "y": 180
+    },
+    "shape=side_n,chops=1": {
+      "model": "treechop:block/chopped_side_log1",
+      "y": 270
+    },
+    "shape=side_n,chops=2": {
+      "model": "treechop:block/chopped_side_log2",
+      "y": 270
+    },
+    "shape=side_n,chops=3": {
+      "model": "treechop:block/chopped_side_log3",
+      "y": 270
+    },
+    "shape=side_n,chops=4": {
+      "model": "treechop:block/chopped_side_log4",
+      "y": 270
+    },
+    "shape=side_n,chops=5": {
+      "model": "treechop:block/chopped_side_log5",
+      "y": 270
+    },
+    "shape=side_n,chops=6": {
+      "model": "treechop:block/chopped_side_log6",
+      "y": 270
+    },
+    "shape=side_n,chops=7": {
+      "model": "treechop:block/chopped_side_log7",
+      "y": 270
+    },
+    "shape=side_e,chops=1": {
+      "model": "treechop:block/chopped_side_log1"
+    },
+    "shape=side_e,chops=2": {
+      "model": "treechop:block/chopped_side_log2"
+    },
+    "shape=side_e,chops=3": {
+      "model": "treechop:block/chopped_side_log3"
+    },
+    "shape=side_e,chops=4": {
+      "model": "treechop:block/chopped_side_log4"
+    },
+    "shape=side_e,chops=5": {
+      "model": "treechop:block/chopped_side_log5"
+    },
+    "shape=side_e,chops=6": {
+      "model": "treechop:block/chopped_side_log6"
+    },
+    "shape=side_e,chops=7": {
+      "model": "treechop:block/chopped_side_log7"
+    },
+    "shape=side_s,chops=1": {
+      "model": "treechop:block/chopped_side_log1",
+      "y": 90
+    },
+    "shape=side_s,chops=2": {
+      "model": "treechop:block/chopped_side_log2",
+      "y": 90
+    },
+    "shape=side_s,chops=3": {
+      "model": "treechop:block/chopped_side_log3",
+      "y": 90
+    },
+    "shape=side_s,chops=4": {
+      "model": "treechop:block/chopped_side_log4",
+      "y": 90
+    },
+    "shape=side_s,chops=5": {
+      "model": "treechop:block/chopped_side_log5",
+      "y": 90
+    },
+    "shape=side_s,chops=6": {
+      "model": "treechop:block/chopped_side_log6",
+      "y": 90
+    },
+    "shape=side_s,chops=7": {
+      "model": "treechop:block/chopped_side_log7",
+      "y": 90
+    }
+  }
+}
