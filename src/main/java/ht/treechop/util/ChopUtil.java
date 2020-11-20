@@ -1,6 +1,7 @@
 package ht.treechop.util;
 
-import ht.treechop.block.ChoppedLog;
+import ht.treechop.TreeChopMod;
+import ht.treechop.block.ChoppedLogBlock;
 import ht.treechop.init.ModBlocks;
 import ht.treechop.state.properties.BlockStateProperties;
 import ht.treechop.state.properties.ChoppedLogShape;
@@ -106,7 +107,7 @@ public class ChopUtil {
 
     static public boolean isBlockChoppable(IWorld world, BlockPos pos, BlockState blockState) {
         return ((world.isAirBlock(pos.west()) || world.isAirBlock(pos.north()) || world.isAirBlock(pos.east()) || world.isAirBlock(pos.south())) &&
-                ((blockState.getBlock() instanceof ChoppedLog) || (isBlockALog(blockState) && isBlockALog(world.getBlockState(pos.up())))));
+                ((blockState.getBlock() instanceof ChoppedLogBlock) || (isBlockALog(blockState) && isBlockALog(world.getBlockState(pos.up())))));
     }
 
     static public boolean isBlockChoppable(IWorld world, BlockPos pos) {
@@ -144,7 +145,7 @@ public class ChopUtil {
 
     static public BlockState chipBlock(IWorld world, BlockPos blockPos, int numChops, Entity agent) {
         world.destroyBlock(blockPos, true, agent);
-        ChoppedLogShape shape = ChoppedLog.getPlacementShape(world, blockPos);
+        ChoppedLogShape shape = ChoppedLogBlock.getPlacementShape(world, blockPos);
         BlockState blockState = ModBlocks.CHOPPED_LOG.get().getDefaultState().with(BlockStateProperties.CHOP_COUNT, numChops).with(BlockStateProperties.CHOPPED_LOG_SHAPE, shape);
         world.setBlockState(blockPos, blockState, 3);
         return blockState;
@@ -168,31 +169,33 @@ public class ChopUtil {
 
         BlockPos minPos = new BlockPos(aMinPos.get()).add(-7, -2, -7);
         BlockPos maxPos = new BlockPos(aMaxPos.get()).add(7, 7, 7);
+        if (TreeChopMod.breakLeaves) {
+            Set<BlockPos> leaves = getConnectedBlocksMatchingCondition(
+                    treeBlocks,
+                    ADJACENTS,
+                    pos -> {
+                        Set<ResourceLocation> tags = world.getBlockState(pos).getBlock().getTags();
+                        return (
+                                (
+                                        pos.getX() >= minPos.getX() &&
+                                                pos.getY() >= minPos.getY() &&
+                                                pos.getZ() >= minPos.getZ() &&
+                                                pos.getX() <= maxPos.getX() &&
+                                                pos.getY() <= maxPos.getY() &&
+                                                pos.getZ() <= maxPos.getZ()
+                                ) && (
+                                        tags.contains(BlockTags.LEAVES.func_230234_a_()) ||
+                                                tags.contains(BlockTags.BEEHIVES.func_230234_a_()) ||
+                                                tags.contains(BlockTags.BEE_GROWABLES.func_230234_a_())
+                                )
+                        );
+                    },
+                    treeBlocks.size() * 2 + 64
+            );
 
-        Set<BlockPos> leaves = getConnectedBlocksMatchingCondition(
-                treeBlocks,
-                ADJACENTS_AND_DIAGONALS,
-                pos -> {
-                    Set<ResourceLocation> tags = world.getBlockState(pos).getBlock().getTags();
-                    return (
-                            (
-                                    pos.getX() >= minPos.getX() &&
-                                    pos.getY() >= minPos.getY() &&
-                                    pos.getZ() >= minPos.getZ() &&
-                                    pos.getX() <= maxPos.getX() &&
-                                    pos.getY() <= maxPos.getY() &&
-                                    pos.getZ() <= maxPos.getZ()
-                            ) && (
-                                tags.contains(BlockTags.LEAVES.func_230234_a_()) ||
-                                tags.contains(BlockTags.BEEHIVES.func_230234_a_()) ||
-                                tags.contains(BlockTags.BEE_GROWABLES.func_230234_a_())
-                            )
-                    );
-                },
-                treeBlocks.size() * 2 + 64
-        );
+            leaves.forEach(pos -> world.destroyBlock(pos, true, agent)); // p_225521_2_ is whether to spawn drops
+        }
 
-        leaves.forEach(pos -> world.destroyBlock(pos, true, agent)); // p_225521_2_ is whether to spawn drops
         treeBlocks.forEach(pos -> world.destroyBlock(pos, true, agent)); // p_225521_2_ is whether to spawn drops
     }
 

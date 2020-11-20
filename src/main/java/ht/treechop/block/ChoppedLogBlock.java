@@ -1,6 +1,5 @@
 package ht.treechop.block;
 
-import ht.treechop.TreeChopMod;
 import ht.treechop.state.properties.BlockStateProperties;
 import ht.treechop.state.properties.ChoppedLogShape;
 import ht.treechop.util.ChopUtil;
@@ -29,7 +28,7 @@ import static ht.treechop.util.ChopUtil.getConnectedBlocksMatchingCondition;
 import static ht.treechop.util.ChopUtil.isBlockALog;
 import static ht.treechop.util.ChopUtil.isBlockChoppable;
 
-public class ChoppedLog extends Block {
+public class ChoppedLogBlock extends Block {
 
     public static final IntegerProperty CHOPS = BlockStateProperties.CHOP_COUNT;
     public static final EnumProperty<ChoppedLogShape> SHAPE = BlockStateProperties.CHOPPED_LOG_SHAPE;
@@ -168,7 +167,7 @@ public class ChoppedLog extends Block {
         }
     }
 
-    public ChoppedLog(Properties properties) {
+    public ChoppedLogBlock(Properties properties) {
         super(properties);
         this.setDefaultState(
                 this.stateContainer.getBaseState()
@@ -215,7 +214,7 @@ public class ChoppedLog extends Block {
     }
 
     public void chop(IWorld world, BlockPos blockPos, BlockState blockState, Entity agent, int numChops) {
-        Set<BlockPos> nearbyChoppableBlocks = null;
+        Set<BlockPos> nearbyChoppableBlocks;
         Set<BlockPos> supportedBlocks = getConnectedBlocksMatchingCondition(
                 Collections.singletonList(blockPos),
                 ChopUtil.HORIZONTAL_AND_ABOVE,
@@ -245,7 +244,7 @@ public class ChoppedLog extends Block {
 
             if (totalNumChops >= numChopsToFell) {
                 List<BlockPos> choppedLogsSortedByY = nearbyChoppableBlocks.stream()
-                        .filter(pos1 -> world.getBlockState(pos1).getBlock() instanceof ChoppedLog)
+                        .filter(pos1 -> world.getBlockState(pos1).getBlock() instanceof ChoppedLogBlock)
                         .sorted(Comparator.comparingInt(Vector3i::getY))
                         .collect(Collectors.toList());
 
@@ -269,7 +268,7 @@ public class ChoppedLog extends Block {
                     List<BlockPos> sortedChoppableBlocks = nearbyChoppableBlocks.stream()
                             .filter(blockPos1 -> {
                                 BlockState blockState1 = world.getBlockState(blockPos1);
-                                if (blockState1.getBlock() instanceof ChoppedLog) {
+                                if (blockState1.getBlock() instanceof ChoppedLogBlock) {
                                     return blockState1.get(CHOPS) < 7;
                                 } else {
                                     return blockPos1.getY() >= blockPos.getY();
@@ -290,7 +289,7 @@ public class ChoppedLog extends Block {
                         // ...and chop it
                         BlockPos otherPos = sortedChoppableBlocks.get(Math.floorMod(RANDOM.nextInt(), choiceIndexLimit));
                         BlockState otherBlockState = world.getBlockState(otherPos);
-                        if (otherBlockState.getBlock() instanceof ChoppedLog) {
+                        if (otherBlockState.getBlock() instanceof ChoppedLogBlock) {
                             world.setBlockState(otherPos, otherBlockState.with(CHOPS, otherBlockState.get(CHOPS) + numChops), 3);
                         } else {
                             chipBlock(world, otherPos, numChops, agent);

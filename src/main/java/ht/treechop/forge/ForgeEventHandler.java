@@ -1,6 +1,6 @@
 package ht.treechop.forge;
 
-import ht.treechop.block.ChoppedLog;
+import ht.treechop.block.ChoppedLogBlock;
 import ht.treechop.util.ChopUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
@@ -22,7 +22,7 @@ public class ForgeEventHandler {
             return;
 
         int numChops;
-        if (!(blockState.getBlock() instanceof ChoppedLog) && isBlockChoppable(world, blockPos, blockState)) {
+        if (!(blockState.getBlock() instanceof ChoppedLogBlock) && isBlockChoppable(world, blockPos, blockState)) {
             blockState = ChopUtil.chipBlock(world, blockPos, 1, event.getPlayer());
             numChops = 0;
         }
@@ -30,8 +30,8 @@ public class ForgeEventHandler {
             numChops = 1;
         }
 
-        if (blockState.getBlock() instanceof ChoppedLog) {
-            ChoppedLog block = (ChoppedLog) blockState.getBlock();
+        if (blockState.getBlock() instanceof ChoppedLogBlock) {
+            ChoppedLogBlock block = (ChoppedLogBlock) blockState.getBlock();
             block.chop(world, blockPos, blockState, event.getPlayer(), numChops);
             event.setCanceled(true);
         }
