@@ -125,6 +125,15 @@ public class ChoppedLogBlock extends Block {
             ))
             .toArray(VoxelShape[]::new);
 
+    public ChoppedLogBlock(Properties properties) {
+        super(properties);
+        this.setDefaultState(
+                this.stateContainer.getBaseState()
+                        .with(CHOPS, 1)
+                        .with(SHAPE, ChoppedLogShape.PILLAR)
+        );
+    }
+
     public static ChoppedLogShape getPlacementShape(IWorld world, BlockPos blockPos) {
         final byte NORTH = 0b0001;
         final byte EAST = 0b0010;
@@ -133,9 +142,9 @@ public class ChoppedLogBlock extends Block {
 
         byte sides = (byte) (
                 (isBlockChoppable(world, blockPos.north()) ? NORTH : 0) |
-                (isBlockChoppable(world, blockPos.east()) ? EAST : 0) |
-                (isBlockChoppable(world, blockPos.south()) ? SOUTH : 0) |
-                (isBlockChoppable(world, blockPos.west()) ? WEST : 0)
+                        (isBlockChoppable(world, blockPos.east()) ? EAST : 0) |
+                        (isBlockChoppable(world, blockPos.south()) ? SOUTH : 0) |
+                        (isBlockChoppable(world, blockPos.west()) ? WEST : 0)
         );
 
         switch (sides) {
@@ -166,15 +175,6 @@ public class ChoppedLogBlock extends Block {
             default:
                 return ChoppedLogShape.PILLAR;
         }
-    }
-
-    public ChoppedLogBlock(Properties properties) {
-        super(properties);
-        this.setDefaultState(
-                this.stateContainer.getBaseState()
-                        .with(CHOPS, 1)
-                        .with(SHAPE, ChoppedLogShape.PILLAR)
-        );
     }
 
     public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
@@ -231,8 +231,7 @@ public class ChoppedLogBlock extends Block {
 
         if (blockState.get(CHOPS) + numChops >= numChopsToFell) {
             ChopUtil.fellTree(world, supportedBlocks, agent);
-        }
-        else {
+        } else {
             nearbyChoppableBlocks = getConnectedBlocksMatchingCondition(
                     Collections.singletonList(blockPos),
                     ChopUtil.ADJACENTS_AND_DIAGONALS,
@@ -263,13 +262,11 @@ public class ChoppedLogBlock extends Block {
                 }
 
                 ChopUtil.fellTree(world, supportedBlocks, agent);
-            }
-            else {
+            } else {
                 int newNumChops = blockState.get(CHOPS) + numChops;
                 if (newNumChops < 8) {
                     world.setBlockState(blockPos, blockState.with(CHOPS, newNumChops), 3); // p_180501_3_=3 means do this on client and server
-                }
-                else { // If this block is out of chops, chop another block
+                } else { // If this block is out of chops, chop another block
                     List<BlockPos> sortedChoppableBlocks = nearbyChoppableBlocks.stream()
                             .filter(blockPos1 -> {
                                 BlockState blockState1 = world.getBlockState(blockPos1);

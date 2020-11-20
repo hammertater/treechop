@@ -19,12 +19,16 @@ public enum ChoppedLogShape implements IStringSerializable {
 
     private final String name;
 
-    ChoppedLogShape(String name) { this.name = name; }
+    ChoppedLogShape(String name) {
+        this.name = name;
+    }
 
     public String toString() {
         return this.name;
     }
 
     @Override
-    public String func_176610_l() { return this.name; }
+    public String func_176610_l() {
+        return this.name;
+    }
 }
