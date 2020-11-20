@@ -1,0 +1,10 @@
+{
+  "homepage": "https://github.com/hammertater/treechop",
+  "1.16.1": {
+    "0.2": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection"
+  },
+  "promos": {
+    "<mcversion>-latest": "0.2",
+    "<mcversion>-recommended": "0.2"
+  }
+}

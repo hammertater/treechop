@@ -6,9 +6,9 @@
     "description": "Makes trees more choppable.",
     "version": "${mod_version}",
     "mcversion": "${minecraft_version}",
-    "updateUrl": "",
+    "updateUrl": "https://github.com/hammertater/treechop/update.json",
     "authorList": [ "HammerTater" ],
-    "logoFile": "",
+    "logoFile": "treechop.png",
     "screenshots": [  ],
     "parent": "",
     "dependants": [  ]
