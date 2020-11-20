@@ -115,7 +115,7 @@ public class ChopUtil {
     ).flatMap(a->a).toArray(BlockPos[]::new);
 
     static public boolean isBlockChoppable(IWorld world, BlockPos pos, BlockState blockState) {
-        return ((world.isAirBlock(pos.west()) || world.isAirBlock(pos.north()) || world.isAirBlock(pos.east()) || world.isAirBlock(pos.south())) &&
+        return ((!isBlockALog(world, pos.west()) || !isBlockALog(world, pos.north()) || !isBlockALog(world, pos.east()) || !isBlockALog(world, pos.south())) &&
                 ((blockState.getBlock() instanceof ChoppedLogBlock) || (isBlockALog(blockState) && isBlockALog(world.getBlockState(pos.up())))));
     }
 
