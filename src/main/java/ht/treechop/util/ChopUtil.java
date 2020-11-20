@@ -1,6 +1,5 @@
 package ht.treechop.util;
 
-import com.sun.jna.platform.unix.X11;
 import ht.treechop.TreeChopMod;
 import ht.treechop.block.ChoppedLogBlock;
 import ht.treechop.init.ModBlocks;
@@ -11,13 +10,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.concurrent.TickDelayedTask;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.RandomUtils;
-import org.spongepowered.asm.mixin.injection.At;
+import net.minecraftforge.event.world.BlockEvent;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,9 +21,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -49,7 +43,7 @@ public class ChopUtil {
     static public final BlockPos[] ADJACENTS = Stream.of(
             Arrays.stream(HORIZONTAL_ADJACENTS),
             Arrays.stream(VERTICAL_ADJACENTS)
-    ).flatMap(a->a).toArray(BlockPos[]::new);
+    ).flatMap(a -> a).toArray(BlockPos[]::new);
 
     static public final BlockPos[] HORIZONTAL_DIAGONALS = Stream.of(
             new BlockPos(-1, 0, -1),
@@ -61,7 +55,7 @@ public class ChopUtil {
     static public final BlockPos[] HORIZONTAL = Stream.of(
             Arrays.stream(HORIZONTAL_ADJACENTS),
             Arrays.stream(HORIZONTAL_DIAGONALS)
-    ).flatMap(a->a).toArray(BlockPos[]::new);
+    ).flatMap(a -> a).toArray(BlockPos[]::new);
 
     static public final BlockPos[] ABOVE_ADJACENTS = Stream.of(
             new BlockPos(-1, 1, 0),
@@ -81,7 +75,7 @@ public class ChopUtil {
             Arrays.stream(ABOVE_ADJACENTS),
             Arrays.stream(ABOVE_DIAGONALS),
             Stream.of(new BlockPos(0, 1, 0))
-    ).flatMap(a->a).toArray(BlockPos[]::new);
+    ).flatMap(a -> a).toArray(BlockPos[]::new);
 
     static public final BlockPos[] BELOW_ADJACENTS = Stream.of(
             new BlockPos(-1, -1, 0),
@@ -101,18 +95,18 @@ public class ChopUtil {
             Arrays.stream(BELOW_ADJACENTS),
             Arrays.stream(BELOW_DIAGONALS),
             Stream.of(new BlockPos(0, -1, 0))
-    ).flatMap(a->a).toArray(BlockPos[]::new);
+    ).flatMap(a -> a).toArray(BlockPos[]::new);
 
     static public final BlockPos[] HORIZONTAL_AND_ABOVE = Stream.of(
             Arrays.stream(HORIZONTAL),
             Arrays.stream(ABOVE)
-    ).flatMap(a->a).toArray(BlockPos[]::new);
+    ).flatMap(a -> a).toArray(BlockPos[]::new);
 
     static public final BlockPos[] ADJACENTS_AND_DIAGONALS = Stream.of(
             Arrays.stream(ABOVE),
             Arrays.stream(HORIZONTAL),
             Arrays.stream(BELOW)
-    ).flatMap(a->a).toArray(BlockPos[]::new);
+    ).flatMap(a -> a).toArray(BlockPos[]::new);
 
     static public boolean isBlockChoppable(IWorld world, BlockPos pos, BlockState blockState) {
         return ((isBlockALog(world, pos.west()) || isBlockALog(world, pos.north()) || isBlockALog(world, pos.east()) || isBlockALog(world, pos.south())) &&
@@ -185,8 +179,7 @@ public class ChopUtil {
                             if (!blockState.get(LeavesBlock.PERSISTENT)) {
                                 if (blockCounter.get() < MAX_NOISE_ATTEMPTS && Math.floorMod(blockCounter.getAndIncrement(), FELL_NOISE_INTERVAL) == 0) {
                                     world.destroyBlock(pos, true);
-                                }
-                                else {
+                                } else {
                                     destroyBlockQuietly(world, pos);
                                 }
                             }
@@ -204,8 +197,7 @@ public class ChopUtil {
             AtomicInteger blockCounter = new AtomicInteger(0);
             if (blockCounter.get() < MAX_NOISE_ATTEMPTS && Math.floorMod(blockCounter.getAndIncrement(), FELL_NOISE_INTERVAL) == 0) {
                 world.destroyBlock(pos, true);
-            }
-            else {
+            } else {
                 destroyBlockQuietly(world, pos);
             }
         }
@@ -223,5 +215,25 @@ public class ChopUtil {
     static public double log2(double x) {
         final double invBase = 1 / (Math.log(2));
         return Math.log(x) * invBase;
+    }
+
+    public static void handleChopEvent(BlockEvent.BreakEvent event) {
+        BlockState blockState = event.getState();
+        IWorld world = event.getWorld();
+        BlockPos blockPos = event.getPos();
+
+        int numChops;
+        if (!(blockState.getBlock() instanceof ChoppedLogBlock) && isBlockChoppable(world, blockPos, blockState)) {
+            blockState = chipBlock(world, blockPos, 1, event.getPlayer());
+            numChops = 0;
+        } else {
+            numChops = 1;
+        }
+
+        if (blockState.getBlock() instanceof ChoppedLogBlock) {
+            ChoppedLogBlock block = (ChoppedLogBlock) blockState.getBlock();
+            block.chop(world, blockPos, blockState, event.getPlayer(), numChops);
+            event.setCanceled(true);
+        }
     }
 }

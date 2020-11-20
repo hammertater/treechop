@@ -24,6 +24,5 @@ public class ModBlocks {
                             .hardnessAndResistance(2.0F)
                             .sound(SoundType.WOOD))
     );
-//    public static final RegistryObject<Block> STRESSED_CHOPPED_LOG = BLOCKS.register("stressed_chopped_log", StressedChoppedLog::new);
 
 }
