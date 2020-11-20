@@ -242,7 +242,6 @@ public class ChoppedLog extends Block {
                     .map(blockState2 -> blockState2.get(CHOPS))
                     .reduce(Integer::sum)
                     .orElse(0) + numChops; // Include this chop
-            TreeChopMod.LOGGER.info(String.format("%d nearby choppables", nearbyChoppableBlocks.size()));
 
             if (totalNumChops >= numChopsToFell) {
                 List<BlockPos> choppedLogsSortedByY = nearbyChoppableBlocks.stream()
@@ -262,8 +261,6 @@ public class ChoppedLog extends Block {
                 ChopUtil.fellTree(world, supportedBlocks, agent);
             }
             else {
-                TreeChopMod.LOGGER.info(String.format("%d total chops", totalNumChops));
-
                 int newNumChops = blockState.get(CHOPS) + numChops;
                 if (newNumChops < 8) {
                     world.setBlockState(blockPos, blockState.with(CHOPS, newNumChops), 3); // p_180501_3_=3 means do this on client and server
