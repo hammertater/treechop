@@ -1,7 +1,7 @@
 package ht.treechop.util;
 
-import ht.treechop.TreeChopMod;
 import ht.treechop.block.ChoppedLogBlock;
+import ht.treechop.config.ConfigHandler;
 import ht.treechop.init.ModBlocks;
 import ht.treechop.state.properties.BlockStateProperties;
 import ht.treechop.state.properties.ChoppedLogShape;
@@ -165,7 +165,7 @@ public class ChopUtil {
         final int MAX_NOISE_ATTEMPTS = (FELL_NOISE_INTERVAL) * 8;
 
         // Break leaves
-        if (TreeChopMod.breakLeaves) {
+        if (ConfigHandler.breakLeaves) {
             AtomicInteger blockCounter = new AtomicInteger(0);
             AtomicInteger iterationCounter = new AtomicInteger();
             getConnectedBlocksMatchingCondition(
@@ -186,7 +186,7 @@ public class ChopUtil {
                         }
                         return false;
                     },
-                    1024,
+                    ConfigHandler.maxNumLeavesBlocks,
                     iterationCounter
             );
         }
@@ -208,11 +208,6 @@ public class ChopUtil {
     }
 
     static public int numChopsToFell(int numBlocks) {
-        return (int) Math.floor(1 + 6 * log2(1 + ((double) numBlocks - 1) / 8));
-    }
-
-    static public double log2(double x) {
-        final double invBase = 1 / (Math.log(2));
-        return Math.log(x) * invBase;
+        return (int) (ConfigHandler.chopCountingAlgorithm.calculate(numBlocks) * ConfigHandler.chopCountScale);
     }
 }

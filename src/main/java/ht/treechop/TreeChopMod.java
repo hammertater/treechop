@@ -1,6 +1,7 @@
 package ht.treechop;
 
 import ht.treechop.block.ChoppedLogBlock;
+import ht.treechop.config.ConfigHandler;
 import ht.treechop.init.ModBlocks;
 import ht.treechop.util.ChopUtil;
 import net.minecraft.block.BlockState;
@@ -8,8 +9,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,10 +24,14 @@ import static ht.treechop.util.ChopUtil.isBlockChoppable;
 public class TreeChopMod {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final String MOD_ID = "treechop";
-    public static boolean breakLeaves = true;
-    public static int maxTreeSize = 256;
 
     public TreeChopMod() {
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
+
+        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modBus.addListener((ModConfig.Loading e) -> ConfigHandler.onConfigLoad());
+        modBus.addListener((ModConfig.Reloading e) -> ConfigHandler.onConfigLoad());
+
         ModBlocks.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
         MinecraftForge.EVENT_BUS.register(this);
     }
