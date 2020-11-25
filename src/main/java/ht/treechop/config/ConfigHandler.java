@@ -55,8 +55,8 @@ public class ConfigHandler {
                     .comment("Scales the number of chops (rounding down) required to fell a tree; with chopCountingMethod=LINEAR, this is exactly the number of chops per block")
                     .defineInRange("chopCountScale", 1.0, 0.0, 1024.0);
             blockTagForDetectingLogs = builder
-                    .comment("The tag that blocks must have to be considered choppable (default: minecraft:logs)")
-                    .define("blockTagForDetectingLogs", "minecraft:logs");
+                    .comment("The tag that blocks must have to be considered choppable (default: treechop:choppables)")
+                    .define("blockTagForDetectingLogs", "treechop:choppables");
             blockTagForDetectingLeaves = builder
                     .comment("The tag that blocks must have to be considered leaves (default: treechop:leaves_like)")
                     .define("blockTagForDetectingLeaves", "treechop:leaves_like");

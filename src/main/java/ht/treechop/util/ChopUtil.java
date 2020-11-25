@@ -7,26 +7,23 @@ import ht.treechop.state.properties.BlockStateProperties;
 import ht.treechop.state.properties.ChoppedLogShape;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeConfigSpec;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ChopUtil {
 
@@ -63,7 +60,7 @@ public class ChopUtil {
         return tags.contains(ConfigHandler.blockTagForDetectingLeaves);
     }
 
-    static public Set<BlockPos> getConnectedBlocksMatchingCondition(Collection<BlockPos> startingPoints, BlockPos[] searchOffsets, Predicate<? super BlockPos> matchingCondition, int maxNumBlocks, AtomicInteger iterationCounter) {
+    static public Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks, AtomicInteger iterationCounter) {
         Set<BlockPos> connectedBlocks = new HashSet<>();
         List<BlockPos> newConnectedBlocks = new LinkedList<>(startingPoints);
         iterationCounter.set(0);
@@ -74,9 +71,8 @@ public class ChopUtil {
             }
 
             newConnectedBlocks = newConnectedBlocks.stream()
-                    .flatMap((blockPos) -> Arrays.stream(searchOffsets).map(blockPos::add)
+                    .flatMap(blockPos -> searchOffsetsSupplier.apply(blockPos)
                             .filter(pos1 -> !connectedBlocks.contains(pos1))
-                            .filter(matchingCondition)
                     )
                     .limit(maxNumBlocks - connectedBlocks.size())
                     .collect(Collectors.toList());
@@ -87,8 +83,8 @@ public class ChopUtil {
         return connectedBlocks;
     }
 
-    static public Set<BlockPos> getConnectedBlocksMatchingCondition(Collection<BlockPos> startingPoints, BlockPos[] searchOffsets, Predicate<? super BlockPos> matchingCondition, int maxNumBlocks) {
-        return getConnectedBlocksMatchingCondition(startingPoints, searchOffsets, matchingCondition, maxNumBlocks, new AtomicInteger());
+    static public Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks) {
+        return getConnectedBlocks(startingPoints, searchOffsetsSupplier, maxNumBlocks, new AtomicInteger());
     }
 
     static public BlockState chipBlock(IWorld world, BlockPos blockPos, int numChops, Entity agent) {
@@ -104,21 +100,33 @@ public class ChopUtil {
 
         // Break leaves
         if (ConfigHandler.breakLeaves) {
-            AtomicInteger blockCounter = new AtomicInteger(0);
             AtomicInteger iterationCounter = new AtomicInteger();
-            getConnectedBlocksMatchingCondition(
+            Set<BlockPos> leavesToDestroy = new HashSet<>();
+
+            getConnectedBlocks(
                     treeBlocks,
-                    BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS, // Below adjacents catch red mushroom caps
-                    pos -> destroyLeavesOrKeepLooking(world, pos, blockCounter, iterationCounter, spawnDrops),
+                    pos1 -> {
+                        Block block = world.getBlockState(pos1).getBlock();
+                        return ((block.getTags().contains(LEAVES_LIKE) && !(block instanceof LeavesBlock))
+                                    ? BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS // Red mushroom caps can be connected diagonally downward
+                                    : BlockNeighbors.ADJACENTS)
+                            .asStream(pos1)
+                            .filter(pos2 -> markLeavesToDestroyAndKeepLooking(world, pos2, iterationCounter, leavesToDestroy));
+                    },
                     ConfigHandler.maxNumLeavesBlocks,
                     iterationCounter
             );
+
+            destroyBlocksWithoutTooMuchNoise(world, leavesToDestroy, spawnDrops);
         }
 
-        // Break logs
-        for (BlockPos pos : treeBlocks) {
-            AtomicInteger blockCounter = new AtomicInteger(0);
-            if (blockCounter.get() < MAX_NOISE_ATTEMPTS && Math.floorMod(blockCounter.getAndIncrement(), FELL_NOISE_INTERVAL) == 0) {
+        destroyBlocksWithoutTooMuchNoise(world, treeBlocks, spawnDrops);
+    }
+
+    public static void destroyBlocksWithoutTooMuchNoise(IWorld world, Collection<BlockPos> blocks, boolean spawnDrops) {
+        int blockCounter = 0;
+        for (BlockPos pos : blocks) {
+            if (blockCounter < MAX_NOISE_ATTEMPTS && Math.floorMod(blockCounter++, FELL_NOISE_INTERVAL) == 0) {
                 world.destroyBlock(pos, spawnDrops);
             } else {
                 destroyBlockQuietly(world, pos, spawnDrops);
@@ -126,7 +134,7 @@ public class ChopUtil {
         }
     }
 
-    public static boolean destroyLeavesOrKeepLooking(IWorld world, BlockPos pos, AtomicInteger blockCounter, AtomicInteger iterationCounter, boolean drop) {
+    public static boolean markLeavesToDestroyAndKeepLooking(IWorld world, BlockPos pos, AtomicInteger iterationCounter, Set<BlockPos> leavesToDestroy) {
         BlockState blockState = world.getBlockState(pos);
         if (isBlockLeaves(blockState)) {
             if (blockState.getBlock() instanceof LeavesBlock) {
@@ -140,12 +148,7 @@ public class ChopUtil {
                 return false;
             }
 
-            if (blockCounter.get() < MAX_NOISE_ATTEMPTS && Math.floorMod(blockCounter.getAndIncrement(), FELL_NOISE_INTERVAL) == 0) {
-                world.destroyBlock(pos, drop);
-            } else {
-                destroyBlockQuietly(world, pos, drop);
-            }
-
+            leavesToDestroy.add(pos);
             return true;
         }
         return false;

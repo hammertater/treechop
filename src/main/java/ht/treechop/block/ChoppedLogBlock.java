@@ -8,7 +8,6 @@ import ht.treechop.util.BlockNeighbors;
 import ht.treechop.util.ChopUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.IntegerProperty;
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static ht.treechop.util.ChopUtil.chipBlock;
-import static ht.treechop.util.ChopUtil.getConnectedBlocksMatchingCondition;
+import static ht.treechop.util.ChopUtil.getConnectedBlocks;
 import static ht.treechop.util.ChopUtil.isBlockALog;
 import static ht.treechop.util.ChopUtil.isBlockChoppable;
 
@@ -219,10 +218,10 @@ public class ChoppedLogBlock extends Block {
 
     public void chop(IWorld world, BlockPos blockPos, BlockState blockState, PlayerEntity agent, int numChops) {
         Set<BlockPos> nearbyChoppableBlocks;
-        Set<BlockPos> supportedBlocks = getConnectedBlocksMatchingCondition(
+        Set<BlockPos> supportedBlocks = getConnectedBlocks(
                 Collections.singletonList(blockPos),
-                BlockNeighbors.HORIZONTAL_AND_ABOVE,
-                checkPos -> isBlockALog(world, checkPos),
+                somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)
+                        .filter(checkPos -> isBlockALog(world, checkPos)),
                 ConfigHandler.maxNumTreeBlocks
         );
 
@@ -235,10 +234,10 @@ public class ChoppedLogBlock extends Block {
         if (blockState.get(CHOPS) + numChops >= numChopsToFell) {
             ChopUtil.fellTree(world, supportedBlocks, agent);
         } else {
-            nearbyChoppableBlocks = getConnectedBlocksMatchingCondition(
+            nearbyChoppableBlocks = ChopUtil.getConnectedBlocks(
                     Collections.singletonList(blockPos),
-                    BlockNeighbors.ADJACENTS_AND_DIAGONALS,
-                    checkPos -> Math.abs(checkPos.getY() - blockPos.getY()) < 4 && isBlockChoppable(world, checkPos),
+                    pos -> BlockNeighbors.ADJACENTS_AND_DIAGONALS.asStream(pos)
+                            .filter(checkPos -> Math.abs(checkPos.getY() - blockPos.getY()) < 4 && isBlockChoppable(world, checkPos)),
                     64
             );
 
