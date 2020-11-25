@@ -87,7 +87,6 @@ public class BlockNeighbors {
             Arrays.stream(BELOW)
     ).flatMap(a -> a).toArray(BlockPos[]::new);
 
-
     static public final BlockPos[] ADJACENTS_AND_BELOW_ADJACENTS = Stream.of(
             Arrays.stream(ADJACENTS),
             Arrays.stream(BELOW_ADJACENTS)

@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 public class ChopUtil {
 
+    private static final ResourceLocation MUSHROOM_STEMS = new ResourceLocation("forge", "mushroom_stems");
     private static final ResourceLocation MUSHROOM_CAPS = new ResourceLocation("forge", "mushroom_caps");
 
     private static final int MAX_DISTANCE_TO_DESTROY_MUSHROOM_CAPS = 7;
@@ -34,8 +35,8 @@ public class ChopUtil {
     public static final int MAX_NOISE_ATTEMPTS = (FELL_NOISE_INTERVAL) * 8;
 
     static public boolean isBlockChoppable(IWorld world, BlockPos pos, BlockState blockState) {
-        return ((!isBlockALog(world, pos.west()) || !isBlockALog(world, pos.north()) || !isBlockALog(world, pos.east()) || !isBlockALog(world, pos.south())) &&
-                ((blockState.getBlock() instanceof ChoppedLogBlock) || (isBlockALog(blockState) && isBlockALog(world.getBlockState(pos.up())))));
+        return ((blockState.getBlock() instanceof ChoppedLogBlock) ||
+                (isBlockALog(blockState) && !(isBlockALog(world, pos.west()) && isBlockALog(world, pos.north()) && isBlockALog(world, pos.east()) && isBlockALog(world, pos.south()))));// && Arrays.stream(BlockNeighbors.ABOVE).map(pos::add).anyMatch(pos1 -> isBlockALog(world, pos1) || isBlockLeaves(world, pos1)))));
     }
 
     static public boolean isBlockChoppable(IWorld world, BlockPos pos) {
@@ -43,13 +44,21 @@ public class ChopUtil {
     }
 
     static public boolean isBlockALog(BlockState blockState) {
-        final ResourceLocation MUSHROOM_STEMS = new ResourceLocation("forge", "mushroom_stems");
         Set<ResourceLocation> tags = blockState.getBlock().getTags();
         return tags.contains(BlockTags.LOGS.func_230234_a_()) || tags.contains(MUSHROOM_STEMS);
     }
 
     static public boolean isBlockALog(IWorld world, BlockPos pos) {
         return isBlockALog(world.getBlockState(pos));
+    }
+
+    static public boolean isBlockLeaves(IWorld world, BlockPos pos) {
+        return isBlockLeaves(world.getBlockState(pos));
+    }
+
+    private static boolean isBlockLeaves(BlockState blockState) {
+        Set<ResourceLocation> tags = blockState.getBlock().getTags();
+        return tags.contains(BlockTags.LEAVES.func_230234_a_()) || tags.contains(MUSHROOM_CAPS);
     }
 
     static public Set<BlockPos> getConnectedBlocksMatchingCondition(Collection<BlockPos> startingPoints, BlockPos[] searchOffsets, Predicate<? super BlockPos> matchingCondition, int maxNumBlocks, AtomicInteger iterationCounter) {
