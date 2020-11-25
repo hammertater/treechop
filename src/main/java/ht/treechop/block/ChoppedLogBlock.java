@@ -9,6 +9,7 @@ import ht.treechop.util.ChopUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
@@ -216,7 +217,7 @@ public class ChoppedLogBlock extends Block {
         builder.add(CHOPS, SHAPE);
     }
 
-    public void chop(IWorld world, BlockPos blockPos, BlockState blockState, Entity agent, int numChops) {
+    public void chop(IWorld world, BlockPos blockPos, BlockState blockState, PlayerEntity agent, int numChops) {
         Set<BlockPos> nearbyChoppableBlocks;
         Set<BlockPos> supportedBlocks = getConnectedBlocksMatchingCondition(
                 Collections.singletonList(blockPos),

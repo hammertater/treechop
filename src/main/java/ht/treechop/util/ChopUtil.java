@@ -10,6 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -97,7 +98,9 @@ public class ChopUtil {
         return blockState;
     }
 
-    public static void fellTree(IWorld world, Collection<BlockPos> treeBlocks, Entity agent) {
+    public static void fellTree(IWorld world, Collection<BlockPos> treeBlocks, PlayerEntity agent) {
+        boolean spawnDrops = !agent.isCreative();
+
         // Break leaves
         if (ConfigHandler.breakLeaves) {
             AtomicInteger blockCounter = new AtomicInteger(0);
@@ -105,7 +108,7 @@ public class ChopUtil {
             getConnectedBlocksMatchingCondition(
                     treeBlocks,
                     BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS, // Below adjacents catch red mushroom caps
-                    pos -> destroyLeavesOrKeepLooking(world, pos, blockCounter, iterationCounter),
+                    pos -> destroyLeavesOrKeepLooking(world, pos, blockCounter, iterationCounter, spawnDrops),
                     ConfigHandler.maxNumLeavesBlocks,
                     iterationCounter
             );
@@ -115,14 +118,14 @@ public class ChopUtil {
         for (BlockPos pos : treeBlocks) {
             AtomicInteger blockCounter = new AtomicInteger(0);
             if (blockCounter.get() < MAX_NOISE_ATTEMPTS && Math.floorMod(blockCounter.getAndIncrement(), FELL_NOISE_INTERVAL) == 0) {
-                world.destroyBlock(pos, true);
+                world.destroyBlock(pos, spawnDrops);
             } else {
-                destroyBlockQuietly(world, pos);
+                destroyBlockQuietly(world, pos, spawnDrops);
             }
         }
     }
 
-    public static boolean destroyLeavesOrKeepLooking(IWorld world, BlockPos pos, AtomicInteger blockCounter, AtomicInteger iterationCounter) {
+    public static boolean destroyLeavesOrKeepLooking(IWorld world, BlockPos pos, AtomicInteger blockCounter, AtomicInteger iterationCounter, boolean drop) {
         BlockState blockState = world.getBlockState(pos);
         if (isBlockLeaves(blockState)) {
             if (blockState.getBlock() instanceof LeavesBlock) {
@@ -137,9 +140,9 @@ public class ChopUtil {
             }
 
             if (blockCounter.get() < MAX_NOISE_ATTEMPTS && Math.floorMod(blockCounter.getAndIncrement(), FELL_NOISE_INTERVAL) == 0) {
-                world.destroyBlock(pos, true);
+                world.destroyBlock(pos, drop);
             } else {
-                destroyBlockQuietly(world, pos);
+                destroyBlockQuietly(world, pos, drop);
             }
 
             return true;
@@ -147,8 +150,10 @@ public class ChopUtil {
         return false;
     }
 
-    public static void destroyBlockQuietly(IWorld world, BlockPos pos) {
-        Block.spawnDrops(world.getBlockState(pos), (World) world, pos);
+    public static void destroyBlockQuietly(IWorld world, BlockPos pos, boolean drop) {
+        if (drop) {
+            Block.spawnDrops(world.getBlockState(pos), (World) world, pos);
+        }
         world.removeBlock(pos, false);
     }
 
