@@ -16,6 +16,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,7 +47,7 @@ public class ChopUtil {
 
     static public boolean isBlockALog(BlockState blockState) {
         Set<ResourceLocation> tags = blockState.getBlock().getTags();
-        return tags.contains(BlockTags.LOGS.func_230234_a_());
+        return tags.contains(ConfigHandler.blockTagForDetectingLogs);
     }
 
     static public boolean isBlockALog(IWorld world, BlockPos pos) {
@@ -59,7 +60,7 @@ public class ChopUtil {
 
     private static boolean isBlockLeaves(BlockState blockState) {
         Set<ResourceLocation> tags = blockState.getBlock().getTags();
-        return tags.contains(BlockTags.LEAVES.func_230234_a_()) || tags.contains(LEAVES_LIKE);
+        return tags.contains(ConfigHandler.blockTagForDetectingLeaves);
     }
 
     static public Set<BlockPos> getConnectedBlocksMatchingCondition(Collection<BlockPos> startingPoints, BlockPos[] searchOffsets, Predicate<? super BlockPos> matchingCondition, int maxNumBlocks, AtomicInteger iterationCounter) {

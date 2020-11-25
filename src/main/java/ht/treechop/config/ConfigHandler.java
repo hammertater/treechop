@@ -1,5 +1,6 @@
 package ht.treechop.config;
 
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -10,6 +11,8 @@ public class ConfigHandler {
     public static Boolean breakLeaves;
     public static ChopCountingAlgorithm chopCountingAlgorithm;
     public static Double chopCountScale;
+    public static ResourceLocation blockTagForDetectingLogs;
+    public static ResourceLocation blockTagForDetectingLeaves;
 
     public static void onConfigLoad() {
         ConfigHandler.bakeConfig();
@@ -21,6 +24,8 @@ public class ConfigHandler {
         breakLeaves = COMMON.breakLeaves.get();
         chopCountingAlgorithm = COMMON.chopCountingAlgorithm.get();
         chopCountScale = COMMON.chopCountScale.get();
+        blockTagForDetectingLogs = new ResourceLocation(COMMON.blockTagForDetectingLogs.get());
+        blockTagForDetectingLeaves = new ResourceLocation(COMMON.blockTagForDetectingLeaves.get());
     }
 
     public static class Common {
@@ -30,6 +35,8 @@ public class ConfigHandler {
         private final ForgeConfigSpec.BooleanValue breakLeaves;
         private final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
         private final ForgeConfigSpec.DoubleValue chopCountScale;
+        private final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLogs;
+        private final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeaves;
 
         public Common(ForgeConfigSpec.Builder builder) {
             maxNumTreeBlocks = builder
@@ -47,6 +54,12 @@ public class ConfigHandler {
             chopCountScale = builder
                     .comment("Scales the number of chops (rounding down) required to fell a tree; with chopCountingMethod=LINEAR, this is exactly the number of chops per block")
                     .defineInRange("chopCountScale", 1.0, 0.0, 1024.0);
+            blockTagForDetectingLogs = builder
+                    .comment("The tag that blocks must have to be considered choppable (default: minecraft:logs)")
+                    .define("blockTagForDetectingLogs", "minecraft:logs");
+            blockTagForDetectingLeaves = builder
+                    .comment("The tag that blocks must have to be considered leaves (default: treechop:leaves_like)")
+                    .define("blockTagForDetectingLeaves", "treechop:leaves_like");
         }
     }
 
