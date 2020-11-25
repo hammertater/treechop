@@ -7,6 +7,7 @@ import ht.treechop.state.properties.BlockStateProperties;
 import ht.treechop.state.properties.ChoppedLogShape;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.tags.BlockTags;
@@ -27,10 +28,9 @@ import java.util.stream.Collectors;
 
 public class ChopUtil {
 
-    private static final ResourceLocation MUSHROOM_STEMS = new ResourceLocation("forge", "mushroom_stems");
-    private static final ResourceLocation MUSHROOM_CAPS = new ResourceLocation("forge", "mushroom_caps");
+    private static final ResourceLocation LEAVES_LIKE = new ResourceLocation("treechop", "leaves_like");
 
-    private static final int MAX_DISTANCE_TO_DESTROY_MUSHROOM_CAPS = 7;
+    private static final int MAX_DISTANCE_TO_DESTROY_LEAVES_LIKES = 7;
     public static final int FELL_NOISE_INTERVAL = 16;
     public static final int MAX_NOISE_ATTEMPTS = (FELL_NOISE_INTERVAL) * 8;
 
@@ -45,7 +45,7 @@ public class ChopUtil {
 
     static public boolean isBlockALog(BlockState blockState) {
         Set<ResourceLocation> tags = blockState.getBlock().getTags();
-        return tags.contains(BlockTags.LOGS.func_230234_a_()) || tags.contains(MUSHROOM_STEMS);
+        return tags.contains(BlockTags.LOGS.func_230234_a_());
     }
 
     static public boolean isBlockALog(IWorld world, BlockPos pos) {
@@ -58,7 +58,7 @@ public class ChopUtil {
 
     private static boolean isBlockLeaves(BlockState blockState) {
         Set<ResourceLocation> tags = blockState.getBlock().getTags();
-        return tags.contains(BlockTags.LEAVES.func_230234_a_()) || tags.contains(MUSHROOM_CAPS);
+        return tags.contains(BlockTags.LEAVES.func_230234_a_()) || tags.contains(LEAVES_LIKE);
     }
 
     static public Set<BlockPos> getConnectedBlocksMatchingCondition(Collection<BlockPos> startingPoints, BlockPos[] searchOffsets, Predicate<? super BlockPos> matchingCondition, int maxNumBlocks, AtomicInteger iterationCounter) {
@@ -132,7 +132,7 @@ public class ChopUtil {
                 else if (blockState.get(LeavesBlock.PERSISTENT)) {
                     return true;
                 }
-            } else if (blockState.getBlock().getTags().contains(MUSHROOM_CAPS) && iterationCounter.get() >= MAX_DISTANCE_TO_DESTROY_MUSHROOM_CAPS) {
+            } else if (blockState.getBlock().getTags().contains(LEAVES_LIKE) && iterationCounter.get() >= MAX_DISTANCE_TO_DESTROY_LEAVES_LIKES) {
                 return false;
             }
 
