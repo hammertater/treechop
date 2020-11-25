@@ -4,6 +4,7 @@ import ht.treechop.TreeChopMod;
 import ht.treechop.config.ConfigHandler;
 import ht.treechop.state.properties.BlockStateProperties;
 import ht.treechop.state.properties.ChoppedLogShape;
+import ht.treechop.util.BlockNeighbors;
 import ht.treechop.util.ChopUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -219,7 +220,7 @@ public class ChoppedLogBlock extends Block {
         Set<BlockPos> nearbyChoppableBlocks;
         Set<BlockPos> supportedBlocks = getConnectedBlocksMatchingCondition(
                 Collections.singletonList(blockPos),
-                ChopUtil.HORIZONTAL_AND_ABOVE,
+                BlockNeighbors.HORIZONTAL_AND_ABOVE,
                 checkPos -> isBlockALog(world, checkPos),
                 ConfigHandler.maxNumTreeBlocks
         );
@@ -235,7 +236,7 @@ public class ChoppedLogBlock extends Block {
         } else {
             nearbyChoppableBlocks = getConnectedBlocksMatchingCondition(
                     Collections.singletonList(blockPos),
-                    ChopUtil.ADJACENTS_AND_DIAGONALS,
+                    BlockNeighbors.ADJACENTS_AND_DIAGONALS,
                     checkPos -> Math.abs(checkPos.getY() - blockPos.getY()) < 4 && isBlockChoppable(world, checkPos),
                     64
             );

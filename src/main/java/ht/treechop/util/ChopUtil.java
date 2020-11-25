@@ -10,6 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -23,89 +24,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ChopUtil {
 
-    static public final BlockPos[] HORIZONTAL_ADJACENTS = Stream.of(
-            new BlockPos(-1, 0, 0),
-            new BlockPos(0, 0, -1),
-            new BlockPos(1, 0, 0),
-            new BlockPos(0, 0, 1)
-    ).toArray(BlockPos[]::new);
+    private static final ResourceLocation MUSHROOM_CAPS = new ResourceLocation("forge", "mushroom_caps");
 
-    static public final BlockPos[] VERTICAL_ADJACENTS = Stream.of(
-            new BlockPos(0, -1, 0),
-            new BlockPos(0, 1, 0)
-    ).toArray(BlockPos[]::new);
-
-    static public final BlockPos[] ADJACENTS = Stream.of(
-            Arrays.stream(HORIZONTAL_ADJACENTS),
-            Arrays.stream(VERTICAL_ADJACENTS)
-    ).flatMap(a -> a).toArray(BlockPos[]::new);
-
-    static public final BlockPos[] HORIZONTAL_DIAGONALS = Stream.of(
-            new BlockPos(-1, 0, -1),
-            new BlockPos(-1, 0, 1),
-            new BlockPos(1, 0, -1),
-            new BlockPos(1, 0, 1)
-    ).toArray(BlockPos[]::new);
-
-    static public final BlockPos[] HORIZONTAL = Stream.of(
-            Arrays.stream(HORIZONTAL_ADJACENTS),
-            Arrays.stream(HORIZONTAL_DIAGONALS)
-    ).flatMap(a -> a).toArray(BlockPos[]::new);
-
-    static public final BlockPos[] ABOVE_ADJACENTS = Stream.of(
-            new BlockPos(-1, 1, 0),
-            new BlockPos(0, 1, -1),
-            new BlockPos(1, 1, 0),
-            new BlockPos(0, 1, 1)
-    ).toArray(BlockPos[]::new);
-
-    static public final BlockPos[] ABOVE_DIAGONALS = Stream.of(
-            new BlockPos(-1, 1, -1),
-            new BlockPos(-1, 1, 1),
-            new BlockPos(1, 1, -1),
-            new BlockPos(1, 1, 1)
-    ).toArray(BlockPos[]::new);
-
-    static public final BlockPos[] ABOVE = Stream.of(
-            Arrays.stream(ABOVE_ADJACENTS),
-            Arrays.stream(ABOVE_DIAGONALS),
-            Stream.of(new BlockPos(0, 1, 0))
-    ).flatMap(a -> a).toArray(BlockPos[]::new);
-
-    static public final BlockPos[] BELOW_ADJACENTS = Stream.of(
-            new BlockPos(-1, -1, 0),
-            new BlockPos(0, -1, -1),
-            new BlockPos(1, -1, 0),
-            new BlockPos(0, -1, 1)
-    ).toArray(BlockPos[]::new);
-
-    static public final BlockPos[] BELOW_DIAGONALS = Stream.of(
-            new BlockPos(-1, -1, -1),
-            new BlockPos(-1, -1, 1),
-            new BlockPos(1, -1, -1),
-            new BlockPos(1, -1, 1)
-    ).toArray(BlockPos[]::new);
-
-    static public final BlockPos[] BELOW = Stream.of(
-            Arrays.stream(BELOW_ADJACENTS),
-            Arrays.stream(BELOW_DIAGONALS),
-            Stream.of(new BlockPos(0, -1, 0))
-    ).flatMap(a -> a).toArray(BlockPos[]::new);
-
-    static public final BlockPos[] HORIZONTAL_AND_ABOVE = Stream.of(
-            Arrays.stream(HORIZONTAL),
-            Arrays.stream(ABOVE)
-    ).flatMap(a -> a).toArray(BlockPos[]::new);
-
-    static public final BlockPos[] ADJACENTS_AND_DIAGONALS = Stream.of(
-            Arrays.stream(ABOVE),
-            Arrays.stream(HORIZONTAL),
-            Arrays.stream(BELOW)
-    ).flatMap(a -> a).toArray(BlockPos[]::new);
+    private static final int MAX_DISTANCE_TO_DESTROY_MUSHROOM_CAPS = 7;
+    public static final int FELL_NOISE_INTERVAL = 16;
+    public static final int MAX_NOISE_ATTEMPTS = (FELL_NOISE_INTERVAL) * 8;
 
     static public boolean isBlockChoppable(IWorld world, BlockPos pos, BlockState blockState) {
         return ((!isBlockALog(world, pos.west()) || !isBlockALog(world, pos.north()) || !isBlockALog(world, pos.east()) || !isBlockALog(world, pos.south())) &&
@@ -117,7 +43,9 @@ public class ChopUtil {
     }
 
     static public boolean isBlockALog(BlockState blockState) {
-        return blockState.getBlock().getTags().contains(BlockTags.LOGS.func_230234_a_());
+        final ResourceLocation MUSHROOM_STEMS = new ResourceLocation("forge", "mushroom_stems");
+        Set<ResourceLocation> tags = blockState.getBlock().getTags();
+        return tags.contains(BlockTags.LOGS.func_230234_a_()) || tags.contains(MUSHROOM_STEMS);
     }
 
     static public boolean isBlockALog(IWorld world, BlockPos pos) {
@@ -161,31 +89,14 @@ public class ChopUtil {
     }
 
     public static void fellTree(IWorld world, Collection<BlockPos> treeBlocks, Entity agent) {
-        final int FELL_NOISE_INTERVAL = 16;
-        final int MAX_NOISE_ATTEMPTS = (FELL_NOISE_INTERVAL) * 8;
-
         // Break leaves
         if (ConfigHandler.breakLeaves) {
             AtomicInteger blockCounter = new AtomicInteger(0);
             AtomicInteger iterationCounter = new AtomicInteger();
             getConnectedBlocksMatchingCondition(
                     treeBlocks,
-                    ADJACENTS,
-                    pos -> {
-                        BlockState blockState = world.getBlockState(pos);
-                        if (blockState.getBlock() instanceof LeavesBlock &&
-                                iterationCounter.get() + 1 == blockState.get(LeavesBlock.DISTANCE)) {
-                            if (!blockState.get(LeavesBlock.PERSISTENT)) {
-                                if (blockCounter.get() < MAX_NOISE_ATTEMPTS && Math.floorMod(blockCounter.getAndIncrement(), FELL_NOISE_INTERVAL) == 0) {
-                                    world.destroyBlock(pos, true);
-                                } else {
-                                    destroyBlockQuietly(world, pos);
-                                }
-                            }
-                            return true;
-                        }
-                        return false;
-                    },
+                    BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS, // Below adjacents catch red mushroom caps
+                    pos -> destroyLeavesOrKeepLooking(world, pos, blockCounter, iterationCounter),
                     ConfigHandler.maxNumLeavesBlocks,
                     iterationCounter
             );
@@ -200,6 +111,35 @@ public class ChopUtil {
                 destroyBlockQuietly(world, pos);
             }
         }
+    }
+
+    public static boolean destroyLeavesOrKeepLooking(IWorld world, BlockPos pos, AtomicInteger blockCounter, AtomicInteger iterationCounter) {
+        boolean connected;
+        boolean destroy;
+        BlockState blockState = world.getBlockState(pos);
+        if (blockState.getBlock() instanceof LeavesBlock &&
+                iterationCounter.get() + 1 == blockState.get(LeavesBlock.DISTANCE)) {
+            connected = true;
+            destroy = !blockState.get(LeavesBlock.PERSISTENT);
+        }
+        else if (blockState.getBlock().getTags().contains(MUSHROOM_CAPS) && iterationCounter.get() < MAX_DISTANCE_TO_DESTROY_MUSHROOM_CAPS) {
+            connected = true;
+            destroy = true;
+        }
+        else {
+            connected = false;
+            destroy = false;
+        }
+
+        if (destroy) {
+            if (blockCounter.get() < MAX_NOISE_ATTEMPTS && Math.floorMod(blockCounter.getAndIncrement(), FELL_NOISE_INTERVAL) == 0) {
+                world.destroyBlock(pos, true);
+            } else {
+                destroyBlockQuietly(world, pos);
+            }
+        }
+
+        return connected;
     }
 
     public static void destroyBlockQuietly(IWorld world, BlockPos pos) {
