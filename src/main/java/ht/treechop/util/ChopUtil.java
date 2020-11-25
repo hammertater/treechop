@@ -123,32 +123,28 @@ public class ChopUtil {
     }
 
     public static boolean destroyLeavesOrKeepLooking(IWorld world, BlockPos pos, AtomicInteger blockCounter, AtomicInteger iterationCounter) {
-        boolean connected;
-        boolean destroy;
         BlockState blockState = world.getBlockState(pos);
-        if (blockState.getBlock() instanceof LeavesBlock &&
-                iterationCounter.get() + 1 == blockState.get(LeavesBlock.DISTANCE)) {
-            connected = true;
-            destroy = !blockState.get(LeavesBlock.PERSISTENT);
-        }
-        else if (blockState.getBlock().getTags().contains(MUSHROOM_CAPS) && iterationCounter.get() < MAX_DISTANCE_TO_DESTROY_MUSHROOM_CAPS) {
-            connected = true;
-            destroy = true;
-        }
-        else {
-            connected = false;
-            destroy = false;
-        }
+        if (isBlockLeaves(blockState)) {
+            if (blockState.getBlock() instanceof LeavesBlock) {
+                if (iterationCounter.get() + 1 > blockState.get(LeavesBlock.DISTANCE)) {
+                    return false;
+                }
+                else if (blockState.get(LeavesBlock.PERSISTENT)) {
+                    return true;
+                }
+            } else if (blockState.getBlock().getTags().contains(MUSHROOM_CAPS) && iterationCounter.get() >= MAX_DISTANCE_TO_DESTROY_MUSHROOM_CAPS) {
+                return false;
+            }
 
-        if (destroy) {
             if (blockCounter.get() < MAX_NOISE_ATTEMPTS && Math.floorMod(blockCounter.getAndIncrement(), FELL_NOISE_INTERVAL) == 0) {
                 world.destroyBlock(pos, true);
             } else {
                 destroyBlockQuietly(world, pos);
             }
-        }
 
-        return connected;
+            return true;
+        }
+        return false;
     }
 
     public static void destroyBlockQuietly(IWorld world, BlockPos pos) {
