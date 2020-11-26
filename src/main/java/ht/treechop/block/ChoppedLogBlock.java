@@ -179,6 +179,8 @@ public class ChoppedLogBlock extends Block {
         }
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
     public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
         int chops = state.get(CHOPS);
         switch (state.get(SHAPE)) {
@@ -243,7 +245,7 @@ public class ChoppedLogBlock extends Block {
 
             int totalNumChops = nearbyChoppableBlocks.stream()
                     .map(world::getBlockState)
-                    .filter(blockState1 -> blockState1.func_235901_b_(CHOPS))
+                    .filter(blockState1 -> blockState1.hasProperty(CHOPS))
                     .map(blockState2 -> blockState2.get(CHOPS))
                     .reduce(Integer::sum)
                     .orElse(0) + numChops; // Include this chop
