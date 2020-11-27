@@ -15,7 +15,7 @@ apply plugin: 'maven-publish'
 
 version = '0.5'
 group = 'ht.treechop'
-archivesBaseName = 'TreeChop-1.16.3+'
+archivesBaseName = 'TreeChop-1.16.4'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 

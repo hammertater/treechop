@@ -87,8 +87,8 @@ public class ChopUtil {
         return getConnectedBlocks(startingPoints, searchOffsetsSupplier, maxNumBlocks, new AtomicInteger());
     }
 
-    static public BlockState chipBlock(IWorld world, BlockPos blockPos, int numChops, Entity agent) {
-        world.destroyBlock(blockPos, true, agent);
+    static public BlockState chipBlock(IWorld world, BlockPos blockPos, int numChops, PlayerEntity agent) {
+        world.destroyBlock(blockPos, !agent.isCreative(), agent);
         ChoppedLogShape shape = ChoppedLogBlock.getPlacementShape(world, blockPos);
         BlockState blockState = ModBlocks.CHOPPED_LOG.get().getDefaultState().with(BlockStateProperties.CHOP_COUNT, numChops).with(BlockStateProperties.CHOPPED_LOG_SHAPE, shape);
         world.setBlockState(blockPos, blockState, 3);
