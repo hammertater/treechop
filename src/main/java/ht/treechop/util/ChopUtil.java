@@ -98,7 +98,6 @@ public class ChopUtil {
     }
 
     private static BlockState harvestAndChangeBlock(World world, BlockPos blockPos, BlockState blockState, PlayerEntity agent, ItemStack tool) {
-        world.destroyBlock(blockPos, !agent.isCreative(), agent);
         if (!agent.isCreative()) {
             TileEntity tileEntity = world.getTileEntity(blockPos);
             Block.spawnDrops(blockState, world, blockPos, tileEntity, agent, tool);
