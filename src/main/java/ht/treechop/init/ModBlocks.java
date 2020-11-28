@@ -25,4 +25,9 @@ public class ModBlocks {
                             .sound(SoundType.WOOD))
     );
 
+//    static {
+//        List<Block> choppableBlocks = BlockTags.createOptional(ConfigHandler.blockTagForDetectingLogs).getAllElements();
+//        choppableBlocks.
+//    }
+
 }

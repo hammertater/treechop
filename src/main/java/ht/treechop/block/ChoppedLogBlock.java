@@ -9,6 +9,8 @@ import ht.treechop.util.ChopUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.item.ItemStack;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
@@ -18,6 +20,7 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -218,7 +221,10 @@ public class ChoppedLogBlock extends Block {
         builder.add(CHOPS, SHAPE);
     }
 
-    public void chop(IWorld world, BlockPos blockPos, BlockState blockState, PlayerEntity agent, int numChops) {
+    public ChopResult chop(World world, BlockPos blockPos, BlockState blockState, PlayerEntity agent, int numChops, ItemStack tool) {
+        BlockPos choppedPos = blockPos;
+        BlockState choppedState = blockState;
+
         Set<BlockPos> nearbyChoppableBlocks;
         Set<BlockPos> supportedBlocks = getConnectedBlocks(
                 Collections.singletonList(blockPos),
@@ -293,12 +299,12 @@ public class ChoppedLogBlock extends Block {
                         }
 
                         // ...and chop it
-                        BlockPos otherPos = sortedChoppableBlocks.get(Math.floorMod(RANDOM.nextInt(), choiceIndexLimit));
-                        BlockState otherBlockState = world.getBlockState(otherPos);
-                        if (otherBlockState.getBlock() instanceof ChoppedLogBlock) {
-                            world.setBlockState(otherPos, otherBlockState.with(CHOPS, otherBlockState.get(CHOPS) + numChops), 3);
+                        choppedPos = sortedChoppableBlocks.get(Math.floorMod(RANDOM.nextInt(), choiceIndexLimit));
+                        choppedState = world.getBlockState(choppedPos);
+                        if (choppedState.getBlock() instanceof ChoppedLogBlock) {
+                            world.setBlockState(choppedPos, choppedState.with(CHOPS, choppedState.get(CHOPS) + numChops), 3);
                         } else {
-                            chipBlock(world, otherPos, numChops, agent);
+                            chipBlock(world, choppedPos, numChops, agent, tool);
                         }
                     } else {
                         world.destroyBlock(blockPos, true, agent);
@@ -306,9 +312,29 @@ public class ChoppedLogBlock extends Block {
                 }
             }
         }
+
+        return new ChopResult(choppedPos, choppedState);
+    }
+
+    public class ChopResult {
+        private BlockPos blockPos;
+        private BlockState blockState;
+
+        public ChopResult(BlockPos choppedPos, BlockState choppedState) {
+            this.blockPos = choppedPos;
+            this.blockState = choppedState;
+        }
+
+        public BlockPos getChoppedBlockPos() { return blockPos; }
+        public BlockState getChoppedBlockState() { return blockState; }
     }
 
     public int chopDistance(BlockPos a, BlockPos b) {
         return a.manhattanDistance(b);
+    }
+
+    @Override
+    public boolean removedByPlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid) {
+        return false;
     }
 }

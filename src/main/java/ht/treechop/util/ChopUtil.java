@@ -7,9 +7,13 @@ import ht.treechop.state.properties.BlockStateProperties;
 import ht.treechop.state.properties.ChoppedLogShape;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.CommandBlockBlock;
+import net.minecraft.block.JigsawBlock;
 import net.minecraft.block.LeavesBlock;
-import net.minecraft.entity.Entity;
+import net.minecraft.block.StructureBlock;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
@@ -87,10 +91,18 @@ public class ChopUtil {
         return getConnectedBlocks(startingPoints, searchOffsetsSupplier, maxNumBlocks, new AtomicInteger());
     }
 
-    static public BlockState chipBlock(IWorld world, BlockPos blockPos, int numChops, PlayerEntity agent) {
-        world.destroyBlock(blockPos, !agent.isCreative(), agent);
+    static public BlockState chipBlock(World world, BlockPos blockPos, int numChops, PlayerEntity agent, ItemStack tool) {
         ChoppedLogShape shape = ChoppedLogBlock.getPlacementShape(world, blockPos);
         BlockState blockState = ModBlocks.CHOPPED_LOG.get().getDefaultState().with(BlockStateProperties.CHOP_COUNT, numChops).with(BlockStateProperties.CHOPPED_LOG_SHAPE, shape);
+        return harvestAndChangeBlock(world, blockPos, blockState, agent, tool);
+    }
+
+    private static BlockState harvestAndChangeBlock(World world, BlockPos blockPos, BlockState blockState, PlayerEntity agent, ItemStack tool) {
+        world.destroyBlock(blockPos, !agent.isCreative(), agent);
+        if (!agent.isCreative()) {
+            TileEntity tileEntity = world.getTileEntity(blockPos);
+            Block.spawnDrops(blockState, world, blockPos, tileEntity, agent, tool);
+        }
         world.setBlockState(blockPos, blockState, 3);
         return blockState;
     }
@@ -164,4 +176,5 @@ public class ChopUtil {
     static public int numChopsToFell(int numBlocks) {
         return (int) (ConfigHandler.chopCountingAlgorithm.calculate(numBlocks) * ConfigHandler.chopCountScale);
     }
+
 }

@@ -5,8 +5,13 @@ import ht.treechop.config.ConfigHandler;
 import ht.treechop.init.ModBlocks;
 import ht.treechop.util.ChopUtil;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.stats.Stats;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -38,25 +43,73 @@ public class TreeChopMod {
 
     @SubscribeEvent
     public void onBreakEvent(BlockEvent.BreakEvent event) {
-        if (event.getPlayer().isSneaking())
-            return;
-
-        BlockState blockState = event.getState();
-        IWorld world = event.getWorld();
+        World world = (World) event.getWorld();
         BlockPos blockPos = event.getPos();
+        PlayerEntity agent = event.getPlayer();
+        ItemStack tool = agent.getHeldItemMainhand();
+        BlockState oldBlockState = event.getState();
 
-        int numChops;
-        if (!(blockState.getBlock() instanceof ChoppedLogBlock) && isBlockChoppable(world, blockPos, blockState)) {
-            blockState = ChopUtil.chipBlock(world, blockPos, 1, event.getPlayer());
-            numChops = 0;
-        } else {
-            numChops = 1;
+        // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
+        if (
+                event.isCanceled() ||
+                !(event.getWorld() instanceof World) ||
+                event.getPlayer().isSneaking() ||
+                !oldBlockState.canHarvestBlock(world, blockPos, agent) ||
+                agent.getHeldItemMainhand().onBlockStartBreak(blockPos, agent) ||
+                agent.blockActionRestricted(world, blockPos, agent.getServer().getGameType())
+        ) {
+            return;
         }
 
-        if (blockState.getBlock() instanceof ChoppedLogBlock) {
-            ChoppedLogBlock block = (ChoppedLogBlock) blockState.getBlock();
-            block.chop(world, blockPos, blockState, event.getPlayer(), numChops);
-            event.setCanceled(true);
+        if (isBlockChoppable(world, blockPos, oldBlockState)) {
+            BlockState blockState;
+            int numChops;
+
+            if (!(oldBlockState.getBlock() instanceof ChoppedLogBlock)) {
+                // TODO: do we need to handle fortune, feather touch, etc.?
+                blockState = ChopUtil.chipBlock(world, blockPos, 1, event.getPlayer(), tool);
+                numChops = 0;
+            } else {
+                blockState = oldBlockState;
+                numChops = 1;
+            }
+
+            if (blockState.getBlock() instanceof ChoppedLogBlock) { // This should always be true... but just in case
+                ChoppedLogBlock block = (ChoppedLogBlock) blockState.getBlock();
+                ChoppedLogBlock.ChopResult chopResult = block.chop(world, blockPos, blockState, event.getPlayer(), numChops, tool);
+                BlockPos choppedBlockPos = chopResult.getChoppedBlockPos();
+                BlockState choppedBlockState = chopResult.getChoppedBlockState();
+                if (choppedBlockState == blockState) {
+                    choppedBlockState = oldBlockState;
+                }
+
+                // We must cancel the event to prevent the block from being broken, but still want all the other consequences of breaking blocks
+                event.setCanceled(true);
+                doItemDamage(tool, agent);
+                dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
+                doExhaustion(agent);
+                agent.addStat(Stats.BLOCK_MINED.get(choppedBlockState.getBlock()));
+                tool.onBlockDestroyed(world, choppedBlockState, choppedBlockPos, agent);
+            } else {
+                TreeChopMod.LOGGER.warn(String.format("Player \"%s\" failed to chip block \"%s\"", agent.getName(), oldBlockState.getBlock().getRegistryName()));
+            }
+        }
+    }
+
+    private void doExhaustion(PlayerEntity agent) {
+        agent.addExhaustion(0.005F);
+    }
+
+    private void doItemDamage(ItemStack itemStack, PlayerEntity agent) {
+        ItemStack mockItemStack = itemStack.copy();
+        if (itemStack.isEmpty() && !mockItemStack.isEmpty()) {
+            net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(agent, mockItemStack, Hand.MAIN_HAND);
+        }
+    }
+
+    private static void dropExperience(World world, BlockPos blockPos, BlockState blockState, int amount) {
+        if (world instanceof ServerWorld) {
+            blockState.getBlock().dropXpOnBlockBreak((ServerWorld) world, blockPos, amount);
         }
     }
 }
