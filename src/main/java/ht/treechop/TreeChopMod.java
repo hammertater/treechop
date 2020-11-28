@@ -4,6 +4,7 @@ import ht.treechop.block.ChoppedLogBlock;
 import ht.treechop.config.ConfigHandler;
 import ht.treechop.init.ModBlocks;
 import ht.treechop.util.ChopUtil;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -88,12 +89,18 @@ public class TreeChopMod {
                 doItemDamage(tool, agent);
                 dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
                 doExhaustion(agent);
+                playBreakingSound(world, choppedBlockPos, choppedBlockState);
                 agent.addStat(Stats.BLOCK_MINED.get(choppedBlockState.getBlock()));
                 tool.onBlockDestroyed(world, choppedBlockState, choppedBlockPos, agent);
             } else {
                 TreeChopMod.LOGGER.warn(String.format("Player \"%s\" failed to chip block \"%s\"", agent.getName(), oldBlockState.getBlock().getRegistryName()));
             }
         }
+    }
+
+    private void playBreakingSound(World world, BlockPos blockPos, BlockState blockState) {
+        // Copied from World.destroyBlock
+        world.playEvent(2001, blockPos, Block.getStateId(blockState));
     }
 
     private void doExhaustion(PlayerEntity agent) {
