@@ -64,20 +64,20 @@ public class TreeChopMod {
 
         if (isBlockChoppable(world, blockPos, oldBlockState)) {
             BlockState blockState;
-            int numChops;
+            boolean firstChop;
 
             if (!(oldBlockState.getBlock() instanceof ChoppedLogBlock)) {
                 // TODO: do we need to handle fortune, feather touch, etc.?
                 blockState = ChopUtil.chipBlock(world, blockPos, 1, event.getPlayer(), tool);
-                numChops = 0;
+                firstChop = false;
             } else {
                 blockState = oldBlockState;
-                numChops = 1;
+                firstChop = true;
             }
 
             if (blockState.getBlock() instanceof ChoppedLogBlock) { // This should always be true... but just in case
                 ChoppedLogBlock block = (ChoppedLogBlock) blockState.getBlock();
-                ChoppedLogBlock.ChopResult chopResult = block.chop(world, blockPos, blockState, event.getPlayer(), numChops, tool);
+                ChoppedLogBlock.ChopResult chopResult = block.chop(world, blockPos, blockState, event.getPlayer(), (firstChop) ? 0 : 1, tool);
                 BlockPos choppedBlockPos = chopResult.getChoppedBlockPos();
                 BlockState choppedBlockState = chopResult.getChoppedBlockState();
                 if (choppedBlockState == blockState) {
@@ -89,7 +89,9 @@ public class TreeChopMod {
                 doItemDamage(tool, agent);
                 dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
                 doExhaustion(agent);
-                playBreakingSound(world, choppedBlockPos, choppedBlockState);
+                if (!firstChop) {
+                    playBreakingSound(world, choppedBlockPos, choppedBlockState);
+                }
                 agent.addStat(Stats.BLOCK_MINED.get(choppedBlockState.getBlock()));
                 tool.onBlockDestroyed(world, choppedBlockState, choppedBlockPos, agent);
             } else {
