@@ -69,10 +69,10 @@ public class TreeChopMod {
             if (!(oldBlockState.getBlock() instanceof ChoppedLogBlock)) {
                 // TODO: do we need to handle fortune, feather touch, etc.?
                 blockState = ChopUtil.chipBlock(world, blockPos, 1, event.getPlayer(), tool);
-                firstChop = false;
+                firstChop = true;
             } else {
                 blockState = oldBlockState;
-                firstChop = true;
+                firstChop = false;
             }
 
             if (blockState.getBlock() instanceof ChoppedLogBlock) { // This should always be true... but just in case
