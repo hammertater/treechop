@@ -3,10 +3,15 @@
   "1.16.1": {
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
     "0.4": "Added configurability",
-    "0.5": "Mushroom caps, fungus warts, and shroomlights break when felling\nDiagonal tree junctions are now choppable\nBreaking a single log destroys connected leaves\nDon't spawn drops in creative\nAny blocks with minecraft:leaves or treechop:leaves_like tags are treated as leaves\nAny blocks with minecraft:logs or treechop:choppable are treated as logs\nCan configure the block tag used to detect logs and leaves"
+    "0.5": "Mushroom caps, fungus warts, and shroomlights break when felling\nDiagonal tree junctions are now choppable\nBreaking a single log destroys connected leaves\nDon't spawn drops in creative\nAny blocks with minecraft:leaves or treechop:leaves_like tags are treated as leaves\nAny blocks with minecraft:logs or treechop:choppable are treated as logs\nCan configure the block tag used to detect logs and leaves",
+    "0.6": "Fixed chopping not draining item durability\nFixed chopping not causing exhaustion\nFixed chopping not dropping experience\nFixed chopping not playing a block breaking sound"
   },
   "promos": {
-    "1.16.1-latest": "0.5",
-    "1.16.1-recommended": "0.5"
+    "1.16.1-latest": "0.4",
+    "1.16.1-recommended": "0.4",
+    "1.16.3-latest": "0.6",
+    "1.16.3-recommended": "0.6",
+    "1.16.4-latest": "0.6",
+    "1.16.4-recommended": "0.6"
   }
 }
