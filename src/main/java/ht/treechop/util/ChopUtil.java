@@ -97,14 +97,21 @@ public class ChopUtil {
         return harvestAndChangeBlock(world, blockPos, blockState, agent, tool);
     }
 
+    /**
+     * @return the new block state, or {@code null} if unable to break the block
+     */
     private static BlockState harvestAndChangeBlock(World world, BlockPos blockPos, BlockState newBlockState, PlayerEntity agent, ItemStack tool) {
-        if (!agent.isCreative()) {
-            BlockState oldBlockState = world.getBlockState(blockPos);
-            TileEntity tileEntity = world.getTileEntity(blockPos);
-            Block.spawnDrops(oldBlockState, world, blockPos, tileEntity, agent, tool);
+        if (!tool.onBlockStartBreak(blockPos, agent)) {
+            if (!agent.isCreative()) {
+                BlockState oldBlockState = world.getBlockState(blockPos);
+                TileEntity tileEntity = world.getTileEntity(blockPos);
+                Block.spawnDrops(oldBlockState, world, blockPos, tileEntity, agent, tool);
+            }
+            world.setBlockState(blockPos, newBlockState, 3);
+            return newBlockState;
+        } else {
+            return null;
         }
-        world.setBlockState(blockPos, newBlockState, 3);
-        return newBlockState;
     }
 
     public static void fellTree(IWorld world, Collection<BlockPos> treeBlocks, PlayerEntity agent) {

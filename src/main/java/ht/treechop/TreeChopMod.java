@@ -56,44 +56,35 @@ public class TreeChopMod {
                 !(event.getWorld() instanceof World) ||
                 event.getPlayer().isSneaking() ||
                 !oldBlockState.canHarvestBlock(world, blockPos, agent) ||
-                agent.getHeldItemMainhand().onBlockStartBreak(blockPos, agent) ||
                 agent.blockActionRestricted(world, blockPos, agent.getServer().getGameType())
         ) {
             return;
         }
 
         if (isBlockChoppable(world, blockPos, oldBlockState)) {
-            BlockState blockState;
-            boolean firstChop;
+            boolean firstChop = !(oldBlockState.getBlock() instanceof ChoppedLogBlock);
+            BlockState newBlockState = firstChop ? ChopUtil.chipBlock(world, blockPos, 1, event.getPlayer(), tool) : oldBlockState;
 
-            if (!(oldBlockState.getBlock() instanceof ChoppedLogBlock)) {
-                // TODO: do we need to handle fortune, feather touch, etc.?
-                blockState = ChopUtil.chipBlock(world, blockPos, 1, event.getPlayer(), tool);
-                firstChop = true;
-            } else {
-                blockState = oldBlockState;
-                firstChop = false;
-            }
+            event.setCanceled(true);
 
-            if (blockState.getBlock() instanceof ChoppedLogBlock) { // This should always be true... but just in case
-                ChoppedLogBlock block = (ChoppedLogBlock) blockState.getBlock();
-                ChoppedLogBlock.ChopResult chopResult = block.chop(world, blockPos, blockState, event.getPlayer(), (firstChop) ? 0 : 1, tool);
+            if (newBlockState != null && newBlockState.getBlock() instanceof ChoppedLogBlock) {
+                ChoppedLogBlock block = (ChoppedLogBlock) newBlockState.getBlock();
+                ChoppedLogBlock.ChopResult chopResult = block.chop(world, blockPos, newBlockState, event.getPlayer(), (firstChop) ? 0 : 1, tool);
                 BlockPos choppedBlockPos = chopResult.getChoppedBlockPos();
                 BlockState choppedBlockState = chopResult.getChoppedBlockState();
-                if (choppedBlockState == blockState) {
+                if (choppedBlockPos == blockPos) {
                     choppedBlockState = oldBlockState;
                 }
 
-                // We must cancel the event to prevent the block from being broken, but still want all the other consequences of breaking blocks
-                event.setCanceled(true);
-                doItemDamage(tool, agent);
+                // The event was canceled to prevent the block from being broken, but still want all the other consequences of breaking blocks
+                // TODO: do we need to handle fortune, silk touch, etc.?
+                doItemDamage(tool, world, choppedBlockState, choppedBlockPos, agent);
                 dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
                 doExhaustion(agent);
-                if (!firstChop) {
+                if (choppedBlockState.getBlock() instanceof ChoppedLogBlock) {
                     playBreakingSound(world, choppedBlockPos, choppedBlockState);
                 }
                 agent.addStat(Stats.BLOCK_MINED.get(choppedBlockState.getBlock()));
-                tool.onBlockDestroyed(world, choppedBlockState, choppedBlockPos, agent);
             } else {
                 TreeChopMod.LOGGER.warn(String.format("Player \"%s\" failed to chip block \"%s\"", agent.getName(), oldBlockState.getBlock().getRegistryName()));
             }
@@ -109,8 +100,9 @@ public class TreeChopMod {
         agent.addExhaustion(0.005F);
     }
 
-    private void doItemDamage(ItemStack itemStack, PlayerEntity agent) {
+    private void doItemDamage(ItemStack itemStack, World world, BlockState blockState, BlockPos blockPos, PlayerEntity agent) {
         ItemStack mockItemStack = itemStack.copy();
+        itemStack.onBlockDestroyed(world, blockState, blockPos, agent);
         if (itemStack.isEmpty() && !mockItemStack.isEmpty()) {
             net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(agent, mockItemStack, Hand.MAIN_HAND);
         }
