@@ -52,6 +52,7 @@ public class TreeChopMod {
 
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
         if (
+                !ConfigHandler.enabled ||
                 event.isCanceled() ||
                 !(event.getWorld() instanceof World) ||
                 event.getPlayer().isSneaking() ||
