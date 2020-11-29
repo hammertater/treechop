@@ -1,5 +1,5 @@
 {
-  "homepage": "https://github.com/hammertater/treechop",
+  "homepage": "https://www.curseforge.com/minecraft/mc-mods/treechop",
   "1.16.1": {
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
     "0.4": "Added configurability",
