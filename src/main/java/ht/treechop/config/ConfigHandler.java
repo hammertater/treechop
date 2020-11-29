@@ -7,6 +7,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class ConfigHandler {
 
     public static Boolean enabled;
+    public static Boolean canChooseNotToChop;
     public static Integer maxNumTreeBlocks;
     public static Integer maxNumLeavesBlocks;
     public static Boolean breakLeaves;
@@ -21,6 +22,7 @@ public class ConfigHandler {
 
     public static void bakeConfig() {
         enabled = COMMON.enabled.get();
+        canChooseNotToChop = COMMON.canChooseNotToChop.get();
         maxNumTreeBlocks = COMMON.maxNumTreeBlocks.get();
         maxNumLeavesBlocks = COMMON.maxNumLeavesBlocks.get();
         breakLeaves = COMMON.breakLeaves.get();
@@ -33,6 +35,7 @@ public class ConfigHandler {
     public static class Common {
 
         private final ForgeConfigSpec.BooleanValue enabled;
+        private final ForgeConfigSpec.BooleanValue canChooseNotToChop;
         private final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         private final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
         private final ForgeConfigSpec.BooleanValue breakLeaves;
@@ -45,6 +48,9 @@ public class ConfigHandler {
             enabled = builder
                     .comment("Whether this mod is enabled or not")
                     .define("enabled", true);
+            canChooseNotToChop = builder
+                    .comment("Whether players can deactivate chopping e.g. by sneaking")
+                    .define("canChooseNotToChop", true);
             maxNumTreeBlocks = builder
                     .comment("Maximum number of log blocks that can be detected to belong to one tree")
                     .defineInRange("maxTreeBlocks", 256, 1, 8096);

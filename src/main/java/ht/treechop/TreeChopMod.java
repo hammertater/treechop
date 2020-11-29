@@ -23,6 +23,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sun.security.krb5.Config;
 
 import static ht.treechop.util.ChopUtil.isBlockChoppable;
 
@@ -53,9 +54,9 @@ public class TreeChopMod {
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
         if (
                 !ConfigHandler.enabled ||
+                !playerWantsToChop(agent) ||
                 event.isCanceled() ||
                 !(event.getWorld() instanceof World) ||
-                event.getPlayer().isSneaking() ||
                 !oldBlockState.canHarvestBlock(world, blockPos, agent) ||
                 agent.blockActionRestricted(world, blockPos, agent.getServer().getGameType())
         ) {
@@ -90,6 +91,10 @@ public class TreeChopMod {
                 TreeChopMod.LOGGER.warn(String.format("Player \"%s\" failed to chip block \"%s\"", agent.getName(), oldBlockState.getBlock().getRegistryName()));
             }
         }
+    }
+
+    private boolean playerWantsToChop(PlayerEntity player) {
+        return !(ConfigHandler.canChooseNotToChop && player.isSneaking());
     }
 
     private void playBreakingSound(World world, BlockPos blockPos, BlockState blockState) {
