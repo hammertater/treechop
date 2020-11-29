@@ -6,13 +6,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class ConfigHandler {
 
-    public static Boolean enabled;
-    public static Boolean canChooseNotToChop;
-    public static Integer maxNumTreeBlocks;
-    public static Integer maxNumLeavesBlocks;
-    public static Boolean breakLeaves;
-    public static ChopCountingAlgorithm chopCountingAlgorithm;
-    public static Double chopCountScale;
     public static ResourceLocation blockTagForDetectingLogs;
     public static ResourceLocation blockTagForDetectingLeaves;
 
@@ -21,28 +14,21 @@ public class ConfigHandler {
     }
 
     public static void bakeConfig() {
-        enabled = COMMON.enabled.get();
-        canChooseNotToChop = COMMON.canChooseNotToChop.get();
-        maxNumTreeBlocks = COMMON.maxNumTreeBlocks.get();
-        maxNumLeavesBlocks = COMMON.maxNumLeavesBlocks.get();
-        breakLeaves = COMMON.breakLeaves.get();
-        chopCountingAlgorithm = COMMON.chopCountingAlgorithm.get();
-        chopCountScale = COMMON.chopCountScale.get();
         blockTagForDetectingLogs = new ResourceLocation(COMMON.blockTagForDetectingLogs.get());
         blockTagForDetectingLeaves = new ResourceLocation(COMMON.blockTagForDetectingLeaves.get());
     }
 
     public static class Common {
 
-        private final ForgeConfigSpec.BooleanValue enabled;
-        private final ForgeConfigSpec.BooleanValue canChooseNotToChop;
-        private final ForgeConfigSpec.IntValue maxNumTreeBlocks;
-        private final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
-        private final ForgeConfigSpec.BooleanValue breakLeaves;
-        private final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
-        private final ForgeConfigSpec.DoubleValue chopCountScale;
-        private final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLogs;
-        private final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeaves;
+        public final ForgeConfigSpec.BooleanValue enabled;
+        public final ForgeConfigSpec.BooleanValue canChooseNotToChop;
+        public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
+        public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
+        public final ForgeConfigSpec.BooleanValue breakLeaves;
+        public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
+        public final ForgeConfigSpec.DoubleValue chopCountScale;
+        public final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLogs;
+        public final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeaves;
 
         public Common(ForgeConfigSpec.Builder builder) {
             enabled = builder

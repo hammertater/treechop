@@ -1,5 +1,6 @@
 package ht.treechop.util;
 
+import ht.treechop.TreeChopMod;
 import ht.treechop.block.ChoppedLogBlock;
 import ht.treechop.config.ConfigHandler;
 import ht.treechop.init.ModBlocks;
@@ -7,10 +8,7 @@ import ht.treechop.state.properties.BlockStateProperties;
 import ht.treechop.state.properties.ChoppedLogShape;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.CommandBlockBlock;
-import net.minecraft.block.JigsawBlock;
 import net.minecraft.block.LeavesBlock;
-import net.minecraft.block.StructureBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -118,10 +116,11 @@ public class ChopUtil {
         boolean spawnDrops = !agent.isCreative();
 
         // Break leaves
-        if (ConfigHandler.breakLeaves) {
+        if (ConfigHandler.COMMON.breakLeaves.get()) {
             AtomicInteger iterationCounter = new AtomicInteger();
             Set<BlockPos> leavesToDestroy = new HashSet<>();
 
+            int maxNumLeavesBlocks = ConfigHandler.COMMON.maxNumLeavesBlocks.get();
             getConnectedBlocks(
                     treeBlocks,
                     pos1 -> {
@@ -132,9 +131,13 @@ public class ChopUtil {
                             .asStream(pos1)
                             .filter(pos2 -> markLeavesToDestroyAndKeepLooking(world, pos2, iterationCounter, leavesToDestroy));
                     },
-                    ConfigHandler.maxNumLeavesBlocks,
+                    maxNumLeavesBlocks,
                     iterationCounter
             );
+
+            if (leavesToDestroy.size() >= maxNumLeavesBlocks) {
+                TreeChopMod.LOGGER.warn(String.format("Max number of leaves reached: %d >= %d blocks", leavesToDestroy.size(), maxNumLeavesBlocks));
+            }
 
             destroyBlocksWithoutTooMuchNoise(world, leavesToDestroy, spawnDrops);
         }
@@ -181,7 +184,7 @@ public class ChopUtil {
     }
 
     static public int numChopsToFell(int numBlocks) {
-        return (int) (ConfigHandler.chopCountingAlgorithm.calculate(numBlocks) * ConfigHandler.chopCountScale);
+        return (int) (ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(numBlocks) * ConfigHandler.COMMON.chopCountScale.get());
     }
 
 }

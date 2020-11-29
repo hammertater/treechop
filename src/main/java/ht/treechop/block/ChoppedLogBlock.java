@@ -225,16 +225,18 @@ public class ChoppedLogBlock extends Block {
         BlockPos choppedPos = blockPos;
         BlockState choppedState = blockState;
 
+        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
+
         Set<BlockPos> nearbyChoppableBlocks;
         Set<BlockPos> supportedBlocks = getConnectedBlocks(
                 Collections.singletonList(blockPos),
                 somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)
                         .filter(checkPos -> isBlockALog(world, checkPos)),
-                ConfigHandler.maxNumTreeBlocks
+                maxNumTreeBlocks
         );
 
-        if (supportedBlocks.size() >= ConfigHandler.maxNumTreeBlocks) {
-            TreeChopMod.LOGGER.warn(String.format("Max tree size reached: %d >= %d blocks", supportedBlocks.size(), ConfigHandler.maxNumTreeBlocks));
+        if (supportedBlocks.size() >= maxNumTreeBlocks) {
+            TreeChopMod.LOGGER.warn(String.format("Max tree size reached: %d >= %d blocks (not including leaves)", supportedBlocks.size(), maxNumTreeBlocks));
         }
 
         int numChopsToFell = ChopUtil.numChopsToFell(supportedBlocks.size());
