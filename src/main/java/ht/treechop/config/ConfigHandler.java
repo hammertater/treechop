@@ -20,7 +20,7 @@ public class ConfigHandler {
     }
 
     public static void bakeConfig() {
-        enabled = COMMON.breakLeaves.get();
+        enabled = COMMON.enabled.get();
         maxNumTreeBlocks = COMMON.maxNumTreeBlocks.get();
         maxNumLeavesBlocks = COMMON.maxNumLeavesBlocks.get();
         breakLeaves = COMMON.breakLeaves.get();
