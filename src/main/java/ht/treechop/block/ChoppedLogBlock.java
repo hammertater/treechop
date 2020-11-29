@@ -335,8 +335,4 @@ public class ChoppedLogBlock extends Block {
         return a.manhattanDistance(b);
     }
 
-    @Override
-    public boolean removedByPlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid) {
-        return false;
-    }
 }

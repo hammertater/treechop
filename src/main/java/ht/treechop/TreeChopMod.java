@@ -82,9 +82,6 @@ public class TreeChopMod {
                 doItemDamage(tool, world, choppedBlockState, choppedBlockPos, agent);
                 dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
                 doExhaustion(agent);
-                if (choppedBlockState.getBlock() instanceof ChoppedLogBlock) {
-                    playBreakingSound(world, choppedBlockPos, choppedBlockState);
-                }
                 agent.addStat(Stats.BLOCK_MINED.get(choppedBlockState.getBlock()));
             } else {
                 TreeChopMod.LOGGER.warn(String.format("Player \"%s\" failed to chip block \"%s\"", agent.getName(), oldBlockState.getBlock().getRegistryName()));
@@ -94,11 +91,6 @@ public class TreeChopMod {
 
     private boolean playerWantsToChop(PlayerEntity player) {
         return !(ConfigHandler.COMMON.canChooseNotToChop.get() && player.isSneaking());
-    }
-
-    private void playBreakingSound(World world, BlockPos blockPos, BlockState blockState) {
-        // Copied from World.destroyBlock
-        world.playEvent(2001, blockPos, Block.getStateId(blockState));
     }
 
     private void doExhaustion(PlayerEntity agent) {
