@@ -55,9 +55,7 @@ public class TreeChopMod {
                 !ConfigHandler.COMMON.enabled.get() ||
                 !playerWantsToChop(agent) ||
                 event.isCanceled() ||
-                !(event.getWorld() instanceof World) ||
-                !oldBlockState.canHarvestBlock(world, blockPos, agent) ||
-                agent.blockActionRestricted(world, blockPos, agent.getServer().getGameType())
+                !(event.getWorld() instanceof World)
         ) {
             return;
         }

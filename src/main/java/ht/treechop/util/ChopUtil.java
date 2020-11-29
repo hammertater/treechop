@@ -99,9 +99,10 @@ public class ChopUtil {
      * @return the new block state, or {@code null} if unable to break the block
      */
     private static BlockState harvestAndChangeBlock(World world, BlockPos blockPos, BlockState newBlockState, PlayerEntity agent, ItemStack tool) {
-        if (!tool.onBlockStartBreak(blockPos, agent)) {
-            if (!agent.isCreative()) {
-                BlockState oldBlockState = world.getBlockState(blockPos);
+        if (!agent.blockActionRestricted(world, blockPos, agent.getServer().getGameType()) && !tool.onBlockStartBreak(blockPos, agent)) {
+            BlockState oldBlockState = world.getBlockState(blockPos);
+            if (!agent.isCreative() &&
+                    !oldBlockState.canHarvestBlock(world, blockPos, agent)) {
                 TileEntity tileEntity = world.getTileEntity(blockPos);
                 Block.spawnDrops(oldBlockState, world, blockPos, tileEntity, agent, tool);
             }
