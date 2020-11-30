@@ -9,10 +9,10 @@
     "0.8": "Added config option `enabled` to disable chopping\nAdded config option `canChooseNotToChop` to prevent players from not chopping\nFixed crash when using tools from Silent's Gear (and possibly other mods)\nFixed inability to break chopped logs without chopping"
   },
   "promos": {
-    "1.15.2-latest": "0.7",
-    "1.15.2-recommended": "0.7",
-    "1.16.1-latest": "0.7",
-    "1.16.1-recommended": "0.7",
+    "1.15.2-latest": "0.8",
+    "1.15.2-recommended": "0.8",
+    "1.16.1-latest": "0.8",
+    "1.16.1-recommended": "0.8",
     "1.16.3-latest": "0.8",
     "1.16.3-recommended": "0.8",
     "1.16.4-latest": "0.8",
