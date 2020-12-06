@@ -1,25 +1,30 @@
 package ht.treechop;
 
 import ht.treechop.block.ChoppedLogBlock;
+import ht.treechop.capabilities.ChopSettings;
+import ht.treechop.capabilities.ChopSettingsProvider;
 import ht.treechop.config.ConfigHandler;
 import ht.treechop.init.ModBlocks;
 import ht.treechop.util.ChopUtil;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +42,7 @@ public class TreeChopMod {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener((ModConfig.Loading e) -> ConfigHandler.onConfigLoad());
         modBus.addListener((ModConfig.Reloading e) -> ConfigHandler.onConfigLoad());
+        modBus.addListener(this::onCommonSetup);
 
         ModBlocks.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
         MinecraftForge.EVENT_BUS.register(this);
@@ -108,4 +114,23 @@ public class TreeChopMod {
             blockState.getBlock().dropXpOnBlockBreak((ServerWorld) world, blockPos, amount);
         }
     }
+
+    @SubscribeEvent
+    public void onCommonSetup(FMLCommonSetupEvent event) {
+        ChopSettings.register();
+    }
+
+    // TODO: see https://gist.github.com/FireController1847/c7a50144f45806a996d13efcff468d1b
+    
+    @SubscribeEvent
+    public void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
+        final ResourceLocation loc = new ResourceLocation(TreeChopMod.MOD_ID + "chop_settings_capability");
+
+        Entity entity = event.getObject();
+        if (entity instanceof PlayerEntity) {
+//            TreeChopMod.LOGGER.info("Initializing chop settings for player " + entity.getName());
+            event.addCapability(loc, new ChopSettingsProvider());
+        }
+    }
+
 }
