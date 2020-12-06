@@ -101,8 +101,7 @@ public class ChopUtil {
     private static BlockState harvestAndChangeBlock(World world, BlockPos blockPos, BlockState newBlockState, PlayerEntity agent, ItemStack tool) {
         if (!agent.blockActionRestricted(world, blockPos, agent.getServer().getGameType()) && !tool.onBlockStartBreak(blockPos, agent)) {
             BlockState oldBlockState = world.getBlockState(blockPos);
-            if (!agent.isCreative() &&
-                    !oldBlockState.canHarvestBlock(world, blockPos, agent)) {
+            if (!agent.isCreative() && oldBlockState.canHarvestBlock(world, blockPos, agent)) {
                 TileEntity tileEntity = world.getTileEntity(blockPos);
                 Block.spawnDrops(oldBlockState, world, blockPos, tileEntity, agent, tool);
             }
