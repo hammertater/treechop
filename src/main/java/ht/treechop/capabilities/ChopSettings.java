@@ -17,11 +17,13 @@ public class ChopSettings {
 
     private boolean choppingEnabled = true;
     private boolean fellingEnabled = true;
-    private SneakBehavior sneakBehavior = SneakBehavior.DISABLES;
+    private SneakBehavior sneakBehavior = SneakBehavior.INVERTS;
 
     public ChopSettings() {}
 
-    SneakBehavior getSneakBehavior() { return sneakBehavior; }
+    public boolean getChoppingEnabled() { return choppingEnabled; }
+    public boolean getFellingEnabled() { return fellingEnabled; }
+    public SneakBehavior getSneakBehavior() { return sneakBehavior; }
 
     public static void register() {
         CapabilityManager.INSTANCE.register(
@@ -35,7 +37,7 @@ public class ChopSettings {
 
         private static final String CHOPPING_ENABLED_KEY = "choppingEnabled";
         private static final String FELLING_ENABLED_KEY = "fellingEnabled";
-        private static final String SNEAK_BEHAVIOR_KEY = "fellingEnabled";
+        private static final String SNEAK_BEHAVIOR_KEY = "sneakBehavior";
 
         @Nullable
         @Override
@@ -53,7 +55,12 @@ public class ChopSettings {
                 CompoundNBT compoundNbt = (CompoundNBT) nbt;
                 instance.choppingEnabled = compoundNbt.getBoolean(CHOPPING_ENABLED_KEY);
                 instance.fellingEnabled = compoundNbt.getBoolean(FELLING_ENABLED_KEY);
-                instance.sneakBehavior = SneakBehavior.valueOf(compoundNbt.getString(SNEAK_BEHAVIOR_KEY));
+                try {
+                    instance.sneakBehavior = SneakBehavior.valueOf(compoundNbt.getString(SNEAK_BEHAVIOR_KEY));
+                } catch (IllegalArgumentException e) {
+                    TreeChopMod.LOGGER.warn(String.format("NBT contains bad sneak behavior value \"%s\"; using default value instead", compoundNbt.getString(SNEAK_BEHAVIOR_KEY)));
+                    instance.sneakBehavior = SneakBehavior.INVERTS;
+                }
             } else {
                 TreeChopMod.LOGGER.warn("Failed to read ChopSettings NBT");
             }

@@ -94,7 +94,16 @@ public class TreeChopMod {
     }
 
     private boolean playerWantsToChop(PlayerEntity player) {
-        return !(ConfigHandler.COMMON.canChooseNotToChop.get() && player.isSneaking());
+        ChopSettings chopSettings = player.getCapability(ChopSettings.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("LazyOptional must not be empty"));
+        if (chopSettings.getChoppingEnabled()) {
+            if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
+                return chopSettings.getChoppingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
 
     private void doExhaustion(PlayerEntity agent) {
@@ -120,8 +129,7 @@ public class TreeChopMod {
         ChopSettings.register();
     }
 
-    // TODO: see https://gist.github.com/FireController1847/c7a50144f45806a996d13efcff468d1b
-    
+    // Helpful reference: https://gist.github.com/FireController1847/c7a50144f45806a996d13efcff468d1b
     @SubscribeEvent
     public void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         final ResourceLocation loc = new ResourceLocation(TreeChopMod.MOD_ID + "chop_settings_capability");
