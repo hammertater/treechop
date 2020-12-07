@@ -2,7 +2,7 @@
   "modListVersion": 2,
   "modList": [{
     "modid": "treechop",
-    "name": "TreeChop",
+    "name": "HT's TreeChop",
     "description": "Makes trees more choppable.",
     "version": "${mod_version}",
     "mcversion": "${minecraft_version}",
