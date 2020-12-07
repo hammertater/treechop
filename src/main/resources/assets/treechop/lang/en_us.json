@@ -1,3 +1,4 @@
 {
-  "block.treechop.chopped_log": "Chopped Log"
+  "block.treechop.chopped_log": "Chopped Log",
+  "key.treechop.toggle_chopping": "Toggle Chopping"
 }

@@ -5,6 +5,7 @@ import ht.treechop.capabilities.ChopSettings;
 import ht.treechop.capabilities.ChopSettingsProvider;
 import ht.treechop.config.ConfigHandler;
 import ht.treechop.init.ModBlocks;
+import ht.treechop.client.KeyBindings;
 import ht.treechop.util.ChopUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -24,6 +25,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
@@ -42,10 +44,13 @@ public class TreeChopMod {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener((ModConfig.Loading e) -> ConfigHandler.onConfigLoad());
         modBus.addListener((ModConfig.Reloading e) -> ConfigHandler.onConfigLoad());
+        modBus.addListener(this::onClientSetup);
         modBus.addListener(this::onCommonSetup);
 
-        ModBlocks.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        MinecraftForge.EVENT_BUS.register(this);
+        IEventBus eventBus = MinecraftForge.EVENT_BUS;
+        ModBlocks.BLOCKS.register(modBus);
+        eventBus.register(this);
+        eventBus.addListener(KeyBindings::buttonPressed);
     }
 
     @SubscribeEvent
@@ -122,6 +127,11 @@ public class TreeChopMod {
         if (world instanceof ServerWorld) {
             blockState.getBlock().dropXpOnBlockBreak((ServerWorld) world, blockPos, amount);
         }
+    }
+
+    @SubscribeEvent
+    public void onClientSetup(FMLClientSetupEvent event) {
+        KeyBindings.clientSetup(event);
     }
 
     @SubscribeEvent
