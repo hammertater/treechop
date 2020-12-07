@@ -1,32 +1,27 @@
 package ht.treechop.client;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.capabilities.ChopSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
-import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.function.BooleanSupplier;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class KeyBindings {
 
     public static final String CATEGORY = "HT's TreeChop";
     public static ActionableKeyBinding toggleChopping;
 
-    public static List<ActionableKeyBinding> allKeyBindings = new LinkedList<ActionableKeyBinding>();
+    public static List<ActionableKeyBinding> allKeyBindings = new LinkedList<>();
 
     public static void clientSetup(FMLClientSetupEvent event) {
-        toggleChopping = registerKeyBinding("toggle_chopping", getKey(GLFW.GLFW_KEY_C), () -> TreeChopMod.LOGGER.info("BOING!"));
+        toggleChopping = registerKeyBinding("toggle_chopping", getKey(GLFW.GLFW_KEY_C), ChopSettings::toggleChopping);
     }
 
     private static ActionableKeyBinding registerKeyBinding(String name, InputMappings.Input defaultKey, Runnable callback) {

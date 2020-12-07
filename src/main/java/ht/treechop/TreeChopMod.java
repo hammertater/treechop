@@ -6,6 +6,7 @@ import ht.treechop.capabilities.ChopSettingsProvider;
 import ht.treechop.config.ConfigHandler;
 import ht.treechop.init.ModBlocks;
 import ht.treechop.client.KeyBindings;
+import ht.treechop.network.PacketHandler;
 import ht.treechop.util.ChopUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -39,6 +40,8 @@ public class TreeChopMod {
     public static final String MOD_ID = "treechop";
 
     public TreeChopMod() {
+//        SilentGear.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+//        modBus.register(SilentGear.class);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
 
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -100,14 +103,10 @@ public class TreeChopMod {
 
     private boolean playerWantsToChop(PlayerEntity player) {
         ChopSettings chopSettings = player.getCapability(ChopSettings.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("LazyOptional must not be empty"));
-        if (chopSettings.getChoppingEnabled()) {
-            if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
-                return chopSettings.getChoppingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
-            } else {
-                return true;
-            }
+        if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
+            return chopSettings.getChoppingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
         } else {
-            return false;
+            return true;
         }
     }
 
@@ -137,6 +136,7 @@ public class TreeChopMod {
     @SubscribeEvent
     public void onCommonSetup(FMLCommonSetupEvent event) {
         ChopSettings.register();
+        PacketHandler.init();
     }
 
     // Helpful reference: https://gist.github.com/FireController1847/c7a50144f45806a996d13efcff468d1b
