@@ -20,6 +20,7 @@ public final class PacketHandler {
     public static void init() {
         int id = 0;
         HANDLER.registerMessage(id++, PacketEnableChopping.class, PacketEnableChopping::encode, PacketEnableChopping::decode, PacketEnableChopping::handle);
+        HANDLER.registerMessage(id++, PacketEnableFelling.class, PacketEnableFelling::encode, PacketEnableFelling::decode, PacketEnableFelling::handle);
     }
 
     public static void sendToServer(Object msg) {

@@ -2,14 +2,14 @@ package ht.treechop.capabilities;
 
 import ht.treechop.TreeChopMod;
 import ht.treechop.config.SneakBehavior;
-import ht.treechop.network.PacketHandler;
 import ht.treechop.network.PacketEnableChopping;
+import ht.treechop.network.PacketEnableFelling;
+import ht.treechop.network.PacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.util.Direction;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -22,7 +22,7 @@ public class ChopSettings {
 
     private boolean choppingEnabled = true;
     private boolean fellingEnabled = true;
-    private SneakBehavior sneakBehavior = SneakBehavior.INVERTS;
+    private SneakBehavior sneakBehavior = SneakBehavior.INVERT_CHOPPING;
 
     public ChopSettings() {}
 
@@ -43,10 +43,20 @@ public class ChopSettings {
     }
 
     public static void toggleChopping() {
-        PlayerEntity player = Minecraft.getInstance().player;
-        ChopSettings chopSettings = player.getCapability(ChopSettings.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Missing chop settings for player "  + player.getName()));
+        ChopSettings chopSettings = getChopSettingsForPlayer();
         chopSettings.setChoppingEnabled(!chopSettings.choppingEnabled);
         PacketHandler.sendToServer(new PacketEnableChopping(chopSettings.choppingEnabled));
+    }
+
+    public static void toggleFelling() {
+        ChopSettings chopSettings = getChopSettingsForPlayer();
+        chopSettings.setFellingEnabled(!chopSettings.fellingEnabled);
+        PacketHandler.sendToServer(new PacketEnableFelling(chopSettings.fellingEnabled));
+    }
+
+    public static ChopSettings getChopSettingsForPlayer() {
+        PlayerEntity player = Minecraft.getInstance().player;
+        return player.getCapability(ChopSettings.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Missing chop settings for player " + player.getName()));
     }
 
     public static class Storage implements Capability.IStorage<ChopSettings> {
@@ -75,7 +85,7 @@ public class ChopSettings {
                     instance.sneakBehavior = SneakBehavior.valueOf(compoundNbt.getString(SNEAK_BEHAVIOR_KEY));
                 } catch (IllegalArgumentException e) {
                     TreeChopMod.LOGGER.warn(String.format("NBT contains bad sneak behavior value \"%s\"; using default value instead", compoundNbt.getString(SNEAK_BEHAVIOR_KEY)));
-                    instance.sneakBehavior = SneakBehavior.INVERTS;
+                    instance.sneakBehavior = SneakBehavior.INVERT_CHOPPING;
                 }
             } else {
                 TreeChopMod.LOGGER.warn("Failed to read ChopSettings NBT");

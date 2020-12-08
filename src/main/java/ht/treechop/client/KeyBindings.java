@@ -21,7 +21,8 @@ public class KeyBindings {
     public static List<ActionableKeyBinding> allKeyBindings = new LinkedList<>();
 
     public static void clientSetup(FMLClientSetupEvent event) {
-        toggleChopping = registerKeyBinding("toggle_chopping", getKey(GLFW.GLFW_KEY_C), ChopSettings::toggleChopping);
+        registerKeyBinding("toggle_chopping", getKey(GLFW.GLFW_KEY_N), ChopSettings::toggleChopping);
+        registerKeyBinding("toggle_felling", getKey(GLFW.GLFW_KEY_UNKNOWN), ChopSettings::toggleFelling);
     }
 
     private static ActionableKeyBinding registerKeyBinding(String name, InputMappings.Input defaultKey, Runnable callback) {
