@@ -7,6 +7,7 @@ import ht.treechop.config.ConfigHandler;
 import ht.treechop.init.ModBlocks;
 import ht.treechop.client.KeyBindings;
 import ht.treechop.network.PacketHandler;
+import ht.treechop.util.ChopResult;
 import ht.treechop.util.ChopUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -74,31 +75,26 @@ public class TreeChopMod {
             return;
         }
 
-        if (isBlockChoppable(world, blockPos, oldBlockState)) {
-            boolean firstChop = !(oldBlockState.getBlock() instanceof ChoppedLogBlock);
-            BlockState newBlockState = firstChop ? ChopUtil.chipBlock(world, blockPos, 1, event.getPlayer(), tool) : oldBlockState;
-
-            event.setCanceled(true);
-
-            if (newBlockState != null && newBlockState.getBlock() instanceof ChoppedLogBlock) {
-                ChoppedLogBlock block = (ChoppedLogBlock) newBlockState.getBlock();
-                ChoppedLogBlock.ChopResult chopResult = block.chop(world, blockPos, newBlockState, event.getPlayer(), (firstChop) ? 0 : 1, tool);
-                BlockPos choppedBlockPos = chopResult.getChoppedBlockPos();
-                BlockState choppedBlockState = chopResult.getChoppedBlockState();
-                if (choppedBlockPos == blockPos) {
-                    choppedBlockState = oldBlockState;
-                }
-
-                // The event was canceled to prevent the block from being broken, but still want all the other consequences of breaking blocks
-                // TODO: do we need to handle fortune, silk touch, etc.?
-                doItemDamage(tool, world, choppedBlockState, choppedBlockPos, agent);
-                dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
-                doExhaustion(agent);
-                agent.addStat(Stats.BLOCK_MINED.get(choppedBlockState.getBlock()));
-            } else {
-                TreeChopMod.LOGGER.warn(String.format("Player \"%s\" failed to chip block \"%s\"", agent.getName(), oldBlockState.getBlock().getRegistryName()));
-            }
+        ChopResult chopResult = ChopUtil.chop(world, blockPos, agent, getNumChopsByTool(tool), tool, playerWantsToFell(agent));
+        if (chopResult == ChopResult.IGNORED) {
+            return;
         }
+
+        event.setCanceled(true);
+        BlockPos choppedBlockPos = chopResult.getChoppedBlockPos();
+        BlockState choppedBlockState = chopResult.getChoppedBlockState();
+
+        // The event was canceled to prevent the block from being broken, but still want all the other consequences of breaking blocks
+        // TODO: do we need to handle fortune, silk touch, etc.?
+        doItemDamage(tool, world, choppedBlockState, choppedBlockPos, agent);
+        dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
+        doExhaustion(agent);
+        agent.addStat(Stats.BLOCK_MINED.get(choppedBlockState.getBlock()));
+//        TreeChopMod.LOGGER.warn(String.format("Player \"%s\" failed to chip block \"%s\"", agent.getName(), oldBlockState.getBlock().getRegistryName()));
+    }
+
+    public int getNumChopsByTool(ItemStack tool) {
+        return 1;
     }
 
     private boolean playerWantsToChop(PlayerEntity player) {
@@ -108,6 +104,11 @@ public class TreeChopMod {
         } else {
             return true;
         }
+    }
+
+    private boolean playerWantsToFell(PlayerEntity player) {
+        ChopSettings chopSettings = player.getCapability(ChopSettings.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("LazyOptional must not be empty"));
+        return chopSettings.getFellingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeFellBehavior(player);
     }
 
     private void doExhaustion(PlayerEntity agent) {

@@ -1,43 +1,26 @@
 package ht.treechop.block;
 
-import ht.treechop.TreeChopMod;
-import ht.treechop.config.ConfigHandler;
 import ht.treechop.state.properties.BlockStateProperties;
 import ht.treechop.state.properties.ChoppedLogShape;
-import ht.treechop.util.BlockNeighbors;
-import ht.treechop.util.ChopUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.ItemStack;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static ht.treechop.util.ChopUtil.chipBlock;
-import static ht.treechop.util.ChopUtil.getConnectedBlocks;
-import static ht.treechop.util.ChopUtil.isBlockALog;
 import static ht.treechop.util.ChopUtil.isBlockChoppable;
 
-public class ChoppedLogBlock extends Block {
+public class ChoppedLogBlock extends Block implements IChoppable {
 
-    public static final IntegerProperty CHOPS = BlockStateProperties.CHOP_COUNT;
-    public static final EnumProperty<ChoppedLogShape> SHAPE = BlockStateProperties.CHOPPED_LOG_SHAPE;
+    protected static final IntegerProperty CHOPS = BlockStateProperties.CHOP_COUNT;
+    protected static final EnumProperty<ChoppedLogShape> SHAPE = BlockStateProperties.CHOPPED_LOG_SHAPE;
 
     public static final VoxelShape[] PILLAR_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
             .map(chops -> Block.makeCuboidShape(
@@ -221,118 +204,21 @@ public class ChoppedLogBlock extends Block {
         builder.add(CHOPS, SHAPE);
     }
 
-    public ChopResult chop(World world, BlockPos blockPos, BlockState blockState, PlayerEntity agent, int numChops, ItemStack tool) {
-        BlockPos choppedPos = blockPos;
-        BlockState choppedState = blockState;
-
-        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
-
-        Set<BlockPos> nearbyChoppableBlocks;
-        Set<BlockPos> supportedBlocks = getConnectedBlocks(
-                Collections.singletonList(blockPos),
-                somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)
-                        .filter(checkPos -> isBlockALog(world, checkPos)),
-                maxNumTreeBlocks
-        );
-
-        if (supportedBlocks.size() >= maxNumTreeBlocks) {
-            TreeChopMod.LOGGER.warn(String.format("Max tree size reached: %d >= %d blocks (not including leaves)", supportedBlocks.size(), maxNumTreeBlocks));
+    @Override
+    public BlockState withChops(BlockState blockState, int numChops) {
+        if (numChops > getMaxNumChops()) {
+            throw new IllegalArgumentException("Too many chops");
         }
-
-        int numChopsToFell = ChopUtil.numChopsToFell(supportedBlocks.size());
-
-        if (blockState.get(CHOPS) + numChops >= numChopsToFell) {
-            ChopUtil.fellTree(world, supportedBlocks, agent);
-        } else {
-            nearbyChoppableBlocks = ChopUtil.getConnectedBlocks(
-                    Collections.singletonList(blockPos),
-                    pos -> BlockNeighbors.ADJACENTS_AND_DIAGONALS.asStream(pos)
-                            .filter(checkPos -> Math.abs(checkPos.getY() - blockPos.getY()) < 4 && isBlockChoppable(world, checkPos)),
-                    64
-            );
-
-            int totalNumChops = nearbyChoppableBlocks.stream()
-                    .map(world::getBlockState)
-                    .filter(blockState1 -> blockState1.hasProperty(CHOPS))
-                    .map(blockState2 -> blockState2.get(CHOPS))
-                    .reduce(Integer::sum)
-                    .orElse(0) + numChops; // Include this chop
-
-            if (totalNumChops >= numChopsToFell) {
-                List<BlockPos> choppedLogsSortedByY = nearbyChoppableBlocks.stream()
-                        .filter(pos1 -> world.getBlockState(pos1).getBlock() instanceof ChoppedLogBlock)
-                        .sorted(Comparator.comparingInt(Vector3i::getY))
-                        .collect(Collectors.toList());
-
-                int chops = 0;
-                for (BlockPos pos : choppedLogsSortedByY) {
-                    chops += world.getBlockState(pos).get(CHOPS);
-                    supportedBlocks.add(pos);
-                    if (chops > numChopsToFell) {
-                        break;
-                    }
-                }
-
-                ChopUtil.fellTree(world, supportedBlocks, agent);
-            } else {
-                int newNumChops = blockState.get(CHOPS) + numChops;
-                if (newNumChops < 8) {
-                    world.setBlockState(blockPos, blockState.with(CHOPS, newNumChops), 3); // p_180501_3_=3 means do this on client and server
-                } else { // If this block is out of chops, chop another block
-                    List<BlockPos> sortedChoppableBlocks = nearbyChoppableBlocks.stream()
-                            .filter(blockPos1 -> {
-                                BlockState blockState1 = world.getBlockState(blockPos1);
-                                if (blockState1.getBlock() instanceof ChoppedLogBlock) {
-                                    return blockState1.get(CHOPS) < 7;
-                                } else {
-                                    return blockPos1.getY() >= blockPos.getY();
-                                }
-                            })
-                            .sorted(Comparator.comparingInt(a -> chopDistance(blockPos, a)))
-                            .collect(Collectors.toList());
-
-                    if (!sortedChoppableBlocks.isEmpty()) {
-                        // Find a close, choppable block...
-                        int choiceIndexLimit = 1;
-                        for (int maxChoiceDistance = chopDistance(blockPos, sortedChoppableBlocks.get(0)), n = sortedChoppableBlocks.size(); choiceIndexLimit < n; ++choiceIndexLimit) {
-                            if (chopDistance(blockPos, sortedChoppableBlocks.get(choiceIndexLimit)) > maxChoiceDistance) {
-                                break;
-                            }
-                        }
-
-                        // ...and chop it
-                        choppedPos = sortedChoppableBlocks.get(Math.floorMod(RANDOM.nextInt(), choiceIndexLimit));
-                        choppedState = world.getBlockState(choppedPos);
-                        if (choppedState.getBlock() instanceof ChoppedLogBlock) {
-                            world.setBlockState(choppedPos, choppedState.with(CHOPS, choppedState.get(CHOPS) + numChops), 3);
-                        } else {
-                            chipBlock(world, choppedPos, numChops, agent, tool);
-                        }
-                    } else {
-                        world.destroyBlock(blockPos, true, agent);
-                    }
-                }
-            }
-        }
-
-        return new ChopResult(choppedPos, choppedState);
+        return blockState.with(CHOPS, numChops);
     }
 
-    public class ChopResult {
-        private BlockPos blockPos;
-        private BlockState blockState;
-
-        public ChopResult(BlockPos choppedPos, BlockState choppedState) {
-            this.blockPos = choppedPos;
-            this.blockState = choppedState;
-        }
-
-        public BlockPos getChoppedBlockPos() { return blockPos; }
-        public BlockState getChoppedBlockState() { return blockState; }
+    @Override
+    public int getNumChops(BlockState blockState) {
+        return blockState.get(CHOPS);
     }
 
-    public int chopDistance(BlockPos a, BlockPos b) {
-        return a.manhattanDistance(b);
+    @Override
+    public int getMaxNumChops() {
+        return 7;
     }
-
 }
