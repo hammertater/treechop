@@ -1,11 +1,10 @@
 package ht.treechop;
 
-import ht.treechop.block.ChoppedLogBlock;
 import ht.treechop.capabilities.ChopSettings;
 import ht.treechop.capabilities.ChopSettingsProvider;
+import ht.treechop.client.KeyBindings;
 import ht.treechop.config.ConfigHandler;
 import ht.treechop.init.ModBlocks;
-import ht.treechop.client.KeyBindings;
 import ht.treechop.network.PacketHandler;
 import ht.treechop.util.ChopResult;
 import ht.treechop.util.ChopUtil;
@@ -29,31 +28,34 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static ht.treechop.util.ChopUtil.isBlockChoppable;
+import java.util.Objects;
 
 @Mod("treechop")
 public class TreeChopMod {
-    public static final Logger LOGGER = LogManager.getLogger();
     public static final String MOD_ID = "treechop";
+    public static final String MOD_NAME = "HT's TreeChop";
+    public static final Logger LOGGER = LogManager.getLogger(MOD_NAME);
 
     public TreeChopMod() {
-//        SilentGear.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
-//        modBus.register(SilentGear.class);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
 
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modBus.addListener((ModConfig.Loading e) -> ConfigHandler.onConfigLoad());
-        modBus.addListener((ModConfig.Reloading e) -> ConfigHandler.onConfigLoad());
+        modBus.addListener((ModConfig.Loading e) -> ConfigHandler.onReload());
+        modBus.addListener((ModConfig.Reloading e) -> ConfigHandler.onReload());
         modBus.addListener(this::onClientSetup);
         modBus.addListener(this::onCommonSetup);
 
         IEventBus eventBus = MinecraftForge.EVENT_BUS;
         ModBlocks.BLOCKS.register(modBus);
-        eventBus.register(this);
+
+        eventBus.addListener(this::onBreakEvent);
+        eventBus.addGenericListener(Entity.class, this::onAttachCapabilities);
+
         eventBus.addListener(KeyBindings::buttonPressed);
     }
 
@@ -63,11 +65,11 @@ public class TreeChopMod {
         BlockPos blockPos = event.getPos();
         PlayerEntity agent = event.getPlayer();
         ItemStack tool = agent.getHeldItemMainhand();
-        BlockState oldBlockState = event.getState();
 
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
         if (
                 !ConfigHandler.COMMON.enabled.get() ||
+                !canChopWithTool(tool) ||
                 !playerWantsToChop(agent) ||
                 event.isCanceled() ||
                 !(event.getWorld() instanceof World)
@@ -90,7 +92,11 @@ public class TreeChopMod {
         dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
         doExhaustion(agent);
         agent.addStat(Stats.BLOCK_MINED.get(choppedBlockState.getBlock()));
-//        TreeChopMod.LOGGER.warn(String.format("Player \"%s\" failed to chip block \"%s\"", agent.getName(), oldBlockState.getBlock().getRegistryName()));
+    }
+
+    private boolean canChopWithTool(ItemStack tool) {
+        return !(ConfigHandler.choppingToolItemsBlacklist.contains(tool.getItem().getRegistryName()) ||
+                ConfigHandler.choppingToolTagsBlacklist.stream().anyMatch(Objects.requireNonNull(tool.getItem().getRegistryName())::equals));
     }
 
     public int getNumChopsByTool(ItemStack tool) {
@@ -147,7 +153,6 @@ public class TreeChopMod {
 
         Entity entity = event.getObject();
         if (entity instanceof PlayerEntity) {
-//            TreeChopMod.LOGGER.info("Initializing chop settings for player " + entity.getName());
             event.addCapability(loc, new ChopSettingsProvider());
         }
     }

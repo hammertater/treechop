@@ -51,8 +51,7 @@ public class ChopUtil {
     }
 
     static public boolean isBlockALog(BlockState blockState) {
-        Set<ResourceLocation> tags = blockState.getBlock().getTags();
-        return tags.contains(ConfigHandler.blockTagForDetectingLogs);
+        return blockState.getBlock().getTags().contains(ConfigHandler.blockTagForDetectingLogs);
     }
 
     static public boolean isBlockALog(IWorld world, BlockPos pos) {
@@ -64,8 +63,7 @@ public class ChopUtil {
     }
 
     private static boolean isBlockLeaves(BlockState blockState) {
-        Set<ResourceLocation> tags = blockState.getBlock().getTags();
-        return tags.contains(ConfigHandler.blockTagForDetectingLeaves);
+        return blockState.getBlock().getTags().contains(ConfigHandler.blockTagForDetectingLeaves);
     }
 
     static public Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks, AtomicInteger iterationCounter) {
@@ -327,7 +325,12 @@ public class ChopUtil {
         Block block = blockState.getBlock();
         if (block instanceof IChoppable) {
             if (newNumChops <= ((IChoppable) block).getMaxNumChops()) {
-                return ((IChoppable) block).withChops(blockState, newNumChops);
+                BlockState newBlockState = ((IChoppable) block).withChops(blockState, newNumChops);
+                if (world.setBlockState(blockPos, newBlockState)) {
+                    return newBlockState;
+                } else {
+                    throw new IllegalArgumentException("Failed to chop block located at " + blockPos.toString());
+                }
             } else {
                 throw new IllegalArgumentException("Can't set number of chops above the maximum allowed");
             }

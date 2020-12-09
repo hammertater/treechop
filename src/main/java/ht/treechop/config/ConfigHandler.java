@@ -4,18 +4,32 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class ConfigHandler {
 
     public static ResourceLocation blockTagForDetectingLogs;
     public static ResourceLocation blockTagForDetectingLeaves;
+    public static Set<ResourceLocation> choppingToolItemsBlacklist;
+    public static Set<ResourceLocation> choppingToolTagsBlacklist;
 
-    public static void onConfigLoad() {
-        ConfigHandler.bakeConfig();
-    }
-
-    public static void bakeConfig() {
+    public static void onReload() {
         blockTagForDetectingLogs = new ResourceLocation(COMMON.blockTagForDetectingLogs.get());
         blockTagForDetectingLeaves = new ResourceLocation(COMMON.blockTagForDetectingLeaves.get());
+        choppingToolItemsBlacklist = COMMON.choppingToolsBlacklist.get().stream()
+                .filter(tag -> !tag.startsWith("#"))
+                .map(ResourceLocation::tryCreate)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        choppingToolTagsBlacklist = COMMON.choppingToolsBlacklist.get().stream()
+                .filter(tag -> tag.startsWith("#"))
+                .map(tag -> ResourceLocation.tryCreate(tag.substring(1)))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     public static class Common {
@@ -27,8 +41,9 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue breakLeaves;
         public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
         public final ForgeConfigSpec.DoubleValue chopCountScale;
-        public final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLogs;
-        public final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeaves;
+        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLogs;
+        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeaves;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppingToolsBlacklist;
 
         public Common(ForgeConfigSpec.Builder builder) {
             enabled = builder
@@ -58,6 +73,24 @@ public class ConfigHandler {
             blockTagForDetectingLeaves = builder
                     .comment("The tag that blocks must have to be considered leaves (default: treechop:leaves_like)")
                     .define("blockTagForDetectingLeaves", "treechop:leaves_like");
+            // See https://github.com/Vazkii/Botania/blob/master/src/main/java/vazkii/botania/common/core/handler/ConfigHandler.java
+            choppingToolsBlacklist = builder
+                    .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not chop when used to break a log")
+                    .defineList(
+                            "choppingToolsBlacklist",
+                            Collections.singletonList("#silentgear:saws"),
+                            ConfigHandler::isRegistryNameOrTag
+                    );
+        }
+    }
+
+    private static boolean isRegistryNameOrTag(Object object) {
+        if (object instanceof String) {
+            String string = (String) object;
+            return (string.startsWith("#") && ResourceLocation.tryCreate(string.substring(1) + ":test") != null ||
+                    ResourceLocation.tryCreate(string + ":test") != null);
+        } else {
+            return false;
         }
     }
 
