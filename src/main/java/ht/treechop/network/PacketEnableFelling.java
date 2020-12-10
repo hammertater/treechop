@@ -34,6 +34,7 @@ public class PacketEnableFelling {
                 chopSettings.setFellingEnabled(message.fellingEnabled);
                 player.sendMessage(new StringTextComponent("[TreeChop] ").applyTextStyle(TextFormatting.GRAY).appendSibling(new StringTextComponent("Felling " + (message.fellingEnabled ? "ON" : "OFF")).applyTextStyle(TextFormatting.WHITE)));
             });
+            context.get().setPacketHandled(true);
         }
     }
 
