@@ -7,7 +7,7 @@
     "0.6": "Fixed chopping not draining item durability\nFixed chopping not causing exhaustion\nFixed chopping not dropping experience",
     "0.7": "Fixed chopped blocks not spawning drops",
     "0.8": "Added config option `enabled` to disable chopping\nAdded config option `canChooseNotToChop` to prevent players from not chopping\nFixed crash when using tools from Silent's Gear (and possibly other mods)\nFixed inability to break chopped logs without chopping",
-    "0.8": "Fixed chopped blocks not spawning drops (again)\nAdded keybinding to toggle chopping on and off\nAdded keybinding to toggle felling on and off\nAdded keybinding to change the effect sneaking has on chopping\nAdded configurable blacklist to prevent chopping when holding certain items"
+    "0.9": "Fixed chopped blocks not spawning drops (again)\nAdded keybinding to toggle chopping on and off\nAdded keybinding to toggle felling on and off\nAdded keybinding to change the effect sneaking has on chopping\nAdded configurable blacklist to prevent chopping when holding certain items"
   },
   "promos": {
     "1.15.2-latest": "0.9",
