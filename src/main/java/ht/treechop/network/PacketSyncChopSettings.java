@@ -3,9 +3,8 @@ package ht.treechop.network;
 import ht.treechop.TreeChopMod;
 import ht.treechop.capabilities.ChopSettings;
 import ht.treechop.capabilities.ChopSettingsCapability;
+import ht.treechop.client.Client;
 import ht.treechop.config.SneakBehavior;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -47,10 +46,8 @@ public class PacketSyncChopSettings {
 
     private static void handleOnClient(PacketSyncChopSettings message) {
         TreeChopMod.LOGGER.info("Received chop settings from server");
-        ClientPlayerEntity player = Minecraft.getInstance().player;
-        ChopSettingsCapability chopSettings = player.getCapability(ChopSettingsCapability.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Missing chop settings for player " + player.getScoreboardName()));
+        ChopSettings chopSettings = Client.getChopSettings();
         chopSettings.copyFrom(message.chopSettings);
-        chopSettings.setSynced();
     }
 
     public static void handleOnServer(PacketSyncChopSettings message, Supplier<NetworkEvent.Context> context) {
