@@ -1,6 +1,6 @@
 package ht.treechop.network;
 
-import ht.treechop.capabilities.ChopSettings;
+import ht.treechop.capabilities.ChopSettingsCapability;
 import ht.treechop.config.SneakBehavior;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -31,7 +31,7 @@ public class PacketSetSneakBehavior {
         if (context.get().getDirection().getReceptionSide().isServer()) {
             context.get().enqueueWork(() -> {
                 ServerPlayerEntity player = context.get().getSender();
-                ChopSettings chopSettings = player.getCapability(ChopSettings.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Player missing chop settings for " + player.getName()));
+                ChopSettingsCapability chopSettings = player.getCapability(ChopSettingsCapability.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Player missing chop settings for " + player.getScoreboardName()));
                 chopSettings.setSneakBehavior(message.sneakBehavior);
                 player.sendMessage(new StringTextComponent("[TreeChop] ").mergeStyle(TextFormatting.GRAY).append(new StringTextComponent("Sneak behavior " + message.sneakBehavior.getString()).mergeStyle(TextFormatting.WHITE)), Util.DUMMY_UUID);
             });

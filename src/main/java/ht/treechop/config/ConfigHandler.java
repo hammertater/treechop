@@ -78,7 +78,7 @@ public class ConfigHandler {
                     .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not chop when used to break a log")
                     .defineList(
                             "choppingToolsBlacklist",
-                            Collections.singletonList("#silentgear:saws"),
+                            Collections.singletonList("#forge:saws"),
                             ConfigHandler::isRegistryNameOrTag
                     );
         }
@@ -101,6 +101,35 @@ public class ConfigHandler {
         final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
         COMMON_SPEC = specPair.getRight();
         COMMON = specPair.getLeft();
+    }
+
+    public static class Client {
+
+        public final ForgeConfigSpec.BooleanValue choppingEnabled;
+        public final ForgeConfigSpec.BooleanValue fellingEnabled;
+        public final ForgeConfigSpec.EnumValue<SneakBehavior> sneakBehavior;
+
+        public Client(ForgeConfigSpec.Builder builder) {
+            choppingEnabled = builder
+                    .comment("Default setting for whether or not the user wishes to chop (can be toggled in-game)")
+                    .define("choppingEnabled", true);
+            fellingEnabled = builder
+                    .comment("Default setting for whether or not the user wishes to fell tree when chopping (can be toggled in-game)")
+                    .define("fellingEnabled", true);
+            sneakBehavior = builder
+                    .comment("Default setting for the effect that sneaking has on chopping (can be cycled in-game)")
+                    .defineEnum("sneakBehavior", SneakBehavior.INVERT_CHOPPING);
+        }
+
+    }
+
+    public static final Client CLIENT;
+    public static final ForgeConfigSpec CLIENT_SPEC;
+
+    static {
+        final Pair<Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
+        CLIENT_SPEC = specPair.getRight();
+        CLIENT = specPair.getLeft();
     }
 
 }

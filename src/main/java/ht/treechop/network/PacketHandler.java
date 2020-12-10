@@ -22,6 +22,7 @@ public final class PacketHandler {
         HANDLER.registerMessage(id++, PacketEnableChopping.class, PacketEnableChopping::encode, PacketEnableChopping::decode, PacketEnableChopping::handle);
         HANDLER.registerMessage(id++, PacketEnableFelling.class, PacketEnableFelling::encode, PacketEnableFelling::decode, PacketEnableFelling::handle);
         HANDLER.registerMessage(id++, PacketSetSneakBehavior.class, PacketSetSneakBehavior::encode, PacketSetSneakBehavior::decode, PacketSetSneakBehavior::handle);
+        HANDLER.registerMessage(id++, PacketSyncChopSettings.class, PacketSyncChopSettings::encode, PacketSyncChopSettings::decode, PacketSyncChopSettings::handle);
     }
 
     public static void sendToServer(Object msg) {

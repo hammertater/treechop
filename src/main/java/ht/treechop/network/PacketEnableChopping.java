@@ -1,18 +1,11 @@
 package ht.treechop.network;
 
-import ht.treechop.TreeChopMod;
-import ht.treechop.capabilities.ChopSettings;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.command.Commands;
-import net.minecraft.entity.player.PlayerEntity;
+import ht.treechop.capabilities.ChopSettingsCapability;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.world.NoteBlockEvent;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -37,7 +30,7 @@ public class PacketEnableChopping {
         if (context.get().getDirection().getReceptionSide().isServer()) {
             context.get().enqueueWork(() -> {
                 ServerPlayerEntity player = context.get().getSender();
-                ChopSettings chopSettings = player.getCapability(ChopSettings.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Player missing chop settings for " + player.getName()));
+                ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
                 chopSettings.setChoppingEnabled(message.choppingEnabled);
                 player.sendMessage(new StringTextComponent("[TreeChop] ").mergeStyle(TextFormatting.GRAY).append(new StringTextComponent("Chopping " + (message.choppingEnabled ? "ON" : "OFF")).mergeStyle(TextFormatting.WHITE)), Util.DUMMY_UUID);
             });

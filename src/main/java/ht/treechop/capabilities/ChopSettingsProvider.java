@@ -16,22 +16,22 @@ public class ChopSettingsProvider implements ICapabilitySerializable<INBT> {
     private static final String CHOP_SETTINGS_NBT = "chopSettings";
     private static final byte COMPOUND_NBT_ID = new CompoundNBT().getId();
 
-    private LazyOptional<ChopSettings> chopSettings = LazyOptional.of(ChopSettings.CAPABILITY::getDefaultInstance);
+    private LazyOptional<ChopSettingsCapability> chopSettings = LazyOptional.of(ChopSettingsCapability.CAPABILITY::getDefaultInstance);
 
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction side) {
-        return ChopSettings.CAPABILITY == capability ? chopSettings.cast() : LazyOptional.empty();
+        return ChopSettingsCapability.CAPABILITY == capability ? chopSettings.cast() : LazyOptional.empty();
     }
 
-    private ChopSettings getChopSettings() {
+    private ChopSettingsCapability getChopSettings() {
         return chopSettings.orElseThrow(() -> new IllegalArgumentException("LazyOptional must not be empty"));
     }
 
     @Override
     public INBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
-        INBT chopSettingsNbt = ChopSettings.CAPABILITY.writeNBT(getChopSettings(), null);
+        INBT chopSettingsNbt = ChopSettingsCapability.CAPABILITY.writeNBT(getChopSettings(), null);
         nbt.put(CHOP_SETTINGS_NBT, chopSettingsNbt);
         return nbt;
     }
@@ -44,7 +44,7 @@ public class ChopSettingsProvider implements ICapabilitySerializable<INBT> {
         }
         CompoundNBT compoundNbt = (CompoundNBT) nbt;
         INBT chopSettingsNbt = compoundNbt.get(CHOP_SETTINGS_NBT);
-        ChopSettings.CAPABILITY.readNBT(getChopSettings(), null, chopSettingsNbt);
+        ChopSettingsCapability.CAPABILITY.readNBT(getChopSettings(), null, chopSettingsNbt);
     }
 
 }

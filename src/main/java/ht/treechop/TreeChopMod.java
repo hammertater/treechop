@@ -1,7 +1,9 @@
 package ht.treechop;
 
 import ht.treechop.capabilities.ChopSettings;
+import ht.treechop.capabilities.ChopSettingsCapability;
 import ht.treechop.capabilities.ChopSettingsProvider;
+import ht.treechop.client.Client;
 import ht.treechop.client.KeyBindings;
 import ht.treechop.config.ConfigHandler;
 import ht.treechop.init.ModBlocks;
@@ -9,6 +11,7 @@ import ht.treechop.network.PacketHandler;
 import ht.treechop.util.ChopResult;
 import ht.treechop.util.ChopUtil;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -20,6 +23,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -28,12 +32,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Objects;
 
 @Mod("treechop")
 public class TreeChopMod {
@@ -43,6 +44,7 @@ public class TreeChopMod {
 
     public TreeChopMod() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigHandler.CLIENT_SPEC);
 
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener((ModConfig.Loading e) -> ConfigHandler.onReload());
@@ -55,6 +57,8 @@ public class TreeChopMod {
 
         eventBus.addListener(this::onBreakEvent);
         eventBus.addGenericListener(Entity.class, this::onAttachCapabilities);
+        eventBus.addListener(Client::onConnect);
+        eventBus.addListener(this::onPlayerCloned);
 
         eventBus.addListener(KeyBindings::buttonPressed);
     }
@@ -96,7 +100,7 @@ public class TreeChopMod {
 
     private boolean canChopWithTool(ItemStack tool) {
         return !(ConfigHandler.choppingToolItemsBlacklist.contains(tool.getItem().getRegistryName()) ||
-                ConfigHandler.choppingToolTagsBlacklist.stream().anyMatch(Objects.requireNonNull(tool.getItem().getRegistryName())::equals));
+                tool.getItem().getTags().stream().anyMatch(ConfigHandler.choppingToolTagsBlacklist::contains));
     }
 
     public int getNumChopsByTool(ItemStack tool) {
@@ -104,7 +108,7 @@ public class TreeChopMod {
     }
 
     private boolean playerWantsToChop(PlayerEntity player) {
-        ChopSettings chopSettings = player.getCapability(ChopSettings.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("LazyOptional must not be empty"));
+        ChopSettings chopSettings = getPlayerChopSettings(player);
         if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
             return chopSettings.getChoppingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
         } else {
@@ -113,8 +117,16 @@ public class TreeChopMod {
     }
 
     private boolean playerWantsToFell(PlayerEntity player) {
-        ChopSettings chopSettings = player.getCapability(ChopSettings.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("LazyOptional must not be empty"));
+        ChopSettings chopSettings = getPlayerChopSettings(player);
         return chopSettings.getFellingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeFellBehavior(player);
+    }
+
+    private boolean isLocalPlayer(PlayerEntity player) {
+        return !player.isServerWorld() && Minecraft.getInstance().player == player;
+    }
+
+    private ChopSettings getPlayerChopSettings(PlayerEntity player) {
+        return isLocalPlayer(player) ? Client.getChopSettings() : player.getCapability(ChopSettingsCapability.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("LazyOptional must not be empty"));
     }
 
     private void doExhaustion(PlayerEntity agent) {
@@ -142,12 +154,11 @@ public class TreeChopMod {
 
     @SubscribeEvent
     public void onCommonSetup(FMLCommonSetupEvent event) {
-        ChopSettings.register();
+        ChopSettingsCapability.register();
         PacketHandler.init();
     }
 
     // Helpful reference: https://gist.github.com/FireController1847/c7a50144f45806a996d13efcff468d1b
-    @SubscribeEvent
     public void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         final ResourceLocation loc = new ResourceLocation(TreeChopMod.MOD_ID + "chop_settings_capability");
 
@@ -157,4 +168,14 @@ public class TreeChopMod {
         }
     }
 
+    // Server-side
+    public void onPlayerCloned(PlayerEvent.Clone event) {
+        if (event.isWasDeath()) {
+            PlayerEntity oldPlayer = event.getOriginal();
+            PlayerEntity newPlayer = event.getPlayer();
+            ChopSettings oldSettings = ChopSettingsCapability.forPlayer(oldPlayer);
+            ChopSettings newSettings = ChopSettingsCapability.forPlayer(newPlayer);
+            newSettings.copyFrom(oldSettings);
+        }
+    }
 }
