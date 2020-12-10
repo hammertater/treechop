@@ -2,6 +2,7 @@ package ht.treechop.client;
 
 import ht.treechop.TreeChopMod;
 import ht.treechop.capabilities.ChopSettingsCapability;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.client.event.InputEvent;
