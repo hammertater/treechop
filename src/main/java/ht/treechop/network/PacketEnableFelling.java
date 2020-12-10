@@ -32,7 +32,7 @@ public class PacketEnableFelling {
                 ServerPlayerEntity player = context.get().getSender();
                 ChopSettingsCapability chopSettings = player.getCapability(ChopSettingsCapability.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Player missing chop settings for " + player.getScoreboardName()));
                 chopSettings.setFellingEnabled(message.fellingEnabled);
-                player.sendMessage(new StringTextComponent("[TreeChop] ").mergeStyle(TextFormatting.GRAY).append(new StringTextComponent("Felling " + (message.fellingEnabled ? "ON" : "OFF")).mergeStyle(TextFormatting.WHITE)), Util.DUMMY_UUID);
+                player.sendMessage(new StringTextComponent("[TreeChop] ").applyTextStyle(TextFormatting.GRAY).appendSibling(new StringTextComponent("Felling " + (message.fellingEnabled ? "ON" : "OFF")).applyTextStyle(TextFormatting.WHITE)));
             });
         }
     }

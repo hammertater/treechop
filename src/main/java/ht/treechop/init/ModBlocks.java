@@ -2,7 +2,6 @@ package ht.treechop.init;
 
 import ht.treechop.TreeChopMod;
 import ht.treechop.block.ChoppedLogBlock;
-import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -18,7 +17,7 @@ public class ModBlocks {
     // Blocks
     public static final RegistryObject<Block> CHOPPED_LOG = BLOCKS.register("chopped_log",
             () -> new ChoppedLogBlock(
-                    AbstractBlock.Properties.create(
+                    Block.Properties.create(
                             Material.WOOD,
                             MaterialColor.WOOD)
                             .hardnessAndResistance(2.0F)

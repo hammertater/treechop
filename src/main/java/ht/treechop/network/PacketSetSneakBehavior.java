@@ -33,7 +33,7 @@ public class PacketSetSneakBehavior {
                 ServerPlayerEntity player = context.get().getSender();
                 ChopSettingsCapability chopSettings = player.getCapability(ChopSettingsCapability.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Player missing chop settings for " + player.getScoreboardName()));
                 chopSettings.setSneakBehavior(message.sneakBehavior);
-                player.sendMessage(new StringTextComponent("[TreeChop] ").mergeStyle(TextFormatting.GRAY).append(new StringTextComponent("Sneak behavior " + message.sneakBehavior.getString()).mergeStyle(TextFormatting.WHITE)), Util.DUMMY_UUID);
+                player.sendMessage(new StringTextComponent("[TreeChop] ").applyTextStyle(TextFormatting.GRAY).appendSibling(new StringTextComponent("Sneak behavior " + message.sneakBehavior.getName()).applyTextStyle(TextFormatting.WHITE)));
             });
         }
     }

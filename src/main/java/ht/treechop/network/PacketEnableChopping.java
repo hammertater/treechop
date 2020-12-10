@@ -8,6 +8,7 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.network.NetworkEvent;
 
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public class PacketEnableChopping {
@@ -32,7 +33,7 @@ public class PacketEnableChopping {
                 ServerPlayerEntity player = context.get().getSender();
                 ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
                 chopSettings.setChoppingEnabled(message.choppingEnabled);
-                player.sendMessage(new StringTextComponent("[TreeChop] ").mergeStyle(TextFormatting.GRAY).append(new StringTextComponent("Chopping " + (message.choppingEnabled ? "ON" : "OFF")).mergeStyle(TextFormatting.WHITE)), Util.DUMMY_UUID);
+                player.sendMessage(new StringTextComponent("[TreeChop] ").applyTextStyle(TextFormatting.GRAY).appendSibling(new StringTextComponent("Chopping " + (message.choppingEnabled ? "ON" : "OFF")).applyTextStyle(TextFormatting.WHITE)));
             });
         }
     }

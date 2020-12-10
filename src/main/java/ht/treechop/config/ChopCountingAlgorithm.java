@@ -27,7 +27,7 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
     }
 
     @Override
-    public String getString() {
+    public String getName() {
         return name;
     }
 
@@ -39,4 +39,5 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
         final double invBase = 1 / (Math.log(2));
         return Math.log(x) * invBase;
     }
+
 }

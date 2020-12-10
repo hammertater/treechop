@@ -45,6 +45,7 @@ public class ChopSettingsCapability extends ChopSettings {
         private static final String CHOPPING_ENABLED_KEY = "choppingEnabled";
         private static final String FELLING_ENABLED_KEY = "fellingEnabled";
         private static final String SNEAK_BEHAVIOR_KEY = "sneakBehavior";
+        private static final String IS_SYNCED_KEY = "isSynced";
 
         @Nullable
         @Override
@@ -53,6 +54,7 @@ public class ChopSettingsCapability extends ChopSettings {
             nbt.putBoolean(CHOPPING_ENABLED_KEY, instance.getChoppingEnabled());
             nbt.putBoolean(FELLING_ENABLED_KEY, instance.getFellingEnabled());
             nbt.putString(SNEAK_BEHAVIOR_KEY, instance.getSneakBehavior().name());
+            nbt.putBoolean(IS_SYNCED_KEY, instance.isSynced());
             return nbt;
         }
 
@@ -69,10 +71,15 @@ public class ChopSettingsCapability extends ChopSettings {
                     TreeChopMod.LOGGER.warn(String.format("NBT contains bad sneak behavior value \"%s\"; using default value instead", compoundNbt.getString(SNEAK_BEHAVIOR_KEY)));
                     sneakBehavior = SneakBehavior.INVERT_CHOPPING;
                 }
+                boolean isSynced = compoundNbt.getBoolean(IS_SYNCED_KEY);
 
                 instance.setChoppingEnabled(choppingEnabled);
                 instance.setFellingEnabled(fellingEnabled);
                 instance.setSneakBehavior(sneakBehavior);
+                if (isSynced) {
+                    instance.setSynced();
+                }
+
             } else {
                 TreeChopMod.LOGGER.warn("Failed to read ChopSettingsCapability NBT");
             }

@@ -26,7 +26,7 @@ public enum SneakBehavior implements IStringSerializable {
     }
 
     @Override
-    public String getString() {
+    public String getName() {
         return name;
     }
 

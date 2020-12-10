@@ -15,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
@@ -250,7 +249,7 @@ public class ChopUtil {
             if (totalNumChops >= numChopsToFell) {
                 List<BlockPos> choppedLogsSortedByY = nearbyChoppableBlocks.stream()
                         .filter(pos1 -> world.getBlockState(pos1).getBlock() instanceof IChoppable)
-                        .sorted(Comparator.comparingInt(Vector3i::getY))
+                        .sorted(Comparator.comparingInt(BlockPos::getY))
                         .collect(Collectors.toList());
 
                 int chops = 0;
