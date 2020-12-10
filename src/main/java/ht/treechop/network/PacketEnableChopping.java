@@ -34,6 +34,7 @@ public class PacketEnableChopping {
                 chopSettings.setChoppingEnabled(message.choppingEnabled);
                 player.sendMessage(new StringTextComponent("[TreeChop] ").mergeStyle(TextFormatting.GRAY).append(new StringTextComponent("Chopping " + (message.choppingEnabled ? "ON" : "OFF")).mergeStyle(TextFormatting.WHITE)), Util.DUMMY_UUID);
             });
+            context.get().setPacketHandled(true);
         }
     }
 

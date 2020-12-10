@@ -42,6 +42,7 @@ public class PacketSyncChopSettings {
                 handleOnClient(message);
             }
         });
+        context.get().setPacketHandled(true);
     }
 
     private static void handleOnClient(PacketSyncChopSettings message) {

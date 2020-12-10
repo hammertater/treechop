@@ -35,6 +35,7 @@ public class PacketSetSneakBehavior {
                 chopSettings.setSneakBehavior(message.sneakBehavior);
                 player.sendMessage(new StringTextComponent("[TreeChop] ").mergeStyle(TextFormatting.GRAY).append(new StringTextComponent("Sneak behavior " + message.sneakBehavior.getString()).mergeStyle(TextFormatting.WHITE)), Util.DUMMY_UUID);
             });
+            context.get().setPacketHandled(true);
         }
     }
 
