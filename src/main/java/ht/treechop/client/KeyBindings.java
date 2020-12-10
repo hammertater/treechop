@@ -23,6 +23,7 @@ public class KeyBindings {
     public static void clientSetup(FMLClientSetupEvent event) {
         registerKeyBinding("toggle_chopping", getKey(GLFW.GLFW_KEY_N), ChopSettings::toggleChopping);
         registerKeyBinding("toggle_felling", getKey(GLFW.GLFW_KEY_UNKNOWN), ChopSettings::toggleFelling);
+        registerKeyBinding("cycle_sneak_behavior", getKey(GLFW.GLFW_KEY_UNKNOWN), ChopSettings::cycleSneakBehavior);
     }
 
     private static ActionableKeyBinding registerKeyBinding(String name, InputMappings.Input defaultKey, Runnable callback) {

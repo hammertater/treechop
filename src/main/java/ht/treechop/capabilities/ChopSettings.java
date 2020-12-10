@@ -5,6 +5,7 @@ import ht.treechop.config.SneakBehavior;
 import ht.treechop.network.PacketEnableChopping;
 import ht.treechop.network.PacketEnableFelling;
 import ht.treechop.network.PacketHandler;
+import ht.treechop.network.PacketSetSneakBehavior;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -52,6 +53,13 @@ public class ChopSettings {
         ChopSettings chopSettings = getChopSettingsForPlayer();
         chopSettings.setFellingEnabled(!chopSettings.fellingEnabled);
         PacketHandler.sendToServer(new PacketEnableFelling(chopSettings.fellingEnabled));
+    }
+
+    public static void cycleSneakBehavior() {
+        ChopSettings chopSettings = getChopSettingsForPlayer();
+        SneakBehavior nextSneakBehavior = SneakBehavior.values()[Math.floorMod(chopSettings.sneakBehavior.ordinal() + 1, SneakBehavior.values().length)];
+        chopSettings.setSneakBehavior(nextSneakBehavior);
+        PacketHandler.sendToServer(new PacketSetSneakBehavior(nextSneakBehavior));
     }
 
     public static ChopSettings getChopSettingsForPlayer() {

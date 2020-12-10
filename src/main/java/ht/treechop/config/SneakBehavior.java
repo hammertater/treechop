@@ -6,9 +6,9 @@ import net.minecraft.util.IStringSerializable;
 import java.util.function.Predicate;
 
 public enum SneakBehavior implements IStringSerializable {
-    NONE("none", agent -> false, agent -> false),
-    INVERT_CHOPPING("invert_chopping", Entity::isSneaking, agent -> false),
-    INVERT_FELLING("invert_felling", agent -> false, Entity::isSneaking)
+    NONE("NONE", agent -> false, agent -> false),
+    INVERT_CHOPPING("INVERT CHOPPING", Entity::isSneaking, agent -> false),
+    INVERT_FELLING("INVERT FELLING", agent -> false, Entity::isSneaking)
     ;
 
     private final String name;

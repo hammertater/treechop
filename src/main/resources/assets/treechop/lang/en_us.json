@@ -1,4 +1,5 @@
 {
   "block.treechop.chopped_log": "Chopped Log",
-  "key.treechop.toggle_chopping": "Toggle Chopping"
+  "key.treechop.toggle_chopping": "Toggle Chopping",
+  "key.treechop.cycle_sneak_behavior": "Cycle Sneak Behavior"
 }
