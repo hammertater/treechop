@@ -165,7 +165,7 @@ public class ChoppedLogBlock extends Block implements IChoppable {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "NullableProblems"})
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
         int chops = state.get(CHOPS);

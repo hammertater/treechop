@@ -1,7 +1,6 @@
 package ht.treechop.client;
 
 import ht.treechop.TreeChopMod;
-import ht.treechop.capabilities.ChopSettingsCapability;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
@@ -17,9 +16,8 @@ import java.util.List;
 public class KeyBindings {
 
     public static final String CATEGORY = "HT's TreeChop";
-    public static ActionableKeyBinding toggleChopping;
 
-    public static List<ActionableKeyBinding> allKeyBindings = new LinkedList<>();
+    public static final List<ActionableKeyBinding> allKeyBindings = new LinkedList<>();
 
     public static void clientSetup(FMLClientSetupEvent event) {
         registerKeyBinding("toggle_chopping", getKey(GLFW.GLFW_KEY_N), Client::toggleChopping);

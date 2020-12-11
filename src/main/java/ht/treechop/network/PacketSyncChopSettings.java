@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 public class PacketSyncChopSettings {
 
-    private ChopSettings chopSettings;
+    private final ChopSettings chopSettings;
 
     public PacketSyncChopSettings(ChopSettings chopSettings) {
         this.chopSettings = chopSettings;
@@ -51,6 +51,7 @@ public class PacketSyncChopSettings {
         chopSettings.copyFrom(message.chopSettings);
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static void handleOnServer(PacketSyncChopSettings message, Supplier<NetworkEvent.Context> context) {
         ServerPlayerEntity player = context.get().getSender();
         ChopSettingsCapability chopSettings = player.getCapability(ChopSettingsCapability.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Missing chop settings for player " + player.getScoreboardName()));

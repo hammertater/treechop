@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 
 public class PacketEnableFelling {
 
-    private boolean fellingEnabled;
+    private final boolean fellingEnabled;
 
     public PacketEnableFelling(boolean fellingEnabled) {
         this.fellingEnabled = fellingEnabled;
@@ -26,6 +26,7 @@ public class PacketEnableFelling {
         return new PacketEnableFelling(buffer.readBoolean());
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static void handle(PacketEnableFelling message, Supplier<NetworkEvent.Context> context) {
         if (context.get().getDirection().getReceptionSide().isServer()) {
             context.get().enqueueWork(() -> {

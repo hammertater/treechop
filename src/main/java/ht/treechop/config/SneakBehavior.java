@@ -12,8 +12,8 @@ public enum SneakBehavior implements IStringSerializable {
     ;
 
     private final String name;
-    private Predicate<Entity> chopBehavior;
-    private Predicate<Entity> fellBehavior;
+    private final Predicate<Entity> chopBehavior;
+    private final Predicate<Entity> fellBehavior;
 
     SneakBehavior(String name, Predicate<Entity> chopBehavior, Predicate<Entity> fellBehavior) {
         this.name = name;
@@ -25,6 +25,7 @@ public enum SneakBehavior implements IStringSerializable {
         return name;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public String getString() {
         return name;

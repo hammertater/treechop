@@ -17,6 +17,7 @@ public final class PacketHandler {
             PROTOCOL::equals
     );
 
+    @SuppressWarnings("UnusedAssignment")
     public static void init() {
         int id = 0;
         HANDLER.registerMessage(id++, PacketEnableChopping.class, PacketEnableChopping::encode, PacketEnableChopping::decode, PacketEnableChopping::handle);

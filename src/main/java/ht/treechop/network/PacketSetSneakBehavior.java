@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 public class PacketSetSneakBehavior {
 
-    private SneakBehavior sneakBehavior;
+    private final SneakBehavior sneakBehavior;
 
     public PacketSetSneakBehavior(SneakBehavior sneakBehavior) {
         this.sneakBehavior = sneakBehavior;
@@ -27,6 +27,7 @@ public class PacketSetSneakBehavior {
         return new PacketSetSneakBehavior(SneakBehavior.valueOf(buffer.readString()));
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static void handle(PacketSetSneakBehavior message, Supplier<NetworkEvent.Context> context) {
         if (context.get().getDirection().getReceptionSide().isServer()) {
             context.get().enqueueWork(() -> {

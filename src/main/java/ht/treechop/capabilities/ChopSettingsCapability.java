@@ -2,11 +2,6 @@ package ht.treechop.capabilities;
 
 import ht.treechop.TreeChopMod;
 import ht.treechop.config.SneakBehavior;
-import ht.treechop.network.PacketEnableChopping;
-import ht.treechop.network.PacketEnableFelling;
-import ht.treechop.network.PacketHandler;
-import ht.treechop.network.PacketSetSneakBehavior;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -19,7 +14,7 @@ import javax.annotation.Nullable;
 
 public class ChopSettingsCapability extends ChopSettings {
     @CapabilityInject(ChopSettingsCapability.class)
-    public static Capability<ChopSettingsCapability> CAPABILITY = null;
+    public static final Capability<ChopSettingsCapability> CAPABILITY = null;
 
     private boolean isSynced = false;
 
@@ -36,6 +31,7 @@ public class ChopSettingsCapability extends ChopSettings {
         );
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static ChopSettingsCapability forPlayer(PlayerEntity player) {
         return player.getCapability(CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Player missing chop settings for " + player.getScoreboardName()));
     }

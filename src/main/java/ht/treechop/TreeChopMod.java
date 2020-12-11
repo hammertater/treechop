@@ -26,7 +26,6 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -63,7 +62,6 @@ public class TreeChopMod {
         eventBus.addListener(KeyBindings::buttonPressed);
     }
 
-    @SubscribeEvent
     public void onBreakEvent(BlockEvent.BreakEvent event) {
         World world = (World) event.getWorld();
         BlockPos blockPos = event.getPos();
@@ -125,6 +123,7 @@ public class TreeChopMod {
         return !player.isServerWorld() && Minecraft.getInstance().player == player;
     }
 
+    @SuppressWarnings("ConstantConditions")
     private ChopSettings getPlayerChopSettings(PlayerEntity player) {
         return isLocalPlayer(player) ? Client.getChopSettings() : player.getCapability(ChopSettingsCapability.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("LazyOptional must not be empty"));
     }
@@ -147,12 +146,10 @@ public class TreeChopMod {
         }
     }
 
-    @SubscribeEvent
     public void onClientSetup(FMLClientSetupEvent event) {
         KeyBindings.clientSetup(event);
     }
 
-    @SubscribeEvent
     public void onCommonSetup(FMLCommonSetupEvent event) {
         ChopSettingsCapability.register();
         PacketHandler.init();

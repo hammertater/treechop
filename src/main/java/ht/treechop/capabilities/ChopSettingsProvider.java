@@ -16,18 +16,20 @@ public class ChopSettingsProvider implements ICapabilitySerializable<INBT> {
     private static final String CHOP_SETTINGS_NBT = "chopSettings";
     private static final byte COMPOUND_NBT_ID = new CompoundNBT().getId();
 
-    private LazyOptional<ChopSettingsCapability> chopSettings = LazyOptional.of(ChopSettingsCapability.CAPABILITY::getDefaultInstance);
+    @SuppressWarnings({"NullableProblems", "ConstantConditions"})
+    private final LazyOptional<ChopSettingsCapability> chopSettings = LazyOptional.of(ChopSettingsCapability.CAPABILITY::getDefaultInstance);
 
-    @Nonnull
+    @SuppressWarnings({"NullableProblems", "ConstantConditions"})
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction side) {
-        return ChopSettingsCapability.CAPABILITY == capability ? chopSettings.cast() : LazyOptional.empty();
+        return (ChopSettingsCapability.CAPABILITY == capability) ? chopSettings.cast() : LazyOptional.empty();
     }
 
     private ChopSettingsCapability getChopSettings() {
         return chopSettings.orElseThrow(() -> new IllegalArgumentException("LazyOptional must not be empty"));
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public INBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
@@ -36,6 +38,7 @@ public class ChopSettingsProvider implements ICapabilitySerializable<INBT> {
         return nbt;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void deserializeNBT(INBT nbt) {
         if (nbt.getId() != COMPOUND_NBT_ID) {

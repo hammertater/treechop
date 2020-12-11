@@ -93,11 +93,20 @@ public class ChopUtil {
         return getConnectedBlocks(startingPoints, searchOffsetsSupplier, maxNumBlocks, new AtomicInteger());
     }
 
+    /**
+     * If the block at {@code blockPos} is chippable, harvest it and replace with a chopped block.
+     * @return the new {@code BlockState} after chipping or {@code null} if the existing block cannot be chipped
+     */
     static public BlockState chipBlock(World world, BlockPos blockPos, int numChops, PlayerEntity agent, ItemStack tool) {
         ChoppedLogShape shape = ChoppedLogBlock.getPlacementShape(world, blockPos);
-        Block choppedBlock = (Block) getChoppedBlock(world.getBlockState(blockPos));
+        BlockState blockState = world.getBlockState(blockPos);
+        if (blockState.getBlock() instanceof IChoppable) {
+            throw new IllegalArgumentException("Block is already chipped");
+        }
+
+        Block choppedBlock = (Block) getChoppedBlock(blockState);
         if (choppedBlock != null) {
-            BlockState choppedState = (choppedBlock).getDefaultState()
+            BlockState choppedState = choppedBlock.getDefaultState()
                     .with(BlockStateProperties.CHOP_COUNT, numChops)
                     .with(BlockStateProperties.CHOPPED_LOG_SHAPE, shape);
             return harvestAndChangeBlock(world, blockPos, choppedState, agent, tool);
@@ -109,6 +118,7 @@ public class ChopUtil {
     /**
      * @return the new block state, or {@code null} if unable to break the block
      */
+    @SuppressWarnings("ConstantConditions")
     private static BlockState harvestAndChangeBlock(World world, BlockPos blockPos, BlockState newBlockState, PlayerEntity agent, ItemStack tool) {
         if (!agent.blockActionRestricted(world, blockPos, agent.getServer().getGameType()) && !tool.onBlockStartBreak(blockPos, agent)) {
             BlockState oldBlockState = world.getBlockState(blockPos);
@@ -253,9 +263,8 @@ public class ChopUtil {
                         .sorted(Comparator.comparingInt(Vector3i::getY))
                         .collect(Collectors.toList());
 
-                int chops = 0;
                 for (BlockPos pos : choppedLogsSortedByY) {
-                    chops = getNumChops(world, pos);
+                    int chops = getNumChops(world, pos);
                     supportedBlocks.add(pos);
                     if (chops > numChopsToFell) {
                         break;
@@ -341,7 +350,12 @@ public class ChopUtil {
 
     private static int getMaxNumChops(BlockState blockState) {
         Block block = blockState.getBlock();
-        return block instanceof IChoppable ? ((IChoppable) block).getMaxNumChops() : getChoppedBlock(blockState).getMaxNumChops();
+        if (block instanceof IChoppable) {
+            return ((IChoppable) block).getMaxNumChops();
+        } else {
+            IChoppable choppedBlock = getChoppedBlock(blockState);
+            return (choppedBlock != null) ? choppedBlock.getMaxNumChops() : 0;
+        }
     }
 
     private static IChoppable getChoppedBlock(BlockState blockState) {
@@ -351,11 +365,6 @@ public class ChopUtil {
         } else {
             return null;
         }
-    }
-
-    private static BlockState getChoppedState(BlockState blockState) {
-        Block block = blockState.getBlock();
-        return block instanceof IChoppable ? blockState : ((Block) getChoppedBlock(blockState)).getDefaultState();
     }
 
     public static int getNumChops(World world, BlockPos pos) {

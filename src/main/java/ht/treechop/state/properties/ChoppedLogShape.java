@@ -27,6 +27,7 @@ public enum ChoppedLogShape implements IStringSerializable {
         return this.name;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public String getString() {
         return this.name;
