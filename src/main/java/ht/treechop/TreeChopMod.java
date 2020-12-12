@@ -4,7 +4,6 @@ import ht.treechop.capabilities.ChopSettings;
 import ht.treechop.capabilities.ChopSettingsCapability;
 import ht.treechop.capabilities.ChopSettingsProvider;
 import ht.treechop.client.Client;
-import ht.treechop.client.KeyBindings;
 import ht.treechop.config.ConfigHandler;
 import ht.treechop.init.ModBlocks;
 import ht.treechop.network.PacketHandler;
@@ -29,8 +28,8 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,18 +47,14 @@ public class TreeChopMod {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener((ModConfig.Loading e) -> ConfigHandler.onReload());
         modBus.addListener((ModConfig.Reloading e) -> ConfigHandler.onReload());
-        modBus.addListener(this::onClientSetup);
+        modBus.addListener(Client::onClientSetup);
         modBus.addListener(this::onCommonSetup);
-
-        IEventBus eventBus = MinecraftForge.EVENT_BUS;
+        modBus.addListener(this::onServerSetup);
         ModBlocks.BLOCKS.register(modBus);
 
+        IEventBus eventBus = MinecraftForge.EVENT_BUS;
         eventBus.addListener(this::onBreakEvent);
         eventBus.addGenericListener(Entity.class, this::onAttachCapabilities);
-        eventBus.addListener(Client::onConnect);
-        eventBus.addListener(this::onPlayerCloned);
-
-        eventBus.addListener(KeyBindings::buttonPressed);
     }
 
     public void onBreakEvent(BlockEvent.BreakEvent event) {
@@ -146,13 +141,14 @@ public class TreeChopMod {
         }
     }
 
-    public void onClientSetup(FMLClientSetupEvent event) {
-        KeyBindings.clientSetup(event);
-    }
-
     public void onCommonSetup(FMLCommonSetupEvent event) {
         ChopSettingsCapability.register();
         PacketHandler.init();
+    }
+
+    public void onServerSetup(FMLDedicatedServerSetupEvent event) {
+        IEventBus eventBus = MinecraftForge.EVENT_BUS;
+        eventBus.addListener(this::onPlayerCloned);
     }
 
     // Helpful reference: https://gist.github.com/FireController1847/c7a50144f45806a996d13efcff468d1b

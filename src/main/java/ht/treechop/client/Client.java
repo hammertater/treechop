@@ -9,10 +9,20 @@ import ht.treechop.network.PacketHandler;
 import ht.treechop.network.PacketSetSneakBehavior;
 import ht.treechop.network.PacketSyncChopSettings;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 public class Client {
 
     private static final ChopSettings chopSettings = new ChopSettings();
+
+    public static void onClientSetup(FMLClientSetupEvent event) {
+        IEventBus eventBus = MinecraftForge.EVENT_BUS;
+        eventBus.addListener(Client::onConnect);
+        eventBus.addListener(KeyBindings::buttonPressed);
+        KeyBindings.clientSetup(event);
+    }
 
     public static void onConnect(ClientPlayerNetworkEvent.LoggedInEvent event) {
         chopSettings.setChoppingEnabled(ConfigHandler.CLIENT.choppingEnabled.get());
