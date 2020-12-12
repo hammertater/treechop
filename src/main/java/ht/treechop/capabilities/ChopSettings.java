@@ -6,7 +6,7 @@ import ht.treechop.network.PacketEnableFelling;
 import ht.treechop.network.PacketHandler;
 import ht.treechop.network.PacketSetSneakBehavior;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.EntityPlayer;
 
 public class ChopSettings {
 

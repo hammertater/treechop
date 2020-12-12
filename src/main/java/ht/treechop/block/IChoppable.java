@@ -1,12 +1,12 @@
 package ht.treechop.block;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.block.IBlockState;
 
 public interface IChoppable {
 
-    BlockState withChops(BlockState blockState, int numChops);
+    IBlockState withChops(IBlockState blockState, int numChops);
 
-    int getNumChops(BlockState blockState);
+    int getNumChops(IBlockState blockState);
 
     int getMaxNumChops();
 

@@ -10,10 +10,10 @@ import ht.treechop.init.ModBlocks;
 import ht.treechop.network.PacketHandler;
 import ht.treechop.util.ChopResult;
 import ht.treechop.util.ChopUtil;
-import net.minecraft.block.BlockState;
+import net.minecraft.block.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Hand;
@@ -67,7 +67,7 @@ public class TreeChopMod {
     public void onBreakEvent(BlockEvent.BreakEvent event) {
         World world = (World) event.getWorld();
         BlockPos blockPos = event.getPos();
-        PlayerEntity agent = event.getPlayer();
+        EntityPlayer agent = event.getPlayer();
         ItemStack tool = agent.getHeldItemMainhand();
 
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
@@ -88,7 +88,7 @@ public class TreeChopMod {
 
         event.setCanceled(true);
         BlockPos choppedBlockPos = chopResult.getChoppedBlockPos();
-        BlockState choppedBlockState = chopResult.getChoppedBlockState();
+        IBlockState choppedBlockState = chopResult.getChoppedBlockState();
 
         // The event was canceled to prevent the block from being broken, but still want all the other consequences of breaking blocks
         // TODO: do we need to handle fortune, silk touch, etc.?
@@ -107,7 +107,7 @@ public class TreeChopMod {
         return 1;
     }
 
-    private boolean playerWantsToChop(PlayerEntity player) {
+    private boolean playerWantsToChop(EntityPlayer player) {
         ChopSettings chopSettings = getPlayerChopSettings(player);
         if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
             return chopSettings.getChoppingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
@@ -116,24 +116,24 @@ public class TreeChopMod {
         }
     }
 
-    private boolean playerWantsToFell(PlayerEntity player) {
+    private boolean playerWantsToFell(EntityPlayer player) {
         ChopSettings chopSettings = getPlayerChopSettings(player);
         return chopSettings.getFellingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeFellBehavior(player);
     }
 
-    private boolean isLocalPlayer(PlayerEntity player) {
+    private boolean isLocalPlayer(EntityPlayer player) {
         return !player.isServerWorld() && Minecraft.getInstance().player == player;
     }
 
-    private ChopSettings getPlayerChopSettings(PlayerEntity player) {
+    private ChopSettings getPlayerChopSettings(EntityPlayer player) {
         return isLocalPlayer(player) ? Client.getChopSettings() : player.getCapability(ChopSettingsCapability.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("LazyOptional must not be empty"));
     }
 
-    private void doExhaustion(PlayerEntity agent) {
+    private void doExhaustion(EntityPlayer agent) {
         agent.addExhaustion(0.005F);
     }
 
-    private void doItemDamage(ItemStack itemStack, World world, BlockState blockState, BlockPos blockPos, PlayerEntity agent) {
+    private void doItemDamage(ItemStack itemStack, World world, IBlockState blockState, BlockPos blockPos, EntityPlayer agent) {
         ItemStack mockItemStack = itemStack.copy();
         itemStack.onBlockDestroyed(world, blockState, blockPos, agent);
         if (itemStack.isEmpty() && !mockItemStack.isEmpty()) {
@@ -141,7 +141,7 @@ public class TreeChopMod {
         }
     }
 
-    private static void dropExperience(World world, BlockPos blockPos, BlockState blockState, int amount) {
+    private static void dropExperience(World world, BlockPos blockPos, IBlockState blockState, int amount) {
         if (world instanceof ServerWorld) {
             blockState.getBlock().dropXpOnBlockBreak((ServerWorld) world, blockPos, amount);
         }
@@ -163,7 +163,7 @@ public class TreeChopMod {
         final ResourceLocation loc = new ResourceLocation(TreeChopMod.MOD_ID + "chop_settings_capability");
 
         Entity entity = event.getObject();
-        if (entity instanceof PlayerEntity) {
+        if (entity instanceof EntityPlayer) {
             event.addCapability(loc, new ChopSettingsProvider());
         }
     }
@@ -171,8 +171,8 @@ public class TreeChopMod {
     // Server-side
     public void onPlayerCloned(PlayerEvent.Clone event) {
         if (event.isWasDeath()) {
-            PlayerEntity oldPlayer = event.getOriginal();
-            PlayerEntity newPlayer = event.getPlayer();
+            EntityPlayer oldPlayer = event.getOriginal();
+            EntityPlayer newPlayer = event.getPlayer();
             ChopSettings oldSettings = ChopSettingsCapability.forPlayer(oldPlayer);
             ChopSettings newSettings = ChopSettingsCapability.forPlayer(newPlayer);
             newSettings.copyFrom(oldSettings);

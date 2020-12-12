@@ -17,11 +17,9 @@ public class ModBlocks {
     // Blocks
     public static final RegistryObject<Block> CHOPPED_LOG = BLOCKS.register("chopped_log",
             () -> new ChoppedLogBlock(
-                    Block.Properties.create(
                             Material.WOOD,
-                            MaterialColor.WOOD)
-                            .hardnessAndResistance(2.0F)
-                            .sound(SoundType.WOOD))
+                            2.0F,
+                            SoundType.WOOD)
     );
 
 //    static {

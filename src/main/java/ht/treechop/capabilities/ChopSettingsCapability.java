@@ -7,7 +7,7 @@ import ht.treechop.network.PacketEnableFelling;
 import ht.treechop.network.PacketHandler;
 import ht.treechop.network.PacketSetSneakBehavior;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.util.Direction;
@@ -36,7 +36,7 @@ public class ChopSettingsCapability extends ChopSettings {
         );
     }
 
-    public static ChopSettingsCapability forPlayer(PlayerEntity player) {
+    public static ChopSettingsCapability forPlayer(EntityPlayer player) {
         return player.getCapability(CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Player missing chop settings for " + player.getScoreboardName()));
     }
 
