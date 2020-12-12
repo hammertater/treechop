@@ -8,6 +8,7 @@ import ht.treechop.config.SneakBehavior;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
+import org.apache.commons.lang3.EnumUtils;
 
 import java.util.function.Supplier;
 
@@ -30,7 +31,8 @@ public class PacketSyncChopSettings {
         ChopSettings chopSettings = new ChopSettings();
         chopSettings.setChoppingEnabled(buffer.readBoolean());
         chopSettings.setFellingEnabled(buffer.readBoolean());
-        chopSettings.setSneakBehavior(SneakBehavior.valueOf(buffer.readString()));
+        SneakBehavior sneakBehavior = EnumUtils.getEnum(SneakBehavior.class, buffer.readString(SneakBehavior.maxNameLength));
+        chopSettings.setSneakBehavior((sneakBehavior != null) ? sneakBehavior : chopSettings.getSneakBehavior());
         return new PacketSyncChopSettings(chopSettings);
     }
 

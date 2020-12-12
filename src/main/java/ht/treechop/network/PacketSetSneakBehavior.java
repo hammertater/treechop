@@ -1,5 +1,6 @@
 package ht.treechop.network;
 
+import ht.treechop.capabilities.ChopSettings;
 import ht.treechop.capabilities.ChopSettingsCapability;
 import ht.treechop.config.SneakBehavior;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -8,7 +9,9 @@ import net.minecraft.util.Util;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.network.NetworkEvent;
+import org.apache.commons.lang3.EnumUtils;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 public class PacketSetSneakBehavior {
@@ -24,7 +27,9 @@ public class PacketSetSneakBehavior {
     }
 
     public static PacketSetSneakBehavior decode(PacketBuffer buffer) {
-        return new PacketSetSneakBehavior(SneakBehavior.valueOf(buffer.readString()));
+        final SneakBehavior defaultBehavior = new ChopSettings().getSneakBehavior();
+        SneakBehavior sneakBehavior = EnumUtils.getEnum(SneakBehavior.class, buffer.readString(SneakBehavior.maxNameLength));
+        return new PacketSetSneakBehavior((sneakBehavior != null) ? sneakBehavior : defaultBehavior);
     }
 
     @SuppressWarnings("ConstantConditions")

@@ -3,6 +3,7 @@ package ht.treechop.config;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.IStringSerializable;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 public enum SneakBehavior implements IStringSerializable {
@@ -10,6 +11,8 @@ public enum SneakBehavior implements IStringSerializable {
     INVERT_CHOPPING("INVERT CHOPPING", Entity::isSneaking, agent -> false),
     INVERT_FELLING("INVERT FELLING", agent -> false, Entity::isSneaking)
     ;
+
+    public final static int maxNameLength = Arrays.stream(SneakBehavior.values()).map(SneakBehavior::name).map(String::length).max(Integer::compareTo).orElse(0);
 
     private final String name;
     private final Predicate<Entity> chopBehavior;
