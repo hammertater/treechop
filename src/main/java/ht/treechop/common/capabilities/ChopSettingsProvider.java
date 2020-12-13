@@ -1,4 +1,4 @@
-package ht.treechop.capabilities;
+package ht.treechop.common.capabilities;
 
 import ht.treechop.TreeChopMod;
 import net.minecraft.nbt.CompoundNBT;

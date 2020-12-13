@@ -1,6 +1,6 @@
-package ht.treechop.network;
+package ht.treechop.common.network;
 
-import ht.treechop.capabilities.ChopSettingsCapability;
+import ht.treechop.common.capabilities.ChopSettingsCapability;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Util;

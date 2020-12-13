@@ -1,4 +1,4 @@
-package ht.treechop.network;
+package ht.treechop.common.network;
 
 import ht.treechop.TreeChopMod;
 import net.minecraft.entity.player.ServerPlayerEntity;

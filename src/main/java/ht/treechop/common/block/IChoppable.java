@@ -1,4 +1,4 @@
-package ht.treechop.block;
+package ht.treechop.common.block;
 
 import net.minecraft.block.BlockState;
 

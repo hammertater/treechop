@@ -1,6 +1,6 @@
-package ht.treechop.capabilities;
+package ht.treechop.common.capabilities;
 
-import ht.treechop.config.SneakBehavior;
+import ht.treechop.common.config.SneakBehavior;
 
 public class ChopSettings {
 

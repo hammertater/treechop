@@ -1,4 +1,4 @@
-package ht.treechop.util;
+package ht.treechop.common.util;
 
 import net.minecraft.util.math.BlockPos;
 

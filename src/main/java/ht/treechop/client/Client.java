@@ -1,13 +1,13 @@
 package ht.treechop.client;
 
 import ht.treechop.TreeChopMod;
-import ht.treechop.capabilities.ChopSettings;
-import ht.treechop.config.ConfigHandler;
-import ht.treechop.network.PacketEnableChopping;
-import ht.treechop.network.PacketEnableFelling;
-import ht.treechop.network.PacketHandler;
-import ht.treechop.network.PacketSetSneakBehavior;
-import ht.treechop.network.PacketSyncChopSettings;
+import ht.treechop.common.capabilities.ChopSettings;
+import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.network.PacketEnableChopping;
+import ht.treechop.common.network.PacketEnableFelling;
+import ht.treechop.common.network.PacketHandler;
+import ht.treechop.common.network.PacketSetSneakBehavior;
+import ht.treechop.common.network.PacketSyncChopSettings;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
