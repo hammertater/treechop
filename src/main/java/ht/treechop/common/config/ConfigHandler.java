@@ -57,7 +57,7 @@ public class ConfigHandler {
                     .defineInRange("maxTreeBlocks", 256, 1, 8096);
             maxNumLeavesBlocks = builder
                     .comment("Maximum number of leaves blocks that can destroyed when a tree is felled")
-                    .defineInRange("maxTreeBlocks", 1024, 1, 8096);
+                    .defineInRange("maxLeavesBlocks", 1024, 1, 8096);
             breakLeaves = builder
                     .comment("Whether to destroy leaves when a tree is felled")
                     .define("breakLeaves", true);
