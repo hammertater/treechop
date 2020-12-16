@@ -18,7 +18,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.IWorld;
@@ -40,36 +39,35 @@ import java.util.stream.Stream;
 
 public class ChopUtil {
 
-    private static final ResourceLocation LEAVES_LIKE = new ResourceLocation("treechop", "leaves_like");
     private static final Random RANDOM = new Random();
 
     private static final int MAX_DISTANCE_TO_DESTROY_LEAVES_LIKES = 7;
     public static final int FELL_NOISE_INTERVAL = 16;
     public static final int MAX_NOISE_ATTEMPTS = (FELL_NOISE_INTERVAL) * 8;
 
-    static public boolean isBlockChoppable(IWorld world, BlockPos pos, BlockState blockState) {
-        return ((blockState.getBlock() instanceof IChoppable) ||
-                (isBlockALog(blockState) && !(isBlockALog(world, pos.west()) && isBlockALog(world, pos.north()) && isBlockALog(world, pos.east()) && isBlockALog(world, pos.south()))));// && Arrays.stream(BlockNeighbors.ABOVE).map(pos::add).anyMatch(pos1 -> isBlockALog(world, pos1) || isBlockLeaves(world, pos1)))));
+    static public boolean isBlockChoppable(IWorld world, BlockPos pos, Block block) {
+        return (block instanceof IChoppable) ||
+                (isBlockALog(block) && !(isBlockALog(world, pos.west()) && isBlockALog(world, pos.north()) && isBlockALog(world, pos.east()) && isBlockALog(world, pos.south())));
     }
 
     static public boolean isBlockChoppable(IWorld world, BlockPos pos) {
-        return isBlockChoppable(world, pos, world.getBlockState(pos));
+        return isBlockChoppable(world, pos, world.getBlockState(pos).getBlock());
     }
 
-    static public boolean isBlockALog(BlockState blockState) {
-        return blockState.getBlock().getTags().contains(ConfigHandler.blockTagForDetectingLogs);
+    static public boolean isBlockALog(Block block) {
+        return block.getTags().contains(ConfigHandler.blockTagForDetectingLogs);
     }
 
     static public boolean isBlockALog(IWorld world, BlockPos pos) {
-        return isBlockALog(world.getBlockState(pos));
+        return isBlockALog(world.getBlockState(pos).getBlock());
     }
 
     static public boolean isBlockLeaves(IWorld world, BlockPos pos) {
-        return isBlockLeaves(world.getBlockState(pos));
+        return isBlockLeaves(world.getBlockState(pos).getBlock());
     }
 
-    private static boolean isBlockLeaves(BlockState blockState) {
-        return blockState.getBlock().getTags().contains(ConfigHandler.blockTagForDetectingLeaves);
+    private static boolean isBlockLeaves(Block block) {
+        return block.getBlock().getTags().contains(ConfigHandler.blockTagForDetectingLeaves);
     }
 
     static public Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks, AtomicInteger iterationCounter) {
@@ -152,7 +150,7 @@ public class ChopUtil {
                     treeBlocks,
                     pos1 -> {
                         Block block = world.getBlockState(pos1).getBlock();
-                        return ((block.getTags().contains(LEAVES_LIKE) && !(block instanceof LeavesBlock))
+                        return ((isBlockLeaves(block) && !(block instanceof LeavesBlock))
                                     ? BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS // Red mushroom caps can be connected diagonally downward
                                     : BlockNeighbors.ADJACENTS)
                             .asStream(pos1)
@@ -185,7 +183,7 @@ public class ChopUtil {
 
     public static boolean markLeavesToDestroyAndKeepLooking(IWorld world, BlockPos pos, AtomicInteger iterationCounter, Set<BlockPos> leavesToDestroy) {
         BlockState blockState = world.getBlockState(pos);
-        if (isBlockLeaves(blockState)) {
+        if (isBlockLeaves(blockState.getBlock())) {
             if (blockState.getBlock() instanceof LeavesBlock) {
                 if (iterationCounter.get() + 1 > blockState.get(LeavesBlock.DISTANCE)) {
                     return false;
@@ -193,7 +191,7 @@ public class ChopUtil {
                 else if (blockState.get(LeavesBlock.PERSISTENT)) {
                     return true;
                 }
-            } else if (blockState.getBlock().getTags().contains(LEAVES_LIKE) && iterationCounter.get() >= MAX_DISTANCE_TO_DESTROY_LEAVES_LIKES) {
+            } else if (iterationCounter.get() >= MAX_DISTANCE_TO_DESTROY_LEAVES_LIKES) {
                 return false;
             }
 
@@ -222,7 +220,7 @@ public class ChopUtil {
 
     public static ChopResult chop(World world, final BlockPos blockPos, PlayerEntity agent, int numChops, ItemStack tool) {
         BlockState blockState = world.getBlockState(blockPos);
-        if (!isBlockChoppable(world, blockPos, blockState)) {
+        if (!isBlockChoppable(world, blockPos, blockState.getBlock())) {
             return ChopResult.IGNORED;
         }
 
@@ -365,7 +363,7 @@ public class ChopUtil {
     }
 
     private static IChoppable getChoppedBlock(BlockState blockState) {
-        if (isBlockALog(blockState)) {
+        if (isBlockALog(blockState.getBlock())) {
             // TODO: look up appropriate chopped block type
             return (IChoppable) (blockState.getBlock() instanceof IChoppable ? blockState.getBlock() : ModBlocks.CHOPPED_LOG.get());
         } else {
