@@ -1,7 +1,6 @@
 # treechop
 
 ## To-do list
-* Log collision shapes and culling
 * Config
 * Tools blacklist
 * Networking
