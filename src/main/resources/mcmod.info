@@ -1,16 +1,18 @@
-{
-  "modListVersion": 2,
-  "modList": [{
+[
+  {
     "modid": "treechop",
     "name": "HT's TreeChop",
     "description": "Makes trees more choppable.",
     "version": "${mod_version}",
     "mcversion": "${minecraft_version}",
+    "url": "https://www.curseforge.com/minecraft/mc-mods/treechop",
     "updateUrl": "https://raw.githubusercontent.com/hammertater/treechop/main/update.json",
-    "authorList": [ "HammerTater" ],
+    "authorList": [
+      "HammerTater"
+    ],
     "logoFile": "logo.png",
-    "screenshots": [  ],
+    "screenshots": [],
     "parent": "",
-    "dependants": [  ]
-  }]
-}
+    "dependants": []
+  }
+]
