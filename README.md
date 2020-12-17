@@ -1,8 +1,10 @@
 # treechop
 
 ## To-do list
-* Config
-* Tools blacklist
+* ~~Chopping~~
+* ~~Log collision shapes and culling~~
+* ~~Config~~
+* ~~Tools blacklist~~
 * Networking
 * Persist settings across player death
 * Keybindings
