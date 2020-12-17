@@ -1,14 +1,22 @@
 package ht.treechop.common.config;
 
 import com.google.common.collect.Lists;
+import ht.treechop.client.Client;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.oredict.OreDictionary;
 
+import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ConfigHandler {
 
@@ -19,71 +27,173 @@ public class ConfigHandler {
     public static boolean breakLeaves = true;
     public static ChopCountingAlgorithm chopCountingAlgorithm = ChopCountingAlgorithm.LOGARITHMIC;
     public static float chopCountScale = 1F;
-    public static List<String> logBlockSynonyms = Lists.newArrayList("logWood");
-    public static List<String> leavesBlockSynonyms = Lists.newArrayList("treeLeaves");
-    public static Set<ResourceLocation> choppingToolItemsBlacklist;
-    public static Set<ResourceLocation> choppingToolTagsBlacklist;
+    private static List<String> logBlockSynonyms = Lists.newArrayList("logWood");
+    private static List<String> leavesBlockSynonyms = Lists.newArrayList("treeLeaves");
+    private static List<String> choppingToolBlacklistNames = Lists.newArrayList("");
+    private static Set<Item> logItems = null;
+    private static Set<Block> logBlocks = null;
+    private static Set<Item> leavesItems = null;
+    private static Set<Block> leavesBlocks = null;
+    public static Set<Item> choppingToolBlacklistItems = null;
 
     static Configuration config;
 
-    private static final String BLOCK_DETECTION = "Block Detection";
+    private static final String GENERAL = "General";
+    private static final String TREE_DETECTION = "Block Detection";
+    private static final String PLAYER_SETTINGS = "Default Settings";
+    private static String category;
 
     // Good reference: https://github.com/Vazkii/Botania/blob/1.12-final/src/main/java/vazkii/botania/common/core/handler/ConfigHandler.java
     public static void onReload() {
-        //logBlockSynonyms =
-//        getConfigList();
+        category(GENERAL);
+        enabled = getBoolean("enabled", "Whether this mod is enabled or not",
+                enabled);
+        canChooseNotToChop = getBoolean("canChooseNotToChop", "Whether players can deactivate chopping e.g. by sneaking",
+                canChooseNotToChop);
 
+        category(TREE_DETECTION);
+        maxNumTreeBlocks = getInt("maxNumTreeBlocks", "Maximum number of log block that can be detected to belong to one tree",
+                maxNumTreeBlocks, 0, 8096);
+        maxNumLeavesBlocks = getInt("maxNumLeavesBlocks", "Maximum number of leaves block that can destroyed when a tree is felled",
+                maxNumLeavesBlocks, 0, 8096);
+        breakLeaves = getBoolean("breakLeaves", "Whether to destroy leaves when a tree is felled",
+                breakLeaves);
+        chopCountingAlgorithm = getEnum("chopCountingMethod", "Method to use for computing the number of chops needed to fell a tree",
+                ChopCountingAlgorithm.class, chopCountingAlgorithm);
+        chopCountScale = getFloat("chopCountScale", "Scales the number of chops (rounding down) required to fell a tree; with chopCountingMethod=LINEAR, this is exactly the number of chops per block",
+                chopCountScale, 0, 1024);
 
-        //new ResourceLocation("treechop:choppable");
-//        blockTagForDetectingLeaves = new ResourceLocation("treechop:leaves_like");
-//        choppingToolItemsBlacklist = COMMON.choppingToolsBlacklist.get().stream()
-//                .filter(tag -> !tag.startsWith("#"))
-//                .map(ResourceLocation::tryCreate)
-//                .filter(Objects::nonNull)
-//                .collect(Collectors.toSet());
-//        choppingToolTagsBlacklist = COMMON.choppingToolsBlacklist.get().stream()
-//                .filter(tag -> tag.startsWith("#"))
-//                .map(tag -> ResourceLocation.tryCreate(tag.substring(1)))
-//                .filter(Objects::nonNull)
-//                .collect(Collectors.toSet());
+        category(PLAYER_SETTINGS);
+        Client.getChopSettings().setChoppingEnabled(
+                getBoolean("choppingEnabled", "Default setting for whether or not the user wishes to chop (can be toggled in-game)",
+                        Client.getChopSettings().getChoppingEnabled())
+        );
+        Client.getChopSettings().setFellingEnabled(
+                getBoolean("fellingEnabled", "Default setting for whether or not the user wishes to fell tree when chopping (can be toggled in-game)",
+                        Client.getChopSettings().getFellingEnabled())
+        );
+        Client.getChopSettings().setSneakBehavior(
+                getEnum("sneakBehavior", "Default setting for the effect that sneaking has on chopping (can be cycled in-game)",
+                        SneakBehavior.class, Client.getChopSettings().getSneakBehavior())
+        );
+
+        logBlockSynonyms = getStringList("logBlocks", "Blocks that can be chopped\nOre dictionary names are also acceptable",
+                logBlockSynonyms);
+        logItems = null;
+        logBlocks = null;
+
+        leavesBlockSynonyms = getStringList("leavesBlocks", "Blocks that are automatically broken when attached to a felled tree and breakLeaves=true\nOre dictionary names are also acceptable",
+                leavesBlockSynonyms);
+        leavesBlocks = null;
+        leavesItems = null;
+
+        choppingToolBlacklistNames = getStringList("choppingToolsBlacklist", "List of items that should not chop when used to break a log\nOre dictionary names are also acceptable",
+                choppingToolBlacklistNames);
+        choppingToolBlacklistItems = null;
+        
+        if (config.hasChanged()) {
+            config.save();
+        }
     }
 
-    private static void getConfigListAsStringStream(Configuration config, String key) {
-        String[] strings = config.get(BLOCK_DETECTION, "Blocks that can be chopped (blocks that are equivalent in the ore dictionary can be omitted)", "").getString().split(",");
+    private static List<String> getStringList(String key, String comment, List<String> defaultValues) {
+        return Arrays.stream(config.getString(key, category, String.join(",", defaultValues).concat(","), comment)
+                .split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
     }
 
-    public static void load(FMLPreInitializationEvent event)
+    private static boolean getBoolean(String key, String comment, boolean defaultValue) {
+        return config.getBoolean(key, category, defaultValue, comment);
+    }
+
+    private static int getInt(String key, String comment, int defaultValue, int lowerBound, int upperBound) {
+        return config.getInt(key, category, defaultValue, lowerBound, upperBound, comment);
+    }
+
+    private static float getFloat(String key, String comment, float defaultValue, float lowerBound, float upperBound) {
+        return config.getFloat(key, category, defaultValue, lowerBound, upperBound, comment);
+    }
+
+    private static <T extends Enum<T>> T getEnum(String key, String comment, Class<T> enumClass, T defaultValue) {
+        String[] possibleValues = getEnumValuesAsStrings(enumClass);
+        return Enum.valueOf(enumClass, config.getString(
+                key, category, defaultValue.name(),
+                String.format("%s [options: %s]", comment, String.join(", ", possibleValues)),
+                possibleValues, possibleValues));
+    }
+
+    private static void category(String name) {
+        category = name;
+    }
+
+    private static <T extends Enum<T>> String[] getEnumValuesAsStrings(Class<T> enumClass) {
+        return Arrays.stream(enumClass.getEnumConstants()).map(Enum::name).toArray(String[]::new);
+    }
+
+    public static void load(File configFile)
     {
-        config = new Configuration(event.getSuggestedConfigurationFile(), "0.2", false);
+        config = new Configuration(configFile, "0.2", false);
         config.load();
 
         onReload();
     }
 
+    public static Set<Item> getLogItems() {
+        if (logItems == null) {
+            logItems = logBlockSynonyms.stream()
+                    .flatMap(str -> OreDictionary.getOres(str).stream())
+                    .map(ItemStack::getItem)
+                    .collect(Collectors.toSet());
+        }
+        return logItems;
+    }
+
+    public static Set<Block> getLogBlocks() {
+        if (logBlocks == null) {
+            logBlocks = logBlockSynonyms.stream()
+                    .map(a -> ForgeRegistries.BLOCKS.getValue(new ResourceLocation(a)))
+                    .filter(Objects::nonNull)
+                    .filter(b -> b != Blocks.AIR)
+                    .collect(Collectors.toSet());
+        }
+        return logBlocks;
+    }
+
+    public static Set<Item> getLeavesItems() {
+        if (leavesItems == null) {
+            leavesItems = leavesBlockSynonyms.stream()
+                    .flatMap(str -> OreDictionary.getOres(str).stream())
+                    .map(ItemStack::getItem)
+                    .collect(Collectors.toSet());
+        }
+        return leavesItems;
+    }
+
+    public static Set<Block> getLeavesBlocks() {
+        if (leavesBlocks == null) {
+            leavesBlocks = leavesBlockSynonyms.stream()
+                    .map(a -> ForgeRegistries.BLOCKS.getValue(new ResourceLocation(a)))
+                    .filter(Objects::nonNull)
+                    .filter(b -> b != Blocks.AIR)
+                    .collect(Collectors.toSet());
+        }
+        return leavesBlocks;
+    }
+
+    public static Set<Item> getChoppingToolBlacklistItems() {
+        if (choppingToolBlacklistItems == null) {
+            choppingToolBlacklistItems = choppingToolBlacklistNames.stream()
+                    .flatMap(str -> OreDictionary.getOres(str).stream())
+                    .map(ItemStack::getItem)
+                    .collect(Collectors.toSet());
+        }
+        return choppingToolBlacklistItems;
+    }
+
 //    public static class Common {
 //
 //        public Common(ForgeConfigSpec.Builder builder) {
-//            enabled = builder
-//                    .comment("Whether this mod is enabled or not")
-//                    .define("enabled", true);
-//            canChooseNotToChop = builder
-//                    .comment("Whether players can deactivate chopping e.g. by sneaking")
-//                    .define("canChooseNotToChop", true);
-//            maxNumTreeBlocks = builder
-//                    .comment("Maximum number of log block that can be detected to belong to one tree")
-//                    .defineInRange("maxTreeBlocks", 256, 1, 8096);
-//            maxNumLeavesBlocks = builder
-//                    .comment("Maximum number of leaves block that can destroyed when a tree is felled")
-//                    .defineInRange("maxTreeBlocks", 1024, 1, 8096);
-//            breakLeaves = builder
-//                    .comment("Whether to destroy leaves when a tree is felled")
-//                    .define("breakLeaves", true);
-//            chopCountingAlgorithm = builder
-//                    .comment("Method to use for computing the number of chops needed to fell a tree")
-//                    .defineEnum("chopCountingMethod", ChopCountingAlgorithm.LOGARITHMIC);
-//            chopCountScale = builder
-//                    .comment("Scales the number of chops (rounding down) required to fell a tree; with chopCountingMethod=LINEAR, this is exactly the number of chops per block")
-//                    .defineInRange("chopCountScale", 1.0, 0.0, 1024.0);
 //            blockTagForDetectingLogs = builder
 //                    .comment("The tag that block must have to be considered choppable (default: treechop:choppables)")
 //                    .define("blockTagForDetectingLogs", "treechop:choppables");
@@ -111,42 +221,4 @@ public class ConfigHandler {
 //        }
 //    }
 //
-//    public static final Common COMMON;
-//    public static final ForgeConfigSpec COMMON_SPEC;
-//
-//    static {
-//        final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
-//        COMMON_SPEC = specPair.getRight();
-//        COMMON = specPair.getLeft();
-//    }
-//
-//    public static class Client {
-//
-//        public final ForgeConfigSpec.BooleanValue choppingEnabled;
-//        public final ForgeConfigSpec.BooleanValue fellingEnabled;
-//        public final ForgeConfigSpec.EnumValue<SneakBehavior> sneakBehavior;
-//
-//        public Client(ForgeConfigSpec.Builder builder) {
-//            choppingEnabled = builder
-//                    .comment("Default setting for whether or not the user wishes to chop (can be toggled in-game)")
-//                    .define("choppingEnabled", true);
-//            fellingEnabled = builder
-//                    .comment("Default setting for whether or not the user wishes to fell tree when chopping (can be toggled in-game)")
-//                    .define("fellingEnabled", true);
-//            sneakBehavior = builder
-//                    .comment("Default setting for the effect that sneaking has on chopping (can be cycled in-game)")
-//                    .defineEnum("sneakBehavior", SneakBehavior.INVERT_CHOPPING);
-//        }
-//
-//    }
-//
-//    public static final Client CLIENT;
-//    public static final ForgeConfigSpec CLIENT_SPEC;
-//
-//    static {
-//        final Pair<Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
-//        CLIENT_SPEC = specPair.getRight();
-//        CLIENT = specPair.getLeft();
-//    }
-
 }

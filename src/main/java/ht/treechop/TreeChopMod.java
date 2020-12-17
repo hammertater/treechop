@@ -28,7 +28,7 @@ public class TreeChopMod {
     public void preInit(FMLPreInitializationEvent event) {
         LOGGER = event.getModLog();
         event.getModMetadata().version = VERSION;
-        ConfigHandler.load(event);
+        ConfigHandler.load(event.getSuggestedConfigurationFile());
 
         proxy.preInit();
     }

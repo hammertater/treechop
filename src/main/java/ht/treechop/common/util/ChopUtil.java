@@ -25,8 +25,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -34,7 +32,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,10 +47,6 @@ public class ChopUtil {
     private static final int MAX_DISTANCE_TO_DESTROY_LEAVES_LIKES = 7;
     public static final int FELL_NOISE_INTERVAL = 16;
     public static final int MAX_NOISE_ATTEMPTS = (FELL_NOISE_INTERVAL) * 8;
-    private static Set<Item> logItems = null;
-    private static Set<Block> logBlocks = null;
-    private static Set<Item> leavesItems = null;
-    private static Set<Block> leavesBlocks = null;
 
     static public boolean isBlockChoppable(World world, BlockPos pos, IBlockState blockState) {
         return ((blockState.getBlock() instanceof IChoppable) ||
@@ -67,31 +60,10 @@ public class ChopUtil {
     static public boolean isBlockALog(World world, BlockPos pos, IBlockState blockState) {
         Block block = blockState.getBlock();
         return (block instanceof ChoppedLogBlock
-                || getLogBlocks().contains(block)
-                || getLogItems().contains(block.getPickBlock(blockState, null, world, pos, null).getItem())
+                || ConfigHandler.getLogBlocks().contains(block)
+                || ConfigHandler.getLogItems().contains(block.getPickBlock(blockState, null, world, pos, null).getItem())
                 || isMushroomStem(blockState)
         );
-    }
-
-    private static Set<Item> getLogItems() {
-        if (logItems == null) {
-            logItems = ConfigHandler.logBlockSynonyms.stream()
-                    .flatMap(str -> OreDictionary.getOres(str).stream())
-                    .map(ItemStack::getItem)
-                    .collect(Collectors.toSet());
-        }
-        return logItems;
-    }
-
-    private static Set<Block> getLogBlocks() {
-        if (logBlocks == null) {
-            logBlocks = ConfigHandler.logBlockSynonyms.stream()
-                    .map(a -> ForgeRegistries.BLOCKS.getValue(new ResourceLocation(a)))
-                    .filter(Objects::nonNull)
-                    .filter(b -> b != Blocks.AIR)
-                    .collect(Collectors.toSet());
-        }
-        return logBlocks;
     }
 
     static public boolean isBlockALog(World world, BlockPos pos) {
@@ -104,8 +76,8 @@ public class ChopUtil {
 
     static public boolean isBlockLeaves(World world, BlockPos pos, IBlockState blockState) {
         Block block = blockState.getBlock();
-        return (getLeavesBlocks().contains(block)
-                || getLeavesItems().contains(block.getPickBlock(blockState, null, world, pos, null).getItem())
+        return (ConfigHandler.getLeavesBlocks().contains(block)
+                || ConfigHandler.getLeavesItems().contains(block.getPickBlock(blockState, null, world, pos, null).getItem())
                 || isMushroomCap(blockState)
         );
     }
@@ -124,27 +96,6 @@ public class ChopUtil {
             return variant == BlockHugeMushroom.EnumType.STEM || variant == BlockHugeMushroom.EnumType.ALL_STEM;
         }
         return false;
-    }
-
-    private static Set<Item> getLeavesItems() {
-        if (leavesItems == null) {
-            leavesItems = ConfigHandler.leavesBlockSynonyms.stream()
-                    .flatMap(str -> OreDictionary.getOres(str).stream())
-                    .map(ItemStack::getItem)
-                    .collect(Collectors.toSet());
-        }
-        return leavesItems;
-    }
-
-    private static Set<Block> getLeavesBlocks() {
-        if (leavesBlocks == null) {
-            leavesBlocks = ConfigHandler.leavesBlockSynonyms.stream()
-                    .map(a -> ForgeRegistries.BLOCKS.getValue(new ResourceLocation(a)))
-                    .filter(Objects::nonNull)
-                    .filter(b -> b != Blocks.AIR)
-                    .collect(Collectors.toSet());
-        }
-        return leavesBlocks;
     }
 
     static public Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks, AtomicInteger iterationCounter) {
