@@ -3,7 +3,6 @@ package ht.treechop.common.init;
 import ht.treechop.TreeChopMod;
 import ht.treechop.common.block.ChoppedLogBlock;
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -14,7 +13,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 @GameRegistry.ObjectHolder(TreeChopMod.MOD_ID)
 @Mod.EventBusSubscriber(modid = TreeChopMod.MOD_ID)
 public class ModBlocks {
-    public static final ChoppedLogBlock CHOPPED_LOG = new ChoppedLogBlock();;
+    public static final ChoppedLogBlock CHOPPED_LOG = new ChoppedLogBlock();
 
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
@@ -22,8 +21,4 @@ public class ModBlocks {
         reg.register(CHOPPED_LOG);
     }
 
-    @SubscribeEvent
-    public static void registerModels(ModelRegistryEvent event) {
-
-    }
 }

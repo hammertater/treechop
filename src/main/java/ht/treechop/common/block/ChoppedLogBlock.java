@@ -150,15 +150,18 @@ public class ChoppedLogBlock extends Block implements IChoppable {
         );
     }
 
+    @SuppressWarnings("deprecation")
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    @SuppressWarnings("deprecation")
     public boolean isOpaqueCube(IBlockState state) {
         return false;
     }
 
+    @SuppressWarnings({"deprecation", "NullableProblems"})
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
@@ -172,6 +175,7 @@ public class ChoppedLogBlock extends Block implements IChoppable {
         return blockState.getValue(CHOPS);
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     protected BlockStateContainer createBlockState()
     {
@@ -193,6 +197,7 @@ public class ChoppedLogBlock extends Block implements IChoppable {
         return MAX_NUM_CHOPS;
     }
 
+    @SuppressWarnings({"deprecation", "NullableProblems"})
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
         int chops = state.getValue(CHOPS);
         switch (state.getValue(SHAPE)) {

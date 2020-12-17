@@ -27,6 +27,7 @@ public class ConfigHandler {
     public static boolean breakLeaves = true;
     public static ChopCountingAlgorithm chopCountingAlgorithm = ChopCountingAlgorithm.LOGARITHMIC;
     public static float chopCountScale = 1F;
+
     private static List<String> logBlockSynonyms = Lists.newArrayList("logWood");
     private static List<String> leavesBlockSynonyms = Lists.newArrayList("treeLeaves");
     private static List<String> choppingToolBlacklistNames = Lists.newArrayList("");
@@ -34,13 +35,14 @@ public class ConfigHandler {
     private static Set<Block> logBlocks = null;
     private static Set<Item> leavesItems = null;
     private static Set<Block> leavesBlocks = null;
-    public static Set<Item> choppingToolBlacklistItems = null;
+    private static Set<Item> choppingToolBlacklistItems = null;
 
     static Configuration config;
 
-    private static final String GENERAL = "General";
-    private static final String TREE_DETECTION = "Block Detection";
-    private static final String PLAYER_SETTINGS = "Default Settings";
+    private static final String GENERAL = "1-GENERAL";
+    private static final String PLAYER_SETTINGS = "2-DEFAULT_PLAYER_SETTINGS";
+    private static final String TREE_DETECTION = "3-TREE-DETECTION";
+    private static final String CHOPPING = "4-CHOPPING";
     private static String category;
 
     // Good reference: https://github.com/Vazkii/Botania/blob/1.12-final/src/main/java/vazkii/botania/common/core/handler/ConfigHandler.java
@@ -50,18 +52,6 @@ public class ConfigHandler {
                 enabled);
         canChooseNotToChop = getBoolean("canChooseNotToChop", "Whether players can deactivate chopping e.g. by sneaking",
                 canChooseNotToChop);
-
-        category(TREE_DETECTION);
-        maxNumTreeBlocks = getInt("maxNumTreeBlocks", "Maximum number of log block that can be detected to belong to one tree",
-                maxNumTreeBlocks, 0, 8096);
-        maxNumLeavesBlocks = getInt("maxNumLeavesBlocks", "Maximum number of leaves block that can destroyed when a tree is felled",
-                maxNumLeavesBlocks, 0, 8096);
-        breakLeaves = getBoolean("breakLeaves", "Whether to destroy leaves when a tree is felled",
-                breakLeaves);
-        chopCountingAlgorithm = getEnum("chopCountingMethod", "Method to use for computing the number of chops needed to fell a tree",
-                ChopCountingAlgorithm.class, chopCountingAlgorithm);
-        chopCountScale = getFloat("chopCountScale", "Scales the number of chops (rounding down) required to fell a tree; with chopCountingMethod=LINEAR, this is exactly the number of chops per block",
-                chopCountScale, 0, 1024);
 
         category(PLAYER_SETTINGS);
         Client.getChopSettings().setChoppingEnabled(
@@ -77,6 +67,14 @@ public class ConfigHandler {
                         SneakBehavior.class, Client.getChopSettings().getSneakBehavior())
         );
 
+        category(TREE_DETECTION);
+        maxNumTreeBlocks = getInt("maxNumTreeBlocks", "Maximum number of log block that can be detected to belong to one tree",
+                maxNumTreeBlocks, 0, 8096);
+        maxNumLeavesBlocks = getInt("maxNumLeavesBlocks", "Maximum number of leaves block that can destroyed when a tree is felled",
+                maxNumLeavesBlocks, 0, 8096);
+        breakLeaves = getBoolean("breakLeaves", "Whether to destroy leaves when a tree is felled",
+                breakLeaves);
+
         logBlockSynonyms = getStringList("logBlocks", "Blocks that can be chopped\nOre dictionary names are also acceptable",
                 logBlockSynonyms);
         logItems = null;
@@ -90,6 +88,12 @@ public class ConfigHandler {
         choppingToolBlacklistNames = getStringList("choppingToolsBlacklist", "List of items that should not chop when used to break a log\nOre dictionary names are also acceptable",
                 choppingToolBlacklistNames);
         choppingToolBlacklistItems = null;
+
+        category(CHOPPING);
+        chopCountingAlgorithm = getEnum("chopCountingMethod", "Method to use for computing the number of chops needed to fell a tree",
+                ChopCountingAlgorithm.class, chopCountingAlgorithm);
+        chopCountScale = getFloat("chopCountScale", "Scales the number of chops (rounding down) required to fell a tree; with chopCountingMethod=LINEAR, this is exactly the number of chops per block",
+                chopCountScale, 0, 1024);
         
         if (config.hasChanged()) {
             config.save();
@@ -187,38 +191,12 @@ public class ConfigHandler {
                     .flatMap(str -> OreDictionary.getOres(str).stream())
                     .map(ItemStack::getItem)
                     .collect(Collectors.toSet());
+            choppingToolBlacklistNames.stream()
+                    .map(a -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(a)))
+                    .filter(Objects::nonNull)
+                    .forEach(choppingToolBlacklistItems::add);
         }
         return choppingToolBlacklistItems;
     }
 
-//    public static class Common {
-//
-//        public Common(ForgeConfigSpec.Builder builder) {
-//            blockTagForDetectingLogs = builder
-//                    .comment("The tag that block must have to be considered choppable (default: treechop:choppables)")
-//                    .define("blockTagForDetectingLogs", "treechop:choppables");
-//            blockTagForDetectingLeaves = builder
-//                    .comment("The tag that block must have to be considered leaves (default: treechop:leaves_like)")
-//                    .define("blockTagForDetectingLeaves", "treechop:leaves_like");
-//            // See https://github.com/Vazkii/Botania/blob/master/src/main/java/vazkii/botania/common/core/handler/ConfigHandler.java
-//            choppingToolsBlacklist = builder
-//                    .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not chop when used to break a log")
-//                    .defineList(
-//                            "choppingToolsBlacklist",
-//                            Collections.singletonList("#forge:saws"),
-//                            ConfigHandler::isRegistryNameOrTag
-//                    );
-//        }
-//    }
-//
-//    private static boolean isRegistryNameOrTag(Object object) {
-//        if (object instanceof String) {
-//            String string = (String) object;
-//            return (string.startsWith("#") && ResourceLocation.tryCreate(string.substring(1) + ":test") != null ||
-//                    ResourceLocation.tryCreate(string + ":test") != null);
-//        } else {
-//            return false;
-//        }
-//    }
-//
 }

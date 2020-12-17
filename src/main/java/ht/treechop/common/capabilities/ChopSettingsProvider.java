@@ -15,9 +15,10 @@ public class ChopSettingsProvider implements ICapabilitySerializable<NBTBase> {
     private static final String CHOP_SETTINGS_NBT = "chopSettings";
     private static final byte COMPOUND_NBT_ID = new NBTTagCompound().getId();
 
-    @SuppressWarnings({"NullableProblems", "ConstantConditions"})
+    @SuppressWarnings({"ConstantConditions"})
     private final ChopSettingsCapability chopSettings = ChopSettingsCapability.CAPABILITY.getDefaultInstance();
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
         return capability == ChopSettingsCapability.CAPABILITY;
