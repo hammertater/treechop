@@ -17,7 +17,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
@@ -150,7 +149,6 @@ public class ChopUtil {
     /**
      * @return the new block state, or {@code null} if unable to break the block
      */
-    @SuppressWarnings("ConstantConditions")
     private static IBlockState harvestAndChangeBlock(World world, BlockPos blockPos, IBlockState newBlockState, EntityPlayer agent, ItemStack tool) {
         // TODO: replicate default behavior
         IBlockState oldBlockState = world.getBlockState(blockPos);
@@ -445,9 +443,7 @@ public class ChopUtil {
     }
 
     public static boolean canChopWithTool(ItemStack tool) {
-        // TODO
-        return true; //!(ConfigHandler.choppingToolItemsBlacklist.contains(tool.getItem().getRegistryName()) ||
-                //tool.getItem().getTags().stream().anyMatch(ConfigHandler.choppingToolTagsBlacklist::contains));
+        return !ConfigHandler.getChoppingToolBlacklistItems().contains(tool.getItem());
     }
 
     public static int getNumChopsByTool(ItemStack tool) {
@@ -491,7 +487,7 @@ public class ChopUtil {
 
     public static void dropExperience(World world, BlockPos blockPos, IBlockState blockState, int amount) {
         if (world instanceof WorldServer) {
-            blockState.getBlock().dropXpOnBlockBreak((WorldServer) world, blockPos, amount);
+            blockState.getBlock().dropXpOnBlockBreak(world, blockPos, amount);
         }
     }
 }
