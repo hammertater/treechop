@@ -123,7 +123,7 @@ public class ConfigHandler {
         String[] possibleValues = getEnumValuesAsStrings(enumClass);
         return Enum.valueOf(enumClass, config.getString(
                 key, category, defaultValue.name(),
-                String.format("%s [options: %s]", comment, String.join(", ", possibleValues)),
+                String.format("%s\nOptions: %s", comment, String.join(", ", possibleValues)),
                 possibleValues, possibleValues));
     }
 
