@@ -40,10 +40,8 @@ import java.util.stream.Stream;
 
 public class ChopUtil {
 
-    private static final ResourceLocation LEAVES_LIKE = new ResourceLocation("treechop", "leaves_like");
     private static final Random RANDOM = new Random();
 
-    private static final int MAX_DISTANCE_TO_DESTROY_LEAVES_LIKES = 7;
     public static final int FELL_NOISE_INTERVAL = 16;
     public static final int MAX_NOISE_ATTEMPTS = (FELL_NOISE_INTERVAL) * 8;
 
@@ -216,13 +214,13 @@ public class ChopUtil {
         IBlockState blockState = world.getBlockState(pos);
         if (isBlockLeaves(world, pos, blockState)) {
             if (blockState.getBlock() instanceof BlockLeaves) {
-                if (iterationCounter.get() + 1 > MAX_DISTANCE_TO_DESTROY_LEAVES_LIKES) {
+                if (iterationCounter.get() + 1 > ConfigHandler.maxBreakLeavesDistance) {
                     return false;
                 }
                 else if (!blockState.getValue(BlockLeaves.DECAYABLE)) {
                     return true;
                 }
-            } else if (iterationCounter.get() >= MAX_DISTANCE_TO_DESTROY_LEAVES_LIKES) {
+            } else if (iterationCounter.get() >= ConfigHandler.maxBreakLeavesDistance) {
                 return false;
             }
 

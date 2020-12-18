@@ -18,7 +18,7 @@ public class TreeChopMod {
 
     public static Logger LOGGER; // Pretend this is final
 
-    @SidedProxy(clientSide = "ht.treechop.client.Client", serverSide = "ht.treechop.common.Common")
+    @SidedProxy(clientSide = "ht.treechop.client.Client", serverSide = "ht.treechop.server.Server")
     public static Common proxy;
 
     public TreeChopMod() {

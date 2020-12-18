@@ -1,7 +1,9 @@
 package ht.treechop.common.config;
 
 import com.google.common.collect.Lists;
+import ht.treechop.TreeChopMod;
 import ht.treechop.client.Client;
+import ht.treechop.common.capabilities.ChopSettings;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -25,8 +27,12 @@ public class ConfigHandler {
     public static int maxNumTreeBlocks = 8096;
     public static int maxNumLeavesBlocks = 8096;
     public static boolean breakLeaves = true;
+    public static int maxBreakLeavesDistance = 4;
     public static ChopCountingAlgorithm chopCountingAlgorithm = ChopCountingAlgorithm.LOGARITHMIC;
     public static float chopCountScale = 1F;
+    public static boolean choppingEnabled;
+    public static boolean fellingEnabled;
+    public static SneakBehavior sneakBehavior;
 
     private static List<String> logBlockSynonyms = Lists.newArrayList("logWood");
     private static List<String> leavesBlockSynonyms = Lists.newArrayList("treeLeaves");
@@ -53,19 +59,17 @@ public class ConfigHandler {
         canChooseNotToChop = getBoolean("canChooseNotToChop", "Whether players can deactivate chopping e.g. by sneaking",
                 canChooseNotToChop);
 
+        if (TreeChopMod.proxy.isClient()) {
         category(PLAYER_SETTINGS);
-        Client.getChopSettings().setChoppingEnabled(
-                getBoolean("choppingEnabled", "Default setting for whether or not the user wishes to chop (can be toggled in-game)",
-                        Client.getChopSettings().getChoppingEnabled())
-        );
-        Client.getChopSettings().setFellingEnabled(
-                getBoolean("fellingEnabled", "Default setting for whether or not the user wishes to fell tree when chopping (can be toggled in-game)",
-                        Client.getChopSettings().getFellingEnabled())
-        );
-        Client.getChopSettings().setSneakBehavior(
-                getEnum("sneakBehavior", "Default setting for the effect that sneaking has on chopping (can be cycled in-game)",
-                        SneakBehavior.class, Client.getChopSettings().getSneakBehavior())
-        );
+            choppingEnabled = getBoolean("choppingEnabled", "Default setting for whether or not the user wishes to chop (can be toggled in-game)",
+                    Client.getChopSettings().getChoppingEnabled());
+            fellingEnabled = getBoolean("fellingEnabled", "Default setting for whether or not the user wishes to fell tree when chopping (can be toggled in-game)",
+                    Client.getChopSettings().getFellingEnabled());
+            sneakBehavior = getEnum("sneakBehavior", "Default setting for the effect that sneaking has on chopping (can be cycled in-game)",
+                    SneakBehavior.class, Client.getChopSettings().getSneakBehavior());
+
+            Client.updateChopSettings(getChopSettings());
+        }
 
         category(TREE_DETECTION);
         maxNumTreeBlocks = getInt("maxNumTreeBlocks", "Maximum number of log block that can be detected to belong to one tree",
@@ -74,6 +78,8 @@ public class ConfigHandler {
                 maxNumLeavesBlocks, 0, 8096);
         breakLeaves = getBoolean("breakLeaves", "Whether to destroy leaves when a tree is felled",
                 breakLeaves);
+        maxBreakLeavesDistance = getInt("maxBreakLeavesDistance", "Maximum distance from tree blocks to destroy leaves blocks when felling",
+                maxBreakLeavesDistance, 0, 16);
 
         logBlockSynonyms = getStringList("logBlocks", "Blocks that can be chopped\nOre dictionary names are also acceptable",
                 logBlockSynonyms);
@@ -98,6 +104,14 @@ public class ConfigHandler {
         if (config.hasChanged()) {
             config.save();
         }
+    }
+
+    private static ChopSettings getChopSettings() {
+        ChopSettings chopSettings = new ChopSettings();
+        chopSettings.setChoppingEnabled(choppingEnabled);
+        chopSettings.setFellingEnabled(fellingEnabled);
+        chopSettings.setSneakBehavior(sneakBehavior);
+        return chopSettings;
     }
 
     private static List<String> getStringList(String key, String comment, List<String> defaultValues) {

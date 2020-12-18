@@ -19,7 +19,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Mod.EventBusSubscriber(modid = TreeChopMod.MOD_ID)
-public class Common {
+public abstract class Common {
 
     public void preInit() {
         ChopSettingsCapability.register();
@@ -69,4 +69,6 @@ public class Common {
             event.addCapability(loc, new ChopSettingsProvider());
         }
     }
+
+    public abstract boolean isClient();
 }
