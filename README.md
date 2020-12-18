@@ -7,7 +7,7 @@
 * ~~Tools blacklist~~
 * ~~Networking~~
 * ~~Keybindings~~
-* Don't let vines cling to chopped logs
+* ~~Don't let vines cling to chopped logs~~
 * Persist settings across player death
 
 ## 1.12.2 quirks

@@ -9,15 +9,20 @@ import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyInteger;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -195,6 +200,46 @@ public class ChoppedLogBlock extends Block implements IChoppable {
     @Override
     public int getMaxNumChops() {
         return MAX_NUM_CHOPS;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
+        double[] edges;
+        boolean flush;
+        AxisAlignedBB box = getBoundingBox(state, null, pos);
+        switch (face) {
+            case WEST:
+            case EAST:
+                edges = new double[] {box.minY, box.minZ, box.maxY, box.maxZ};
+                flush = (face == EnumFacing.WEST) ? box.minX == 0 : box.maxX == 1;
+                break;
+            case NORTH:
+            case SOUTH:
+                edges = new double[] {box.minY, box.minX, box.maxY, box.maxX};
+                flush = (face == EnumFacing.NORTH) ? box.minZ == 0 : box.maxZ == 1;
+                break;
+            case DOWN:
+            case UP:
+                edges = new double[] {box.minX, box.minZ, box.maxX, box.maxZ};
+                flush = (face == EnumFacing.DOWN) ? box.minY == 0 : box.maxY == 1;
+                break;
+            default:
+                return BlockFaceShape.UNDEFINED;
+        }
+
+        if (!flush) {
+            return BlockFaceShape.UNDEFINED;
+        }
+
+        double minDistanceFromCenter = Stream.of(
+                0.5 - edges[0],
+                0.5 - edges[1],
+                edges[2] - 0.5,
+                edges[3] - 0.5
+        ).reduce(BinaryOperator.minBy(Double::compare)).orElse(0.0);
+
+        return (minDistanceFromCenter > 0) ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;
     }
 
     @SuppressWarnings({"deprecation", "NullableProblems"})
