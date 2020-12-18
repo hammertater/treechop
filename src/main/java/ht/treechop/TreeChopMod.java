@@ -2,6 +2,7 @@ package ht.treechop;
 
 import ht.treechop.common.Common;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.network.PacketHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -21,7 +22,6 @@ public class TreeChopMod {
     public static Common proxy;
 
     public TreeChopMod() {
-
     }
 
     @EventHandler
@@ -35,6 +35,6 @@ public class TreeChopMod {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        // TODO: network init
+        PacketHandler.init();
     }
 }
