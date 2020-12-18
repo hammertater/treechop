@@ -41,7 +41,7 @@ public class PacketEnableFelling implements IMessage {
                 player.getServer().addScheduledTask(() -> {
                     ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
                     chopSettings.setFellingEnabled(message.fellingEnabled);
-                    player.sendMessage(new TextComponentString(TextFormatting.GRAY + "[TreeChop]" + TextFormatting.WHITE + "Felling " + (message.fellingEnabled ? "ON" : "OFF")));
+                    player.sendMessage(new TextComponentString(TextFormatting.GRAY + "[TreeChop] " + TextFormatting.WHITE + "Felling " + (message.fellingEnabled ? "ON" : "OFF")));
                 });
             }
             return null;

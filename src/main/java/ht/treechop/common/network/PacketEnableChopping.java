@@ -40,7 +40,7 @@ public class PacketEnableChopping implements IMessage {
                 player.getServer().addScheduledTask(() -> {
                     ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
                     chopSettings.setChoppingEnabled(message.choppingEnabled);
-                    player.sendMessage(new TextComponentString(TextFormatting.GRAY + "[TreeChop]" + TextFormatting.WHITE + "Chopping " + (message.choppingEnabled ? "ON" : "OFF")));
+                    player.sendMessage(new TextComponentString(TextFormatting.GRAY + "[TreeChop] " + TextFormatting.WHITE + "Chopping " + (message.choppingEnabled ? "ON" : "OFF")));
                 });
             }
             return null;

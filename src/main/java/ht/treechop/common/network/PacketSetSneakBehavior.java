@@ -44,7 +44,7 @@ public class PacketSetSneakBehavior implements IMessage {
                 player.getServer().addScheduledTask(() -> {
                     ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
                     chopSettings.setSneakBehavior(message.sneakBehavior);
-                    player.sendMessage(new TextComponentString(TextFormatting.GRAY + "[TreeChop]" + TextFormatting.WHITE + "Sneak behavior " + message.sneakBehavior.getName()));
+                    player.sendMessage(new TextComponentString(TextFormatting.GRAY + "[TreeChop] " + TextFormatting.WHITE + "Sneak behavior " + message.sneakBehavior.getName()));
                 });
             }
             return null;
