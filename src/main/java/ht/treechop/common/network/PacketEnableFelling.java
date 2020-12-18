@@ -40,7 +40,7 @@ public class PacketEnableFelling implements IMessage {
                 EntityPlayerMP player = context.getServerHandler().player;
                 player.getServer().addScheduledTask(() -> {
                     ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
-                    chopSettings.setChoppingEnabled(message.fellingEnabled);
+                    chopSettings.setFellingEnabled(message.fellingEnabled);
                     player.sendMessage(new TextComponentString(TextFormatting.GRAY + "[TreeChop]" + TextFormatting.WHITE + "Felling " + (message.fellingEnabled ? "ON" : "OFF")));
                 });
             }
