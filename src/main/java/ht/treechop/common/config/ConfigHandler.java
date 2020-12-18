@@ -42,7 +42,7 @@ public class ConfigHandler {
     private static final String GENERAL = "1-GENERAL";
     private static final String PLAYER_SETTINGS = "2-DEFAULT_PLAYER_SETTINGS";
     private static final String TREE_DETECTION = "3-TREE-DETECTION";
-    private static final String CHOPPING = "4-CHOPPING";
+    private static final String CHOPPING = "4-CHOP-COUNTING";
     private static String category;
 
     // Good reference: https://github.com/Vazkii/Botania/blob/1.12-final/src/main/java/vazkii/botania/common/core/handler/ConfigHandler.java
