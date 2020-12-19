@@ -479,7 +479,7 @@ public class ChopUtil {
     }
 
     public static void doExhaustion(EntityPlayer agent) {
-        agent.addExhaustion(0.005F);
+        agent.addExhaustion(ConfigHandler.chopExhaustionAmount);
     }
 
     public static void doItemDamage(ItemStack itemStack, World world, IBlockState blockState, BlockPos blockPos, EntityPlayer agent) {

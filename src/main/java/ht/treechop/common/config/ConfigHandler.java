@@ -24,6 +24,8 @@ public class ConfigHandler {
 
     public static boolean enabled = true;
     public static boolean canChooseNotToChop = true;
+    public static float chopExhaustionAmount = 0.005F;
+
     public static int maxNumTreeBlocks = 8096;
     public static int maxNumLeavesBlocks = 8096;
     public static boolean breakLeaves = true;
@@ -61,6 +63,8 @@ public class ConfigHandler {
                 enabled);
         canChooseNotToChop = getBoolean("canChooseNotToChop", "Whether players can deactivate chopping e.g. by sneaking",
                 canChooseNotToChop);
+        chopExhaustionAmount = getFloat("chopExhaustionAmount", "The amount of exhaustion suffered by the player after each chop",
+                chopExhaustionAmount, 0, 1);
 
         if (TreeChopMod.proxy.isClient()) {
         category(PLAYER_SETTINGS);
@@ -83,7 +87,7 @@ public class ConfigHandler {
                 maxNumLeavesBlocks, 0, 8096);
         breakLeaves = getBoolean("breakLeaves", "Whether to destroy leaves when a tree is felled",
                 breakLeaves);
-        maxBreakLeavesDistance = getInt("maxBreakLeavesDistance", "Maximum distance from tree blocks to destroy leaves blocks when felling",
+        maxBreakLeavesDistance = getInt("maxBreakLeavesDistance", "Maximum distance from tree blocks to destroy leaves blocks when felling (Note: smart leaves destruction is not supported in 1.12.2)",
                 maxBreakLeavesDistance, 0, 16);
 
         logBlockSynonyms = getStringList("logBlocks", "Blocks that can be chopped\nOre dictionary names are also acceptable",
