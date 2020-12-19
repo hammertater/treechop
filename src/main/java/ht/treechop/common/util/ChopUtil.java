@@ -32,6 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -255,12 +256,19 @@ public class ChopUtil {
         }
 
         int maxNumTreeBlocks = ConfigHandler.maxNumTreeBlocks;
+
+        AtomicBoolean hasLeaves = new AtomicBoolean(!getPlayerChopSettings(agent).getOnlyChopTreesWithLeaves());
         Set<BlockPos> supportedBlocks = getConnectedBlocks(
                 Collections.singletonList(blockPos),
                 somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)
-                        .filter(checkPos -> isBlockALog(world, checkPos)),
+                        .peek(pos -> hasLeaves.compareAndSet(false, isBlockLeaves(world, pos)))
+                        .filter(pos -> isBlockALog(world, pos)),
                 maxNumTreeBlocks
         );
+
+        if (!hasLeaves.get()) {
+            return ChopResult.IGNORED;
+        }
 
         if (supportedBlocks.size() >= maxNumTreeBlocks) {
             TreeChopMod.LOGGER.warn(String.format("Max tree size reached: %d >= %d block (not including leaves)", supportedBlocks.size(), maxNumTreeBlocks));

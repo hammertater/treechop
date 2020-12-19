@@ -28,11 +28,14 @@ public class ConfigHandler {
     public static int maxNumLeavesBlocks = 8096;
     public static boolean breakLeaves = true;
     public static int maxBreakLeavesDistance = 4;
+
     public static ChopCountingAlgorithm chopCountingAlgorithm = ChopCountingAlgorithm.LOGARITHMIC;
     public static float chopCountScale = 1F;
-    public static boolean choppingEnabled;
-    public static boolean fellingEnabled;
-    public static SneakBehavior sneakBehavior;
+
+    public static boolean choppingEnabled = true;
+    public static boolean fellingEnabled = true;
+    public static SneakBehavior sneakBehavior = SneakBehavior.INVERT_CHOPPING;
+    public static boolean onlyChopTreesWithLeaves = false;
 
     private static List<String> logBlockSynonyms = Lists.newArrayList("logWood");
     private static List<String> leavesBlockSynonyms = Lists.newArrayList("treeLeaves");
@@ -62,11 +65,13 @@ public class ConfigHandler {
         if (TreeChopMod.proxy.isClient()) {
         category(PLAYER_SETTINGS);
             choppingEnabled = getBoolean("choppingEnabled", "Default setting for whether or not the user wishes to chop (can be toggled in-game)",
-                    Client.getChopSettings().getChoppingEnabled());
+                    choppingEnabled);
             fellingEnabled = getBoolean("fellingEnabled", "Default setting for whether or not the user wishes to fell tree when chopping (can be toggled in-game)",
-                    Client.getChopSettings().getFellingEnabled());
+                    fellingEnabled);
             sneakBehavior = getEnum("sneakBehavior", "Default setting for the effect that sneaking has on chopping (can be cycled in-game)",
-                    SneakBehavior.class, Client.getChopSettings().getSneakBehavior());
+                    sneakBehavior, SneakBehavior.class);
+            onlyChopTreesWithLeaves = getBoolean("onlyChopTreesWithLeaves", "Whether to ignore trees without connected leaves",
+                    onlyChopTreesWithLeaves);
 
             Client.updateChopSettings(getChopSettings());
         }
@@ -97,7 +102,7 @@ public class ConfigHandler {
 
         category(CHOPPING);
         chopCountingAlgorithm = getEnum("chopCountingMethod", "Method to use for computing the number of chops needed to fell a tree",
-                ChopCountingAlgorithm.class, chopCountingAlgorithm);
+                chopCountingAlgorithm, ChopCountingAlgorithm.class);
         chopCountScale = getFloat("chopCountScale", "Scales the number of chops (rounding down) required to fell a tree; with chopCountingMethod=LINEAR, this is exactly the number of chops per block",
                 chopCountScale, 0, 1024);
         
@@ -133,7 +138,7 @@ public class ConfigHandler {
         return config.getFloat(key, category, defaultValue, lowerBound, upperBound, comment);
     }
 
-    private static <T extends Enum<T>> T getEnum(String key, String comment, Class<T> enumClass, T defaultValue) {
+    private static <T extends Enum<T>> T getEnum(String key, String comment, T defaultValue, Class<T> enumClass) {
         String[] possibleValues = getEnumValuesAsStrings(enumClass);
         return Enum.valueOf(enumClass, config.getString(
                 key, category, defaultValue.name(),

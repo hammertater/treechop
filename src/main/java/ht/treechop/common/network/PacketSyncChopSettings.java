@@ -32,6 +32,8 @@ public class PacketSyncChopSettings implements IMessage {
 
         int sneakBehaviorIndex = buffer.readInt();
         chopSettings.setSneakBehavior(sneakBehaviorIndex < SneakBehavior.values().length ? SneakBehavior.values()[sneakBehaviorIndex] : defaultSneakBehavior);
+
+        chopSettings.setOnlyChopTreesWithLeaves(buffer.readBoolean());
     }
 
     @Override
@@ -39,6 +41,7 @@ public class PacketSyncChopSettings implements IMessage {
         buffer.writeBoolean(chopSettings.getChoppingEnabled());
         buffer.writeBoolean(chopSettings.getFellingEnabled());
         buffer.writeInt(chopSettings.getSneakBehavior().ordinal());
+        buffer.writeBoolean(chopSettings.getOnlyChopTreesWithLeaves());
     }
 
     public static class Handler implements IMessageHandler<PacketSyncChopSettings, IMessage> {
@@ -70,6 +73,9 @@ public class PacketSyncChopSettings implements IMessage {
                 chopSettings.copyFrom(message.chopSettings);
                 chopSettings.setSynced();
             }
+
+            // Force settings through that aren't yet configurable in-game
+            chopSettings.setOnlyChopTreesWithLeaves(message.chopSettings.getOnlyChopTreesWithLeaves());
 
             TreeChopMod.LOGGER.info("Sending chop settings to player " + player.getDisplayNameString());
             PacketHandler.sendTo(player, new PacketSyncChopSettings(chopSettings));
