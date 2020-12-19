@@ -1,9 +1,11 @@
 package ht.treechop.common;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.common.capabilities.ChopSettings;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.capabilities.ChopSettingsProvider;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.util.ChopResult;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.block.state.IBlockState;
@@ -14,20 +16,22 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
-@Mod.EventBusSubscriber(modid = TreeChopMod.MOD_ID)
-public abstract class Common {
+public class Common {
 
     public void preInit() {
         ChopSettingsCapability.register();
-//        PacketHandler.init(); // TODO
+        PacketHandler.init();
     }
 
     @SubscribeEvent
-    public static void onBreakEvent(BlockEvent.BreakEvent event) {
+    public void onBreakEvent(BlockEvent.BreakEvent event) {
         World world = event.getWorld();
         BlockPos blockPos = event.getPos();
         EntityPlayer agent = event.getPlayer();
@@ -61,7 +65,7 @@ public abstract class Common {
     }
 
     @SubscribeEvent
-    public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
+    public void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         final ResourceLocation loc = new ResourceLocation(TreeChopMod.MOD_ID + "chop_settings_capability");
 
         Entity entity = event.getObject();
@@ -70,5 +74,18 @@ public abstract class Common {
         }
     }
 
-    public abstract boolean isClient();
+    @SubscribeEvent
+    public void onPlayerCloned(PlayerEvent.Clone event) {
+        if (event.isWasDeath()) {
+            EntityPlayer oldPlayer = event.getOriginal();
+            EntityPlayer newPlayer = event.getEntityPlayer();
+            ChopSettings oldSettings = ChopSettingsCapability.forPlayer(oldPlayer);
+            ChopSettings newSettings = ChopSettingsCapability.forPlayer(newPlayer);
+            newSettings.copyFrom(oldSettings);
+        }
+    }
+
+    public boolean isClient() {
+        return false;
+    }
 }

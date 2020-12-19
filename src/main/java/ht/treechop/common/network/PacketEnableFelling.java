@@ -1,6 +1,5 @@
 package ht.treechop.common.network;
 
-import ht.treechop.common.capabilities.ChopSettings;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
