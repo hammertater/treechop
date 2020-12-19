@@ -3,12 +3,14 @@ package ht.treechop.client;
 import ht.treechop.TreeChopMod;
 import ht.treechop.common.Common;
 import ht.treechop.common.capabilities.ChopSettings;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.PacketEnableChopping;
 import ht.treechop.common.network.PacketEnableFelling;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.network.PacketSetSneakBehavior;
-import ht.treechop.common.network.PacketSyncChopSettings;
+import ht.treechop.common.network.PacketSyncChopSettingsToServer;
 import net.minecraft.client.Minecraft;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -18,18 +20,28 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class Client extends Common {
 
     private static final ChopSettings chopSettings = new ChopSettings();
+    private static boolean pendingSync = false;
 
+    /**
+     * This is too early to send packets; as a hacky workaround, let's delay syncing until the next EntityJoinWorldEvent
+     */
     @SubscribeEvent
     public void onConnect(FMLNetworkEvent.ClientConnectedToServerEvent event) {
-        TreeChopMod.LOGGER.info("Sending chop settings sync request");
-        updateChopSettings(chopSettings);
+        pendingSync = true;
+    }
+
+    @SubscribeEvent
+    public void onConnectDelayed(EntityJoinWorldEvent event) {
+        if (pendingSync && event.getEntity() == Minecraft.getMinecraft().player) {
+            updateChopSettings(ConfigHandler.getChopSettings());
+            pendingSync = false;
+        }
     }
 
     public static void updateChopSettings(ChopSettings chopSettingsIn) {
-        if (Minecraft.getMinecraft().world != null) {
-            chopSettings.copyFrom(chopSettingsIn);
-            PacketHandler.sendToServer(new PacketSyncChopSettings(chopSettingsIn));
-        }
+        TreeChopMod.LOGGER.info("Sending chop settings sync request");
+        chopSettings.copyFrom(chopSettingsIn);
+        PacketHandler.sendToServer(new PacketSyncChopSettingsToServer(chopSettingsIn));
     }
 
     @Override

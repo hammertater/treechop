@@ -5,6 +5,7 @@ import ht.treechop.TreeChopMod;
 import ht.treechop.client.Client;
 import ht.treechop.common.capabilities.ChopSettings;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -77,7 +78,9 @@ public class ConfigHandler {
             onlyChopTreesWithLeaves = getBoolean("onlyChopTreesWithLeaves", "Whether to ignore trees without connected leaves",
                     onlyChopTreesWithLeaves);
 
-            Client.updateChopSettings(getChopSettings());
+            if (Minecraft.getMinecraft().world != null) {
+                Client.updateChopSettings(getChopSettings());
+            }
         }
 
         category(TREE_DETECTION);
@@ -115,11 +118,12 @@ public class ConfigHandler {
         }
     }
 
-    private static ChopSettings getChopSettings() {
+    public static ChopSettings getChopSettings() {
         ChopSettings chopSettings = new ChopSettings();
         chopSettings.setChoppingEnabled(choppingEnabled);
         chopSettings.setFellingEnabled(fellingEnabled);
         chopSettings.setSneakBehavior(sneakBehavior);
+        chopSettings.setOnlyChopTreesWithLeaves(onlyChopTreesWithLeaves);
         return chopSettings;
     }
 

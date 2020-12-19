@@ -16,8 +16,9 @@ public final class PacketHandler {
         HANDLER.registerMessage(PacketEnableChopping.Handler.class, PacketEnableChopping.class, id++, Side.SERVER);
         HANDLER.registerMessage(PacketEnableFelling.Handler.class, PacketEnableFelling.class, id++, Side.SERVER);
         HANDLER.registerMessage(PacketSetSneakBehavior.Handler.class, PacketSetSneakBehavior.class, id++, Side.SERVER);
-        HANDLER.registerMessage(PacketSyncChopSettings.Handler.class, PacketSyncChopSettings.class, id, Side.SERVER);
-        HANDLER.registerMessage(PacketSyncChopSettings.Handler.class, PacketSyncChopSettings.class, id++, Side.CLIENT);
+        HANDLER.registerMessage(PacketSyncChopSettingsToServer.Handler.class, PacketSyncChopSettingsToServer.class, id++, Side.SERVER);
+        HANDLER.registerMessage(PacketSyncChopSettingsToClient.Handler.class, PacketSyncChopSettingsToClient.class, id++, Side.CLIENT);
+        HANDLER.registerMessage(PacketRequestChopSettings.Handler.class, PacketRequestChopSettings.class, id++, Side.CLIENT);
     }
 
     public static void sendToServer(IMessage message) {
