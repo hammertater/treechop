@@ -18,10 +18,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 public class Common {
 
@@ -53,15 +50,19 @@ public class Common {
         }
 
         event.setCanceled(true);
-        BlockPos choppedBlockPos = chopResult.getChoppedBlockPos();
-        IBlockState choppedBlockState = chopResult.getChoppedBlockState();
 
-        // The event was canceled to prevent the block from being broken, but still want all the other consequences of breaking block
-        // TODO: do we need to handle fortune, silk touch, etc.?
-        ChopUtil.doItemDamage(tool, world, choppedBlockState, choppedBlockPos, agent);
-        ChopUtil.dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
-        ChopUtil.doExhaustion(agent);
-        //agent.addStat(Stats.BLOCK_MINED.get(choppedBlockState.getBlock())); // TODO
+        // The event was canceled to prevent the block from being broken, but still want all the other consequences of breaking blocks
+        if (!agent.isCreative()) {
+            BlockPos choppedBlockPos = chopResult.getChoppedBlockPos();
+            IBlockState choppedBlockState = chopResult.getChoppedBlockState();
+
+            ChopUtil.doItemDamage(tool, world, choppedBlockState, choppedBlockPos, agent);
+
+            if (choppedBlockState.getBlock() != world.getBlockState(choppedBlockPos).getBlock()) {
+                ChopUtil.harvestBlock(world, blockPos, agent, tool, choppedBlockState);
+                ChopUtil.dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
+            }
+        }
     }
 
     @SubscribeEvent

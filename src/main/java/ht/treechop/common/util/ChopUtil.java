@@ -138,7 +138,7 @@ public class ChopUtil {
             IBlockState choppedState = choppedBlock.getDefaultState()
                     .withProperty(BlockStateProperties.CHOP_COUNT, numChops)
                     .withProperty(BlockStateProperties.CHOPPED_LOG_SHAPE, shape);
-            return harvestAndChangeBlock(world, blockPos, choppedState, agent, tool);
+            return tryToChangeBlock(world, blockPos, choppedState, agent, tool);
         } else {
             return null;
         }
@@ -147,19 +147,10 @@ public class ChopUtil {
     /**
      * @return the new block state, or {@code null} if unable to break the block
      */
-    private static IBlockState harvestAndChangeBlock(World world, BlockPos blockPos, IBlockState newBlockState, EntityPlayer agent, ItemStack tool) {
-        // TODO: replicate default behavior
-        IBlockState oldBlockState = world.getBlockState(blockPos);
+    private static IBlockState tryToChangeBlock(World world, BlockPos blockPos, IBlockState newBlockState, EntityPlayer agent, ItemStack tool) {
         if (tool.isEmpty() && tool.getItem().onBlockStartBreak(tool, blockPos, agent)) {
             return null;
         } else {
-            if (!tool.isEmpty()) {
-                tool.onBlockDestroyed(world, oldBlockState, blockPos, agent);
-            }
-            if (!agent.isCreative() && oldBlockState.getBlock().canHarvestBlock(world, blockPos, agent)) {
-                TileEntity tileEntity = world.getTileEntity(blockPos);
-                oldBlockState.getBlock().harvestBlock(world, agent, blockPos, oldBlockState, tileEntity, tool);
-            }
             world.setBlockState(blockPos, newBlockState, 3);
             return newBlockState;
         }
@@ -402,7 +393,6 @@ public class ChopUtil {
 
     private static IChoppable getChoppedBlock(World world, BlockPos pos, IBlockState blockState) {
         if (isBlockALog(world, pos, blockState)) {
-            // TODO: look up appropriate chopped block type
             return (IChoppable) (blockState.getBlock() instanceof IChoppable ? blockState.getBlock() : ModBlocks.CHOPPED_LOG);
         } else {
             return null;
@@ -493,6 +483,13 @@ public class ChopUtil {
     public static void dropExperience(World world, BlockPos blockPos, IBlockState blockState, int amount) {
         if (world instanceof WorldServer) {
             blockState.getBlock().dropXpOnBlockBreak(world, blockPos, amount);
+        }
+    }
+
+    public static void harvestBlock(World world, BlockPos blockPos, EntityPlayer agent, ItemStack tool, IBlockState choppedBlockState) {
+        if (choppedBlockState.getBlock().canHarvestBlock(world, blockPos, agent)) {
+            TileEntity tileEntity = world.getTileEntity(blockPos);
+            choppedBlockState.getBlock().harvestBlock(world, agent, blockPos, choppedBlockState, tileEntity, tool); // handles exhaustion, stat-keeping, enchantment effects, and item spawns
         }
     }
 }
