@@ -1,5 +1,6 @@
 package ht.treechop.common.config;
 
+import ht.treechop.common.capabilities.ChopSettings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -36,6 +37,8 @@ public class ConfigHandler {
 
         public final ForgeConfigSpec.BooleanValue enabled;
         public final ForgeConfigSpec.BooleanValue canChooseNotToChop;
+        public final ForgeConfigSpec.DoubleValue chopExhaustionAmount;
+
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
         public final ForgeConfigSpec.BooleanValue breakLeaves;
@@ -52,15 +55,19 @@ public class ConfigHandler {
             canChooseNotToChop = builder
                     .comment("Whether players can deactivate chopping e.g. by sneaking")
                     .define("canChooseNotToChop", true);
+            chopExhaustionAmount = builder
+                    .comment("The amount of exhaustion suffered by the player after each chop")
+                    .defineInRange("chopExhaustionAmount", 0.005, 0, 1);
+
             maxNumTreeBlocks = builder
                     .comment("Maximum number of log blocks that can be detected to belong to one tree")
                     .defineInRange("maxTreeBlocks", 256, 1, 8096);
-            maxNumLeavesBlocks = builder
-                    .comment("Maximum number of leaves blocks that can destroyed when a tree is felled")
-                    .defineInRange("maxLeavesBlocks", 1024, 1, 8096);
             breakLeaves = builder
                     .comment("Whether to destroy leaves when a tree is felled")
                     .define("breakLeaves", true);
+            maxNumLeavesBlocks = builder
+                    .comment("Maximum number of leaves blocks that can destroyed when a tree is felled")
+                    .defineInRange("maxLeavesBlocks", 1024, 1, 8096);
             chopCountingAlgorithm = builder
                     .comment("Method to use for computing the number of chops needed to fell a tree")
                     .defineEnum("chopCountingMethod", ChopCountingAlgorithm.LOGARITHMIC);
@@ -108,6 +115,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue choppingEnabled;
         public final ForgeConfigSpec.BooleanValue fellingEnabled;
         public final ForgeConfigSpec.EnumValue<SneakBehavior> sneakBehavior;
+        public final ForgeConfigSpec.BooleanValue onlyBreakTreesWithLeaves;
 
         public Client(ForgeConfigSpec.Builder builder) {
             choppingEnabled = builder
@@ -119,8 +127,19 @@ public class ConfigHandler {
             sneakBehavior = builder
                     .comment("Default setting for the effect that sneaking has on chopping (can be cycled in-game)")
                     .defineEnum("sneakBehavior", SneakBehavior.INVERT_CHOPPING);
+            onlyBreakTreesWithLeaves = builder
+                    .comment("Whether to ignore trees without connected leaves")
+                    .define("onlyBreakTreesWithLeaves", false);
         }
 
+        public ChopSettings getChopSettings() {
+            ChopSettings chopSettings = new ChopSettings();
+            chopSettings.setChoppingEnabled(ConfigHandler.CLIENT.choppingEnabled.get());
+            chopSettings.setFellingEnabled(ConfigHandler.CLIENT.fellingEnabled.get());
+            chopSettings.setSneakBehavior(ConfigHandler.CLIENT.sneakBehavior.get());
+            chopSettings.setOnlyChopTreesWithLeaves(ConfigHandler.CLIENT.onlyBreakTreesWithLeaves.get());
+            return chopSettings;
+        }
     }
 
     public static final Client CLIENT;

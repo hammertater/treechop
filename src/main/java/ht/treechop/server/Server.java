@@ -15,7 +15,6 @@ public class Server {
         eventBus.addListener(Server::onPlayerCloned);
     }
 
-    // Server-side
     public static void onPlayerCloned(PlayerEvent.Clone event) {
         if (event.isWasDeath()) {
             PlayerEntity oldPlayer = event.getOriginal();

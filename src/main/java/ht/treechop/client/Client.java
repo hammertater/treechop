@@ -24,11 +24,9 @@ public class Client {
         KeyBindings.clientSetup(event);
     }
 
+    // TODO: is this working?
     public static void onConnect(ClientPlayerNetworkEvent.LoggedInEvent event) {
-        chopSettings.setChoppingEnabled(ConfigHandler.CLIENT.choppingEnabled.get());
-        chopSettings.setFellingEnabled(ConfigHandler.CLIENT.fellingEnabled.get());
-        chopSettings.setSneakBehavior(ConfigHandler.CLIENT.sneakBehavior.get());
-
+        chopSettings.copyFrom(ConfigHandler.CLIENT.getChopSettings());
         TreeChopMod.LOGGER.info("Sending chop settings sync request");
         PacketHandler.sendToServer(new PacketSyncChopSettings(chopSettings));
     }

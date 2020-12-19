@@ -64,6 +64,9 @@ public class PacketSyncChopSettings {
             chopSettings.setSynced();
         }
 
+        // Force settings through that aren't yet configurable in-game
+        chopSettings.setOnlyChopTreesWithLeaves(message.chopSettings.getOnlyChopTreesWithLeaves());
+
         TreeChopMod.LOGGER.info("Sending chop settings to player " + player.getScoreboardName());
         PacketHandler.sendTo(player, new PacketSyncChopSettings(chopSettings));
     }
