@@ -1,6 +1,6 @@
 # HT's TreeChop
 
-For a far more fun description, see https://www.curseforge.com/minecraft/mc-mod.
+For a far more fun description, see https://www.curseforge.com/minecraft/mc-mods/treechop.
 
 ## List of new stuff coming in version 0.11
 * ~~Port to 1.12.2~~ **\[done]**
