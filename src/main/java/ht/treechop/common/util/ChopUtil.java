@@ -133,11 +133,10 @@ public class ChopUtil {
             throw new IllegalArgumentException("Block is already chipped");
         }
 
-        Block choppedBlock = (Block) getChoppedBlock(world, blockPos, blockState);
+        Block choppedBlock = (Block) getChoppedBlock(world, blockPos, blockState, shape);
         if (choppedBlock != null) {
             IBlockState choppedState = choppedBlock.getDefaultState()
-                    .withProperty(BlockStateProperties.CHOP_COUNT, numChops)
-                    .withProperty(BlockStateProperties.CHOPPED_LOG_SHAPE, shape);
+                    .withProperty(BlockStateProperties.CHOP_COUNT, numChops);
             return tryToChangeBlock(world, blockPos, choppedState, agent, tool);
         } else {
             return null;
@@ -386,14 +385,16 @@ public class ChopUtil {
         if (block instanceof IChoppable) {
             return ((IChoppable) block).getMaxNumChops();
         } else {
-            IChoppable choppedBlock = getChoppedBlock(world, pos, blockState);
+            IChoppable choppedBlock = getChoppedBlock(world, pos, blockState, ChoppedLogShape.PILLAR);
             return (choppedBlock != null) ? choppedBlock.getMaxNumChops() : 0;
         }
     }
 
-    private static IChoppable getChoppedBlock(World world, BlockPos pos, IBlockState blockState) {
+    private static IChoppable getChoppedBlock(World world, BlockPos pos, IBlockState blockState, ChoppedLogShape shape) {
         if (isBlockALog(world, pos, blockState)) {
-            return (IChoppable) (blockState.getBlock() instanceof IChoppable ? blockState.getBlock() : ModBlocks.CHOPPED_LOG);
+            return (blockState.getBlock() instanceof IChoppable)
+                    ? (IChoppable) blockState.getBlock()
+                    : ModBlocks.CHOPPED_LOGS.get(shape);
         } else {
             return null;
         }

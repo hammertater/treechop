@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "chops=1": { "model": "treechop:chopped_side_log1", "y": 90 },
+    "chops=2": { "model": "treechop:chopped_side_log2", "y": 90 },
+    "chops=3": { "model": "treechop:chopped_side_log3", "y": 90 },
+    "chops=4": { "model": "treechop:chopped_side_log4", "y": 90 },
+    "chops=5": { "model": "treechop:chopped_side_log5", "y": 90 },
+    "chops=6": { "model": "treechop:chopped_side_log6", "y": 90 },
+    "chops=7": { "model": "treechop:chopped_side_log7", "y": 90 }
+  }
+}

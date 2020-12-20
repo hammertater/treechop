@@ -28,9 +28,9 @@ import static ht.treechop.common.util.ChopUtil.isBlockALog;
 
 public class ChoppedLogBlock extends Block implements IChoppable {
 
+    private final ChoppedLogShape shape;
     private static final int MAX_NUM_CHOPS = 7;
 
-    private static final PropertyEnum<ChoppedLogShape> SHAPE = BlockStateProperties.CHOPPED_LOG_SHAPE;
     private static final PropertyInteger CHOPS = BlockStateProperties.CHOP_COUNT;
 
     public static final AxisAlignedBB[] PILLAR_SHAPES_BY_CHOPS;
@@ -141,16 +141,17 @@ public class ChoppedLogBlock extends Block implements IChoppable {
                 .toArray(AxisAlignedBB[]::new);
     }
 
-    public ChoppedLogBlock() {
+    public ChoppedLogBlock(ChoppedLogShape shape) {
         super(Material.WOOD, MapColor.WOOD);
-        setRegistryName(new ResourceLocation(TreeChopMod.MOD_ID, "chopped_log"));
+        setRegistryName(new ResourceLocation(TreeChopMod.MOD_ID, "chopped_log_" + shape.getName().toLowerCase()));
         setSoundType(SoundType.WOOD);
         setHardness(2.0F);
         setResistance(2.0F);
         setDefaultState(getBlockState().getBaseState()
-                .withProperty(SHAPE, ChoppedLogShape.PILLAR)
                 .withProperty(CHOPS, 1)
         );
+
+        this.shape = shape;
     }
 
     @SuppressWarnings("deprecation")
@@ -182,7 +183,7 @@ public class ChoppedLogBlock extends Block implements IChoppable {
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, SHAPE, CHOPS);
+        return new BlockStateContainer(this, CHOPS);
     }
 
     @Override
@@ -243,7 +244,7 @@ public class ChoppedLogBlock extends Block implements IChoppable {
     @SuppressWarnings({"deprecation", "NullableProblems"})
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
         int chops = state.getValue(CHOPS);
-        switch (state.getValue(SHAPE)) {
+        switch (shape) {
             case CORNER_NW:
                 return CORNER_NW_SHAPES_BY_CHOPS[chops];
             case CORNER_NE:

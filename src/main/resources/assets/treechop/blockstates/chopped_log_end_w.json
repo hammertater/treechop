@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "chops=1": { "model": "treechop:chopped_end_log1", "y": 180 },
+    "chops=2": { "model": "treechop:chopped_end_log2", "y": 180 },
+    "chops=3": { "model": "treechop:chopped_end_log3", "y": 180 },
+    "chops=4": { "model": "treechop:chopped_end_log4", "y": 180 },
+    "chops=5": { "model": "treechop:chopped_end_log5", "y": 180 },
+    "chops=6": { "model": "treechop:chopped_end_log6", "y": 180 },
+    "chops=7": { "model": "treechop:chopped_end_log7", "y": 180 }
+  }
+}

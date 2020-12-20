@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "chops=1": { "model": "treechop:chopped_log1" },
+    "chops=2": { "model": "treechop:chopped_log2" },
+    "chops=3": { "model": "treechop:chopped_log3" },
+    "chops=4": { "model": "treechop:chopped_log4" },
+    "chops=5": { "model": "treechop:chopped_log5" },
+    "chops=6": { "model": "treechop:chopped_log6" },
+    "chops=7": { "model": "treechop:chopped_log7" }
+  }
+}
