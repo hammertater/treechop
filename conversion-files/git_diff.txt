@@ -213,12 +213,12 @@ index 3818ac6..2613d11 100644
  
 -            if (newBlockState != null && newBlockState.getBlock() instanceof ChoppedLogBlock) {
 -                ChoppedLogBlock block = (ChoppedLogBlock) newBlockState.getBlock();
--                ChoppedLogBlock.ChopResult chopResult = block.chop(world, blockPos, newBlockState, event.getPlayer(), (firstChop) ? 0 : 1, tool);
+-                ChoppedLogBlock.ChopResult blockThatWasChopped = block.chop(world, blockPos, newBlockState, event.getPlayer(), (firstChop) ? 0 : 1, tool);
 +            if (blockState.getBlock() instanceof ChoppedLogBlock) { // This should always be true... but just in case
 +                ChoppedLogBlock block = (ChoppedLogBlock) blockState.getBlock();
-+                ChoppedLogBlock.ChopResult chopResult = block.chop(world, blockPos, blockState, event.getPlayer(), (firstChop) ? 0 : 1, tool);
-                 BlockPos choppedBlockPos = chopResult.getChoppedBlockPos();
-                 BlockState choppedBlockState = chopResult.getChoppedBlockState();
++                ChoppedLogBlock.ChopResult blockThatWasChopped = block.chop(world, blockPos, blockState, event.getPlayer(), (firstChop) ? 0 : 1, tool);
+                 BlockPos choppedBlockPos = blockThatWasChopped.getChoppedBlockPos();
+                 BlockState choppedBlockState = blockThatWasChopped.getChoppedBlockState();
 -                if (choppedBlockPos == blockPos) {
 +                if (choppedBlockState == blockState) {
                      choppedBlockState = oldBlockState;

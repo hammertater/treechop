@@ -233,16 +233,16 @@ public class ChopUtil {
         return (int) (ConfigHandler.chopCountingAlgorithm.calculate(numBlocks) * ConfigHandler.chopCountScale);
     }
 
-    public static ChopResult chop(World world, BlockPos blockPos, EntityPlayer agent, int numChops, ItemStack tool, boolean fellIfPossible) {
+    public static BlockThatWasBroken chop(World world, BlockPos blockPos, EntityPlayer agent, int numChops, ItemStack tool, boolean fellIfPossible) {
         return fellIfPossible
                 ? chop(world, blockPos, agent, numChops, tool)
                 : chopNoFell(world, blockPos, agent, numChops, tool);
     }
 
-    public static ChopResult chop(World world, final BlockPos blockPos, EntityPlayer agent, int numChops, ItemStack tool) {
+    public static BlockThatWasBroken chop(World world, final BlockPos blockPos, EntityPlayer agent, int numChops, ItemStack tool) {
         IBlockState blockState = world.getBlockState(blockPos);
         if (!isBlockChoppable(world, blockPos, blockState)) {
-            return ChopResult.IGNORED;
+            return BlockThatWasBroken.IGNORED;
         }
 
         int maxNumTreeBlocks = ConfigHandler.maxNumTreeBlocks;
@@ -257,7 +257,7 @@ public class ChopUtil {
         );
 
         if (!hasLeaves.get()) {
-            return ChopResult.IGNORED;
+            return BlockThatWasBroken.IGNORED;
         }
 
         if (supportedBlocks.size() >= maxNumTreeBlocks) {
@@ -268,8 +268,9 @@ public class ChopUtil {
         int currentNumChops = getNumChops(blockState);
 
         if (currentNumChops + numChops >= numChopsToFell) {
+            BlockThatWasBroken result = new BlockThatWasBroken(world, blockPos, blockState, agent);
             fellTree(world, supportedBlocks, agent);
-            return new ChopResult(blockPos, blockState);
+            return result;
         } else {
             Set<BlockPos> nearbyChoppableBlocks;
             nearbyChoppableBlocks = ChopUtil.getConnectedBlocks(
@@ -303,13 +304,15 @@ public class ChopUtil {
                     }
                 }
 
+                BlockThatWasBroken result = new BlockThatWasBroken(world, blockPos, blockState, agent);
                 fellTree(world, supportedBlocks, agent);
-                return new ChopResult(blockPos, blockState);
+                return result;
             } else {
                 int newNumChops;
                 if ((newNumChops = currentNumChops + numChops) <= getMaxNumChops(world, blockPos, blockState)) {
+                    BlockThatWasBroken result = new BlockThatWasBroken(world, blockPos, blockState, agent);
                     setNumChops(world, blockPos, newNumChops, agent, tool);
-                    return new ChopResult(blockPos, blockState);
+                    return result;
                 } else { // If this block is out of chops, chop another block
                     int chopsToTargetedBlock = getMaxNumChops(world, blockPos, blockState) - currentNumChops;
                     if (chopsToTargetedBlock > 0) {
@@ -342,6 +345,7 @@ public class ChopUtil {
                         // ...and chop it
                         BlockPos choppedPos = sortedChoppableBlocks.get(Math.floorMod(RANDOM.nextInt(), choiceIndexLimit));
                         IBlockState choppedState = world.getBlockState(choppedPos);
+                        BlockThatWasBroken result = new BlockThatWasBroken(world, choppedPos, choppedState, agent);
                         if (choppedState.getBlock() instanceof IChoppable) {
                             IChoppable choppedBlock = (IChoppable) choppedState.getBlock();
                             newNumChops = choppedBlock.getNumChops(choppedState) + numChops;
@@ -349,12 +353,12 @@ public class ChopUtil {
                         } else {
                             IBlockState chippedState = chipBlock(world, choppedPos, numChops, agent, tool);
                             if (chippedState == null) {
-                                return ChopResult.IGNORED;
+                                return BlockThatWasBroken.IGNORED;
                             }
                         }
-                        return new ChopResult(choppedPos, choppedState);
+                        return result;
                     } else {
-                        return ChopResult.IGNORED;
+                        return BlockThatWasBroken.IGNORED;
                     }
                 }
             }
@@ -409,20 +413,22 @@ public class ChopUtil {
         return block instanceof IChoppable ? ((IChoppable) block).getNumChops(blockState) : 0;
     }
 
-    private static ChopResult chopNoFell(World world, BlockPos blockPos, EntityPlayer agent, int numChops, ItemStack tool) {
+    private static BlockThatWasBroken chopNoFell(World world, BlockPos blockPos, EntityPlayer agent, int numChops, ItemStack tool) {
         IBlockState blockState = world.getBlockState(blockPos);
         if (blockState.getBlock() instanceof IChoppable) {
             IChoppable block = (IChoppable) blockState.getBlock();
             int newNumChops = block.getNumChops(blockState) + numChops;
             if (newNumChops <= block.getMaxNumChops()) {
+                BlockThatWasBroken result = new BlockThatWasBroken(world, blockPos, blockState, agent);
                 world.setBlockState(blockPos, block.withChops(blockState, newNumChops));
-                return new ChopResult(blockPos, blockState);
+                return result;
             } else {
-                return ChopResult.IGNORED;
+                return BlockThatWasBroken.IGNORED;
             }
         } else {
+            BlockThatWasBroken result = new BlockThatWasBroken(world, blockPos, blockState, agent);
             IBlockState chippedState = chipBlock(world, blockPos, numChops, agent, tool);
-            return chippedState == null ? ChopResult.IGNORED : new ChopResult(blockPos, chippedState);
+            return chippedState == null ? BlockThatWasBroken.IGNORED : result;
         }
     }
 
@@ -487,10 +493,7 @@ public class ChopUtil {
         }
     }
 
-    public static void harvestBlock(World world, BlockPos blockPos, EntityPlayer agent, ItemStack tool, IBlockState choppedBlockState) {
-        if (choppedBlockState.getBlock().canHarvestBlock(world, blockPos, agent)) {
-            TileEntity tileEntity = world.getTileEntity(blockPos);
-            choppedBlockState.getBlock().harvestBlock(world, agent, blockPos, choppedBlockState, tileEntity, tool); // handles exhaustion, stat-keeping, enchantment effects, and item spawns
-        }
+    public static void harvestBlock(World world, BlockPos blockPos, EntityPlayer agent, ItemStack tool, TileEntity tileEntity, IBlockState blockState) {
+            blockState.getBlock().harvestBlock(world, agent, blockPos, blockState, tileEntity, tool); // handles exhaustion, stat-keeping, enchantment effects, and item spawns
     }
 }

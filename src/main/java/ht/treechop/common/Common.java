@@ -6,7 +6,7 @@ import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.capabilities.ChopSettingsProvider;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.PacketHandler;
-import ht.treechop.common.util.ChopResult;
+import ht.treechop.common.util.BlockThatWasBroken;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -44,26 +44,25 @@ public class Common {
             return;
         }
 
-        ChopResult chopResult = ChopUtil.chop(world, blockPos, agent, ChopUtil.getNumChopsByTool(tool), tool, ChopUtil.playerWantsToFell(agent));
-        if (chopResult == ChopResult.IGNORED) {
+        BlockThatWasBroken choppedBlock = ChopUtil.chop(world, blockPos, agent, ChopUtil.getNumChopsByTool(tool), tool, ChopUtil.playerWantsToFell(agent));
+        if (choppedBlock == BlockThatWasBroken.IGNORED) {
             return;
         }
 
         event.setCanceled(true);
 
-        // The event was canceled to prevent the block from being broken, but still want all the other consequences of breaking blocks
+        // The event was canceled to prevent the block from being broken, but we still want all the other consequences of breaking blocks
         if (!agent.isCreative()) {
-            BlockPos choppedBlockPos = chopResult.getChoppedBlockPos();
-            IBlockState choppedBlockState = chopResult.getChoppedBlockState();
+            BlockPos choppedBlockPos = choppedBlock.getPos();
+            IBlockState choppedBlockState = choppedBlock.getState();
 
             ChopUtil.doItemDamage(tool, world, choppedBlockState, choppedBlockPos, agent);
 
-            if (choppedBlockState.getBlock() != world.getBlockState(choppedBlockPos).getBlock()) {
-                if (choppedBlockState.getBlock().canHarvestBlock(world, blockPos, agent)) {
-                    ChopUtil.harvestBlock(world, blockPos, agent, tool, choppedBlockState);
-                }
+            if (choppedBlock.canHarvest()) {
+                choppedBlockState.getBlock().harvestBlock(world, agent, choppedBlockPos, choppedBlockState, choppedBlock.getTileEntity(), tool); // handles exhaustion, stat-keeping, enchantment effects, and item spawns
                 ChopUtil.dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
             }
+            // Vanilla does not do exhaustion if the block couldn't be harvested
         }
     }
 
