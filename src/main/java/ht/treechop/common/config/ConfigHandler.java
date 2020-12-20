@@ -37,7 +37,6 @@ public class ConfigHandler {
 
         public final ForgeConfigSpec.BooleanValue enabled;
         public final ForgeConfigSpec.BooleanValue canChooseNotToChop;
-        public final ForgeConfigSpec.DoubleValue chopExhaustionAmount;
 
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
@@ -55,9 +54,6 @@ public class ConfigHandler {
             canChooseNotToChop = builder
                     .comment("Whether players can deactivate chopping e.g. by sneaking")
                     .define("canChooseNotToChop", true);
-            chopExhaustionAmount = builder
-                    .comment("The amount of exhaustion suffered by the player after each chop")
-                    .defineInRange("chopExhaustionAmount", 0.005, 0, 1);
 
             maxNumTreeBlocks = builder
                     .comment("Maximum number of log blocks that can be detected to belong to one tree")
