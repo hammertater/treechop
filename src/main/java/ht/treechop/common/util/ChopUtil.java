@@ -56,7 +56,7 @@ public class ChopUtil {
 
     static public boolean isBlockALog(World world, BlockPos pos, IBlockState blockState) {
         Block block = blockState.getBlock();
-        return (block instanceof ChoppedLogBlock
+        return (block instanceof IChoppable
                 || ConfigHandler.getLogBlocks().contains(block)
                 || ConfigHandler.getLogItems().contains(block.getPickBlock(blockState, null, world, pos, null).getItem())
                 || isMushroomStem(blockState)
