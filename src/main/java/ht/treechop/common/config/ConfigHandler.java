@@ -25,7 +25,6 @@ public class ConfigHandler {
 
     public static boolean enabled = true;
     public static boolean canChooseNotToChop = true;
-    public static float chopExhaustionAmount = 0.005F;
 
     public static int maxNumTreeBlocks = 8096;
     public static int maxNumLeavesBlocks = 8096;
@@ -64,8 +63,6 @@ public class ConfigHandler {
                 enabled);
         canChooseNotToChop = getBoolean("canChooseNotToChop", "Whether players can deactivate chopping e.g. by sneaking",
                 canChooseNotToChop);
-        chopExhaustionAmount = getFloat("chopExhaustionAmount", "The amount of exhaustion suffered by the player after each chop",
-                chopExhaustionAmount, 0, 1);
 
         if (TreeChopMod.proxy.isClient()) {
         category(PLAYER_SETTINGS);

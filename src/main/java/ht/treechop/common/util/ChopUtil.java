@@ -475,10 +475,6 @@ public class ChopUtil {
         return isLocalPlayer(player) ? Client.getChopSettings() : player.getCapability(ChopSettingsCapability.CAPABILITY, null);
     }
 
-    public static void doExhaustion(EntityPlayer agent) {
-        agent.addExhaustion(ConfigHandler.chopExhaustionAmount);
-    }
-
     public static void doItemDamage(ItemStack itemStack, World world, IBlockState blockState, BlockPos blockPos, EntityPlayer agent) {
         ItemStack mockItemStack = itemStack.copy();
         itemStack.onBlockDestroyed(world, blockState, blockPos, agent);
