@@ -59,7 +59,9 @@ public class Common {
             ChopUtil.doItemDamage(tool, world, choppedBlockState, choppedBlockPos, agent);
 
             if (choppedBlockState.getBlock() != world.getBlockState(choppedBlockPos).getBlock()) {
-                ChopUtil.harvestBlock(world, blockPos, agent, tool, choppedBlockState);
+                if (choppedBlockState.getBlock().canHarvestBlock(world, blockPos, agent)) {
+                    ChopUtil.harvestBlock(world, blockPos, agent, tool, choppedBlockState);
+                }
                 ChopUtil.dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
             }
         }
