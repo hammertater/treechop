@@ -15,7 +15,7 @@ import net.minecraft.world.IWorld;
 
 import java.util.stream.Stream;
 
-import static ht.treechop.common.util.ChopUtil.isBlockChoppable;
+import static ht.treechop.common.util.ChopUtil.isBlockALog;
 
 public class ChoppedLogBlock extends Block implements IChoppable {
 
@@ -129,10 +129,10 @@ public class ChoppedLogBlock extends Block implements IChoppable {
         final byte WEST = 0b1000;
 
         byte sides = (byte) (
-                (isBlockChoppable(world, blockPos.north()) ? NORTH : 0) |
-                        (isBlockChoppable(world, blockPos.east()) ? EAST : 0) |
-                        (isBlockChoppable(world, blockPos.south()) ? SOUTH : 0) |
-                        (isBlockChoppable(world, blockPos.west()) ? WEST : 0)
+                (isBlockALog(world, blockPos.north()) ? NORTH : 0)
+                | (isBlockALog(world, blockPos.east()) ? EAST : 0)
+                | (isBlockALog(world, blockPos.south()) ? SOUTH : 0)
+                | (isBlockALog(world, blockPos.west()) ? WEST : 0)
         );
 
         switch (sides) {
