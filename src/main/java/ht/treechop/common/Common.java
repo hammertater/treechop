@@ -5,7 +5,7 @@ import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.capabilities.ChopSettingsProvider;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.PacketHandler;
-import ht.treechop.common.util.BlockThatWasBroken;
+import ht.treechop.common.util.ChopResult;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -32,43 +32,44 @@ public class Common {
     }
 
     public static void onBreakEvent(BlockEvent.BreakEvent event) {
-        World world = (World) event.getWorld();
-        BlockPos blockPos = event.getPos();
         PlayerEntity agent = event.getPlayer();
         ItemStack tool = agent.getHeldItemMainhand();
+        BlockState blockState = event.getState();
 
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
         if (
-                !ConfigHandler.COMMON.enabled.get() ||
-                !ChopUtil.canChopWithTool(tool) ||
-                !ChopUtil.playerWantsToChop(agent) ||
-                event.isCanceled() ||
-                !(event.getWorld() instanceof World)
+                !ConfigHandler.COMMON.enabled.get()
+                || !ChopUtil.canChopWithTool(tool)
+                || !ChopUtil.playerWantsToChop(agent)
+                || event.isCanceled()
+                || !(event.getWorld() instanceof World)
         ) {
             return;
         }
 
-        // TODO: instead of this weird cached block data structure, create a chop job data structure to hold data and perform chopping at our leisure
-        BlockThatWasBroken choppedBlock = ChopUtil.chop(world, blockPos, agent, ChopUtil.getNumChopsByTool(tool), tool, ChopUtil.playerWantsToFell(agent));
-        if (choppedBlock == BlockThatWasBroken.IGNORED) {
+        World world = (World) event.getWorld();
+        BlockPos pos = event.getPos();
+
+        ChopResult chopResult = ChopUtil.getChopResult(
+                world,
+                pos,
+                agent,
+                ChopUtil.getNumChopsByTool(tool),
+                tool,
+                ChopUtil.playerWantsToFell(agent)
+        );
+
+        if (chopResult == ChopResult.IGNORED) {
             return;
         }
 
         event.setCanceled(true);
 
-        // The event was canceled to prevent the block from being broken, but we still want all the other consequences of breaking blocks
         if (!agent.isCreative()) {
-            BlockPos choppedBlockPos = choppedBlock.getPos();
-            BlockState choppedBlockState = choppedBlock.getState();
-
-            ChopUtil.doItemDamage(tool, world, choppedBlockState, choppedBlockPos, agent);
-
-            if (choppedBlock.canHarvest()) {
-                choppedBlockState.getBlock().harvestBlock(world, agent, choppedBlockPos, choppedBlockState, choppedBlock.getTileEntity(), tool); // handles exhaustion, stat-keeping, enchantment effects, and item spawns
-                ChopUtil.dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
-            }
-            // Vanilla does not do exhaustion if the block couldn't be harvested
+            ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
         }
+
+        chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
     }
 
     // Helpful reference: https://gist.github.com/FireController1847/c7a50144f45806a996d13efcff468d1b
