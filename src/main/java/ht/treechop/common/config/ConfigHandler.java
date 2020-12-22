@@ -17,6 +17,7 @@ public class ConfigHandler {
     public static ResourceLocation blockTagForDetectingLeaves;
     public static Set<ResourceLocation> choppingToolItemsBlacklist;
     public static Set<ResourceLocation> choppingToolTagsBlacklist;
+    public static int maxBreakLeavesDistance;
 
     public static void onReload() {
         blockTagForDetectingLogs = new ResourceLocation(COMMON.blockTagForDetectingLogs.get());
@@ -31,6 +32,7 @@ public class ConfigHandler {
                 .map(tag -> ResourceLocation.tryCreate(tag.substring(1)))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
+        maxBreakLeavesDistance = COMMON.maxBreakLeavesDistance.get();
     }
 
     public static class Common {
@@ -41,6 +43,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
         public final ForgeConfigSpec.BooleanValue breakLeaves;
+        public final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
+
         public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
         public final ForgeConfigSpec.DoubleValue chopCountScale;
         protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLogs;
@@ -61,6 +65,10 @@ public class ConfigHandler {
             breakLeaves = builder
                     .comment("Whether to destroy leaves when a tree is felled")
                     .define("breakLeaves", true);
+            maxBreakLeavesDistance = builder
+                    .comment("Maximum distance from tree blocks to destroy non-standard leaves blocks (e.g. mushroom caps) when felling")
+                    .defineInRange("maxBreakLeavesDistance", 7, 0, 16);
+
             maxNumLeavesBlocks = builder
                     .comment("Maximum number of leaves blocks that can destroyed when a tree is felled")
                     .defineInRange("maxLeavesBlocks", 1024, 1, 8096);

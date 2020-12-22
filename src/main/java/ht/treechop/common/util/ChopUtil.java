@@ -40,8 +40,6 @@ import java.util.stream.Stream;
 
 public class ChopUtil {
 
-    private static final int MAX_DISTANCE_TO_DESTROY_LEAVES_LIKES = 7;
-
     static public boolean isBlockChoppable(IWorld world, BlockPos pos, Block block) {
         return (block instanceof IChoppable) ||
                 (isBlockALog(block) && !(isBlockALog(world, pos.west()) && isBlockALog(world, pos.north()) && isBlockALog(world, pos.east()) && isBlockALog(world, pos.south())));
@@ -140,7 +138,7 @@ public class ChopUtil {
                 else if (blockState.get(LeavesBlock.PERSISTENT)) {
                     return true;
                 }
-            } else if (iterationCounter.get() >= MAX_DISTANCE_TO_DESTROY_LEAVES_LIKES) {
+            } else if (iterationCounter.get() >= ConfigHandler.maxBreakLeavesDistance) {
                 return false;
             }
 
