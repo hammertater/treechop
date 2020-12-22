@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -152,13 +153,13 @@ public class ChopUtil {
         return (int) (ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(numBlocks) * ConfigHandler.COMMON.chopCountScale.get());
     }
 
-    public static ChopResult getChopResult(World world, BlockPos blockPos, PlayerEntity agent, int numChops, ItemStack tool, boolean fellIfPossible) {
+    public static ChopResult getChopResult(World world, BlockPos blockPos, PlayerEntity agent, int numChops, ItemStack tool, boolean fellIfPossible, Predicate<BlockPos> logCondition) {
         return fellIfPossible
-                ? getChopResult(world, blockPos, agent, numChops, tool)
+                ? getChopResult(world, blockPos, agent, numChops, logCondition)
                 : tryToChopWithoutFelling(world, blockPos, agent, numChops, tool);
     }
 
-    public static ChopResult getChopResult(World world, final BlockPos blockPos, PlayerEntity agent, int numChops, ItemStack tool) {
+    public static ChopResult getChopResult(World world, final BlockPos blockPos, PlayerEntity agent, int numChops, Predicate<BlockPos> logCondition) {
         if (!isBlockChoppable(world, blockPos, world.getBlockState(blockPos).getBlock())) {
             return ChopResult.IGNORED;
         }
@@ -170,7 +171,7 @@ public class ChopUtil {
                 Collections.singletonList(blockPos),
                 somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)
                         .peek(pos -> hasLeaves.compareAndSet(false, isBlockLeaves(world, pos)))
-                        .filter(checkPos -> isBlockALog(world, checkPos)),
+                        .filter(logCondition),
                 maxNumTreeBlocks
         );
 

@@ -20,6 +20,8 @@ import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
+import static ht.treechop.common.util.ChopUtil.isBlockALog;
+
 public class Common {
 
     public static void onCommonSetup(FMLCommonSetupEvent event) {
@@ -38,7 +40,8 @@ public class Common {
 
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
         if (
-                !ConfigHandler.COMMON.enabled.get()
+                !isBlockALog(blockState.getBlock())
+                || !ConfigHandler.COMMON.enabled.get()
                 || !ChopUtil.canChopWithTool(tool)
                 || !ChopUtil.playerWantsToChop(agent)
                 || event.isCanceled()
@@ -56,7 +59,8 @@ public class Common {
                 agent,
                 ChopUtil.getNumChopsByTool(tool),
                 tool,
-                ChopUtil.playerWantsToFell(agent)
+                ChopUtil.playerWantsToFell(agent),
+                logPos -> isBlockALog(world, logPos)
         );
 
         if (chopResult == ChopResult.IGNORED) {

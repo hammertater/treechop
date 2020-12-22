@@ -41,14 +41,16 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue canChooseNotToChop;
 
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
+//        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
         public final ForgeConfigSpec.BooleanValue breakLeaves;
-        public final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
+        protected final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
+        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLogs;
+        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeaves;
 
         public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
         public final ForgeConfigSpec.DoubleValue chopCountScale;
-        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLogs;
-        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeaves;
+
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppingToolsBlacklist;
 
         public Common(ForgeConfigSpec.Builder builder) {
@@ -62,16 +64,18 @@ public class ConfigHandler {
             maxNumTreeBlocks = builder
                     .comment("Maximum number of log blocks that can be detected to belong to one tree")
                     .defineInRange("maxTreeBlocks", 256, 1, 8096);
+//            treesMustBeUniform = builder
+//                    .comment("Whether to disallow different types of log blocks from belonging to the same tree")
+//                    .define("treesMustBeUniform", true);
+            maxNumLeavesBlocks = builder
+                    .comment("Maximum number of leaves blocks that can destroyed when a tree is felled")
+                    .defineInRange("maxLeavesBlocks", 1024, 1, 8096);
             breakLeaves = builder
                     .comment("Whether to destroy leaves when a tree is felled")
                     .define("breakLeaves", true);
             maxBreakLeavesDistance = builder
-                    .comment("Maximum distance from tree blocks to destroy non-standard leaves blocks (e.g. mushroom caps) when felling")
+                    .comment("Maximum distance from log blocks to destroy non-standard leaves blocks (e.g. mushroom caps) when felling")
                     .defineInRange("maxBreakLeavesDistance", 7, 0, 16);
-
-            maxNumLeavesBlocks = builder
-                    .comment("Maximum number of leaves blocks that can destroyed when a tree is felled")
-                    .defineInRange("maxLeavesBlocks", 1024, 1, 8096);
             chopCountingAlgorithm = builder
                     .comment("Method to use for computing the number of chops needed to fell a tree")
                     .defineEnum("chopCountingMethod", ChopCountingAlgorithm.LOGARITHMIC);
