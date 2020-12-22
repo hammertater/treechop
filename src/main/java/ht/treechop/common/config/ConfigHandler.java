@@ -41,7 +41,6 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue canChooseNotToChop;
 
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
-//        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
         public final ForgeConfigSpec.BooleanValue breakLeaves;
         protected final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
@@ -64,9 +63,6 @@ public class ConfigHandler {
             maxNumTreeBlocks = builder
                     .comment("Maximum number of log blocks that can be detected to belong to one tree")
                     .defineInRange("maxTreeBlocks", 256, 1, 8096);
-//            treesMustBeUniform = builder
-//                    .comment("Whether to disallow different types of log blocks from belonging to the same tree")
-//                    .define("treesMustBeUniform", true);
             maxNumLeavesBlocks = builder
                     .comment("Maximum number of leaves blocks that can destroyed when a tree is felled")
                     .defineInRange("maxLeavesBlocks", 1024, 1, 8096);
@@ -123,7 +119,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue choppingEnabled;
         public final ForgeConfigSpec.BooleanValue fellingEnabled;
         public final ForgeConfigSpec.EnumValue<SneakBehavior> sneakBehavior;
-        public final ForgeConfigSpec.BooleanValue onlyBreakTreesWithLeaves;
+        public final ForgeConfigSpec.BooleanValue treesMustHaveLeaves;
+//        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
 
         public Client(ForgeConfigSpec.Builder builder) {
             choppingEnabled = builder
@@ -135,9 +132,12 @@ public class ConfigHandler {
             sneakBehavior = builder
                     .comment("Default setting for the effect that sneaking has on chopping (can be cycled in-game)")
                     .defineEnum("sneakBehavior", SneakBehavior.INVERT_CHOPPING);
-            onlyBreakTreesWithLeaves = builder
+            treesMustHaveLeaves = builder
                     .comment("Whether to ignore trees without connected leaves")
                     .define("onlyBreakTreesWithLeaves", false);
+//            treesMustBeUniform = builder
+//                    .comment("Whether to disallow different types of log blocks from belonging to the same tree")
+//                    .define("treesMustBeUniform", true);
         }
 
         public ChopSettings getChopSettings() {
@@ -145,7 +145,7 @@ public class ConfigHandler {
             chopSettings.setChoppingEnabled(ConfigHandler.CLIENT.choppingEnabled.get());
             chopSettings.setFellingEnabled(ConfigHandler.CLIENT.fellingEnabled.get());
             chopSettings.setSneakBehavior(ConfigHandler.CLIENT.sneakBehavior.get());
-            chopSettings.setOnlyChopTreesWithLeaves(ConfigHandler.CLIENT.onlyBreakTreesWithLeaves.get());
+            chopSettings.setTreesMustBeUniform(ConfigHandler.CLIENT.treesMustHaveLeaves.get());
             return chopSettings;
         }
     }

@@ -166,7 +166,7 @@ public class ChopUtil {
 
         int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
 
-        AtomicBoolean hasLeaves = new AtomicBoolean(!getPlayerChopSettings(agent).getOnlyChopTreesWithLeaves());
+        AtomicBoolean hasLeaves = new AtomicBoolean(!getPlayerChopSettings(agent).getTreesMustHaveLeaves());
         Set<BlockPos> supportedBlocks = getConnectedBlocks(
                 Collections.singletonList(blockPos),
                 somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)

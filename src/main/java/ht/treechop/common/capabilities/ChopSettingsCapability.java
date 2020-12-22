@@ -52,7 +52,7 @@ public class ChopSettingsCapability extends ChopSettings {
             nbt.putBoolean(CHOPPING_ENABLED_KEY, instance.getChoppingEnabled());
             nbt.putBoolean(FELLING_ENABLED_KEY, instance.getFellingEnabled());
             nbt.putString(SNEAK_BEHAVIOR_KEY, instance.getSneakBehavior().name());
-            nbt.putBoolean(ONLY_CHOP_TREES_WITH_LEAVES_KEY, instance.getOnlyChopTreesWithLeaves());
+            nbt.putBoolean(ONLY_CHOP_TREES_WITH_LEAVES_KEY, instance.getTreesMustHaveLeaves());
             nbt.putBoolean(IS_SYNCED_KEY, instance.isSynced());
             return nbt;
         }
@@ -76,7 +76,7 @@ public class ChopSettingsCapability extends ChopSettings {
                 instance.setChoppingEnabled(choppingEnabled.orElse(instance.getChoppingEnabled()));
                 instance.setFellingEnabled(fellingEnabled.orElse(instance.getFellingEnabled()));
                 instance.setSneakBehavior(sneakBehavior);
-                instance.setOnlyChopTreesWithLeaves(onlyChopTreesWithLeaves.orElse(instance.getOnlyChopTreesWithLeaves()));
+                instance.setTreesMustBeUniform(onlyChopTreesWithLeaves.orElse(instance.getTreesMustHaveLeaves()));
 
                 if (isSynced.orElse(false)) {
                     instance.setSynced();
