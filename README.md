@@ -9,3 +9,4 @@ For a far more fun description, see https://www.curseforge.com/minecraft/mc-mods
 * ~~Let xp-dropping logs drop xp when felled (https://github.com/hammertater/treechop/issues/20)~~ **\[done]**
 * ~~Respect tool enchantments (https://github.com/hammertater/treechop/issues/3)~~ **\[done]**
 * ~~Fix client-side config sometimes not syncing properly when joining a server (need to confirm whether this is broken on >1.12.2)~~ **\[done]**
+* ~~Rewrite tree detection code to be more stable and maintainable~~ **\[done]**
