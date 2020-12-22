@@ -49,12 +49,14 @@ public class ChopResult {
     public void apply(BlockPos targetPos, PlayerEntity agent, ItemStack tool, boolean breakLeaves) {
         World world = agent.getEntityWorld();
 
-        blocks.removeIf(worldBlock -> !ChopUtil.canChangeBlock(worldBlock.getWorld(), worldBlock.getPos(), agent));
+        List<WorldBlock> logs = blocks.stream()
+                .filter(worldBlock -> ChopUtil.canChangeBlock(worldBlock.getWorld(), worldBlock.getPos(), agent))
+                .collect(Collectors.toList());
 
         List<WorldBlock> leaves = (felling && breakLeaves)
                 ? ChopUtil.getTreeLeaves(
                                 world,
-                                blocks.stream().map(WorldBlock::getPos).collect(Collectors.toList())
+                                logs.stream().map(WorldBlock::getPos).collect(Collectors.toList())
                         )
                         .stream()
                         .filter(pos -> ChopUtil.canChangeBlock(world, pos, agent))
@@ -62,9 +64,7 @@ public class ChopResult {
                         .collect(Collectors.toList())
                 : Lists.newArrayList();
 
-        List<WorldBlock> allBlocks = Stream.of(blocks, leaves)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        int numLogsAndLeaves = logs.size() + leaves.size();
 
         if (!world.isRemote() && !agent.isCreative()) {
             int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, tool);
@@ -76,26 +76,28 @@ public class ChopResult {
                     ? FakePlayerFactory.getMinecraft((ServerWorld) world)
                     : agent;
 
-            allBlocks.forEach(worldBlock -> {
-                if (worldBlock.getState() != Blocks.AIR.getDefaultState()) {
-                    harvestWorldBlock(agent, tool, xpAccumulator, fortune, silkTouch, worldBlock);
-                } else {
-                    harvestWorldBlock(fakePlayer, ItemStack.EMPTY, xpAccumulator, 0, 0, worldBlock);
-                }
-            });
+            Stream.of(logs, leaves)
+                    .flatMap(Collection::stream)
+                    .forEach(worldBlock -> {
+                        if (worldBlock.getState() != Blocks.AIR.getDefaultState()) {
+                            harvestWorldBlock(agent, tool, xpAccumulator, fortune, silkTouch, worldBlock);
+                        } else {
+                            harvestWorldBlock(fakePlayer, ItemStack.EMPTY, xpAccumulator, 0, 0, worldBlock);
+                        }
+                    });
 
             ChopUtil.dropExperience(world, targetPos, xpAccumulator.get());
         }
 
-        int numEffects = Math.min((int) Math.ceil(Math.sqrt(allBlocks.size())), MAX_NUM_FELLING_EFFECTS) - 1;
+        int numEffects = Math.min((int) Math.ceil(Math.sqrt(numLogsAndLeaves)), MAX_NUM_FELLING_EFFECTS) - 1;
 
-        Collections.shuffle(blocks);
+        Collections.shuffle(logs);
         Collections.shuffle(leaves);
-        int numLeavesEffects = (int) Math.ceil(numEffects * ((double) leaves.size() / (double) allBlocks.size()));
+        int numLeavesEffects = (int) Math.ceil(numEffects * ((double) leaves.size() / (double) numLogsAndLeaves));
         int numLogsEffects = numEffects - numLeavesEffects;
 
         Stream.of(
-                blocks.stream().limit(numLogsEffects),
+                logs.stream().limit(numLogsEffects),
                 leaves.stream().limit(numLeavesEffects)
         )
                 .flatMap(a->a)
@@ -107,13 +109,15 @@ public class ChopResult {
                         )
                 );
 
-        allBlocks.forEach(
-                worldBlock -> worldBlock.getWorld().setBlockState(
-                        worldBlock.getPos(),
-                        worldBlock.getState(),
-                        3
-                )
-        );
+        Stream.of(logs, leaves)
+                .flatMap(Collection::stream)
+                .forEach(
+                        worldBlock -> worldBlock.getWorld().setBlockState(
+                                worldBlock.getPos(),
+                                worldBlock.getState(),
+                                3
+                        )
+                );
     }
 
     private static void harvestWorldBlock(
@@ -134,7 +138,4 @@ public class ChopResult {
         );
     }
 
-    public Collection<WorldBlock> getBlocks() {
-        return blocks;
-    }
 }
