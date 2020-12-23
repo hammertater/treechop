@@ -10,3 +10,6 @@ For a far more fun description, see https://www.curseforge.com/minecraft/mc-mods
 * ~~Respect tool enchantments (https://github.com/hammertater/treechop/issues/3)~~ **\[done]**
 * ~~Fix client-side config sometimes not syncing properly when joining a server (need to confirm whether this is broken on >1.12.2)~~ **\[done]**
 * ~~Rewrite tree detection code to be more stable and maintainable~~ **\[done]**
+* ~~Add optional `treechop:choppables_except_mushrooms` block tag to disable chopping on mushrooms~~ **\[done]**
+* ~~Add recursion check to stop some incompatible modded items from causing crashes~~ **\[done]**
+ 
