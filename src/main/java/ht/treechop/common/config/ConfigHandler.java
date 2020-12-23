@@ -62,7 +62,7 @@ public class ConfigHandler {
 
             maxNumTreeBlocks = builder
                     .comment("Maximum number of log blocks that can be detected to belong to one tree")
-                    .defineInRange("maxTreeBlocks", 256, 1, 8096);
+                    .defineInRange("maxTreeBlocks", 320, 1, 8096);
             maxNumLeavesBlocks = builder
                     .comment("Maximum number of leaves blocks that can destroyed when a tree is felled")
                     .defineInRange("maxLeavesBlocks", 1024, 1, 8096);
