@@ -153,10 +153,10 @@ public class ChopUtil {
         return (int) (ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(numBlocks) * ConfigHandler.COMMON.chopCountScale.get());
     }
 
-    public static ChopResult getChopResult(World world, BlockPos blockPos, PlayerEntity agent, int numChops, ItemStack tool, boolean fellIfPossible, Predicate<BlockPos> logCondition) {
+    public static ChopResult getChopResult(World world, BlockPos blockPos, PlayerEntity agent, int numChops, boolean fellIfPossible, Predicate<BlockPos> logCondition) {
         return fellIfPossible
                 ? getChopResult(world, blockPos, agent, numChops, logCondition)
-                : tryToChopWithoutFelling(world, blockPos, agent, numChops, tool);
+                : tryToChopWithoutFelling(world, blockPos, numChops);
     }
 
     public static ChopResult getChopResult(World world, final BlockPos blockPos, PlayerEntity agent, int numChops, Predicate<BlockPos> logCondition) {
@@ -191,9 +191,7 @@ public class ChopUtil {
         int currentNumChops = getNumChops(blockState);
         int numChopsToFell = numChopsToFell(supportedBlocks.size());
 
-        if (currentNumChops + numChops >= numChopsToFell) {
-            return new ChopResult(world, supportedBlocks);
-        } else {
+        if (currentNumChops + numChops < numChopsToFell) {
             Set<BlockPos> nearbyChoppableBlocks;
             nearbyChoppableBlocks = ChopUtil.getConnectedBlocks(
                     Collections.singletonList(target),
@@ -218,12 +216,14 @@ public class ChopUtil {
                         break;
                     }
                 }
-
-                return new ChopResult(world, supportedBlocks);
             } else {
                 return gatherChops(world, target, numChops, nearbyChoppableBlocks);
             }
         }
+
+        supportedBlocks.remove(target);
+        supportedBlocks.add(target);
+        return new ChopResult(world, supportedBlocks);
     }
 
     /**
@@ -231,7 +231,7 @@ public class ChopUtil {
      * @param nearbyChoppableBlocks must not include {@code target}
      */
     public static ChopResult gatherChops(World world, BlockPos target, int numChops, Set<BlockPos> nearbyChoppableBlocks) {
-        List<WorldBlock> choppedBlocks = new LinkedList<>();
+        List<TreeBlock> choppedBlocks = new LinkedList<>();
         int numChopsLeft = gatherChopAndGetNumChopsRemaining(world, target, numChops, choppedBlocks);
 
         if (numChopsLeft > 0) {
@@ -276,26 +276,15 @@ public class ChopUtil {
         return new ChopResult(choppedBlocks);
     }
 
-    private static int gatherChopAndGetNumChopsRemaining(World world, BlockPos target, int numChops, List<WorldBlock> choppedBlocks) {
+    private static int gatherChopAndGetNumChopsRemaining(World world, BlockPos target, int numChops, List<TreeBlock> choppedBlocks) {
         BlockState blockStateBeforeChopping = world.getBlockState(target);
         BlockState blockStateAfterChopping = getBlockStateAfterChops(world, target, numChops, false);
 
         if (blockStateBeforeChopping != blockStateAfterChopping) {
-            choppedBlocks.add(new WorldBlock(world, target, blockStateAfterChopping));
+            choppedBlocks.add(new TreeBlock(world, target, blockStateAfterChopping, true));
         }
 
         return numChops - (getNumChops(blockStateAfterChopping) - getNumChops(blockStateBeforeChopping));
-    }
-
-    public static Integer getNumChops(World world, Set<BlockPos> nearbyChoppableBlocks) {
-        return nearbyChoppableBlocks.stream()
-                .map(world::getBlockState)
-                .map(blockState1 -> blockState1.getBlock() instanceof IChoppable
-                        ? ((IChoppable) blockState1.getBlock()).getNumChops(blockState1)
-                        : 0
-                )
-                .reduce(Integer::sum)
-                .orElse(0);
     }
 
     private static BlockState getBlockStateAfterChops(World world, BlockPos blockPos, int numChops, boolean destructive) {
@@ -362,10 +351,21 @@ public class ChopUtil {
         return block instanceof IChoppable ? ((IChoppable) block).getNumChops(blockState) : 0;
     }
 
-    private static ChopResult tryToChopWithoutFelling(World world, BlockPos blockPos, PlayerEntity agent, int numChops, ItemStack tool) {
+    public static int getNumChops(World world, Set<BlockPos> nearbyChoppableBlocks) {
+        return nearbyChoppableBlocks.stream()
+                .map(world::getBlockState)
+                .map(blockState1 -> blockState1.getBlock() instanceof IChoppable
+                        ? ((IChoppable) blockState1.getBlock()).getNumChops(blockState1)
+                        : 0
+                )
+                .reduce(Integer::sum)
+                .orElse(0);
+    }
+
+    private static ChopResult tryToChopWithoutFelling(World world, BlockPos blockPos, int numChops) {
         return (isBlockChoppable(world, blockPos))
                 ? new ChopResult(Collections.singletonList(
-                        new WorldBlock(world, blockPos, getBlockStateAfterChops(world, blockPos, numChops, true))
+                        new TreeBlock(world, blockPos, getBlockStateAfterChops(world, blockPos, numChops, true), true)
                 ), false)
                 : ChopResult.IGNORED;
     }

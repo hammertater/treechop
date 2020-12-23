@@ -22,22 +22,22 @@ import java.util.stream.Stream;
 public class ChopResult {
     public static final ChopResult IGNORED = new ChopResult(Lists.newArrayList(), false);
 
-    private final List<WorldBlock> blocks;
+    private final List<TreeBlock> blocks;
     private final boolean felling;
 
     public static final int MAX_NUM_FELLING_EFFECTS = 32;
 
-    public ChopResult(List<WorldBlock> blocks, boolean felling) {
+    public ChopResult(List<TreeBlock> blocks, boolean felling) {
         this.blocks = blocks;
         this.felling = felling;
     }
 
-    public ChopResult(List<WorldBlock> blocks) {
+    public ChopResult(List<TreeBlock> blocks) {
         this(blocks, false);
     }
 
     public ChopResult(World world, Collection<BlockPos> blockPositions) {
-        this(blockPositions.stream().map(pos -> new WorldBlock(world, pos, Blocks.AIR.getDefaultState())).collect(Collectors.toList()), true);
+        this(blockPositions.stream().map(pos -> new TreeBlock(world, pos, Blocks.AIR.getDefaultState())).collect(Collectors.toList()), true);
     }
 
     /**
@@ -49,18 +49,24 @@ public class ChopResult {
     public void apply(BlockPos targetPos, PlayerEntity agent, ItemStack tool, boolean breakLeaves) {
         World world = agent.getEntityWorld();
 
-        List<WorldBlock> logs = blocks.stream()
-                .filter(worldBlock -> ChopUtil.canChangeBlock(worldBlock.getWorld(), worldBlock.getPos(), agent))
+        List<TreeBlock> logs = blocks.stream()
+                .filter(treeBlock ->
+                        ChopUtil.canChangeBlock(treeBlock.getWorld(),
+                                treeBlock.getPos(),
+                                agent,
+                                (treeBlock.wasChopped()) ? tool : ItemStack.EMPTY
+                        )
+                )
                 .collect(Collectors.toList());
 
-        List<WorldBlock> leaves = (felling && breakLeaves)
+        List<TreeBlock> leaves = (felling && breakLeaves)
                 ? ChopUtil.getTreeLeaves(
                                 world,
-                                logs.stream().map(WorldBlock::getPos).collect(Collectors.toList())
+                                logs.stream().map(TreeBlock::getPos).collect(Collectors.toList())
                         )
                         .stream()
                         .filter(pos -> ChopUtil.canChangeBlock(world, pos, agent))
-                        .map(pos -> new WorldBlock(world, pos, Blocks.AIR.getDefaultState()))
+                        .map(pos -> new TreeBlock(world, pos, Blocks.AIR.getDefaultState()))
                         .collect(Collectors.toList())
                 : Lists.newArrayList();
 
@@ -126,7 +132,7 @@ public class ChopResult {
             AtomicInteger totalXp,
             int fortune,
             int silkTouch,
-            WorldBlock worldBlock
+            TreeBlock worldBlock
     ) {
         World world = worldBlock.getWorld();
         BlockPos pos = worldBlock.getPos();

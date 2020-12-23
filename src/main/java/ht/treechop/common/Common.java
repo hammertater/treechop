@@ -58,7 +58,6 @@ public class Common {
                 pos,
                 agent,
                 ChopUtil.getNumChopsByTool(tool),
-                tool,
                 ChopUtil.playerWantsToFell(agent),
                 logPos -> isBlockALog(world, logPos)
         );
