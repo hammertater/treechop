@@ -6,7 +6,7 @@ import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.capabilities.ChopSettingsProvider;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.PacketHandler;
-import ht.treechop.common.util.BlockThatWasBroken;
+import ht.treechop.common.util.ChopResult;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -20,6 +20,8 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import static ht.treechop.common.util.ChopUtil.isBlockALog;
+
 public class Common {
 
     public void preInit() {
@@ -27,43 +29,52 @@ public class Common {
         PacketHandler.init();
     }
 
+    private static BlockPos currentPos = null; // Assume event-handling is single-threaded; this is used to prevent recursion caused by mod conflicts
+
     @SubscribeEvent
     public void onBreakEvent(BlockEvent.BreakEvent event) {
         World world = event.getWorld();
-        BlockPos blockPos = event.getPos();
+        BlockPos pos = event.getPos();
         EntityPlayer agent = event.getPlayer();
         ItemStack tool = agent.getHeldItemMainhand();
+        IBlockState blockState = event.getState();
 
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
         if (
-                !ConfigHandler.enabled ||
-                !ChopUtil.canChopWithTool(tool) ||
-                !ChopUtil.playerWantsToChop(agent) ||
-                event.isCanceled()
+                pos.equals(currentPos)
+                || !isBlockALog(world, pos, blockState)
+                || !ConfigHandler.enabled
+                || !ChopUtil.canChopWithTool(tool)
+                || !ChopUtil.playerWantsToChop(agent)
+                || event.isCanceled()
         ) {
             return;
         }
 
-        BlockThatWasBroken choppedBlock = ChopUtil.chop(world, blockPos, agent, ChopUtil.getNumChopsByTool(tool), tool, ChopUtil.playerWantsToFell(agent));
-        if (choppedBlock == BlockThatWasBroken.IGNORED) {
+        ChopResult chopResult = ChopUtil.getChopResult(
+                world,
+                pos,
+                agent,
+                ChopUtil.getNumChopsByTool(tool),
+                tool,
+                ChopUtil.playerWantsToFell(agent),
+                logPos -> isBlockALog(world, logPos)
+        );
+
+        if (chopResult == ChopResult.IGNORED) {
+            currentPos = null;
             return;
         }
 
         event.setCanceled(true);
 
-        // The event was canceled to prevent the block from being broken, but we still want all the other consequences of breaking blocks
         if (!agent.isCreative()) {
-            BlockPos choppedBlockPos = choppedBlock.getPos();
-            IBlockState choppedBlockState = choppedBlock.getState();
-
-            ChopUtil.doItemDamage(tool, world, choppedBlockState, choppedBlockPos, agent);
-
-            if (choppedBlock.canHarvest()) {
-                choppedBlockState.getBlock().harvestBlock(world, agent, choppedBlockPos, choppedBlockState, choppedBlock.getTileEntity(), tool); // handles exhaustion, stat-keeping, enchantment effects, and item spawns
-                ChopUtil.dropExperience(world, choppedBlockPos, choppedBlockState, event.getExpToDrop());
-            }
-            // Vanilla does not do exhaustion if the block couldn't be harvested
+            ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
         }
+
+        chopResult.apply(pos, agent, tool, ConfigHandler.breakLeaves);
+
+        currentPos = null;
     }
 
     @SubscribeEvent

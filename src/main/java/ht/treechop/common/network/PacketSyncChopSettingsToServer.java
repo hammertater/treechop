@@ -1,17 +1,13 @@
 package ht.treechop.common.network;
 
 import ht.treechop.TreeChopMod;
-import ht.treechop.client.Client;
 import ht.treechop.common.capabilities.ChopSettings;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
-import ht.treechop.common.config.SneakBehavior;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class PacketSyncChopSettingsToServer extends PacketSyncChopSettings {
 
@@ -37,7 +33,7 @@ public class PacketSyncChopSettingsToServer extends PacketSyncChopSettings {
                 }
 
                 // Force settings through that aren't yet configurable in-game
-                chopSettings.setOnlyChopTreesWithLeaves(message.chopSettings.getOnlyChopTreesWithLeaves());
+                chopSettings.setOnlyChopTreesWithLeaves(message.chopSettings.getTreeMustHaveLeaves());
 
                 TreeChopMod.LOGGER.info("Sending chop settings to player " + player.getDisplayNameString());
                 PacketHandler.sendTo(player, new PacketSyncChopSettingsToClient(chopSettings));

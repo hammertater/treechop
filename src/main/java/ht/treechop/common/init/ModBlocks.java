@@ -7,14 +7,11 @@ import net.minecraft.block.Block;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 //@GameRegistry.ObjectHolder(TreeChopMod.MOD_ID)
 @Mod.EventBusSubscriber(modid = TreeChopMod.MOD_ID)

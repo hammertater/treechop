@@ -14,7 +14,7 @@ public class ChopSettings {
     public boolean getChoppingEnabled() { return choppingEnabled; }
     public boolean getFellingEnabled() { return fellingEnabled; }
     public SneakBehavior getSneakBehavior() { return sneakBehavior; }
-    public boolean getOnlyChopTreesWithLeaves() { return onlyChopTreesWithLeaves; }
+    public boolean getTreeMustHaveLeaves() { return onlyChopTreesWithLeaves; }
 
     public void setChoppingEnabled(boolean enabled) { choppingEnabled = enabled; }
     public void setFellingEnabled(boolean enabled) { fellingEnabled = enabled; }

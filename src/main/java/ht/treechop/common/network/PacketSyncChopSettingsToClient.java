@@ -3,8 +3,6 @@ package ht.treechop.common.network;
 import ht.treechop.TreeChopMod;
 import ht.treechop.client.Client;
 import ht.treechop.common.capabilities.ChopSettings;
-import ht.treechop.common.capabilities.ChopSettingsCapability;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;

@@ -34,7 +34,7 @@ public abstract class PacketSyncChopSettings implements IMessage {
         buffer.writeBoolean(chopSettings.getChoppingEnabled());
         buffer.writeBoolean(chopSettings.getFellingEnabled());
         buffer.writeInt(chopSettings.getSneakBehavior().ordinal());
-        buffer.writeBoolean(chopSettings.getOnlyChopTreesWithLeaves());
+        buffer.writeBoolean(chopSettings.getTreeMustHaveLeaves());
     }
 
 }
