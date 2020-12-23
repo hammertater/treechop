@@ -33,14 +33,18 @@ public class Common {
         PacketHandler.init();
     }
 
+    private static BlockPos currentPos = null; // Assume event-handling is single-threaded; this is used to prevent recursion caused by mod conflicts
+
     public static void onBreakEvent(BlockEvent.BreakEvent event) {
         PlayerEntity agent = event.getPlayer();
         ItemStack tool = agent.getHeldItemMainhand();
         BlockState blockState = event.getState();
+        BlockPos pos = event.getPos();
 
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
         if (
-                !isBlockALog(blockState.getBlock())
+                pos.equals(currentPos)
+                || !isBlockALog(blockState.getBlock())
                 || !ConfigHandler.COMMON.enabled.get()
                 || !ChopUtil.canChopWithTool(tool)
                 || !ChopUtil.playerWantsToChop(agent)
@@ -50,8 +54,9 @@ public class Common {
             return;
         }
 
+        currentPos = pos;
+
         World world = (World) event.getWorld();
-        BlockPos pos = event.getPos();
 
         ChopResult chopResult = ChopUtil.getChopResult(
                 world,
@@ -63,6 +68,7 @@ public class Common {
         );
 
         if (chopResult == ChopResult.IGNORED) {
+            currentPos = null;
             return;
         }
 
@@ -73,6 +79,8 @@ public class Common {
         }
 
         chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
+
+        currentPos = null;
     }
 
     // Helpful reference: https://gist.github.com/FireController1847/c7a50144f45806a996d13efcff468d1b
