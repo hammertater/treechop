@@ -2,6 +2,7 @@ package ht.treechop.common.util;
 
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -36,8 +37,14 @@ public class ChopResult {
         this(blocks, false);
     }
 
-    public ChopResult(World world, Collection<BlockPos> blockPositions) {
-        this(blockPositions.stream().map(pos -> new TreeBlock(world, pos, Blocks.AIR.getDefaultState())).collect(Collectors.toList()), true);
+    public ChopResult(World world, Collection<BlockPos> chopPositions, Collection<BlockPos> fellPositions) {
+        this(
+                Stream.of(chopPositions, fellPositions)
+                        .flatMap(Collection::stream)
+                        .map(pos -> new TreeBlock(world, pos, Blocks.AIR.getDefaultState()))
+                        .collect(Collectors.toList()),
+                true
+        );
     }
 
     /**
@@ -51,7 +58,8 @@ public class ChopResult {
 
         List<TreeBlock> logs = blocks.stream()
                 .filter(treeBlock ->
-                        ChopUtil.canChangeBlock(treeBlock.getWorld(),
+                        ChopUtil.canChangeBlock(
+                                treeBlock.getWorld(),
                                 treeBlock.getPos(),
                                 agent,
                                 (treeBlock.wasChopped()) ? tool : ItemStack.EMPTY
@@ -84,11 +92,11 @@ public class ChopResult {
 
             Stream.of(logs, leaves)
                     .flatMap(Collection::stream)
-                    .forEach(worldBlock -> {
-                        if (worldBlock.getState() != Blocks.AIR.getDefaultState()) {
-                            harvestWorldBlock(agent, tool, xpAccumulator, fortune, silkTouch, worldBlock);
+                    .forEach(treeBlock -> {
+                        if (treeBlock.wasChopped()) {
+                            harvestWorldBlock(agent, tool, xpAccumulator, fortune, silkTouch, treeBlock);
                         } else {
-                            harvestWorldBlock(fakePlayer, ItemStack.EMPTY, xpAccumulator, 0, 0, worldBlock);
+                            harvestWorldBlock(fakePlayer, ItemStack.EMPTY, xpAccumulator, 0, 0, treeBlock);
                         }
                     });
 
@@ -108,19 +116,19 @@ public class ChopResult {
         )
                 .flatMap(a->a)
                 .forEach(
-                        worldBlock -> world.playEvent(
+                        treeBlock -> world.playEvent(
                                 2001,
-                                worldBlock.getPos(),
-                                Block.getStateId(world.getBlockState(worldBlock.getPos()))
+                                treeBlock.getPos(),
+                                Block.getStateId(world.getBlockState(treeBlock.getPos()))
                         )
                 );
 
         Stream.of(logs, leaves)
                 .flatMap(Collection::stream)
                 .forEach(
-                        worldBlock -> worldBlock.getWorld().setBlockState(
-                                worldBlock.getPos(),
-                                worldBlock.getState(),
+                        treeBlock -> treeBlock.getWorld().setBlockState(
+                                treeBlock.getPos(),
+                                treeBlock.getState(),
                                 3
                         )
                 );
@@ -132,15 +140,16 @@ public class ChopResult {
             AtomicInteger totalXp,
             int fortune,
             int silkTouch,
-            TreeBlock worldBlock
+            TreeBlock treeBlock
     ) {
-        World world = worldBlock.getWorld();
-        BlockPos pos = worldBlock.getPos();
-        worldBlock.getState().getBlock().harvestBlock(
-                world, agent, pos, world.getBlockState(pos), world.getTileEntity(pos), tool
+        World world = treeBlock.getWorld();
+        BlockPos pos = treeBlock.getPos();
+        BlockState blockState = world.getBlockState(pos);
+        blockState.getBlock().harvestBlock(
+                world, agent, pos, blockState, world.getTileEntity(pos), tool
         );
         totalXp.getAndAdd(
-                worldBlock.getState().getExpDrop(worldBlock.getWorld(), worldBlock.getPos(), fortune, silkTouch)
+                blockState.getExpDrop(world, pos, fortune, silkTouch)
         );
     }
 

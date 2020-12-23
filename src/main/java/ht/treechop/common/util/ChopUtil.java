@@ -222,8 +222,7 @@ public class ChopUtil {
         }
 
         supportedBlocks.remove(target);
-        supportedBlocks.add(target);
-        return new ChopResult(world, supportedBlocks);
+        return new ChopResult(world, Collections.singletonList(target), supportedBlocks);
     }
 
     /**
