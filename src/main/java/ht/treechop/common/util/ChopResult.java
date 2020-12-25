@@ -60,7 +60,7 @@ public class ChopResult {
 
         AtomicBoolean somethingChanged = new AtomicBoolean(false);
         List<TreeBlock> logs = blocks.stream()
-                .filter(treeBlock -> !somethingChanged.get() && !ChopUtil.canChangeBlock(
+                .filter(treeBlock -> !somethingChanged.get() && ChopUtil.canChangeBlock(
                         treeBlock.getWorld(),
                         treeBlock.getPos(),
                         agent,
