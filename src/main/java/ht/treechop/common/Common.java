@@ -20,6 +20,9 @@ import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
 
 public class Common {
@@ -33,7 +36,7 @@ public class Common {
         PacketHandler.init();
     }
 
-    private static BlockPos currentPos = null; // Assume event-handling is single-threaded; this is used to prevent recursion caused by mod conflicts
+    static private Set<PlayerEntity> playersAlreadyChopping = new HashSet<>();
 
     public static void onBreakEvent(BlockEvent.BreakEvent event) {
         PlayerEntity agent = event.getPlayer();
@@ -43,8 +46,8 @@ public class Common {
 
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
         if (
-                pos.equals(currentPos)
-                || !isBlockALog(blockState.getBlock())
+                !isBlockALog(blockState.getBlock())
+                || playersAlreadyChopping.contains(agent)
                 || !ConfigHandler.COMMON.enabled.get()
                 || !ChopUtil.canChopWithTool(tool)
                 || !ChopUtil.playerWantsToChop(agent)
@@ -54,33 +57,34 @@ public class Common {
             return;
         }
 
-        currentPos = pos;
+        try {
+            playersAlreadyChopping.add(agent);
 
-        World world = (World) event.getWorld();
+            if (!tool.onBlockStartBreak(pos, agent)) {
+                World world = (World) event.getWorld();
 
-        ChopResult chopResult = ChopUtil.getChopResult(
-                world,
-                pos,
-                agent,
-                ChopUtil.getNumChopsByTool(tool),
-                ChopUtil.playerWantsToFell(agent),
-                logPos -> isBlockALog(world, logPos)
-        );
+                ChopResult chopResult = ChopUtil.getChopResult(
+                        world,
+                        pos,
+                        agent,
+                        ChopUtil.getNumChopsByTool(tool),
+                        ChopUtil.playerWantsToFell(agent),
+                        logPos -> isBlockALog(world, logPos)
+                );
 
-        if (chopResult == ChopResult.IGNORED) {
-            currentPos = null;
-            return;
+                if (chopResult != ChopResult.IGNORED) {
+                    event.setCanceled(true);
+
+                    if (!agent.isCreative()) {
+                        ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
+                    }
+
+                    chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
+                }
+            }
+        } finally {
+            playersAlreadyChopping.remove(agent);
         }
-
-        event.setCanceled(true);
-
-        if (!agent.isCreative()) {
-            ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
-        }
-
-        chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
-
-        currentPos = null;
     }
 
     // Helpful reference: https://gist.github.com/FireController1847/c7a50144f45806a996d13efcff468d1b
