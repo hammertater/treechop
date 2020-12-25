@@ -1,5 +1,6 @@
 package ht.treechop.common.config;
 
+import com.google.common.collect.Lists;
 import ht.treechop.common.capabilities.ChopSettings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -89,8 +90,8 @@ public class ConfigHandler {
                     .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not chop when used to break a log")
                     .defineList(
                             "choppingToolsBlacklist",
-                            Collections.singletonList("#forge:saws"),
-                            ConfigHandler::isRegistryNameOrTag
+                            Lists.newArrayList("#forge:saws", "mekanism:atomic_disassembler"),
+                            always -> true
                     );
         }
     }
@@ -98,7 +99,7 @@ public class ConfigHandler {
     private static boolean isRegistryNameOrTag(Object object) {
         if (object instanceof String) {
             String string = (String) object;
-            return (string.startsWith("#") && ResourceLocation.tryCreate(string.substring(1) + ":test") != null ||
+            return ((string.startsWith("#") && ResourceLocation.tryCreate(string.substring(1) + ":test") != null) ||
                     ResourceLocation.tryCreate(string + ":test") != null);
         } else {
             return false;
