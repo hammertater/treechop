@@ -60,27 +60,25 @@ public class Common {
         try {
             playersAlreadyChopping.add(agent);
 
-            if (!tool.onBlockStartBreak(pos, agent)) {
-                World world = (World) event.getWorld();
+            World world = (World) event.getWorld();
 
-                ChopResult chopResult = ChopUtil.getChopResult(
-                        world,
-                        pos,
-                        agent,
-                        ChopUtil.getNumChopsByTool(tool),
-                        ChopUtil.playerWantsToFell(agent),
-                        logPos -> isBlockALog(world, logPos)
-                );
+            ChopResult chopResult = ChopUtil.getChopResult(
+                    world,
+                    pos,
+                    agent,
+                    ChopUtil.getNumChopsByTool(tool),
+                    ChopUtil.playerWantsToFell(agent),
+                    logPos -> isBlockALog(world, logPos)
+            );
 
-                if (chopResult != ChopResult.IGNORED) {
-                    event.setCanceled(true);
+            if (chopResult != ChopResult.IGNORED) {
+                event.setCanceled(true);
 
-                    if (!agent.isCreative()) {
-                        ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
-                    }
-
-                    chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
+                if (!agent.isCreative()) {
+                    ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
                 }
+
+                chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
             }
         } finally {
             playersAlreadyChopping.remove(agent);
