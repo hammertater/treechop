@@ -16,6 +16,7 @@ import net.minecraftforge.common.util.FakePlayerFactory;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,20 +53,29 @@ public class ChopResult {
      * - Chopped blocks: harvest by agent, change to chopped state
      * - Felled blocks: harvest by no one, change to felled state
      * - Chopped and felled blocks: harvest by agent, change to felled state
+     * @return true if changes were able to be applied
      */
-    public void apply(BlockPos targetPos, PlayerEntity agent, ItemStack tool, boolean breakLeaves) {
+    public boolean apply(BlockPos targetPos, PlayerEntity agent, ItemStack tool, boolean breakLeaves) {
         World world = agent.getEntityWorld();
 
+        AtomicBoolean somethingChanged = new AtomicBoolean(false);
         List<TreeBlock> logs = blocks.stream()
-                .filter(treeBlock ->
-                        ChopUtil.canChangeBlock(
-                                treeBlock.getWorld(),
-                                treeBlock.getPos(),
-                                agent,
-                                (treeBlock.wasChopped()) ? tool : ItemStack.EMPTY
-                        )
-                )
+                .filter(treeBlock -> !somethingChanged.get() && !ChopUtil.canChangeBlock(
+                        treeBlock.getWorld(),
+                        treeBlock.getPos(),
+                        agent,
+                        (treeBlock.wasChopped()) ? tool : ItemStack.EMPTY
+
+                ))
+                .peek(treeBlock -> {
+                    BlockState blockState = world.getBlockState(treeBlock.getPos());
+                    somethingChanged.compareAndSet(false, blockState.getBlock().isAir(blockState, world, treeBlock.getPos()));
+                })
                 .collect(Collectors.toList());
+
+        if (somethingChanged.get()) {
+            return false;
+        }
 
         List<TreeBlock> leaves = (felling && breakLeaves)
                 ? ChopUtil.getTreeLeaves(
@@ -107,8 +117,8 @@ public class ChopResult {
 
         Collections.shuffle(logs);
         Collections.shuffle(leaves);
-        int numLeavesEffects = (int) Math.ceil(numEffects * ((double) leaves.size() / (double) numLogsAndLeaves));
-        int numLogsEffects = numEffects - numLeavesEffects;
+        int numLeavesEffects = Math.max(0, (int) Math.ceil(numEffects * ((double) leaves.size() / (double) numLogsAndLeaves)));
+        int numLogsEffects = Math.max(0, numEffects - numLeavesEffects);
 
         Stream.of(
                 logs.stream().limit(numLogsEffects),
@@ -132,6 +142,8 @@ public class ChopResult {
                                 3
                         )
                 );
+
+        return true;
     }
 
     private static void harvestWorldBlock(

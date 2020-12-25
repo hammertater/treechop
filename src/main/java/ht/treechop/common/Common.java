@@ -72,13 +72,13 @@ public class Common {
             );
 
             if (chopResult != ChopResult.IGNORED) {
-                event.setCanceled(true);
+                if (chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get())) {
+                    event.setCanceled(true);
 
-                if (!agent.isCreative()) {
-                    ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
+                    if (!agent.isCreative()) {
+                        ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
+                    }
                 }
-
-                chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
             }
         } finally {
             playersAlreadyChopping.remove(agent);
