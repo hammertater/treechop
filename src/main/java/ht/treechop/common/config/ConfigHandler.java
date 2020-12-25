@@ -1,12 +1,11 @@
 package ht.treechop.common.config;
 
-import com.google.common.collect.Lists;
 import ht.treechop.common.capabilities.ChopSettings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -90,7 +89,7 @@ public class ConfigHandler {
                     .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not chop when used to break a log")
                     .defineList(
                             "choppingToolsBlacklist",
-                            Lists.newArrayList("#forge:saws", "mekanism:atomic_disassembler"),
+                            Arrays.asList("#forge:saws", "mekanism:atomic_disassembler"),
                             always -> true
                     );
         }

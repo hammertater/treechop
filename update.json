@@ -9,16 +9,17 @@
     "0.8": "Added config option `enabled` to disable chopping\nAdded config option `canChooseNotToChop` to prevent players from not chopping\nFixed crash when using tools from Silent's Gear (and possibly other mods)\nFixed inability to break chopped logs without chopping",
     "0.9": "Fixed chopped blocks not spawning drops (again)\nAdded keybinding to toggle chopping on and off\nAdded keybinding to toggle felling on and off\nAdded keybinding to change the effect sneaking has on chopping\nAdded configurable blacklist to prevent chopping when holding certain items",
     "0.10": "Fixed startup crash on dedicated servers",
-    "0.11.0": "Added client-side config option to only chop \"trees\" with \"leaves\"\nAdded optional `treechop:choppables_except_mushrooms` block tag to disable chopping on mushrooms\nLet xp-dropping logs drop xp when felled\nFixed fortune and silk touch enchantment effects not getting applied (only for blocks you chop, not felled blocks)\nFixed occasional crashes when chopping with modded log-breaking items\nFixed client-side config sometimes not syncing properly when joining a server\nRewrote tree detection code to be more stable and maintainable\nPorted to 1.12.2"
+    "0.11.0": "Added client-side config option to only chop \"trees\" with \"leaves\"\nAdded optional `treechop:choppables_except_mushrooms` block tag to disable chopping on mushrooms\nLet xp-dropping logs drop xp when felled\nFixed fortune and silk touch enchantment effects not getting applied (only for blocks you chop, not felled blocks)\nFixed occasional crashes when chopping with modded log-breaking items\nFixed client-side config sometimes not syncing properly when joining a server\nRewrote tree detection code to be more stable and maintainable\nPorted to 1.12.2",
+    "0.11.1": "Fix crash when using Mekanism tools (and probably other modded items)"
   },
   "promos": {
-    "1.15.2-latest": "0.10",
-    "1.15.2-recommended": "0.10",
-    "1.16.1-latest": "0.11",
-    "1.16.1-recommended": "0.11",
-    "1.16.3-latest": "0.11",
-    "1.16.3-recommended": "0.11",
-    "1.16.4-latest": "0.11",
-    "1.16.4-recommended": "0.11"
+    "1.15.2-latest": "0.11.1",
+    "1.15.2-recommended": "0.11.1",
+    "1.16.1-latest": "0.11.1",
+    "1.16.1-recommended": "0.11.1",
+    "1.16.3-latest": "0.11.1",
+    "1.16.3-recommended": "0.11.1",
+    "1.16.4-latest": "0.11.1",
+    "1.16.4-recommended": "0.11.1"
   }
 }
