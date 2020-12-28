@@ -1,6 +1,9 @@
 package ht.treechop.common.network;
 
+import ht.treechop.TreeChopMod;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
+import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.SneakBehavior;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Util;
@@ -31,9 +34,13 @@ public class PacketEnableFelling {
         if (context.get().getDirection().getReceptionSide().isServer()) {
             context.get().enqueueWork(() -> {
                 ServerPlayerEntity player = context.get().getSender();
-                ChopSettingsCapability chopSettings = player.getCapability(ChopSettingsCapability.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Player missing chop settings for " + player.getScoreboardName()));
-                chopSettings.setFellingEnabled(message.fellingEnabled);
-                player.sendMessage(new StringTextComponent("[TreeChop] ").mergeStyle(TextFormatting.GRAY).append(new StringTextComponent("Felling " + (message.fellingEnabled ? "ON" : "OFF")).mergeStyle(TextFormatting.WHITE)), Util.DUMMY_UUID);
+                if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
+                    ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
+                    chopSettings.setFellingEnabled(message.fellingEnabled);
+                    player.sendMessage(TreeChopMod.makeText("Felling " + (message.fellingEnabled ? "ON" : "OFF")), Util.DUMMY_UUID);
+                } else {
+                    player.sendMessage(TreeChopMod.makeText("Felling ON" + TextFormatting.RED + " (you are not permitted to disable felling)"), Util.DUMMY_UUID);
+                }
             });
             context.get().setPacketHandled(true);
         }

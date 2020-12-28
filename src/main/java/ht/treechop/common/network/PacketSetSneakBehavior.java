@@ -1,7 +1,9 @@
 package ht.treechop.common.network;
 
+import ht.treechop.TreeChopMod;
 import ht.treechop.common.capabilities.ChopSettings;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.config.SneakBehavior;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -36,9 +38,13 @@ public class PacketSetSneakBehavior {
         if (context.get().getDirection().getReceptionSide().isServer()) {
             context.get().enqueueWork(() -> {
                 ServerPlayerEntity player = context.get().getSender();
-                ChopSettingsCapability chopSettings = player.getCapability(ChopSettingsCapability.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Player missing chop settings for " + player.getScoreboardName()));
-                chopSettings.setSneakBehavior(message.sneakBehavior);
-                player.sendMessage(new StringTextComponent("[TreeChop] ").mergeStyle(TextFormatting.GRAY).append(new StringTextComponent("Sneak behavior " + message.sneakBehavior.getString()).mergeStyle(TextFormatting.WHITE)), Util.DUMMY_UUID);
+                if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
+                    ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
+                    chopSettings.setSneakBehavior(message.sneakBehavior);
+                    player.sendMessage(TreeChopMod.makeText("Sneak behavior " + chopSettings.getSneakBehavior().getString()), Util.DUMMY_UUID);
+                } else {
+                    player.sendMessage(TreeChopMod.makeText("Sneak behavior " + SneakBehavior.NONE.getString() + TextFormatting.RED + " (you are not permitted to disable chopping or felling)"), Util.DUMMY_UUID);
+                }
             });
             context.get().setPacketHandled(true);
         }

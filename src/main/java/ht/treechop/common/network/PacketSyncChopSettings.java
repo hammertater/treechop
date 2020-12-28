@@ -58,7 +58,7 @@ public class PacketSyncChopSettings {
     @SuppressWarnings("ConstantConditions")
     public static void handleOnServer(PacketSyncChopSettings message, Supplier<NetworkEvent.Context> context) {
         ServerPlayerEntity player = context.get().getSender();
-        ChopSettingsCapability chopSettings = player.getCapability(ChopSettingsCapability.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Missing chop settings for player " + player.getScoreboardName()));
+        ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
 
         if (!chopSettings.isSynced()) {
             TreeChopMod.LOGGER.info("Received chop settings from player " + player.getScoreboardName());

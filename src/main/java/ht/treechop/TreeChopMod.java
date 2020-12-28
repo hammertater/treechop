@@ -5,6 +5,9 @@ import ht.treechop.common.Common;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.server.Server;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -35,4 +38,7 @@ public class TreeChopMod {
         ModBlocks.BLOCKS.register(modBus);
     }
 
+    public static ITextComponent makeText(String string) {
+        return new StringTextComponent(TextFormatting.GRAY + "[TreeChop] " + TextFormatting.WHITE + string);
+    }
 }

@@ -34,7 +34,7 @@ public class ChopSettingsCapability extends ChopSettings {
 
     @SuppressWarnings("ConstantConditions")
     public static ChopSettingsCapability forPlayer(PlayerEntity player) {
-        return player.getCapability(CAPABILITY).orElseThrow(() -> new IllegalArgumentException("Player missing chop settings for " + player.getScoreboardName()));
+        return player.getCapability(CAPABILITY).orElseThrow(() -> new IllegalArgumentException(String.format("Missing chop settings for player \"%s\"", player.getScoreboardName())));
     }
 
     public static class Storage implements Capability.IStorage<ChopSettingsCapability> {
