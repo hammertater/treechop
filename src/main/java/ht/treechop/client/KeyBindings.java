@@ -44,7 +44,11 @@ public class KeyBindings {
     }
 
     public static void buttonPressed(InputEvent.KeyInputEvent event) {
-        if (event.isCanceled() || Minecraft.getInstance().currentScreen != null || event.getKey() == -1) {
+        if (
+                event.isCanceled()
+                || Minecraft.getInstance().currentScreen != null
+                || event.getKey() == GLFW.GLFW_KEY_UNKNOWN
+        ) {
             return;
         }
 
