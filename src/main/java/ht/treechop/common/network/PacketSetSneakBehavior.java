@@ -1,7 +1,9 @@
 package ht.treechop.common.network;
 
+import ht.treechop.TreeChopMod;
 import ht.treechop.common.capabilities.ChopSettings;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.config.SneakBehavior;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -42,9 +44,13 @@ public class PacketSetSneakBehavior implements IMessage {
             if (context.side == Side.SERVER) {
                 EntityPlayerMP player = context.getServerHandler().player;
                 player.getServer().addScheduledTask(() -> {
-                    ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
-                    chopSettings.setSneakBehavior(message.sneakBehavior);
-                    player.sendMessage(new TextComponentString(TextFormatting.GRAY + "[TreeChop] " + TextFormatting.WHITE + "Sneak behavior " + message.sneakBehavior.getName()));
+                    if (ConfigHandler.canChooseNotToChop) {
+                        ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
+                        chopSettings.setSneakBehavior(message.sneakBehavior);
+                        player.sendMessage(TreeChopMod.makeText("Sneak behavior " + chopSettings.getSneakBehavior().getName()));
+                    } else {
+                        player.sendMessage(TreeChopMod.makeText("Sneak behavior " + SneakBehavior.NONE.getName() + TextFormatting.RED + " (you are not permitted to disable chopping or felling)"));
+                    }
                 });
             }
             return null;

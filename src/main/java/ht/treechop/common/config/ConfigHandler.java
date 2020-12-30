@@ -41,7 +41,7 @@ public class ConfigHandler {
 
     private static List<String> logBlockSynonyms = Lists.newArrayList("logWood");
     private static List<String> leavesBlockSynonyms = Lists.newArrayList("treeLeaves");
-    private static List<String> choppingToolBlacklistNames = Lists.newArrayList("");
+    private static List<String> choppingToolBlacklistNames = Lists.newArrayList("mekanism:atomic_disassembler");
     private static Set<Item> logItems = null;
     private static Set<Block> logBlocks = null;
     private static Set<Item> leavesItems = null;

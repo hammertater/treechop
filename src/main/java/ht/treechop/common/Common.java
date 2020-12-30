@@ -20,6 +20,9 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
 
 public class Common {
@@ -29,7 +32,7 @@ public class Common {
         PacketHandler.init();
     }
 
-    private static BlockPos currentPos = null; // Assume event-handling is single-threaded; this is used to prevent recursion caused by mod conflicts
+    static private Set<EntityPlayer> playersAlreadyChopping = new HashSet<>();
 
     @SubscribeEvent
     public void onBreakEvent(BlockEvent.BreakEvent event) {
@@ -41,8 +44,8 @@ public class Common {
 
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
         if (
-                pos.equals(currentPos)
-                || !isBlockALog(world, pos, blockState)
+                !isBlockALog(world, pos, blockState)
+                || playersAlreadyChopping.contains(agent)
                 || !ConfigHandler.enabled
                 || !ChopUtil.canChopWithTool(tool)
                 || !ChopUtil.playerWantsToChop(agent)
@@ -51,30 +54,31 @@ public class Common {
             return;
         }
 
-        ChopResult chopResult = ChopUtil.getChopResult(
-                world,
-                pos,
-                agent,
-                ChopUtil.getNumChopsByTool(tool),
-                tool,
-                ChopUtil.playerWantsToFell(agent),
-                logPos -> isBlockALog(world, logPos)
-        );
+        try {
+            playersAlreadyChopping.add(agent);
 
-        if (chopResult == ChopResult.IGNORED) {
-            currentPos = null;
-            return;
+            ChopResult chopResult = ChopUtil.getChopResult(
+                    world,
+                    pos,
+                    agent,
+                    ChopUtil.getNumChopsByTool(tool),
+                    tool,
+                    ChopUtil.playerWantsToFell(agent),
+                    logPos -> isBlockALog(world, logPos)
+            );
+
+            if (chopResult != ChopResult.IGNORED) {
+                if (chopResult.apply(pos, agent, tool, ConfigHandler.breakLeaves)) {
+                    event.setCanceled(true);
+
+                    if (!agent.isCreative()) {
+                        ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
+                    }
+                }
+            }
+        } finally {
+            playersAlreadyChopping.remove(agent);
         }
-
-        event.setCanceled(true);
-
-        if (!agent.isCreative()) {
-            ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
-        }
-
-        chopResult.apply(pos, agent, tool, ConfigHandler.breakLeaves);
-
-        currentPos = null;
     }
 
     @SubscribeEvent

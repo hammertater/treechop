@@ -1,6 +1,8 @@
 package ht.treechop.common.network;
 
+import ht.treechop.TreeChopMod;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
+import ht.treechop.common.config.ConfigHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.text.TextComponentString;
@@ -38,9 +40,13 @@ public class PacketEnableFelling implements IMessage {
             if (context.side == Side.SERVER) {
                 EntityPlayerMP player = context.getServerHandler().player;
                 player.getServer().addScheduledTask(() -> {
-                    ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
-                    chopSettings.setFellingEnabled(message.fellingEnabled);
-                    player.sendMessage(new TextComponentString(TextFormatting.GRAY + "[TreeChop] " + TextFormatting.WHITE + "Felling " + (message.fellingEnabled ? "ON" : "OFF")));
+                    if (ConfigHandler.canChooseNotToChop) {
+                        ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
+                        chopSettings.setFellingEnabled(message.fellingEnabled);
+                        player.sendMessage(TreeChopMod.makeText("Felling " + (message.fellingEnabled ? "ON" : "OFF")));
+                    } else {
+                        player.sendMessage(TreeChopMod.makeText("Felling ON" + TextFormatting.RED + " (you are not permitted to disable felling)"));
+                    }
                 });
             }
             return null;
