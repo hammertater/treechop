@@ -1,5 +1,17 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/treechop",
+  "promos": {
+    "1.16.4-latest": "0.11.2",
+    "1.16.4-recommended": "0.11.2",
+    "1.16.3-latest": "0.11.2",
+    "1.16.3-recommended": "0.11.2",
+    "1.16.1-latest": "0.11.2",
+    "1.16.1-recommended": "0.11.2",
+    "1.15.2-latest": "0.11.2",
+    "1.15.2-recommended": "0.11.2",
+    "1.12.2-latest": "0.11.2",
+    "1.12.2-recommended": "0.11.2"
+  },
   "1.16.4": {
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
     "0.4": "Added configurability",
@@ -10,16 +22,59 @@
     "0.9": "Fixed chopped blocks not spawning drops (again)\nAdded keybinding to toggle chopping on and off\nAdded keybinding to toggle felling on and off\nAdded keybinding to change the effect sneaking has on chopping\nAdded configurable blacklist to prevent chopping when holding certain items",
     "0.10": "Fixed startup crash on dedicated servers",
     "0.11.0": "Added client-side config option to only chop \"trees\" with \"leaves\"\nAdded optional `treechop:choppables_except_mushrooms` block tag to disable chopping on mushrooms\nLet xp-dropping logs drop xp when felled\nFixed fortune and silk touch enchantment effects not getting applied (only for blocks you chop, not felled blocks)\nFixed occasional crashes when chopping with modded log-breaking items\nFixed client-side config sometimes not syncing properly when joining a server\nRewrote tree detection code to be more stable and maintainable\nPorted to 1.12.2",
-    "0.11.1": "Fix crash when using Mekanism tools (and probably other modded items)\nFix chopping tools blacklist getting reset to the default value on startup"
+    "0.11.1": "Fixed a crash when using Mekanism tools (and probably other modded items)\nFix chopping tools blacklist getting reset to the default value on startup",
+    "0.11.2": "Fixed non-standard keys causing unbound controls to trigger\n- Prevent players from disabling felling when `canChooseNotToChop=true`\n- Show players a message when trying to change chop behavior when `canChooseNotToChop=false`"
   },
-  "promos": {
-    "1.15.2-latest": "0.11.1",
-    "1.15.2-recommended": "0.11.1",
-    "1.16.1-latest": "0.11.1",
-    "1.16.1-recommended": "0.11.1",
-    "1.16.3-latest": "0.11.1",
-    "1.16.3-recommended": "0.11.1",
-    "1.16.4-latest": "0.11.1",
-    "1.16.4-recommended": "0.11.1"
+  "1.16.3": {
+    "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
+    "0.4": "Added configurability",
+    "0.5": "Mushroom caps, fungus warts, and shroomlights break when felling\nDiagonal tree junctions are now choppable\nBreaking a single log destroys connected leaves\nDon't spawn drops in creative\nAny blocks with minecraft:leaves or treechop:leaves_like tags are treated as leaves\nAny blocks with minecraft:logs or treechop:choppable are treated as logs\nCan configure the block tag used to detect logs and leaves",
+    "0.6": "Fixed chopping not draining item durability\nFixed chopping not causing exhaustion\nFixed chopping not dropping experience",
+    "0.7": "Fixed chopped blocks not spawning drops",
+    "0.8": "Added config option `enabled` to disable chopping\nAdded config option `canChooseNotToChop` to prevent players from not chopping\nFixed crash when using tools from Silent's Gear (and possibly other mods)\nFixed inability to break chopped logs without chopping",
+    "0.9": "Fixed chopped blocks not spawning drops (again)\nAdded keybinding to toggle chopping on and off\nAdded keybinding to toggle felling on and off\nAdded keybinding to change the effect sneaking has on chopping\nAdded configurable blacklist to prevent chopping when holding certain items",
+    "0.10": "Fixed startup crash on dedicated servers",
+    "0.11.0": "Added client-side config option to only chop \"trees\" with \"leaves\"\nAdded optional `treechop:choppables_except_mushrooms` block tag to disable chopping on mushrooms\nLet xp-dropping logs drop xp when felled\nFixed fortune and silk touch enchantment effects not getting applied (only for blocks you chop, not felled blocks)\nFixed occasional crashes when chopping with modded log-breaking items\nFixed client-side config sometimes not syncing properly when joining a server\nRewrote tree detection code to be more stable and maintainable\nPorted to 1.12.2",
+    "0.11.1": "Fixed a crash when using Mekanism tools (and probably other modded items)\nFix chopping tools blacklist getting reset to the default value on startup",
+    "0.11.2": "Fixed non-standard keys causing unbound controls to trigger\n- Prevent players from disabling felling when `canChooseNotToChop=true`\n- Show players a message when trying to change chop behavior when `canChooseNotToChop=false`"
+  },
+  "1.16.1": {
+    "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
+    "0.4": "Added configurability",
+    "0.5": "Mushroom caps, fungus warts, and shroomlights break when felling\nDiagonal tree junctions are now choppable\nBreaking a single log destroys connected leaves\nDon't spawn drops in creative\nAny blocks with minecraft:leaves or treechop:leaves_like tags are treated as leaves\nAny blocks with minecraft:logs or treechop:choppable are treated as logs\nCan configure the block tag used to detect logs and leaves",
+    "0.6": "Fixed chopping not draining item durability\nFixed chopping not causing exhaustion\nFixed chopping not dropping experience",
+    "0.7": "Fixed chopped blocks not spawning drops",
+    "0.8": "Added config option `enabled` to disable chopping\nAdded config option `canChooseNotToChop` to prevent players from not chopping\nFixed crash when using tools from Silent's Gear (and possibly other mods)\nFixed inability to break chopped logs without chopping",
+    "0.9": "Fixed chopped blocks not spawning drops (again)\nAdded keybinding to toggle chopping on and off\nAdded keybinding to toggle felling on and off\nAdded keybinding to change the effect sneaking has on chopping\nAdded configurable blacklist to prevent chopping when holding certain items",
+    "0.10": "Fixed startup crash on dedicated servers",
+    "0.11.0": "Added client-side config option to only chop \"trees\" with \"leaves\"\nAdded optional `treechop:choppables_except_mushrooms` block tag to disable chopping on mushrooms\nLet xp-dropping logs drop xp when felled\nFixed fortune and silk touch enchantment effects not getting applied (only for blocks you chop, not felled blocks)\nFixed occasional crashes when chopping with modded log-breaking items\nFixed client-side config sometimes not syncing properly when joining a server\nRewrote tree detection code to be more stable and maintainable\nPorted to 1.12.2",
+    "0.11.1": "Fixed a crash when using Mekanism tools (and probably other modded items)\nFix chopping tools blacklist getting reset to the default value on startup",
+    "0.11.2": "Fixed non-standard keys causing unbound controls to trigger\n- Prevent players from disabling felling when `canChooseNotToChop=true`\n- Show players a message when trying to change chop behavior when `canChooseNotToChop=false`"
+  },
+  "1.15.2": {
+    "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
+    "0.4": "Added configurability",
+    "0.5": "Mushroom caps, fungus warts, and shroomlights break when felling\nDiagonal tree junctions are now choppable\nBreaking a single log destroys connected leaves\nDon't spawn drops in creative\nAny blocks with minecraft:leaves or treechop:leaves_like tags are treated as leaves\nAny blocks with minecraft:logs or treechop:choppable are treated as logs\nCan configure the block tag used to detect logs and leaves",
+    "0.6": "Fixed chopping not draining item durability\nFixed chopping not causing exhaustion\nFixed chopping not dropping experience",
+    "0.7": "Fixed chopped blocks not spawning drops",
+    "0.8": "Added config option `enabled` to disable chopping\nAdded config option `canChooseNotToChop` to prevent players from not chopping\nFixed crash when using tools from Silent's Gear (and possibly other mods)\nFixed inability to break chopped logs without chopping",
+    "0.9": "Fixed chopped blocks not spawning drops (again)\nAdded keybinding to toggle chopping on and off\nAdded keybinding to toggle felling on and off\nAdded keybinding to change the effect sneaking has on chopping\nAdded configurable blacklist to prevent chopping when holding certain items",
+    "0.10": "Fixed startup crash on dedicated servers",
+    "0.11.0": "Added client-side config option to only chop \"trees\" with \"leaves\"\nAdded optional `treechop:choppables_except_mushrooms` block tag to disable chopping on mushrooms\nLet xp-dropping logs drop xp when felled\nFixed fortune and silk touch enchantment effects not getting applied (only for blocks you chop, not felled blocks)\nFixed occasional crashes when chopping with modded log-breaking items\nFixed client-side config sometimes not syncing properly when joining a server\nRewrote tree detection code to be more stable and maintainable\nPorted to 1.12.2",
+    "0.11.1": "Fixed a crash when using Mekanism tools (and probably other modded items)\nFix chopping tools blacklist getting reset to the default value on startup",
+    "0.11.2": "Fixed non-standard keys causing unbound controls to trigger\n- Prevent players from disabling felling when `canChooseNotToChop=true`\n- Show players a message when trying to change chop behavior when `canChooseNotToChop=false`"
+  },
+  "1.12.2": {
+    "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
+    "0.4": "Added configurability",
+    "0.5": "Mushroom caps, fungus warts, and shroomlights break when felling\nDiagonal tree junctions are now choppable\nBreaking a single log destroys connected leaves\nDon't spawn drops in creative\nAny blocks with minecraft:leaves or treechop:leaves_like tags are treated as leaves\nAny blocks with minecraft:logs or treechop:choppable are treated as logs\nCan configure the block tag used to detect logs and leaves",
+    "0.6": "Fixed chopping not draining item durability\nFixed chopping not causing exhaustion\nFixed chopping not dropping experience",
+    "0.7": "Fixed chopped blocks not spawning drops",
+    "0.8": "Added config option `enabled` to disable chopping\nAdded config option `canChooseNotToChop` to prevent players from not chopping\nFixed crash when using tools from Silent's Gear (and possibly other mods)\nFixed inability to break chopped logs without chopping",
+    "0.9": "Fixed chopped blocks not spawning drops (again)\nAdded keybinding to toggle chopping on and off\nAdded keybinding to toggle felling on and off\nAdded keybinding to change the effect sneaking has on chopping\nAdded configurable blacklist to prevent chopping when holding certain items",
+    "0.10": "Fixed startup crash on dedicated servers",
+    "0.11.0": "Added client-side config option to only chop \"trees\" with \"leaves\"\nAdded optional `treechop:choppables_except_mushrooms` block tag to disable chopping on mushrooms\nLet xp-dropping logs drop xp when felled\nFixed fortune and silk touch enchantment effects not getting applied (only for blocks you chop, not felled blocks)\nFixed occasional crashes when chopping with modded log-breaking items\nFixed client-side config sometimes not syncing properly when joining a server\nRewrote tree detection code to be more stable and maintainable\nPorted to 1.12.2",
+    "0.11.1": "Fixed a crash when using Mekanism tools (and probably other modded items)\nFix chopping tools blacklist getting reset to the default value on startup",
+    "0.11.2": "Fixed non-standard keys causing unbound controls to trigger\n- Prevent players from disabling felling when `canChooseNotToChop=true`\n- Show players a message when trying to change chop behavior when `canChooseNotToChop=false`"
   }
 }
