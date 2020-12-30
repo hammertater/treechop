@@ -53,7 +53,7 @@ public class KeyBindings {
                 || Minecraft.getMinecraft().world == null
                 || !Keyboard.getEventKeyState()
                 || Keyboard.isRepeatEvent()
-                || Keyboard.getEventKey() == -1
+                || Keyboard.getEventKey() == Keyboard.KEY_NONE
         ) {
             return;
         }

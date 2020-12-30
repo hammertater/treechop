@@ -433,7 +433,11 @@ public class ChopUtil {
 
     public static boolean playerWantsToFell(EntityPlayer player) {
         ChopSettings chopSettings = getPlayerChopSettings(player);
-        return chopSettings.getFellingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeFellBehavior(player);
+        if (ConfigHandler.canChooseNotToChop) {
+            return chopSettings.getFellingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeFellBehavior(player);
+        } else {
+            return true;
+        }
     }
 
     private static boolean isLocalPlayer(EntityPlayer player) {
