@@ -12,10 +12,3 @@ logoFile="logo.png"
 credits="This one goes out to all the lumberjacks."
 authors="HammerTater"
 description="A mod that makes trees more choppable."
-
-[[dependencies.treechop]]
-modId="silentgear"
-mandatory=false
-versionRange="[2.4.+,)"
-ordering="BEFORE"
-side="BOTH"
