@@ -3,6 +3,7 @@ package ht.treechop.common;
 import ht.treechop.TreeChopMod;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.capabilities.ChopSettingsProvider;
+import ht.treechop.common.compat.Compat;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.util.ChopResult;
@@ -53,6 +54,7 @@ public class Common {
                 || !ChopUtil.playerWantsToChop(agent)
                 || event.isCanceled()
                 || !(event.getWorld() instanceof World)
+                || !Compat.canChop(event)
         ) {
             return;
         }
