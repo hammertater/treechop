@@ -1,6 +1,10 @@
 package ht.treechop.common.config;
 
 import ht.treechop.common.capabilities.ChopSettings;
+import net.minecraft.block.Block;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ITag;
+import net.minecraft.tags.ITagCollection;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -13,15 +17,13 @@ import java.util.stream.Collectors;
 
 public class ConfigHandler {
 
-    public static ResourceLocation blockTagForDetectingLogs;
-    public static ResourceLocation blockTagForDetectingLeaves;
+    public static ITag<Block> blockTagForDetectingLogs;
+    public static ITag<Block> blockTagForDetectingLeaves;
     public static Set<ResourceLocation> choppingToolItemsBlacklist;
     public static Set<ResourceLocation> choppingToolTagsBlacklist;
     public static int maxBreakLeavesDistance;
 
     public static void onReload() {
-        blockTagForDetectingLogs = new ResourceLocation(COMMON.blockTagForDetectingLogs.get());
-        blockTagForDetectingLeaves = new ResourceLocation(COMMON.blockTagForDetectingLeaves.get());
         choppingToolItemsBlacklist = COMMON.choppingToolsBlacklist.get().stream()
                 .filter(tag -> !tag.startsWith("#"))
                 .map(ResourceLocation::tryCreate)
@@ -33,6 +35,13 @@ public class ConfigHandler {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         maxBreakLeavesDistance = COMMON.maxBreakLeavesDistance.get();
+
+        updateTags(BlockTags.getCollection());
+    }
+
+    public static void updateTags(ITagCollection<Block> blockTags) {
+        blockTagForDetectingLogs = blockTags.get(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
+        blockTagForDetectingLeaves = blockTags.get(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
     }
 
     public static class Common {

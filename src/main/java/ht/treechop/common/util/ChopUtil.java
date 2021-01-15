@@ -51,7 +51,7 @@ public class ChopUtil {
     }
 
     static public boolean isBlockALog(Block block) {
-        return block.getTags().contains(ConfigHandler.blockTagForDetectingLogs);
+        return block.isIn(ConfigHandler.blockTagForDetectingLogs);
     }
 
     static public boolean isBlockALog(IWorld world, BlockPos pos) {
@@ -63,7 +63,7 @@ public class ChopUtil {
     }
 
     private static boolean isBlockLeaves(Block block) {
-        return block.getBlock().getTags().contains(ConfigHandler.blockTagForDetectingLeaves);
+        return block.getBlock().isIn(ConfigHandler.blockTagForDetectingLeaves);
     }
 
     static public Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks, AtomicInteger iterationCounter) {
