@@ -334,7 +334,6 @@ public class ChopUtil {
 
     private static IChoppable getChoppedBlock(BlockState blockState) {
         if (isBlockALog(blockState.getBlock())) {
-            // TODO: look up appropriate chopped block type
             return (IChoppable) (blockState.getBlock() instanceof IChoppable ? blockState.getBlock() : ModBlocks.CHOPPED_LOG.get());
         } else {
             return null;

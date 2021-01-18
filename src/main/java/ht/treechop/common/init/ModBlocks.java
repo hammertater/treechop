@@ -22,7 +22,8 @@ public class ModBlocks {
                             Material.WOOD,
                             MaterialColor.WOOD)
                             .hardnessAndResistance(2.0F)
-                            .sound(SoundType.WOOD))
+                            .sound(SoundType.WOOD)
+            )
     );
 
 }

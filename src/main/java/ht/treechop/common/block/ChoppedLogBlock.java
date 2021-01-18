@@ -2,201 +2,92 @@ package ht.treechop.common.block;
 
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
+import ht.treechop.common.util.FaceShape;
+import javafx.geometry.BoundingBox;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 
-import java.util.stream.Stream;
+import java.util.Arrays;
 
-import static ht.treechop.common.util.ChopUtil.isBlockALog;
+import static ht.treechop.common.util.ChopUtil.isBlockLeaves;
 
 public class ChoppedLogBlock extends Block implements IChoppable {
 
     protected static final IntegerProperty CHOPS = BlockStateProperties.CHOP_COUNT;
     protected static final EnumProperty<ChoppedLogShape> SHAPE = BlockStateProperties.CHOPPED_LOG_SHAPE;
 
-    public static final VoxelShape[] PILLAR_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-            .map(chops -> Block.makeCuboidShape(
-                    chops, 0, chops, 16 - chops,
-                    16, 16 - chops
-            ))
-            .toArray(VoxelShape[]::new);
-
-    public static final VoxelShape[] CORNER_NW_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-            .map(chops -> Block.makeCuboidShape(
-                    0, 0, 0,
-                    16 - chops * 2, 16, 16 - chops * 2
-            ))
-            .toArray(VoxelShape[]::new);
-
-    public static final VoxelShape[] CORNER_NE_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-            .map(chops -> Block.makeCuboidShape(
-                    chops * 2, 0, 0,
-                    16, 16, 16 - chops * 2
-            ))
-            .toArray(VoxelShape[]::new);
-
-    public static final VoxelShape[] CORNER_SE_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-            .map(chops -> Block.makeCuboidShape(
-                    chops * 2, 0, chops * 2,
-                    16, 16, 16
-            ))
-            .toArray(VoxelShape[]::new);
-
-    public static final VoxelShape[] CORNER_SW_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-            .map(chops -> Block.makeCuboidShape(
-                    0, 0, chops * 2,
-                    16 - chops * 2, 16, 16
-            ))
-            .toArray(VoxelShape[]::new);
-
-    public static final VoxelShape[] END_W_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-            .map(chops -> Block.makeCuboidShape(
-                    chops * 2, 0, chops,
-                    16, 16, 16 - chops
-            ))
-            .toArray(VoxelShape[]::new);
-
-    public static final VoxelShape[] END_N_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-            .map(chops -> Block.makeCuboidShape(
-                    chops, 0, chops * 2,
-                    16 - chops, 16, 16
-            ))
-            .toArray(VoxelShape[]::new);
-
-    public static final VoxelShape[] END_E_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-            .map(chops -> Block.makeCuboidShape(
-                    0, 0, chops,
-                    16 - chops * 2, 16, 16 - chops
-            ))
-            .toArray(VoxelShape[]::new);
-
-    public static final VoxelShape[] END_S_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-            .map(chops -> Block.makeCuboidShape(
-                    chops, 0, 0,
-                    16 - chops, 16, 16 - chops * 2
-            ))
-            .toArray(VoxelShape[]::new);
-
-    public static final VoxelShape[] SIDE_W_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-            .map(chops -> Block.makeCuboidShape(
-                    chops * 2, 0, 0,
-                    16, 16, 16
-            ))
-            .toArray(VoxelShape[]::new);
-
-    public static final VoxelShape[] SIDE_N_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-            .map(chops -> Block.makeCuboidShape(
-                    0, 0, chops * 2,
-                    16, 16, 16
-            ))
-            .toArray(VoxelShape[]::new);
-
-    public static final VoxelShape[] SIDE_E_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-            .map(chops -> Block.makeCuboidShape(
-                    0, 0, 0,
-                    16 - chops * 2, 16, 16
-            ))
-            .toArray(VoxelShape[]::new);
-
-    public static final VoxelShape[] SIDE_S_SHAPES_BY_CHOPS = Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-            .map(chops -> Block.makeCuboidShape(
-                    0, 0, 0,
-                    16, 16, 16 - chops * 2
-            ))
-            .toArray(VoxelShape[]::new);
-
     public ChoppedLogBlock(Properties properties) {
-        super(properties);
+        super(properties.variableOpacity());
         this.setDefaultState(
                 this.stateContainer.getBaseState()
                         .with(CHOPS, 1)
-                        .with(SHAPE, ChoppedLogShape.PILLAR)
+                        .with(SHAPE, ChoppedLogShape.PILLAR_Y)
         );
     }
 
     public static ChoppedLogShape getPlacementShape(IWorld world, BlockPos blockPos) {
-        final byte NORTH = 0b0001;
-        final byte EAST = 0b0010;
-        final byte SOUTH = 0b0100;
-        final byte WEST = 0b1000;
+        final byte DOWN     = 1;
+        final byte UP       = 1 << 1;
+        final byte NORTH    = 1 << 2;
+        final byte SOUTH    = 1 << 3;
+        final byte WEST     = 1 << 4;
+        final byte EAST     = 1 << 5;
 
-        byte sides = (byte) (
-                (isBlockALog(world, blockPos.north()) ? NORTH : 0)
-                | (isBlockALog(world, blockPos.east()) ? EAST : 0)
-                | (isBlockALog(world, blockPos.south()) ? SOUTH : 0)
-                | (isBlockALog(world, blockPos.west()) ? WEST : 0)
+        byte openSides = (byte) (
+                (isBlockOpen(world, blockPos.down()) ? DOWN : 0)
+                | (isBlockOpen(world, blockPos.up()) ? UP : 0)
+                | (isBlockOpen(world, blockPos.north()) ? NORTH : 0)
+                | (isBlockOpen(world, blockPos.south()) ? SOUTH : 0)
+                | (isBlockOpen(world, blockPos.west()) ? WEST : 0)
+                | (isBlockOpen(world, blockPos.east()) ? EAST : 0)
         );
 
-        switch (sides) {
-            case NORTH | WEST:
-                return ChoppedLogShape.CORNER_NW;
-            case NORTH | EAST:
-                return ChoppedLogShape.CORNER_NE;
-            case SOUTH | EAST:
-                return ChoppedLogShape.CORNER_SE;
-            case SOUTH | WEST:
-                return ChoppedLogShape.CORNER_SW;
-            case EAST:
-                return ChoppedLogShape.END_W;
-            case SOUTH:
-                return ChoppedLogShape.END_N;
-            case WEST:
-                return ChoppedLogShape.END_E;
-            case NORTH:
-                return ChoppedLogShape.END_S;
-            case NORTH | EAST | SOUTH:
-                return ChoppedLogShape.SIDE_W;
-            case EAST | SOUTH | WEST:
-                return ChoppedLogShape.SIDE_N;
-            case SOUTH | WEST | NORTH:
-                return ChoppedLogShape.SIDE_E;
-            case WEST | NORTH | EAST:
-                return ChoppedLogShape.SIDE_S;
-            default:
-                return ChoppedLogShape.PILLAR;
-        }
+        return ChoppedLogShape.forOpenSides(openSides);
+    }
+
+    private static boolean isBlockOpen(IWorld world, BlockPos pos) {
+        BlockState blockState = world.getBlockState(pos);
+        Block block = blockState.getBlock();
+        return (block.isAir(blockState, world, pos) || isBlockLeaves(world, pos));
     }
 
     @SuppressWarnings({"deprecation", "NullableProblems"})
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
         int chops = state.get(CHOPS);
-        switch (state.get(SHAPE)) {
-            case CORNER_NW:
-                return CORNER_NW_SHAPES_BY_CHOPS[chops];
-            case CORNER_NE:
-                return CORNER_NE_SHAPES_BY_CHOPS[chops];
-            case CORNER_SE:
-                return CORNER_SE_SHAPES_BY_CHOPS[chops];
-            case CORNER_SW:
-                return CORNER_SW_SHAPES_BY_CHOPS[chops];
-            case END_W:
-                return END_W_SHAPES_BY_CHOPS[chops];
-            case END_N:
-                return END_N_SHAPES_BY_CHOPS[chops];
-            case END_E:
-                return END_E_SHAPES_BY_CHOPS[chops];
-            case END_S:
-                return END_S_SHAPES_BY_CHOPS[chops];
-            case SIDE_W:
-                return SIDE_W_SHAPES_BY_CHOPS[chops];
-            case SIDE_N:
-                return SIDE_N_SHAPES_BY_CHOPS[chops];
-            case SIDE_E:
-                return SIDE_E_SHAPES_BY_CHOPS[chops];
-            case SIDE_S:
-                return SIDE_S_SHAPES_BY_CHOPS[chops];
-            default:
-                return PILLAR_SHAPES_BY_CHOPS[chops];
-        }
+        BoundingBox box = state.get(SHAPE).getBoundingBox(chops);
+        return Block.makeCuboidShape(
+                box.getMinX(),
+                box.getMinY(),
+                box.getMinZ(),
+                box.getMaxX(),
+                box.getMaxY(),
+                box.getMaxZ()
+        );
+    }
+
+    @SuppressWarnings({"deprecation", "NullableProblems"})
+    @Override
+    public VoxelShape getRenderShape(BlockState state, IBlockReader world, BlockPos pos) {
+        ChoppedLogShape shape = state.get(SHAPE);
+        return VoxelShapes.or(
+                VoxelShapes.empty(),
+                Arrays.stream(Direction.values())
+                        .filter(direction -> direction.getAxis().isHorizontal())
+                        .filter(direction -> !shape.isSideOpen(direction))
+                        .map(direction -> VoxelShapes.create(FaceShape.get(direction).getBox()))
+                        .toArray(VoxelShape[]::new)
+        );
     }
 
     @Override
@@ -221,4 +112,6 @@ public class ChoppedLogBlock extends Block implements IChoppable {
     public int getMaxNumChops() {
         return 7;
     }
+
+
 }

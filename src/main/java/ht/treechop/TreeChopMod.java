@@ -9,7 +9,9 @@ import ht.treechop.server.Server;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -32,9 +34,9 @@ public class TreeChopMod {
         modBus.addListener((ModConfig.Loading e) -> ConfigHandler.onReload());
         modBus.addListener((ModConfig.Reloading e) -> ConfigHandler.onReload());
 
-        modBus.addListener(Client::onClientSetup);
         modBus.addListener(Common::onCommonSetup);
         modBus.addListener(Server::onServerSetup);
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> Client::init);
 
         ModBlocks.BLOCKS.register(modBus);
 
