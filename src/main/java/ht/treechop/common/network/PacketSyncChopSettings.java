@@ -34,7 +34,7 @@ public class PacketSyncChopSettings {
         chopSettings.setFellingEnabled(buffer.readBoolean());
         SneakBehavior sneakBehavior = EnumUtils.getEnum(SneakBehavior.class, buffer.readString(SneakBehavior.maxNameLength));
         chopSettings.setSneakBehavior((sneakBehavior != null) ? sneakBehavior : chopSettings.getSneakBehavior());
-        chopSettings.setTreesMustBeUniform(buffer.readBoolean());
+        chopSettings.treesMustHaveLeaves(buffer.readBoolean());
         return new PacketSyncChopSettings(chopSettings);
     }
 
@@ -67,7 +67,7 @@ public class PacketSyncChopSettings {
         }
 
         // Force settings through that aren't yet configurable in-game
-        chopSettings.setTreesMustBeUniform(message.chopSettings.getTreesMustHaveLeaves());
+        chopSettings.treesMustHaveLeaves(message.chopSettings.getTreesMustHaveLeaves());
 
         TreeChopMod.LOGGER.info("Sending chop settings to player " + player.getScoreboardName());
         PacketHandler.sendTo(player, new PacketSyncChopSettings(chopSettings));

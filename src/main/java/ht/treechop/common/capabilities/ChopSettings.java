@@ -19,7 +19,7 @@ public class ChopSettings {
     public void setChoppingEnabled(boolean enabled) { choppingEnabled = enabled; }
     public void setFellingEnabled(boolean enabled) { fellingEnabled = enabled; }
     public void setSneakBehavior(SneakBehavior behavior) { sneakBehavior = behavior; }
-    public void setTreesMustBeUniform(Boolean enabled) { treesMustHaveLeaves = enabled; }
+    public void treesMustHaveLeaves(Boolean enabled) { treesMustHaveLeaves = enabled; }
 
     public void toggleChopping() {
         setChoppingEnabled(!choppingEnabled);

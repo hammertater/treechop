@@ -76,7 +76,7 @@ public class ChopSettingsCapability extends ChopSettings {
                 instance.setChoppingEnabled(choppingEnabled.orElse(instance.getChoppingEnabled()));
                 instance.setFellingEnabled(fellingEnabled.orElse(instance.getFellingEnabled()));
                 instance.setSneakBehavior(sneakBehavior);
-                instance.setTreesMustBeUniform(onlyChopTreesWithLeaves.orElse(instance.getTreesMustHaveLeaves()));
+                instance.treesMustHaveLeaves(onlyChopTreesWithLeaves.orElse(instance.getTreesMustHaveLeaves()));
 
                 if (isSynced.orElse(false)) {
                     instance.setSynced();

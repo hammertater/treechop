@@ -163,7 +163,7 @@ public class ConfigHandler {
             chopSettings.setChoppingEnabled(ConfigHandler.CLIENT.choppingEnabled.get());
             chopSettings.setFellingEnabled(ConfigHandler.CLIENT.fellingEnabled.get());
             chopSettings.setSneakBehavior(ConfigHandler.CLIENT.sneakBehavior.get());
-            chopSettings.setTreesMustBeUniform(ConfigHandler.CLIENT.treesMustHaveLeaves.get());
+            chopSettings.treesMustHaveLeaves(ConfigHandler.CLIENT.treesMustHaveLeaves.get());
             return chopSettings;
         }
     }
