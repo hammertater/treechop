@@ -129,8 +129,9 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue fellingEnabled;
         public final ForgeConfigSpec.EnumValue<SneakBehavior> sneakBehavior;
         public final ForgeConfigSpec.BooleanValue treesMustHaveLeaves;
-        public final ForgeConfigSpec.BooleanValue useProceduralChoppedModels;
         public final ForgeConfigSpec.BooleanValue chopInCreativeMode;
+        public final ForgeConfigSpec.BooleanValue useProceduralChoppedModels;
+        public final ForgeConfigSpec.BooleanValue removeBarkOnInteriorLogs;
 
 //        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
 
@@ -147,12 +148,15 @@ public class ConfigHandler {
             treesMustHaveLeaves = builder
                     .comment("Whether to ignore trees without connected leaves")
                     .define("onlyBreakTreesWithLeaves", false);
-            useProceduralChoppedModels = builder
-                    .comment("Whether to use procedural chopped log models; disable to use models added by a resource pack")
-                    .define("useProceduralChoppedModels", true);
             chopInCreativeMode = builder
                     .comment("Whether to enable chopping when in creative mode (even when false, sneaking can still enable chopping)")
                     .define("chopInCreativeMode", false);
+            useProceduralChoppedModels = builder
+                    .comment("Whether to use procedural chopped log models; disable to use models added by a resource pack")
+                    .define("useProceduralChoppedModels", true);
+            removeBarkOnInteriorLogs = builder
+                    .comment("Whether to replace the interior sides of logs with a chopped texture instead of bark")
+                    .define("removeBarkOnInteriorLogs", true);
 //            treesMustBeUniform = builder
 //                    .comment("Whether to disallow different types of log blocks from belonging to the same tree")
 //                    .define("treesMustBeUniform", true);

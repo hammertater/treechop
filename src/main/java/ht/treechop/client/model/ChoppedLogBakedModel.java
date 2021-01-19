@@ -2,6 +2,7 @@ package ht.treechop.client.model;
 
 import ht.treechop.TreeChopMod;
 import ht.treechop.common.block.ChoppedLogBlock;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
@@ -49,9 +50,11 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
     private final IBakedModel staticModel;
     private final ResourceLocation textureRL = new ResourceLocation("treechop:block/chopped_log");
     private final TextureAtlasSprite sprite;
+    private final boolean removeBarkOnInteriorLogs;
 
-    public ChoppedLogBakedModel(IBakedModel staticModel) {
+    public ChoppedLogBakedModel(IBakedModel staticModel, boolean removeBarkOnInteriorLogs) {
         this.staticModel = staticModel;
+        this.removeBarkOnInteriorLogs = removeBarkOnInteriorLogs;
         this.sprite = Minecraft.getInstance().getModelManager()
                 .getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
                 .getSprite(textureRL);
@@ -66,7 +69,10 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
             } else if (existingModel instanceof ChoppedLogBakedModel) {
                 TreeChopMod.LOGGER.warn("Tried to replace ChoppedLogBakedModel twice");
             } else {
-                ChoppedLogBakedModel customModel = new ChoppedLogBakedModel(existingModel);
+                ChoppedLogBakedModel customModel = new ChoppedLogBakedModel(
+                        existingModel,
+                        ConfigHandler.CLIENT.removeBarkOnInteriorLogs.get()
+                );
                 event.getModelRegistry().put(variantMRL, customModel);
             }
         }
@@ -90,14 +96,16 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
             );
         }
 
-        Set<Direction> solidSides = Arrays.stream(Direction.values())
+        Set<Direction> solidSides = removeBarkOnInteriorLogs
+                ? Arrays.stream(Direction.values())
                 .filter(direction -> direction.getAxis().isHorizontal())
                 .filter(direction -> {
                     BlockState blockState = world.getBlockState(pos.offset(direction));
                     Block block = blockState.getBlock();
                     return blockState.isSolid() && !(block instanceof ChoppedLogBlock);
                 })
-                .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)));
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)))
+                : Collections.emptySet();
 
         ModelDataMap.Builder builder = new ModelDataMap.Builder();
         builder.withInitial(SHAPE, state.get(BlockStateProperties.CHOPPED_LOG_SHAPE));

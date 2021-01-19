@@ -1,5 +1,6 @@
 package ht.treechop.common.properties;
 
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.util.FaceShape;
 import javafx.geometry.BoundingBox;
 import net.minecraft.util.Direction;
@@ -168,6 +169,8 @@ public enum ChoppedLogShape implements IStringSerializable {
     }
 
     public VoxelShape getOcclusionShape() {
-        return occlusionShape;
+        return (ConfigHandler.CLIENT.removeBarkOnInteriorLogs.get())
+                ? occlusionShape
+                : VoxelShapes.empty();
     }
 }
