@@ -1,6 +1,7 @@
 package ht.treechop.common.config;
 
 import ht.treechop.common.capabilities.ChopSettings;
+import ht.treechop.common.util.FaceShape;
 import net.minecraft.block.Block;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ITag;
@@ -129,6 +130,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue fellingEnabled;
         public final ForgeConfigSpec.EnumValue<SneakBehavior> sneakBehavior;
         public final ForgeConfigSpec.BooleanValue treesMustHaveLeaves;
+        public final ForgeConfigSpec.BooleanValue useProceduralChoppedModels;
+
 //        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
 
         public Client(ForgeConfigSpec.Builder builder) {
@@ -144,6 +147,9 @@ public class ConfigHandler {
             treesMustHaveLeaves = builder
                     .comment("Whether to ignore trees without connected leaves")
                     .define("onlyBreakTreesWithLeaves", false);
+            useProceduralChoppedModels = builder
+                    .comment("Whether to use procedural chopped log models; disable to use models added by a resource pack")
+                    .define("useProceduralChoppedModels", true);
 //            treesMustBeUniform = builder
 //                    .comment("Whether to disallow different types of log blocks from belonging to the same tree")
 //                    .define("treesMustBeUniform", true);

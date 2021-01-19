@@ -10,17 +10,12 @@ import ht.treechop.common.network.PacketEnableFelling;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.network.PacketSetSneakBehavior;
 import ht.treechop.common.network.PacketSyncChopSettings;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -33,11 +28,15 @@ public class Client {
     }
 
     public static void init() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(Client::onModelBakeEvent);
+        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        IEventBus bus = MinecraftForge.EVENT_BUS;
-        bus.addListener(Client::onClientSetup);
-        bus.addListener(Client::onConnect);
+        if (ConfigHandler.CLIENT.useProceduralChoppedModels.get()) {
+            modBus.addListener(ChoppedLogBakedModel::overrideBlockStateModels);
+        }
+
+        IEventBus eventBus = MinecraftForge.EVENT_BUS;
+        eventBus.addListener(Client::onClientSetup);
+        eventBus.addListener(Client::onConnect);
 
         KeyBindings.init();
     }
@@ -66,22 +65,6 @@ public class Client {
 
     public static ChopSettings getChopSettings() {
         return chopSettings;
-    }
-
-    @SubscribeEvent
-    public static void onModelBakeEvent(ModelBakeEvent event) {
-        for (BlockState blockState : ModBlocks.CHOPPED_LOG.get().getStateContainer().getValidStates()) {
-            ModelResourceLocation variantMRL = BlockModelShapes.getModelLocation(blockState);
-            IBakedModel existingModel = event.getModelRegistry().get(variantMRL);
-            if (existingModel == null) {
-                TreeChopMod.LOGGER.warn("Did not find the expected vanilla baked model(s) for treeworld:chopped_log in registry");
-            } else if (existingModel instanceof ChoppedLogBakedModel) {
-                TreeChopMod.LOGGER.warn("Tried to replace ChoppedLogBakedModel twice");
-            } else {
-                ChoppedLogBakedModel customModel = new ChoppedLogBakedModel(existingModel);
-                event.getModelRegistry().put(variantMRL, customModel);
-            }
-        }
     }
 
 }

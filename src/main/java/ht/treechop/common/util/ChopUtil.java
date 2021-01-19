@@ -41,32 +41,32 @@ import java.util.stream.Stream;
 
 public class ChopUtil {
 
-    static public boolean isBlockChoppable(IWorld world, BlockPos pos, Block block) {
+    public static boolean isBlockChoppable(IWorld world, BlockPos pos, Block block) {
         return (block instanceof IChoppable) ||
                 (isBlockALog(block) && !(isBlockALog(world, pos.west()) && isBlockALog(world, pos.north()) && isBlockALog(world, pos.east()) && isBlockALog(world, pos.south())));
     }
 
-    static public boolean isBlockChoppable(IWorld world, BlockPos pos) {
+    public static boolean isBlockChoppable(IWorld world, BlockPos pos) {
         return isBlockChoppable(world, pos, world.getBlockState(pos).getBlock());
     }
 
-    static public boolean isBlockALog(Block block) {
+    public static boolean isBlockALog(Block block) {
         return block.isIn(ConfigHandler.blockTagForDetectingLogs);
     }
 
-    static public boolean isBlockALog(IWorld world, BlockPos pos) {
+    public static boolean isBlockALog(IWorld world, BlockPos pos) {
         return isBlockALog(world.getBlockState(pos).getBlock());
     }
 
-    static public boolean isBlockLeaves(IWorld world, BlockPos pos) {
+    public static boolean isBlockLeaves(IWorld world, BlockPos pos) {
         return isBlockLeaves(world.getBlockState(pos).getBlock());
     }
 
-    private static boolean isBlockLeaves(Block block) {
+    public static boolean isBlockLeaves(Block block) {
         return block.getBlock().isIn(ConfigHandler.blockTagForDetectingLeaves);
     }
 
-    static public Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks, AtomicInteger iterationCounter) {
+    public static Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks, AtomicInteger iterationCounter) {
         Set<BlockPos> connectedBlocks = new HashSet<>();
         List<BlockPos> newConnectedBlocks = new LinkedList<>(startingPoints);
         iterationCounter.set(0);
@@ -89,7 +89,7 @@ public class ChopUtil {
         return connectedBlocks;
     }
 
-    static public Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks) {
+    public static Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks) {
         return getConnectedBlocks(startingPoints, searchOffsetsSupplier, maxNumBlocks, new AtomicInteger());
     }
 
@@ -129,7 +129,7 @@ public class ChopUtil {
         return new ArrayList<>(leaves);
     }
 
-    public static boolean markLeavesToDestroyAndKeepLooking(IWorld world, BlockPos pos, AtomicInteger iterationCounter, Set<BlockPos> leavesToDestroy) {
+    private static boolean markLeavesToDestroyAndKeepLooking(IWorld world, BlockPos pos, AtomicInteger iterationCounter, Set<BlockPos> leavesToDestroy) {
         BlockState blockState = world.getBlockState(pos);
         if (isBlockLeaves(blockState.getBlock())) {
             if (blockState.getBlock() instanceof LeavesBlock) {
@@ -149,7 +149,7 @@ public class ChopUtil {
         return false;
     }
 
-    static public int numChopsToFell(int numBlocks) {
+    public static int numChopsToFell(int numBlocks) {
         return (int) (ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(numBlocks) * ConfigHandler.COMMON.chopCountScale.get());
     }
 
@@ -159,11 +159,7 @@ public class ChopUtil {
                 : tryToChopWithoutFelling(world, blockPos, numChops);
     }
 
-    public static ChopResult getChopResult(World world, final BlockPos blockPos, PlayerEntity agent, int numChops, Predicate<BlockPos> logCondition) {
-        if (!isBlockChoppable(world, blockPos, world.getBlockState(blockPos).getBlock())) {
-            return ChopResult.IGNORED;
-        }
-
+    private static ChopResult getChopResult(World world, BlockPos blockPos, PlayerEntity agent, int numChops, Predicate<BlockPos> logCondition) {
         int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
 
         AtomicBoolean hasLeaves = new AtomicBoolean(!getPlayerChopSettings(agent).getTreesMustHaveLeaves());
@@ -186,7 +182,7 @@ public class ChopUtil {
         return chopTree(world, blockPos, supportedBlocks, numChops);
     }
 
-    public static ChopResult chopTree(World world, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
+    private static ChopResult chopTree(World world, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
         BlockState blockState = world.getBlockState(target);
         int currentNumChops = getNumChops(blockState);
         int numChopsToFell = numChopsToFell(supportedBlocks.size());
@@ -229,7 +225,7 @@ public class ChopUtil {
      * Adds chops to the targeted block without destroying it. Overflow chops spill to nearby blocks.
      * @param nearbyChoppableBlocks must not include {@code target}
      */
-    public static ChopResult gatherChops(World world, BlockPos target, int numChops, Set<BlockPos> nearbyChoppableBlocks) {
+    private static ChopResult gatherChops(World world, BlockPos target, int numChops, Set<BlockPos> nearbyChoppableBlocks) {
         List<TreeBlock> choppedBlocks = new LinkedList<>();
         int numChopsLeft = gatherChopAndGetNumChopsRemaining(world, target, numChops, choppedBlocks);
 
@@ -239,7 +235,7 @@ public class ChopUtil {
                         BlockState blockState1 = world.getBlockState(blockPos1);
                         Block block1 = blockState1.getBlock();
                         if (block1 instanceof IChoppable) {
-                            return getNumChops(blockState1) < getMaxNumChops(blockState1);
+                            return getNumChops(blockState1) < getMaxNumChops(world, blockPos1, blockState1);
                         } else {
                             return blockPos1.getY() >= target.getY();
                         }
@@ -286,53 +282,61 @@ public class ChopUtil {
         return numChops - (getNumChops(blockStateAfterChopping) - getNumChops(blockStateBeforeChopping));
     }
 
-    private static BlockState getBlockStateAfterChops(World world, BlockPos blockPos, int numChops, boolean destructive) {
+    public static BlockState getBlockStateAfterChops(World world, BlockPos blockPos, int numChops, boolean destructive) {
         BlockState blockState = world.getBlockState(blockPos);
         Block block = blockState.getBlock();
         if (block instanceof IChoppable) {
-            return getBlockStateAfterChops(blockState, numChops, destructive);
+            return getBlockStateAfterChops((IChoppable) block, blockState, numChops, destructive);
         } else {
-            IChoppable choppedBlock = getChoppedBlock(blockState);
-            if (choppedBlock instanceof Block) {
-                ChoppedLogShape shape = ChoppedLogBlock.getPlacementShape(world, blockPos);
-                BlockState defaultChoppedState = ((Block) choppedBlock).getDefaultState().with(BlockStateProperties.CHOPPED_LOG_SHAPE, shape);
-                return getBlockStateAfterChops(
-                        defaultChoppedState,
-                        numChops - getNumChops(defaultChoppedState),
-                        destructive
-                );
+            if (isBlockChoppable(world, blockPos, block)) {
+                IChoppable choppedBlock = getChoppedBlock(blockState);
+                if (choppedBlock instanceof Block) {
+                    ChoppedLogShape shape = ChoppedLogBlock.getPlacementShape(world, blockPos);
+                    BlockState defaultChoppedState = ((Block) choppedBlock).getDefaultState().with(BlockStateProperties.CHOPPED_LOG_SHAPE, shape);
+                    return getBlockStateAfterChops(
+                            choppedBlock,
+                            defaultChoppedState,
+                            numChops - getNumChops(defaultChoppedState),
+                            destructive
+                    );
+                } else {
+                    throw new IllegalArgumentException(String.format("Block \"%s\" is not choppable", block.getRegistryName()));
+                }
             } else {
-                throw new IllegalArgumentException(String.format("Block \"%s\" is not choppable", block.getRegistryName()));
+                return blockState;
             }
         }
     }
 
-    private static BlockState getBlockStateAfterChops(BlockState blockState, int numChops, boolean destructive) {
-        Block block = blockState.getBlock();
+    public static BlockState getBlockStateAfterChops(IChoppable choppableBlock, BlockState blockState, int numChops, boolean destructive) {
         int currentNumChops = getNumChops(blockState);
-        int maxNumChops = getMaxNumChops(blockState);
+        int maxNumChops = choppableBlock.getMaxNumChops();
         int newNumChops = currentNumChops + numChops;
 
         if (newNumChops <= maxNumChops) {
-            return ((IChoppable) block).withChops(blockState, newNumChops);
+            return choppableBlock.withChops(blockState, newNumChops);
         } else {
             return (destructive)
                     ? Blocks.AIR.getDefaultState()
-                    : ((IChoppable) block).withChops(blockState, maxNumChops);
+                    : choppableBlock.withChops(blockState, maxNumChops);
         }
     }
 
-    private static int getMaxNumChops(BlockState blockState) {
+    public static int getMaxNumChops(World world, BlockPos blockPos, BlockState blockState) {
         Block block = blockState.getBlock();
         if (block instanceof IChoppable) {
             return ((IChoppable) block).getMaxNumChops();
         } else {
-            IChoppable choppedBlock = getChoppedBlock(blockState);
-            return (choppedBlock != null) ? choppedBlock.getMaxNumChops() : 0;
+            if (isBlockChoppable(world, blockPos, world.getBlockState(blockPos).getBlock())) {
+                IChoppable choppedBlock = getChoppedBlock(blockState);
+                return (choppedBlock != null) ? choppedBlock.getMaxNumChops() : 0;
+            } else {
+                return 0;
+            }
         }
     }
 
-    private static IChoppable getChoppedBlock(BlockState blockState) {
+    public static IChoppable getChoppedBlock(BlockState blockState) {
         if (isBlockALog(blockState.getBlock())) {
             return (IChoppable) (blockState.getBlock() instanceof IChoppable ? blockState.getBlock() : ModBlocks.CHOPPED_LOG.get());
         } else {
@@ -349,8 +353,8 @@ public class ChopUtil {
         return block instanceof IChoppable ? ((IChoppable) block).getNumChops(blockState) : 0;
     }
 
-    public static int getNumChops(World world, Set<BlockPos> nearbyChoppableBlocks) {
-        return nearbyChoppableBlocks.stream()
+    public static int getNumChops(World world, Set<BlockPos> positions) {
+        return positions.stream()
                 .map(world::getBlockState)
                 .map(blockState1 -> blockState1.getBlock() instanceof IChoppable
                         ? ((IChoppable) blockState1.getBlock()).getNumChops(blockState1)
@@ -404,7 +408,7 @@ public class ChopUtil {
     }
 
     @SuppressWarnings("ConstantConditions")
-    private static ChopSettings getPlayerChopSettings(PlayerEntity player) {
+    public static ChopSettings getPlayerChopSettings(PlayerEntity player) {
         return isLocalPlayer(player) ? Client.getChopSettings() : player.getCapability(ChopSettingsCapability.CAPABILITY).orElseThrow(() -> new IllegalArgumentException("LazyOptional must not be empty"));
     }
 
