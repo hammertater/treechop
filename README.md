@@ -2,14 +2,13 @@
 
 For a far more fun description, see https://www.curseforge.com/minecraft/mc-mods/treechop.
 
-## List of new stuff coming in version 0.11
-* ~~Port to 1.12.2~~ **\[done]**
-* ~~Add client-side config option to only chop "trees" with "leaves" (https://github.com/hammertater/treechop/issues/7)~~ **\[done]**
-* ~~Add client-side config option to only fell logs of the same type~~ (https://github.com/hammertater/treechop/issues/11) **\[postponed until each log block has a unique chopped log block]**
-* ~~Let xp-dropping logs drop xp when felled (https://github.com/hammertater/treechop/issues/20)~~ **\[done]**
-* ~~Respect tool enchantments (https://github.com/hammertater/treechop/issues/3)~~ **\[done]**
-* ~~Fix client-side config sometimes not syncing properly when joining a server (need to confirm whether this is broken on >1.12.2)~~ **\[done]**
-* ~~Rewrite tree detection code to be more stable and maintainable~~ **\[done]**
-* ~~Add optional `treechop:choppables_except_mushrooms` block tag to disable chopping on mushrooms~~ **\[done]**
-* ~~Add recursion check to stop some incompatible modded items from causing crashes~~ **\[done]**
- 
+## Roadmap
+
+### 0.12
+
+* **\[done]** Procedurally generate chopped log models to fit any set of neighbors (https://github.com/hammertater/treechop/issues/12)
+* **\[done]** Show chopped texture on interior tree blocks instead of bark
+* Fix issues with chopping interior logs on really big (3x3+) trees
+* Allow minimally downward leaning tree limbs to be felled (https://github.com/hammertater/treechop/issues/32)
+* Add config to allow persistent leaves to be broken (https://github.com/hammertater/treechop/issues/31)
+* Disable chopping in creative, add config to re-enable it
