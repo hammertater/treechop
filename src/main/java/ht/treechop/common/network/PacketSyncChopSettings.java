@@ -26,6 +26,7 @@ public class PacketSyncChopSettings {
         buffer.writeBoolean(chopSettings.getFellingEnabled());
         buffer.writeString(chopSettings.getSneakBehavior().name());
         buffer.writeBoolean(chopSettings.getTreesMustHaveLeaves());
+        buffer.writeBoolean(chopSettings.getChopInCreativeMode());
     }
 
     public static PacketSyncChopSettings decode(PacketBuffer buffer) {
@@ -34,7 +35,8 @@ public class PacketSyncChopSettings {
         chopSettings.setFellingEnabled(buffer.readBoolean());
         SneakBehavior sneakBehavior = EnumUtils.getEnum(SneakBehavior.class, buffer.readString(SneakBehavior.maxNameLength));
         chopSettings.setSneakBehavior((sneakBehavior != null) ? sneakBehavior : chopSettings.getSneakBehavior());
-        chopSettings.treesMustHaveLeaves(buffer.readBoolean());
+        chopSettings.setTreesMustHaveLeaves(buffer.readBoolean());
+        chopSettings.setChopInCreativeMode(buffer.readBoolean());
         return new PacketSyncChopSettings(chopSettings);
     }
 
@@ -67,7 +69,8 @@ public class PacketSyncChopSettings {
         }
 
         // Force settings through that aren't yet configurable in-game
-        chopSettings.treesMustHaveLeaves(message.chopSettings.getTreesMustHaveLeaves());
+        chopSettings.setTreesMustHaveLeaves(message.chopSettings.getTreesMustHaveLeaves());
+        chopSettings.setChopInCreativeMode(message.chopSettings.getChopInCreativeMode());
 
         TreeChopMod.LOGGER.info("Sending chop settings to player " + player.getScoreboardName());
         PacketHandler.sendTo(player, new PacketSyncChopSettings(chopSettings));

@@ -42,7 +42,8 @@ public class ChopSettingsCapability extends ChopSettings {
         private static final String CHOPPING_ENABLED_KEY = "choppingEnabled";
         private static final String FELLING_ENABLED_KEY = "fellingEnabled";
         private static final String SNEAK_BEHAVIOR_KEY = "sneakBehavior";
-        private static final String ONLY_CHOP_TREES_WITH_LEAVES_KEY = "sneakBehavior";
+        private static final String TREES_MUST_HAVE_LEAVES_KEY = "treesMustHaveLeaves";
+        private static final String CHOP_IN_CREATIVE_MODE_KEY = "chopInCreativeMode";
         private static final String IS_SYNCED_KEY = "isSynced";
 
         @Nullable
@@ -52,7 +53,8 @@ public class ChopSettingsCapability extends ChopSettings {
             nbt.putBoolean(CHOPPING_ENABLED_KEY, instance.getChoppingEnabled());
             nbt.putBoolean(FELLING_ENABLED_KEY, instance.getFellingEnabled());
             nbt.putString(SNEAK_BEHAVIOR_KEY, instance.getSneakBehavior().name());
-            nbt.putBoolean(ONLY_CHOP_TREES_WITH_LEAVES_KEY, instance.getTreesMustHaveLeaves());
+            nbt.putBoolean(TREES_MUST_HAVE_LEAVES_KEY, instance.getTreesMustHaveLeaves());
+            nbt.putBoolean(CHOP_IN_CREATIVE_MODE_KEY, instance.getChopInCreativeMode());
             nbt.putBoolean(IS_SYNCED_KEY, instance.isSynced());
             return nbt;
         }
@@ -70,13 +72,15 @@ public class ChopSettingsCapability extends ChopSettings {
                     TreeChopMod.LOGGER.warn(String.format("NBT contains bad sneak behavior value \"%s\"; using default value instead", compoundNbt.getString(SNEAK_BEHAVIOR_KEY)));
                     sneakBehavior = SneakBehavior.INVERT_CHOPPING;
                 }
-                Optional<Boolean> onlyChopTreesWithLeaves = getBoolean(compoundNbt, ONLY_CHOP_TREES_WITH_LEAVES_KEY);
+                Optional<Boolean> onlyChopTreesWithLeaves = getBoolean(compoundNbt, TREES_MUST_HAVE_LEAVES_KEY);
+                Optional<Boolean> chopInCreativeMode = getBoolean(compoundNbt, CHOP_IN_CREATIVE_MODE_KEY);
                 Optional<Boolean> isSynced = getBoolean(compoundNbt, IS_SYNCED_KEY);
 
                 instance.setChoppingEnabled(choppingEnabled.orElse(instance.getChoppingEnabled()));
                 instance.setFellingEnabled(fellingEnabled.orElse(instance.getFellingEnabled()));
                 instance.setSneakBehavior(sneakBehavior);
-                instance.treesMustHaveLeaves(onlyChopTreesWithLeaves.orElse(instance.getTreesMustHaveLeaves()));
+                instance.setTreesMustHaveLeaves(onlyChopTreesWithLeaves.orElse(instance.getTreesMustHaveLeaves()));
+                instance.setChopInCreativeMode(chopInCreativeMode.orElse(instance.getChopInCreativeMode()));
 
                 if (isSynced.orElse(false)) {
                     instance.setSynced();

@@ -8,6 +8,7 @@ public class ChopSettings {
     private boolean fellingEnabled = true;
     private SneakBehavior sneakBehavior = SneakBehavior.INVERT_CHOPPING;
     private boolean treesMustHaveLeaves = true;
+    private boolean chopInCreativeMode = true;
 
     public ChopSettings() {}
 
@@ -15,11 +16,13 @@ public class ChopSettings {
     public boolean getFellingEnabled() { return fellingEnabled; }
     public SneakBehavior getSneakBehavior() { return sneakBehavior; }
     public boolean getTreesMustHaveLeaves() { return treesMustHaveLeaves; }
+    public boolean getChopInCreativeMode() { return chopInCreativeMode; }
 
     public void setChoppingEnabled(boolean enabled) { choppingEnabled = enabled; }
     public void setFellingEnabled(boolean enabled) { fellingEnabled = enabled; }
     public void setSneakBehavior(SneakBehavior behavior) { sneakBehavior = behavior; }
-    public void treesMustHaveLeaves(Boolean enabled) { treesMustHaveLeaves = enabled; }
+    public void setTreesMustHaveLeaves(boolean enabled) { treesMustHaveLeaves = enabled; }
+    public void setChopInCreativeMode(boolean enabled) { chopInCreativeMode = enabled; }
 
     public void toggleChopping() {
         setChoppingEnabled(!choppingEnabled);
@@ -39,6 +42,7 @@ public class ChopSettings {
         this.fellingEnabled = oldSettings.fellingEnabled;
         this.sneakBehavior = oldSettings.sneakBehavior;
         this.treesMustHaveLeaves = oldSettings.treesMustHaveLeaves;
+        this.chopInCreativeMode = oldSettings.chopInCreativeMode;
     }
 
 }

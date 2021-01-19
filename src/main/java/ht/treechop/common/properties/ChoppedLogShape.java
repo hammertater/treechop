@@ -109,6 +109,7 @@ public enum ChoppedLogShape implements IStringSerializable {
                         this::bakeBoundingBox
                 ));
 
+        // NOTE: this must be kept independent of dynamics (e.g. world, pos) since it is used to bake models
         this.occlusionShape = VoxelShapes.or(
                 VoxelShapes.empty(),
                 Arrays.stream(Direction.values())

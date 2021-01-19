@@ -388,7 +388,7 @@ public class ChopUtil {
     public static boolean playerWantsToChop(PlayerEntity player) {
         if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
             ChopSettings chopSettings = getPlayerChopSettings(player);
-            if (!player.isCreative() || ConfigHandler.CLIENT.chopInCreativeMode.get()) {
+            if (!player.isCreative() || chopSettings.getChopInCreativeMode()) {
                 return chopSettings.getChoppingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
             } else {
                 return chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
