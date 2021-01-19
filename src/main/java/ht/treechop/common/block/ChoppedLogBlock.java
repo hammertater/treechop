@@ -79,15 +79,7 @@ public class ChoppedLogBlock extends Block implements IChoppable {
     @SuppressWarnings({"deprecation", "NullableProblems"})
     @Override
     public VoxelShape getRenderShape(BlockState state, IBlockReader world, BlockPos pos) {
-        ChoppedLogShape shape = state.get(SHAPE);
-        return VoxelShapes.or(
-                VoxelShapes.empty(),
-                Arrays.stream(Direction.values())
-                        .filter(direction -> direction.getAxis().isHorizontal())
-                        .filter(direction -> !shape.isSideOpen(direction))
-                        .map(direction -> VoxelShapes.create(FaceShape.get(direction).getBox()))
-                        .toArray(VoxelShape[]::new)
-        );
+        return state.get(SHAPE).getOcclusionShape();
     }
 
     @Override

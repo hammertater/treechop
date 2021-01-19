@@ -1,8 +1,11 @@
 package ht.treechop.common.properties;
 
+import ht.treechop.common.util.FaceShape;
 import javafx.geometry.BoundingBox;
 import net.minecraft.util.Direction;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -93,15 +96,27 @@ public enum ChoppedLogShape implements IStringSerializable {
         openSidesMap[NORTH | SOUTH | EAST | UP | DOWN] = PILLAR_Z;
     }
 
+    private final VoxelShape occlusionShape;
+
     ChoppedLogShape(String name, int openSides) {
         this.name = name;
         this.openSides = (byte) openSides;
+
         this.chopsBoxes = IntStream.rangeClosed(1, 7)
                 .boxed()
                 .collect(Collectors.toMap(
                         chops -> chops,
                         this::bakeBoundingBox
                 ));
+
+        this.occlusionShape = VoxelShapes.or(
+                VoxelShapes.empty(),
+                Arrays.stream(Direction.values())
+                        .filter(direction -> direction.getAxis().isHorizontal())
+                        .filter(direction -> !isSideOpen(direction))
+                        .map(direction -> VoxelShapes.create(FaceShape.get(direction).getBox()))
+                        .toArray(VoxelShape[]::new)
+        );
     }
 
     public static ChoppedLogShape forOpenSides(byte openSides) {
@@ -151,4 +166,7 @@ public enum ChoppedLogShape implements IStringSerializable {
         return ((openSides >> side.ordinal()) & 0b1) == 1;
     }
 
+    public VoxelShape getOcclusionShape() {
+        return occlusionShape;
+    }
 }

@@ -95,7 +95,7 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
                 .filter(direction -> {
                     BlockState blockState = world.getBlockState(pos.offset(direction));
                     Block block = blockState.getBlock();
-                    return blockState.isSolid() && ChopUtil.isBlockALog(block) && !(block instanceof ChoppedLogBlock);
+                    return blockState.isSolid() && !(block instanceof ChoppedLogBlock);
                 })
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)));
 
