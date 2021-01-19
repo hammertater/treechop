@@ -41,29 +41,33 @@ import java.util.stream.Stream;
 
 public class ChopUtil {
 
-    public static boolean isBlockChoppable(IWorld world, BlockPos pos, Block block) {
-        return (block instanceof IChoppable) ||
-                (isBlockALog(block) && !(isBlockALog(world, pos.west()) && isBlockALog(world, pos.north()) && isBlockALog(world, pos.east()) && isBlockALog(world, pos.south())));
+    public static boolean isBlockChoppable(IWorld world, BlockPos pos, BlockState blockState) {
+        return (blockState.getBlock() instanceof IChoppable) ||
+                (isBlockALog(blockState) && !(isBlockALog(world, pos.west()) && isBlockALog(world, pos.north()) && isBlockALog(world, pos.east()) && isBlockALog(world, pos.south())));
     }
 
     public static boolean isBlockChoppable(IWorld world, BlockPos pos) {
-        return isBlockChoppable(world, pos, world.getBlockState(pos).getBlock());
+        return isBlockChoppable(world, pos, world.getBlockState(pos));
     }
 
-    public static boolean isBlockALog(Block block) {
-        return block.isIn(ConfigHandler.blockTagForDetectingLogs);
+    public static boolean isBlockALog(BlockState blockState) {
+        return blockState.isIn(ConfigHandler.blockTagForDetectingLogs);
     }
 
     public static boolean isBlockALog(IWorld world, BlockPos pos) {
-        return isBlockALog(world.getBlockState(pos).getBlock());
+        return isBlockALog(world.getBlockState(pos));
     }
 
     public static boolean isBlockLeaves(IWorld world, BlockPos pos) {
-        return isBlockLeaves(world.getBlockState(pos).getBlock());
+        return isBlockLeaves(world.getBlockState(pos));
     }
 
-    public static boolean isBlockLeaves(Block block) {
-        return block.getBlock().isIn(ConfigHandler.blockTagForDetectingLeaves);
+    public static boolean isBlockLeaves(BlockState blockState) {
+        if (blockState.hasProperty(LeavesBlock.PERSISTENT) && !ConfigHandler.breakPersistentLeaves && blockState.get(LeavesBlock.PERSISTENT)) {
+            return false;
+        } else {
+            return blockState.getBlock().isIn(ConfigHandler.blockTagForDetectingLeaves);
+        }
     }
 
     public static Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks, AtomicInteger iterationCounter) {
@@ -111,8 +115,8 @@ public class ChopUtil {
         getConnectedBlocks(
                 treeBlocks,
                 pos1 -> {
-                    Block block = world.getBlockState(pos1).getBlock();
-                    return ((isBlockLeaves(block) && !(block instanceof LeavesBlock))
+                    BlockState blockState = world.getBlockState(pos1);
+                    return ((isBlockLeaves(blockState) && !(blockState.getBlock() instanceof LeavesBlock))
                                 ? BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS // Red mushroom caps can be connected diagonally downward
                                 : BlockNeighbors.ADJACENTS)
                         .asStream(pos1)
@@ -131,7 +135,7 @@ public class ChopUtil {
 
     private static boolean markLeavesToDestroyAndKeepLooking(IWorld world, BlockPos pos, AtomicInteger iterationCounter, Set<BlockPos> leavesToDestroy) {
         BlockState blockState = world.getBlockState(pos);
-        if (isBlockLeaves(blockState.getBlock())) {
+        if (isBlockLeaves(blockState)) {
             if (blockState.getBlock() instanceof LeavesBlock) {
                 if (iterationCounter.get() + 1 > blockState.get(LeavesBlock.DISTANCE)) {
                     return false;
@@ -288,7 +292,7 @@ public class ChopUtil {
         if (block instanceof IChoppable) {
             return getBlockStateAfterChops((IChoppable) block, blockState, numChops, destructive);
         } else {
-            if (isBlockChoppable(world, blockPos, block)) {
+            if (isBlockChoppable(world, blockPos, blockState)) {
                 IChoppable choppedBlock = getChoppedBlock(blockState);
                 if (choppedBlock instanceof Block) {
                     ChoppedLogShape shape = ChoppedLogBlock.getPlacementShape(world, blockPos);
@@ -327,7 +331,7 @@ public class ChopUtil {
         if (block instanceof IChoppable) {
             return ((IChoppable) block).getMaxNumChops();
         } else {
-            if (isBlockChoppable(world, blockPos, world.getBlockState(blockPos).getBlock())) {
+            if (isBlockChoppable(world, blockPos, world.getBlockState(blockPos))) {
                 IChoppable choppedBlock = getChoppedBlock(blockState);
                 return (choppedBlock != null) ? choppedBlock.getMaxNumChops() : 0;
             } else {
@@ -337,7 +341,7 @@ public class ChopUtil {
     }
 
     public static IChoppable getChoppedBlock(BlockState blockState) {
-        if (isBlockALog(blockState.getBlock())) {
+        if (isBlockALog(blockState)) {
             return (IChoppable) (blockState.getBlock() instanceof IChoppable ? blockState.getBlock() : ModBlocks.CHOPPED_LOG.get());
         } else {
             return null;
