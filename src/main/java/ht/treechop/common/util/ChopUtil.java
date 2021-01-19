@@ -386,9 +386,13 @@ public class ChopUtil {
     }
 
     public static boolean playerWantsToChop(PlayerEntity player) {
-        ChopSettings chopSettings = getPlayerChopSettings(player);
         if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
-            return chopSettings.getChoppingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
+            ChopSettings chopSettings = getPlayerChopSettings(player);
+            if (!player.isCreative() || ConfigHandler.CLIENT.chopInCreativeMode.get()) {
+                return chopSettings.getChoppingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
+            } else {
+                return chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
+            }
         } else {
             return true;
         }

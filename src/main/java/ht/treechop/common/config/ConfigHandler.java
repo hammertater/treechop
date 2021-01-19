@@ -1,7 +1,6 @@
 package ht.treechop.common.config;
 
 import ht.treechop.common.capabilities.ChopSettings;
-import ht.treechop.common.util.FaceShape;
 import net.minecraft.block.Block;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ITag;
@@ -131,6 +130,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.EnumValue<SneakBehavior> sneakBehavior;
         public final ForgeConfigSpec.BooleanValue treesMustHaveLeaves;
         public final ForgeConfigSpec.BooleanValue useProceduralChoppedModels;
+        public final ForgeConfigSpec.BooleanValue chopInCreativeMode;
 
 //        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
 
@@ -150,6 +150,9 @@ public class ConfigHandler {
             useProceduralChoppedModels = builder
                     .comment("Whether to use procedural chopped log models; disable to use models added by a resource pack")
                     .define("useProceduralChoppedModels", true);
+            chopInCreativeMode = builder
+                    .comment("Whether to enable chopping when in creative mode (even when false, sneaking can still enable chopping)")
+                    .define("chopInCreativeMode", false);
 //            treesMustBeUniform = builder
 //                    .comment("Whether to disallow different types of log blocks from belonging to the same tree")
 //                    .define("treesMustBeUniform", true);

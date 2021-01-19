@@ -13,7 +13,6 @@ import ht.treechop.common.network.PacketSyncChopSettings;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
