@@ -57,7 +57,7 @@ public class Common {
 
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
         if (
-                !isBlockALog(blockState.getBlock())
+                !isBlockALog(blockState)
                 || playersAlreadyChopping.contains(agent)
                 || !ConfigHandler.COMMON.enabled.get()
                 || !ChopUtil.canChopWithTool(tool)

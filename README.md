@@ -10,5 +10,5 @@ For a far more fun description, see https://www.curseforge.com/minecraft/mc-mods
 * **\[done]** Show chopped texture on interior tree blocks instead of bark
 * **\[done]** Fix issues with chopping interior logs on really big (3x3+) trees
 * Allow minimally downward leaning tree limbs to be felled (https://github.com/hammertater/treechop/issues/32)
-* Add config to allow persistent leaves to be broken (https://github.com/hammertater/treechop/issues/31)
+* **\[done]** Add config to allow persistent leaves to be broken (https://github.com/hammertater/treechop/issues/31)
 * **\[done]** Disable chopping in creative, add config to re-enable it

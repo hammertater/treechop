@@ -2,22 +2,17 @@ package ht.treechop.common.block;
 
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
-import ht.treechop.common.util.FaceShape;
 import javafx.geometry.BoundingBox;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
-
-import java.util.Arrays;
 
 import static ht.treechop.common.util.ChopUtil.isBlockLeaves;
 

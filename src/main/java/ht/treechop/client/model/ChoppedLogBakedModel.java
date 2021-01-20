@@ -6,7 +6,6 @@ import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
-import ht.treechop.common.util.ChopUtil;
 import ht.treechop.common.util.FaceShape;
 import javafx.geometry.BoundingBox;
 import net.minecraft.block.Block;
