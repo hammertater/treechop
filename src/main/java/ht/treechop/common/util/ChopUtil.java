@@ -140,9 +140,6 @@ public class ChopUtil {
                 if (iterationCounter.get() + 1 > blockState.get(LeavesBlock.DISTANCE)) {
                     return false;
                 }
-                else if (blockState.get(LeavesBlock.PERSISTENT)) {
-                    return true;
-                }
             } else if (iterationCounter.get() >= ConfigHandler.maxBreakLeavesDistance) {
                 return false;
             }
