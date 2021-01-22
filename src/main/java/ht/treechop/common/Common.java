@@ -34,7 +34,7 @@ import static ht.treechop.common.util.ChopUtil.isBlockALog;
 public class Common {
 
     static private Map<PlayerEntity, Long> lastChopTickByPlayers = new HashMap<>();
-    
+
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         IEventBus eventBus = MinecraftForge.EVENT_BUS;
         eventBus.addListener(Common::onBreakEvent);
@@ -79,7 +79,7 @@ public class Common {
 
         lastChopTickByPlayers.put(agent, time);
 
-        boolean canceled = MinecraftForge.EVENT_BUS.post(new TreeChopEvent.ChopEvent(world));
+        boolean canceled = MinecraftForge.EVENT_BUS.post(new TreeChopEvent.ChopEvent(world, agent));
         if (canceled) {
             return;
         }
