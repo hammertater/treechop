@@ -14,6 +14,7 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 
+import static ht.treechop.common.util.ChopUtil.isBlockALog;
 import static ht.treechop.common.util.ChopUtil.isBlockLeaves;
 
 public class ChoppedLogBlock extends Block implements IChoppable {
@@ -52,8 +53,7 @@ public class ChoppedLogBlock extends Block implements IChoppable {
 
     private static boolean isBlockOpen(IWorld world, BlockPos pos) {
         BlockState blockState = world.getBlockState(pos);
-        Block block = blockState.getBlock();
-        return (block.isAir(blockState, world, pos) || isBlockLeaves(world, pos));
+        return !isBlockALog(blockState);
     }
 
     @SuppressWarnings({"deprecation", "NullableProblems"})
