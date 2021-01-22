@@ -5,6 +5,7 @@ import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.capabilities.ChopSettingsProvider;
 import ht.treechop.common.compat.Compat;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.event.TreeChopEvent;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.util.ChopResult;
 import ht.treechop.common.util.ChopUtil;
@@ -24,14 +25,15 @@ import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
 
 public class Common {
 
-    static private Set<PlayerEntity> playersAlreadyChopping = new HashSet<>();
+    private static final Long NEVER = -1L;
+    static private Map<PlayerEntity, Long> lastChopTickByPlayers = new HashMap<>();
 
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         IEventBus eventBus = MinecraftForge.EVENT_BUS;
@@ -58,7 +60,6 @@ public class Common {
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
         if (
                 !isBlockALog(blockState)
-                || playersAlreadyChopping.contains(agent)
                 || !ConfigHandler.COMMON.enabled.get()
                 || !ChopUtil.canChopWithTool(tool)
                 || !ChopUtil.playerWantsToChop(agent)
@@ -69,31 +70,37 @@ public class Common {
             return;
         }
 
-        try {
-            playersAlreadyChopping.add(agent);
+        World world = (World) event.getWorld();;
+        long time = world.getGameTime();
 
-            World world = (World) event.getWorld();
+        if (lastChopTickByPlayers.getOrDefault(agent, NEVER) == time) {
+            return;
+        }
 
-            ChopResult chopResult = ChopUtil.getChopResult(
-                    world,
-                    pos,
-                    agent,
-                    ChopUtil.getNumChopsByTool(tool),
-                    ChopUtil.playerWantsToFell(agent),
-                    logPos -> isBlockALog(world, logPos)
-            );
+        lastChopTickByPlayers.put(agent, time);
 
-            if (chopResult != ChopResult.IGNORED) {
-                if (chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get())) {
-                    event.setCanceled(true);
+        boolean canceled = MinecraftForge.EVENT_BUS.post(new TreeChopEvent.ChopEvent());
+        if (canceled) {
+            return;
+        }
 
-                    if (!agent.isCreative()) {
-                        ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
-                    }
+        ChopResult chopResult = ChopUtil.getChopResult(
+                world,
+                pos,
+                agent,
+                ChopUtil.getNumChopsByTool(tool),
+                ChopUtil.playerWantsToFell(agent),
+                logPos -> isBlockALog(world, logPos)
+        );
+
+        if (chopResult != ChopResult.IGNORED) {
+            if (chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get())) {
+                event.setCanceled(true);
+
+                if (!agent.isCreative()) {
+                    ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
                 }
             }
-        } finally {
-            playersAlreadyChopping.remove(agent);
         }
     }
 
@@ -106,4 +113,5 @@ public class Common {
             event.addCapability(loc, new ChopSettingsProvider());
         }
     }
+
 }
