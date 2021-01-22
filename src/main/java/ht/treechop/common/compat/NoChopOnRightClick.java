@@ -1,35 +1,36 @@
 package ht.treechop.common.compat;
 
+import ht.treechop.common.event.TreeChopEvent;
+import ht.treechop.common.util.TickUtil;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NoChopOnRightClick {
 
-    private static final Set<Entity> playersCurrentlyClicking = new HashSet<>();
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onBlockStartClick(PlayerInteractEvent.RightClickBlock event) {
-        playersCurrentlyClicking.add(event.getPlayer());
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onBlockFinishClick(PlayerInteractEvent.RightClickBlock event) {
-        playersCurrentlyClicking.remove(event.getPlayer());
-    }
+    private static final Map<Entity, Long> lastRightClickTickByPlayers = new HashMap<>();
 
     public static void init() {
         MinecraftForge.EVENT_BUS.register(NoChopOnRightClick.class);
-        Compat.chopChecks.add(event -> !isPlayerRightClicking(event));
     }
 
-    private static boolean isPlayerRightClicking(BlockEvent.BreakEvent event) {
-        return playersCurrentlyClicking.contains(event.getPlayer());
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    private static void onBlockStartClick(PlayerInteractEvent.RightClickBlock event) {
+        long time = event.getWorld().getGameTime();
+        lastRightClickTickByPlayers.put(event.getPlayer(), time);
     }
+
+    @SubscribeEvent
+    private static void onChop(TreeChopEvent.ChopEvent event) {
+        long time = event.getWorld().getGameTime();
+        if (lastRightClickTickByPlayers.getOrDefault(event.getPlayer(), TickUtil.NEVER) == time) {
+            event.setCanceled(true);
+        }
+    }
+
 }

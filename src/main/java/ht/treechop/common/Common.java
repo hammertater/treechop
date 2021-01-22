@@ -9,6 +9,7 @@ import ht.treechop.common.event.TreeChopEvent;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.util.ChopResult;
 import ht.treechop.common.util.ChopUtil;
+import ht.treechop.common.util.TickUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -32,9 +33,8 @@ import static ht.treechop.common.util.ChopUtil.isBlockALog;
 
 public class Common {
 
-    private static final Long NEVER = -1L;
     static private Map<PlayerEntity, Long> lastChopTickByPlayers = new HashMap<>();
-
+    
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         IEventBus eventBus = MinecraftForge.EVENT_BUS;
         eventBus.addListener(Common::onBreakEvent);
@@ -73,13 +73,13 @@ public class Common {
         World world = (World) event.getWorld();;
         long time = world.getGameTime();
 
-        if (lastChopTickByPlayers.getOrDefault(agent, NEVER) == time) {
+        if (lastChopTickByPlayers.getOrDefault(agent, TickUtil.NEVER) == time) {
             return;
         }
 
         lastChopTickByPlayers.put(agent, time);
 
-        boolean canceled = MinecraftForge.EVENT_BUS.post(new TreeChopEvent.ChopEvent());
+        boolean canceled = MinecraftForge.EVENT_BUS.post(new TreeChopEvent.ChopEvent(world));
         if (canceled) {
             return;
         }
