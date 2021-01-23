@@ -66,6 +66,7 @@ public class ConfigHandler {
 
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
+        public final ForgeConfigSpec.BooleanValue compatForProjectMMO;
 
         public Common(ForgeConfigSpec.Builder builder) {
             builder.push("permissions");
@@ -111,6 +112,7 @@ public class ConfigHandler {
             builder.pop();
 
             builder.push("compatibility");
+            builder.push("general");
             preventChoppingOnRightClick = builder
                     .comment("Whether to prevent chopping during right-click actions; fixes a conflict with Carry On (as of carryon-1.16.3-1.15.1.7)")
                     .define("preventChoppingOnRightClick", true);
@@ -124,6 +126,12 @@ public class ConfigHandler {
                             Arrays.asList("#forge:saws", "mekanism:atomic_disassembler"),
                             always -> true
                     );
+            builder.pop();
+            builder.push("specific");
+            compatForProjectMMO = builder
+                    .comment("Whether to enable compatibility with ProjectMMO; for example, award XP for chopping")
+                    .define("projectMMO", true);
+            builder.pop();
             builder.pop();
         }
     }

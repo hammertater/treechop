@@ -63,7 +63,7 @@ public class Common {
         }
 
         World world = (World) event.getWorld();;
-        boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.StartChopEvent(world, agent));
+        boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.StartChopEvent(world, agent, pos, blockState));
         if (canceled) {
             return;
         }
@@ -86,7 +86,7 @@ public class Common {
                 }
             }
 
-            MinecraftForge.EVENT_BUS.post(new ChopEvent.FinishChopEvent(world, agent));
+            MinecraftForge.EVENT_BUS.post(new ChopEvent.FinishChopEvent(world, agent, pos, blockState));
         }
     }
 
