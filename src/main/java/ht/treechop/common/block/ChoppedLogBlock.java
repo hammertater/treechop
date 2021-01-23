@@ -41,19 +41,18 @@ public class ChoppedLogBlock extends Block implements IChoppable {
 
         byte openSides = (byte) (
                 (isBlockOpen(world, blockPos.down()) ? DOWN : 0)
-                | (isBlockOpen(world, blockPos.up()) ? UP : 0)
-                | (isBlockOpen(world, blockPos.north()) ? NORTH : 0)
-                | (isBlockOpen(world, blockPos.south()) ? SOUTH : 0)
-                | (isBlockOpen(world, blockPos.west()) ? WEST : 0)
-                | (isBlockOpen(world, blockPos.east()) ? EAST : 0)
+                | (!isBlockALog(world, blockPos.up()) ? UP : 0)
+                | (!isBlockALog(world, blockPos.north()) ? NORTH : 0)
+                | (!isBlockALog(world, blockPos.south()) ? SOUTH : 0)
+                | (!isBlockALog(world, blockPos.west()) ? WEST : 0)
+                | (!isBlockALog(world, blockPos.east()) ? EAST : 0)
         );
 
         return ChoppedLogShape.forOpenSides(openSides);
     }
 
     private static boolean isBlockOpen(IWorld world, BlockPos pos) {
-        BlockState blockState = world.getBlockState(pos);
-        return !isBlockALog(blockState);
+        return (world.isAirBlock(pos.down()) || isBlockLeaves(world, pos.down()));
     }
 
     @SuppressWarnings({"deprecation", "NullableProblems"})

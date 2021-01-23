@@ -2,7 +2,6 @@ package ht.treechop;
 
 import ht.treechop.client.Client;
 import ht.treechop.common.Common;
-import ht.treechop.common.compat.Compat;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.server.Server;
@@ -39,8 +38,6 @@ public class TreeChopMod {
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> Client::init);
 
         ModBlocks.BLOCKS.register(modBus);
-
-        Compat.init();
     }
 
     public static ITextComponent makeText(String string) {

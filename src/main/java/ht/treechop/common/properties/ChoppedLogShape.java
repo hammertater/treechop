@@ -91,10 +91,10 @@ public enum ChoppedLogShape implements IStringSerializable {
         openSidesMap[NORTH | SOUTH | EAST | WEST | UP | DOWN] = PILLAR_Y;
         openSidesMap[NORTH | SOUTH | EAST | WEST | UP] = PILLAR_Y;
         openSidesMap[NORTH | SOUTH | EAST | WEST | DOWN] = PILLAR_Y;
-        openSidesMap[NORTH | EAST | WEST | UP | DOWN] = PILLAR_X;
+        openSidesMap[NORTH | EAST | WEST | UP | DOWN] = PILLAR_Z;
         openSidesMap[NORTH | SOUTH | WEST | UP | DOWN] = PILLAR_X;
         openSidesMap[SOUTH | EAST | WEST | UP | DOWN] = PILLAR_Z;
-        openSidesMap[NORTH | SOUTH | EAST | UP | DOWN] = PILLAR_Z;
+        openSidesMap[NORTH | SOUTH | EAST | UP | DOWN] = PILLAR_X;
     }
 
     private final VoxelShape occlusionShape;
