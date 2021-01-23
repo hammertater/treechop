@@ -64,14 +64,20 @@ public class ConfigHandler {
 
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppingToolsBlacklist;
 
+        public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
+        public final ForgeConfigSpec.BooleanValue preventChopRecursion;
+
         public Common(ForgeConfigSpec.Builder builder) {
+            builder.push("permissions");
             enabled = builder
                     .comment("Whether this mod is enabled or not")
                     .define("enabled", true);
             canChooseNotToChop = builder
                     .comment("Whether players can deactivate chopping e.g. by sneaking")
                     .define("canChooseNotToChop", true);
+            builder.pop();
 
+            builder.push("treeDetection");
             maxNumTreeBlocks = builder
                     .comment("Maximum number of log blocks that can be detected to belong to one tree")
                     .defineInRange("maxTreeBlocks", 320, 1, 8096);
@@ -87,19 +93,30 @@ public class ConfigHandler {
             maxBreakLeavesDistance = builder
                     .comment("Maximum distance from log blocks to destroy non-standard leaves blocks (e.g. mushroom caps) when felling")
                     .defineInRange("maxBreakLeavesDistance", 7, 0, 16);
-            chopCountingAlgorithm = builder
-                    .comment("Method to use for computing the number of chops needed to fell a tree")
-                    .defineEnum("chopCountingMethod", ChopCountingAlgorithm.LOGARITHMIC);
-            chopCountScale = builder
-                    .comment("Scales the number of chops (rounding down) required to fell a tree; with chopCountingMethod=LINEAR, this is exactly the number of chops per block")
-                    .defineInRange("chopCountScale", 1.0, 0.0, 1024.0);
             blockTagForDetectingLogs = builder
                     .comment("The tag that blocks must have to be considered choppable (default: treechop:choppables)")
                     .define("blockTagForDetectingLogs", "treechop:choppables");
             blockTagForDetectingLeaves = builder
                     .comment("The tag that blocks must have to be considered leaves (default: treechop:leaves_like)")
                     .define("blockTagForDetectingLeaves", "treechop:leaves_like");
-            // See https://github.com/Vazkii/Botania/blob/master/src/main/java/vazkii/botania/common/core/handler/ConfigHandler.java
+            builder.pop();
+
+            builder.push("chopCounting");
+            chopCountingAlgorithm = builder
+                    .comment("Method to use for computing the number of chops needed to fell a tree")
+                    .defineEnum("chopCountingMethod", ChopCountingAlgorithm.LOGARITHMIC);
+            chopCountScale = builder
+                    .comment("Scales the number of chops (rounding down) required to fell a tree; with chopCountingMethod=LINEAR, this is exactly the number of chops per block")
+                    .defineInRange("chopCountScale", 1.0, 0.0, 1024.0);
+            builder.pop();
+
+            builder.push("compatibility");
+            preventChoppingOnRightClick = builder
+                    .comment("Whether to prevent chopping during right-click actions; fixes a conflict with Carry On (as of carryon-1.16.3-1.15.1.7)")
+                    .define("preventChoppingOnRightClick", true);
+            preventChopRecursion = builder
+                    .comment("Whether to prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")
+                    .define("preventChopRecursion", true);
             choppingToolsBlacklist = builder
                     .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not chop when used to break a log")
                     .defineList(
@@ -107,16 +124,7 @@ public class ConfigHandler {
                             Arrays.asList("#forge:saws", "mekanism:atomic_disassembler"),
                             always -> true
                     );
-        }
-    }
-
-    private static boolean isRegistryNameOrTag(Object object) {
-        if (object instanceof String) {
-            String string = (String) object;
-            return ((string.startsWith("#") && ResourceLocation.tryCreate(string.substring(1) + ":test") != null) ||
-                    ResourceLocation.tryCreate(string + ":test") != null);
-        } else {
-            return false;
+            builder.pop();
         }
     }
 
@@ -142,6 +150,7 @@ public class ConfigHandler {
 //        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
 
         public Client(ForgeConfigSpec.Builder builder) {
+            builder.push("chopping");
             choppingEnabled = builder
                     .comment("Default setting for whether or not the user wishes to chop (can be toggled in-game)")
                     .define("choppingEnabled", true);
@@ -157,12 +166,17 @@ public class ConfigHandler {
             chopInCreativeMode = builder
                     .comment("Whether to enable chopping when in creative mode (even when false, sneaking can still enable chopping)")
                     .define("chopInCreativeMode", false);
+            builder.pop();
+
+            builder.push("visuals");
             useProceduralChoppedModels = builder
                     .comment("Whether to use procedural chopped log models; disable to use models added by a resource pack")
                     .define("useProceduralChoppedModels", true);
             removeBarkOnInteriorLogs = builder
                     .comment("Whether to replace the interior sides of logs with a chopped texture instead of bark")
                     .define("removeBarkOnInteriorLogs", true);
+            builder.pop();
+
 //            treesMustBeUniform = builder
 //                    .comment("Whether to disallow different types of log blocks from belonging to the same tree")
 //                    .define("treesMustBeUniform", true);
