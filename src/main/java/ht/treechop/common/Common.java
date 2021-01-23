@@ -85,6 +85,8 @@ public class Common {
                     ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
                 }
             }
+
+            MinecraftForge.EVENT_BUS.post(new ChopEvent.FinishChopEvent(world, agent));
         }
     }
 

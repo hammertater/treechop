@@ -30,6 +30,12 @@ public class ChopEvent extends Event {
         }
     }
 
+    public static class FinishChopEvent extends ChopEvent {
+        public FinishChopEvent(World world, PlayerEntity player) {
+            super(world, player);
+        }
+    }
+
     @Cancelable
     public static class FellEvent extends ChopEvent {
         public FellEvent(World world, PlayerEntity player) {
