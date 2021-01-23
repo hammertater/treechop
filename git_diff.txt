@@ -1,0 +1,190 @@
+diff --git a/build.gradle b/build.gradle
+index 9823873..3b79926 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -13,9 +13,9 @@ apply plugin: 'net.minecraftforge.gradle'
+ apply plugin: 'eclipse'
+ apply plugin: 'maven-publish'
+ 
+-version = '0.6'
++version = '0.7'
+ group = 'ht.treechop'
+-archivesBaseName = 'TreeChop-1.16.4'
++archivesBaseName = 'TreeChop-1.16.1'
+ 
+ sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+ 
+@@ -26,7 +26,7 @@ minecraft {
+     // stable_#            Stables are built at the discretion of the MCP team.
+     // Use non-default mappings at your own risk. they may not always work.
+     // Simply re-run your setup task after changing the mappings to update your workspace.
+-    mappings channel: 'snapshot', version: '20201028-1.16.3'
++    mappings channel: 'snapshot', version: '20200514-1.16'
+     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+ 
+     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+@@ -94,7 +94,7 @@ dependencies {
+     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
+     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
+     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
+-    minecraft 'net.minecraftforge:forge:1.16.4-35.1.0'
++    minecraft 'net.minecraftforge:forge:1.16.1-32.0.108'
+ 
+     // You may put jars on which you depend on in ./libs or you may define them like so..
+     // compile "some.group:artifact:version:classifier"
+diff --git a/gradlew b/gradlew
+index cccdd3d..af6708f 100644
+--- a/gradlew
++++ b/gradlew
+@@ -28,7 +28,7 @@ APP_NAME="Gradle"
+ APP_BASE_NAME=`basename "$0"`
+ 
+ # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+-DEFAULT_JVM_OPTS=""
++DEFAULT_JVM_OPTS='"-Xmx64m"'
+ 
+ # Use the maximum available, or set MAX_FD != -1 to use that value.
+ MAX_FD="maximum"
+diff --git a/gradlew.bat b/gradlew.bat
+index e95643d..0f8d593 100644
+--- a/gradlew.bat
++++ b/gradlew.bat
+@@ -14,7 +14,7 @@ set APP_BASE_NAME=%~n0
+ set APP_HOME=%DIRNAME%
+ 
+ @rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+-set DEFAULT_JVM_OPTS=
++set DEFAULT_JVM_OPTS="-Xmx64m"
+ 
+ @rem Find java.exe
+ if defined JAVA_HOME goto findJavaFromJavaHome
+diff --git a/src/main/java/ht/treechop/TreeChopMod.java b/src/main/java/ht/treechop/TreeChopMod.java
+index e52ceab..c907d7a 100644
+--- a/src/main/java/ht/treechop/TreeChopMod.java
++++ b/src/main/java/ht/treechop/TreeChopMod.java
+@@ -118,7 +118,7 @@ public class TreeChopMod {
+ 
+     private static void dropExperience(World world, BlockPos blockPos, BlockState blockState, int amount) {
+         if (world instanceof ServerWorld) {
+-            blockState.getBlock().dropXpOnBlockBreak((ServerWorld) world, blockPos, amount);
++            blockState.getBlock().dropXpOnBlockBreak(world, blockPos, amount);
+         }
+     }
+ }
+diff --git a/src/main/java/ht/treechop/block/ChoppedLogBlock.java b/src/main/java/ht/treechop/block/ChoppedLogBlock.java
+index 09bee69..3e9b228 100644
+--- a/src/main/java/ht/treechop/block/ChoppedLogBlock.java
++++ b/src/main/java/ht/treechop/block/ChoppedLogBlock.java
+@@ -251,7 +251,7 @@ public class ChoppedLogBlock extends Block {
+ 
+             int totalNumChops = nearbyChoppableBlocks.stream()
+                     .map(world::getBlockState)
+-                    .filter(blockState1 -> blockState1.hasProperty(CHOPS))
++                    .filter(blockState1 -> blockState1.func_235901_b_(CHOPS))
+                     .map(blockState2 -> blockState2.get(CHOPS))
+                     .reduce(Integer::sum)
+                     .orElse(0) + numChops; // Include this chop
+diff --git a/src/main/java/ht/treechop/config/ChopCountingAlgorithm.java b/src/main/java/ht/treechop/config/ChopCountingAlgorithm.java
+index 11cb33c..8af3b38 100644
+--- a/src/main/java/ht/treechop/config/ChopCountingAlgorithm.java
++++ b/src/main/java/ht/treechop/config/ChopCountingAlgorithm.java
+@@ -26,11 +26,6 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
+         return name;
+     }
+ 
+-    @Override
+-    public String getString() {
+-        return name;
+-    }
+-
+     public int calculate(int numBlocks) {
+         return calculation.apply(numBlocks);
+     }
+@@ -39,4 +34,9 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
+         final double invBase = 1 / (Math.log(2));
+         return Math.log(x) * invBase;
+     }
++
++    @Override
++    public String func_176610_l() {
++        return name;
++    }
+ }
+diff --git a/src/main/java/ht/treechop/state/properties/ChoppedLogShape.java b/src/main/java/ht/treechop/state/properties/ChoppedLogShape.java
+index 33ddf20..5905113 100644
+--- a/src/main/java/ht/treechop/state/properties/ChoppedLogShape.java
++++ b/src/main/java/ht/treechop/state/properties/ChoppedLogShape.java
+@@ -28,7 +28,7 @@ public enum ChoppedLogShape implements IStringSerializable {
+     }
+ 
+     @Override
+-    public String getString() {
++    public String func_176610_l() {
+         return this.name;
+     }
+ }
+diff --git a/src/main/java/ht/treechop/util/ChopUtil.java b/src/main/java/ht/treechop/util/ChopUtil.java
+index 61fc71d..3e864d3 100644
+--- a/src/main/java/ht/treechop/util/ChopUtil.java
++++ b/src/main/java/ht/treechop/util/ChopUtil.java
+@@ -97,13 +97,14 @@ public class ChopUtil {
+         return harvestAndChangeBlock(world, blockPos, blockState, agent, tool);
+     }
+ 
+-    private static BlockState harvestAndChangeBlock(World world, BlockPos blockPos, BlockState blockState, PlayerEntity agent, ItemStack tool) {
++    private static BlockState harvestAndChangeBlock(World world, BlockPos blockPos, BlockState newBlockState, PlayerEntity agent, ItemStack tool) {
+         if (!agent.isCreative()) {
+             TileEntity tileEntity = world.getTileEntity(blockPos);
+-            Block.spawnDrops(blockState, world, blockPos, tileEntity, agent, tool);
++            BlockState oldBlockState = world.getBlockState(blockPos);
++            Block.spawnDrops(oldBlockState, world, blockPos, tileEntity, agent, tool);
+         }
+-        world.setBlockState(blockPos, blockState, 3);
+-        return blockState;
++        world.setBlockState(blockPos, newBlockState, 3);
++        return newBlockState;
+     }
+ 
+     public static void fellTree(IWorld world, Collection<BlockPos> treeBlocks, PlayerEntity agent) {
+diff --git a/src/main/resources/pack.mcmeta b/src/main/resources/pack.mcmeta
+index c79a362..cb30387 100644
+--- a/src/main/resources/pack.mcmeta
++++ b/src/main/resources/pack.mcmeta
+@@ -1,7 +1,7 @@
+ {
+     "pack": {
+-        "description": "examplemod resources",
+-        "pack_format": 6,
+-        "_comment": "A pack_format of 6 requires json lang files and some texture changes from 1.16.2. Note: we require v6 pack meta for all mods."
++        "description": "treechop resources",
++        "pack_format": 5,
++        "_comment": "A pack_format of 5 requires json lang files and some texture changes from 1.15. Note: we require v5 pack meta for all mods."
+     }
+ }
+diff --git a/update.json b/update.json
+index 369f52f..10e080d 100644
+--- a/update.json
++++ b/update.json
+@@ -4,14 +4,15 @@
+     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
+     "0.4": "Added configurability",
+     "0.5": "Mushroom caps, fungus warts, and shroomlights break when felling\nDiagonal tree junctions are now choppable\nBreaking a single log destroys connected leaves\nDon't spawn drops in creative\nAny blocks with minecraft:leaves or treechop:leaves_like tags are treated as leaves\nAny blocks with minecraft:logs or treechop:choppable are treated as logs\nCan configure the block tag used to detect logs and leaves",
+-    "0.6": "Fixed chopping not draining item durability\nFixed chopping not causing exhaustion\nFixed chopping not dropping experience"
++    "0.6": "Fixed chopping not draining item durability\nFixed chopping not causing exhaustion\nFixed chopping not dropping experience",
++    "0.7": "Fixed chopped blocks not spawning drops"
+   },
+   "promos": {
+-    "1.16.1-latest": "0.4",
+-    "1.16.1-recommended": "0.4",
+-    "1.16.3-latest": "0.6",
+-    "1.16.3-recommended": "0.6",
+-    "1.16.4-latest": "0.6",
+-    "1.16.4-recommended": "0.6"
++    "1.16.1-latest": "0.7",
++    "1.16.1-recommended": "0.7",
++    "1.16.3-latest": "0.7",
++    "1.16.3-recommended": "0.7",
++    "1.16.4-latest": "0.7",
++    "1.16.4-recommended": "0.7"
+   }
+ }

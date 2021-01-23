@@ -180,8 +180,8 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public boolean isSideLit() {
-        return staticModel.isSideLit();
+    public boolean func_230044_c_() {
+        return staticModel.func_230044_c_();
     }
 
     @Override

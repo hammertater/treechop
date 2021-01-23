@@ -1,0 +1,13 @@
+> git reset --hard
+> git pull
+Copy conversion files into root folder
+> gradlew clean
+IntelliJ: invalidate caches and restart
+Update version number in build.gradle
+Change functions:
+    getString -> func_176610_l
+    hasProperty -> func_235901_b_
+    mergeStyle -> func_240699_a_
+    append -> func_230529_a_
+    Util.DUMMY_UUID -> UUID.randomUUID()
+> gradlew build

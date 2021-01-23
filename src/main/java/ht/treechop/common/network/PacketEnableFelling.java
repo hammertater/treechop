@@ -9,6 +9,7 @@ import net.minecraft.util.Util;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.network.NetworkEvent;
 
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public class PacketEnableFelling {
@@ -35,9 +36,9 @@ public class PacketEnableFelling {
                 if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
                     ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
                     chopSettings.setFellingEnabled(message.fellingEnabled);
-                    player.sendMessage(TreeChopMod.makeText("Felling " + (message.fellingEnabled ? "ON" : "OFF")), Util.DUMMY_UUID);
+                    player.sendMessage(TreeChopMod.makeText("Felling " + (message.fellingEnabled ? "ON" : "OFF")), UUID.randomUUID());
                 } else {
-                    player.sendMessage(TreeChopMod.makeText("Felling ON" + TextFormatting.RED + " (you are not permitted to disable felling)"), Util.DUMMY_UUID);
+                    player.sendMessage(TreeChopMod.makeText("Felling ON" + TextFormatting.RED + " (you are not permitted to disable felling)"), UUID.randomUUID());
                 }
             });
             context.get().setPacketHandled(true);

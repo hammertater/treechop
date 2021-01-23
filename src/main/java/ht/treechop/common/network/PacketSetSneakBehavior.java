@@ -12,6 +12,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.apache.commons.lang3.EnumUtils;
 
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public class PacketSetSneakBehavior {
@@ -40,9 +41,9 @@ public class PacketSetSneakBehavior {
                 if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
                     ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
                     chopSettings.setSneakBehavior(message.sneakBehavior);
-                    player.sendMessage(TreeChopMod.makeText("Sneak behavior " + chopSettings.getSneakBehavior().getString()), Util.DUMMY_UUID);
+                    player.sendMessage(TreeChopMod.makeText("Sneak behavior " + chopSettings.getSneakBehavior().getString()), UUID.randomUUID());
                 } else {
-                    player.sendMessage(TreeChopMod.makeText("Sneak behavior " + SneakBehavior.NONE.getString() + TextFormatting.RED + " (you are not permitted to disable chopping or felling)"), Util.DUMMY_UUID);
+                    player.sendMessage(TreeChopMod.makeText("Sneak behavior " + SneakBehavior.NONE.getString() + TextFormatting.RED + " (you are not permitted to disable chopping or felling)"), UUID.randomUUID());
                 }
             });
             context.get().setPacketHandled(true);

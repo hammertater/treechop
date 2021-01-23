@@ -4,7 +4,7 @@ import ht.treechop.common.capabilities.ChopSettings;
 import net.minecraft.block.Block;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITagCollection;
+import net.minecraft.tags.TagCollection;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -41,7 +41,7 @@ public class ConfigHandler {
         updateTags(BlockTags.getCollection());
     }
 
-    public static void updateTags(ITagCollection<Block> blockTags) {
+    public static void updateTags(TagCollection<Block> blockTags) {
         blockTagForDetectingLogs = blockTags.get(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
         blockTagForDetectingLeaves = blockTags.get(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
     }
@@ -182,7 +182,7 @@ public class ConfigHandler {
                     .define("useProceduralChoppedModels", true);
             removeBarkOnInteriorLogs = builder
                     .comment("Whether to replace the interior sides of logs with a chopped texture instead of bark")
-                    .define("removeBarkOnInteriorLogs", true);
+                    .define("removeBarkOnInteriorLogs", false);
             builder.pop();
 
 //            treesMustBeUniform = builder

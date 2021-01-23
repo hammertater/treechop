@@ -1,0 +1,18 @@
+> git reset --hard
+> git pull
+Copy conversion files into root folder
+> gradlew clean
+IntelliJ: invalidate caches and restart
+Update version number in build.gradle
+Change functions:
+    hasProperty -> func_235901_b_
+    Util.DUMMY_UUID -> UUID.randomUUID()
+    isSideLit -> func_230044_c_
+    ITagCollection -> TagCollection
+    getBlockTags -> getBlocks
+
+    Vector3f depthVector = direction.toVector3f();
+    depthVector.mul(-0.01F);
+        ->
+
+> gradlew build

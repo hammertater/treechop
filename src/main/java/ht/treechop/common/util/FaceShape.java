@@ -2,6 +2,7 @@ package ht.treechop.common.util;
 
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 
 import java.util.EnumMap;
@@ -9,45 +10,45 @@ import java.util.EnumMap;
 public enum FaceShape {
     DOWN(
             Direction.DOWN,
-            new Vector3f(0, 0, 0),
-            new Vector3f(1, 0, 0),
-            new Vector3f(1, 0, 1),
-            new Vector3f(0, 0, 1)
+            new Vector3d(0, 0, 0),
+            new Vector3d(1, 0, 0),
+            new Vector3d(1, 0, 1),
+            new Vector3d(0, 0, 1)
     ),
     UP(
             Direction.UP,
-            new Vector3f(0, 1, 0),
-            new Vector3f(1, 1, 0),
-            new Vector3f(1, 1, 1),
-            new Vector3f(0, 1, 1)
+            new Vector3d(0, 1, 0),
+            new Vector3d(1, 1, 0),
+            new Vector3d(1, 1, 1),
+            new Vector3d(0, 1, 1)
     ),
     NORTH(
             Direction.NORTH,
-            new Vector3f(0, 0, 0),
-            new Vector3f(1, 0, 0),
-            new Vector3f(1, 1, 0),
-            new Vector3f(0, 1, 0)
+            new Vector3d(0, 0, 0),
+            new Vector3d(1, 0, 0),
+            new Vector3d(1, 1, 0),
+            new Vector3d(0, 1, 0)
     ),
     SOUTH(
             Direction.SOUTH,
-            new Vector3f(0, 0, 1),
-            new Vector3f(1, 0, 1),
-            new Vector3f(1, 1, 1),
-            new Vector3f(0, 1, 1)
+            new Vector3d(0, 0, 1),
+            new Vector3d(1, 0, 1),
+            new Vector3d(1, 1, 1),
+            new Vector3d(0, 1, 1)
     ),
     WEST(
             Direction.WEST,
-            new Vector3f(0, 0, 0),
-            new Vector3f(0, 1, 0),
-            new Vector3f(0, 1, 1),
-            new Vector3f(0, 0, 1)
+            new Vector3d(0, 0, 0),
+            new Vector3d(0, 1, 0),
+            new Vector3d(0, 1, 1),
+            new Vector3d(0, 0, 1)
     ),
     EAST(
             Direction.EAST,
-            new Vector3f(1, 0, 0),
-            new Vector3f(1, 1, 0),
-            new Vector3f(1, 1, 1),
-            new Vector3f(1, 0, 1)
+            new Vector3d(1, 0, 0),
+            new Vector3d(1, 1, 0),
+            new Vector3d(1, 1, 1),
+            new Vector3d(1, 0, 1)
     );
 
     private final AxisAlignedBB faceBox;
@@ -69,13 +70,11 @@ public enum FaceShape {
     private final Vector3f corner4;
     private final Vector3f corner2;
 
-    FaceShape(Direction direction, Vector3f corner1, Vector3f corner2, Vector3f corner3, Vector3f corner4) {
+    FaceShape(Direction direction, Vector3d corner1, Vector3d corner2, Vector3d corner3, Vector3d corner4) {
         this.direction = direction;
 
-        Vector3f depthVector = direction.toVector3f();
-        depthVector.mul(-0.01F);
-        Vector3f pushedCorner1 = corner1.copy();
-        pushedCorner1.add(depthVector);
+        Vector3d depthVector = new Vector3d(-(float)direction.getXOffset(), -(float)direction.getYOffset(), -(float)direction.getZOffset());
+        Vector3d pushedCorner1 = new Vector3d(corner1.getX() + depthVector.getX(), corner1.getY() + depthVector.getY(), corner1.getZ() + depthVector.getZ());
         this.faceBox = new AxisAlignedBB(
                 Math.min(pushedCorner1.getX(), corner3.getX()),
                 Math.min(pushedCorner1.getY(), corner3.getY()),
@@ -85,15 +84,14 @@ public enum FaceShape {
                 Math.max(pushedCorner1.getZ(), corner3.getZ())
         );
 
-        this.corner1 = corner1;
-        this.corner2 = corner2;
-        this.corner3 = corner3;
-        this.corner4 = corner4;
+        this.corner1 = vector3dTo3f(corner1.scale(16));
+        this.corner2 = vector3dTo3f(corner2.scale(16));
+        this.corner3 = vector3dTo3f(corner3.scale(16));
+        this.corner4 = vector3dTo3f(corner4.scale(16));
+    }
 
-        corner1.mul(16);
-        corner2.mul(16);
-        corner3.mul(16);
-        corner4.mul(16);
+    private Vector3f vector3dTo3f(Vector3d vector3d) {
+        return new Vector3f((float)vector3d.getX(), (float)vector3d.getY(), (float)vector3d.getZ());
     }
 
     public static FaceShape get(Direction direction) {

@@ -13,7 +13,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tags.ITagCollection;
+import net.minecraft.tags.TagCollection;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -40,7 +40,7 @@ public class Common {
     }
 
     private static void onTagsUpdated(TagsUpdatedEvent event) {
-        ITagCollection<Block> blockTags = event.getTagManager().getBlockTags();
+        TagCollection<Block> blockTags = event.getTagManager().getBlocks();
         ConfigHandler.updateTags(blockTags);
     }
 

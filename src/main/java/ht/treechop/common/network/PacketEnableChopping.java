@@ -10,6 +10,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public class PacketEnableChopping {
@@ -35,9 +36,9 @@ public class PacketEnableChopping {
                 if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
                     ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
                     chopSettings.setChoppingEnabled(message.choppingEnabled);
-                    player.sendMessage(TreeChopMod.makeText("Chopping " + (chopSettings.getChoppingEnabled() ? "ON" : "OFF")), Util.DUMMY_UUID);
+                    player.sendMessage(TreeChopMod.makeText("Chopping " + (chopSettings.getChoppingEnabled() ? "ON" : "OFF")), UUID.randomUUID());
                 } else {
-                    player.sendMessage(TreeChopMod.makeText("Chopping ON" + TextFormatting.RED + " (you are not permitted to disable chopping)"), Util.DUMMY_UUID);
+                    player.sendMessage(TreeChopMod.makeText("Chopping ON" + TextFormatting.RED + " (you are not permitted to disable chopping)"), UUID.randomUUID());
                 }
             });
             context.get().setPacketHandled(true);
