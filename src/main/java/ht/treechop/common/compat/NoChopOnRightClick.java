@@ -20,13 +20,13 @@ public class NoChopOnRightClick {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    private static void onBlockStartClick(PlayerInteractEvent.RightClickBlock event) {
+    public static void onBlockStartClick(PlayerInteractEvent.RightClickBlock event) {
         long time = event.getWorld().getGameTime();
         lastRightClickTickByPlayers.put(event.getPlayer(), time);
     }
 
     @SubscribeEvent
-    private static void onChop(TreeChopEvent.ChopEvent event) {
+    public static void onChop(TreeChopEvent.ChopEvent event) {
         long time = event.getWorld().getGameTime();
         if (lastRightClickTickByPlayers.getOrDefault(event.getPlayer(), TickUtil.NEVER) == time) {
             event.setCanceled(true);
