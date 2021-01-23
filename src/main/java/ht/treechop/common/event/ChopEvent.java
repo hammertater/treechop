@@ -5,12 +5,12 @@ import net.minecraft.world.World;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
-public class TreeChopEvent extends Event {
+public class ChopEvent extends Event {
 
     private final World world;
     private final PlayerEntity player;
 
-    public TreeChopEvent(World world, PlayerEntity player) {
+    public ChopEvent(World world, PlayerEntity player) {
         this.world = world;
         this.player = player;
     }
@@ -24,14 +24,14 @@ public class TreeChopEvent extends Event {
     }
 
     @Cancelable
-    public static class ChopEvent extends TreeChopEvent {
-        public ChopEvent(World world, PlayerEntity player) {
+    public static class StartChopEvent extends ChopEvent {
+        public StartChopEvent(World world, PlayerEntity player) {
             super(world, player);
         }
     }
 
     @Cancelable
-    public static class FellEvent extends TreeChopEvent {
+    public static class FellEvent extends ChopEvent {
         public FellEvent(World world, PlayerEntity player) {
             super(world, player);
         }

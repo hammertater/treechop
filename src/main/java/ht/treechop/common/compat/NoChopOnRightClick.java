@@ -1,6 +1,7 @@
 package ht.treechop.common.compat;
 
-import ht.treechop.common.event.TreeChopEvent;
+import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.event.ChopEvent;
 import ht.treechop.common.util.TickUtil;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.common.MinecraftForge;
@@ -16,7 +17,9 @@ public class NoChopOnRightClick {
     private static final Map<Entity, Long> lastRightClickTickByPlayers = new HashMap<>();
 
     public static void init() {
-        MinecraftForge.EVENT_BUS.register(NoChopOnRightClick.class);
+        if (ConfigHandler.COMMON.preventChoppingOnRightClick.get()) {
+            MinecraftForge.EVENT_BUS.register(NoChopOnRightClick.class);
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -26,7 +29,7 @@ public class NoChopOnRightClick {
     }
 
     @SubscribeEvent
-    public static void onChop(TreeChopEvent.ChopEvent event) {
+    public static void onChop(ChopEvent.StartChopEvent event) {
         long time = event.getWorld().getGameTime();
         if (lastRightClickTickByPlayers.getOrDefault(event.getPlayer(), TickUtil.NEVER) == time) {
             event.setCanceled(true);

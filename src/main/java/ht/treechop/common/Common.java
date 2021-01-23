@@ -3,13 +3,11 @@ package ht.treechop.common;
 import ht.treechop.TreeChopMod;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.capabilities.ChopSettingsProvider;
-import ht.treechop.common.compat.Compat;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.event.TreeChopEvent;
+import ht.treechop.common.event.ChopEvent;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.util.ChopResult;
 import ht.treechop.common.util.ChopUtil;
-import ht.treechop.common.util.TickUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -26,14 +24,9 @@ import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
 
 public class Common {
-
-    static private Map<PlayerEntity, Long> lastChopTickByPlayers = new HashMap<>();
 
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         IEventBus eventBus = MinecraftForge.EVENT_BUS;
@@ -65,21 +58,12 @@ public class Common {
                 || !ChopUtil.playerWantsToChop(agent)
                 || event.isCanceled()
                 || !(event.getWorld() instanceof World)
-                || !Compat.canChop(event)
         ) {
             return;
         }
 
         World world = (World) event.getWorld();;
-        long time = world.getGameTime();
-
-        if (lastChopTickByPlayers.getOrDefault(agent, TickUtil.NEVER) == time) {
-            return;
-        }
-
-        lastChopTickByPlayers.put(agent, time);
-
-        boolean canceled = MinecraftForge.EVENT_BUS.post(new TreeChopEvent.ChopEvent(world, agent));
+        boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.StartChopEvent(world, agent));
         if (canceled) {
             return;
         }
