@@ -13,3 +13,7 @@ logoFile="logo.png"
 credits="This one goes out to all the lumberjacks."
 authors="HammerTater"
 description="A mod that makes trees more choppable."
+
+[[dependencies.treechop]]
+modId="pmmo"
+mandatory=false
