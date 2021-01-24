@@ -2,12 +2,14 @@ package ht.treechop.common.block;
 
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
-import javafx.geometry.BoundingBox;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.Axis;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -59,21 +61,27 @@ public class ChoppedLogBlock extends Block implements IChoppable {
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
         int chops = state.get(CHOPS);
-        BoundingBox box = state.get(SHAPE).getBoundingBox(chops);
-        return Block.makeCuboidShape(
-                box.getMinX(),
-                box.getMinY(),
-                box.getMinZ(),
-                box.getMaxX(),
-                box.getMaxY(),
-                box.getMaxZ()
+        AxisAlignedBB box = state.get(SHAPE).getBoundingBox(chops);
+        VoxelShape voxelShape = Block.makeCuboidShape(
+                box.getMin(Axis.X),
+                box.getMin(Axis.Y),
+                box.getMin(Axis.Z),
+                box.getMax(Axis.X),
+                box.getMax(Axis.Y),
+                box.getMax(Axis.Z)
         );
+        return voxelShape;
     }
 
     @SuppressWarnings({"deprecation", "NullableProblems"})
     @Override
     public VoxelShape getRenderShape(BlockState state, IBlockReader world, BlockPos pos) {
         return state.get(SHAPE).getOcclusionShape();
+    }
+
+    @Override
+    public boolean isSideInvisible(BlockState state, BlockState adjacentBlockState, Direction side) {
+        return true;
     }
 
     @Override
