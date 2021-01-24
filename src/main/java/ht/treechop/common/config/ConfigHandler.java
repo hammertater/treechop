@@ -182,7 +182,7 @@ public class ConfigHandler {
                     .define("useProceduralChoppedModels", true);
             removeBarkOnInteriorLogs = builder
                     .comment("Whether to replace the interior sides of logs with a chopped texture instead of bark")
-                    .define("removeBarkOnInteriorLogs", false);
+                    .define("removeBarkOnInteriorLogs", true);
             builder.pop();
 
 //            treesMustBeUniform = builder

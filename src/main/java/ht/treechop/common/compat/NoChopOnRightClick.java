@@ -1,5 +1,6 @@
 package ht.treechop.common.compat;
 
+import ht.treechop.TreeChopMod;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.event.ChopEvent;
 import ht.treechop.common.util.TickUtil;
@@ -14,7 +15,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = TreeChopMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class NoChopOnRightClick {
 
     private static final Map<Entity, Long> lastRightClickTickByPlayers = new HashMap<>();

@@ -5,7 +5,6 @@ Copy conversion files into root folder
 IntelliJ: invalidate caches and restart
 Update version number in build.gradle
 Change functions:
-    hasProperty -> func_235901_b_
     Util.DUMMY_UUID -> UUID.randomUUID()
     isSideLit -> func_230044_c_
     ITagCollection -> TagCollection
