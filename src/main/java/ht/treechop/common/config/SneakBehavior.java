@@ -30,7 +30,7 @@ public enum SneakBehavior implements IStringSerializable {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public String getString() {
+    public String getName() {
         return name;
     }
 

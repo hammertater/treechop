@@ -2,9 +2,9 @@ package ht.treechop.common.properties;
 
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.util.FaceShape;
-import javafx.geometry.BoundingBox;
 import net.minecraft.util.Direction;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 
@@ -80,7 +80,7 @@ public enum ChoppedLogShape implements IStringSerializable {
 
     private final String name;
     private final byte openSides;
-    private final Map<Integer, BoundingBox> chopsBoxes;
+    private final Map<Integer, AxisAlignedBB> chopsBoxes;
 
     private static final ChoppedLogShape[] openSidesMap
             = new ChoppedLogShape[(NORTH | SOUTH | EAST | WEST | UP | DOWN) + 1];
@@ -114,11 +114,11 @@ public enum ChoppedLogShape implements IStringSerializable {
         this.occlusionShape = VoxelShapes.or(
                 VoxelShapes.empty(),
                 Arrays.stream(Direction.values())
-                        .filter(direction -> direction.getAxis().isHorizontal())
-                        .filter(direction -> !isSideOpen(direction))
-                        .map(direction -> VoxelShapes.create(FaceShape.get(direction).getBox()))
+                        .filter(direction -> direction.getAxis().isHorizontal() && !isSideOpen(direction))
+                        .map(direction -> VoxelShapes.create(FaceShape.get(direction).getBox().asAxisAlignedBB()))
                         .toArray(VoxelShape[]::new)
         );
+        int x = 0;
     }
 
     public static ChoppedLogShape forOpenSides(byte openSides) {
@@ -131,11 +131,11 @@ public enum ChoppedLogShape implements IStringSerializable {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public String getString() {
+    public String getName() {
         return this.name;
     }
 
-    private BoundingBox bakeBoundingBox(int chops) {
+    private AxisAlignedBB bakeBoundingBox(int chops) {
         boolean down = isSideOpen(Direction.DOWN);
         boolean up = isSideOpen(Direction.UP);
         boolean north = isSideOpen(Direction.NORTH);
@@ -150,17 +150,17 @@ public enum ChoppedLogShape implements IStringSerializable {
         float yRadius = (down || up) ? 8 - chops : 8;
         float zRadius = (north || south) ? 8 - chops : 8;
 
-        return new BoundingBox(
+        return new AxisAlignedBB(
                 xCenter - xRadius,
                 yCenter - yRadius,
                 zCenter - zRadius,
-                xRadius * 2,
-                yRadius * 2,
-                zRadius * 2
+                xCenter + xRadius,
+                yCenter + yRadius,
+                zCenter + zRadius
         );
     }
 
-    public BoundingBox getBoundingBox(int chops) {
+    public AxisAlignedBB getBoundingBox(int chops) {
         return chopsBoxes.get(chops);
     }
 

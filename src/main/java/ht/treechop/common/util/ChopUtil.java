@@ -19,7 +19,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -63,7 +62,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockLeaves(BlockState blockState) {
-        if (blockState.hasProperty(LeavesBlock.PERSISTENT) && !ConfigHandler.breakPersistentLeaves && blockState.get(LeavesBlock.PERSISTENT)) {
+        if (blockState.has(LeavesBlock.PERSISTENT) && !ConfigHandler.breakPersistentLeaves && blockState.get(LeavesBlock.PERSISTENT)) {
             return false;
         } else {
             return blockState.getBlock().isIn(ConfigHandler.blockTagForDetectingLeaves);
@@ -202,7 +201,7 @@ public class ChopUtil {
             if (totalNumChops >= numChopsToFell) {
                 List<BlockPos> choppedLogsSortedByY = nearbyChoppableBlocks.stream()
                         .filter(pos1 -> world.getBlockState(pos1).getBlock() instanceof IChoppable)
-                        .sorted(Comparator.comparingInt(Vector3i::getY))
+                        .sorted(Comparator.comparingInt(BlockPos::getY))
                         .collect(Collectors.toList());
 
                 // Consume nearby chopped blocks that contributed even if they're at a lower Y, but prefer higher ones

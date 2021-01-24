@@ -7,7 +7,7 @@ import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.FaceShape;
-import javafx.geometry.BoundingBox;
+import ht.treechop.common.util.Vector3;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
@@ -19,10 +19,11 @@ import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.world.ILightReader;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
@@ -77,15 +78,10 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
         }
     }
 
-    @Override
     @Nonnull
-    public IModelData getModelData(
-            @Nonnull IBlockDisplayReader world,
-            @Nonnull BlockPos pos,
-            @Nonnull BlockState state,
-            @Nonnull IModelData tileData
-    ) {
-        if (!state.hasProperty(BlockStateProperties.CHOPPED_LOG_SHAPE) || !state.hasProperty(BlockStateProperties.CHOP_COUNT)) {
+    @Override
+    public IModelData getModelData(@Nonnull ILightReader world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData) {
+        if (!state.has(BlockStateProperties.CHOPPED_LOG_SHAPE) || !state.has(BlockStateProperties.CHOP_COUNT)) {
             throw new IllegalArgumentException(
                     String.format("Could not bake chopped log model; block state %s is missing \"%s\" or \"%s\"",
                             state.toString(),
@@ -95,9 +91,10 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
             );
         }
 
+        ChoppedLogShape shape = state.get(BlockStateProperties.CHOPPED_LOG_SHAPE);
         Set<Direction> solidSides = removeBarkOnInteriorLogs
                 ? Arrays.stream(Direction.values())
-                .filter(direction -> direction.getAxis().isHorizontal())
+                .filter(direction -> direction.getAxis().isHorizontal() && !shape.isSideOpen(direction))
                 .filter(direction -> {
                     BlockState blockState = world.getBlockState(pos.offset(direction));
                     Block block = blockState.getBlock();
@@ -128,32 +125,32 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
                 int chops = extraData.getData(CHOPS);
                 Set<Direction> solidSides = extraData.getData(SOLID_SIDES);
 
-                BoundingBox box = shape.getBoundingBox(chops);
+                AxisAlignedBB box = shape.getBoundingBox(chops);
 
-                float downY = (float) box.getMinY();
-                float upY = (float) box.getMaxY();
-                float northZ = (float) box.getMinZ();
-                float southZ = (float) box.getMaxZ();
-                float westX = (float) box.getMinX();
-                float eastX = (float) box.getMaxX();
+                float downY = (float) box.getMin(Axis.Y);
+                float upY = (float) box.getMax(Axis.Y);
+                float northZ = (float) box.getMin(Axis.Z);
+                float southZ = (float) box.getMax(Axis.Z);
+                float westX = (float) box.getMin(Axis.X);
+                float eastX = (float) box.getMax(Axis.X);
 
-                Vector3f topNorthEast = new Vector3f(eastX, upY, northZ);
-                Vector3f topNorthWest = new Vector3f(westX, upY, northZ);
-                Vector3f topSouthEast = new Vector3f(eastX, upY, southZ);
-                Vector3f topSouthWest = new Vector3f(westX, upY, southZ);
-                Vector3f bottomNorthEast = new Vector3f(eastX, downY, northZ);
-                Vector3f bottomNorthWest = new Vector3f(westX, downY, northZ);
-                Vector3f bottomSouthEast = new Vector3f(eastX, downY, southZ);
-                Vector3f bottomSouthWest = new Vector3f(westX, downY, southZ);
+                Vector3 topNorthEast = new Vector3(eastX, upY, northZ);
+                Vector3 topNorthWest = new Vector3(westX, upY, northZ);
+                Vector3 topSouthEast = new Vector3(eastX, upY, southZ);
+                Vector3 topSouthWest = new Vector3(westX, upY, southZ);
+                Vector3 bottomNorthEast = new Vector3(eastX, downY, northZ);
+                Vector3 bottomNorthWest = new Vector3(westX, downY, northZ);
+                Vector3 bottomSouthEast = new Vector3(eastX, downY, southZ);
+                Vector3 bottomSouthWest = new Vector3(westX, downY, southZ);
 
                 return Stream.concat(
                         Stream.of(
-                            ModelUtil.makeQuad(textureRL, sprite, bottomSouthEast, bottomNorthWest, Direction.DOWN, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topSouthEast, topNorthWest, Direction.UP, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topNorthEast, bottomNorthWest, Direction.NORTH, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topSouthEast, bottomSouthWest, Direction.SOUTH, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topSouthWest, bottomNorthWest, Direction.WEST, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topSouthEast, bottomNorthEast, Direction.EAST, null)
+                                ModelUtil.makeQuad(textureRL, sprite, bottomSouthEast, bottomNorthWest, Direction.DOWN, null),
+                                ModelUtil.makeQuad(textureRL, sprite, topSouthEast, topNorthWest, Direction.UP, null),
+                                ModelUtil.makeQuad(textureRL, sprite, topNorthEast, bottomNorthWest, Direction.NORTH, null),
+                                ModelUtil.makeQuad(textureRL, sprite, topSouthEast, bottomSouthWest, Direction.SOUTH, null),
+                                ModelUtil.makeQuad(textureRL, sprite, topSouthWest, bottomNorthWest, Direction.WEST, null),
+                                ModelUtil.makeQuad(textureRL, sprite, topSouthEast, bottomNorthEast, Direction.EAST, null)
                         ),
                         solidSides.stream().map(
                                 direction -> ModelUtil.makeQuad(textureRL, sprite, FaceShape.get(direction), direction.getOpposite(), null)
@@ -180,8 +177,8 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public boolean isSideLit() {
-        return staticModel.isSideLit();
+    public boolean func_230044_c_() {
+        return staticModel.func_230044_c_();
     }
 
     @Override

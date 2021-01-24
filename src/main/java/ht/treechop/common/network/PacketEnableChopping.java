@@ -5,7 +5,6 @@ import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Util;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -35,9 +34,9 @@ public class PacketEnableChopping {
                 if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
                     ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
                     chopSettings.setChoppingEnabled(message.choppingEnabled);
-                    player.sendMessage(TreeChopMod.makeText("Chopping " + (chopSettings.getChoppingEnabled() ? "ON" : "OFF")), Util.DUMMY_UUID);
+                    player.sendMessage(TreeChopMod.makeText("Chopping " + (chopSettings.getChoppingEnabled() ? "ON" : "OFF")));
                 } else {
-                    player.sendMessage(TreeChopMod.makeText("Chopping ON" + TextFormatting.RED + " (you are not permitted to disable chopping)"), Util.DUMMY_UUID);
+                    player.sendMessage(TreeChopMod.makeText("Chopping ON" + TextFormatting.RED + " (you are not permitted to disable chopping)"));
                 }
             });
             context.get().setPacketHandled(true);

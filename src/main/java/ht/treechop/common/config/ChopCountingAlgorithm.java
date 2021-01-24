@@ -28,7 +28,7 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public String getString() {
+    public String getName() {
         return name;
     }
 

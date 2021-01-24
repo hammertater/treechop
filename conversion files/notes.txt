@@ -1,0 +1,14 @@
+> git reset --hard
+> git pull
+Copy conversion files into root folder
+> gradlew clean
+ .. or just .gradle
+IntelliJ: invalidate caches and restart
+Update version number in build.gradle
+Code changes:
+    AbstractBlock -> Block
+    Vector3i -> BlockPos
+    getString -> getName
+    hasProperty -> has
+    ITag -> Tag
+    isSideLit -> func_230044_c_

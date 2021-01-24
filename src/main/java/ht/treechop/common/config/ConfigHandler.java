@@ -3,8 +3,8 @@ package ht.treechop.common.config;
 import ht.treechop.common.capabilities.ChopSettings;
 import net.minecraft.block.Block;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITagCollection;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 public class ConfigHandler {
 
-    public static ITag<Block> blockTagForDetectingLogs;
-    public static ITag<Block> blockTagForDetectingLeaves;
+    public static Tag<Block> blockTagForDetectingLogs;
+    public static Tag<Block> blockTagForDetectingLeaves;
     public static Set<ResourceLocation> choppingToolItemsBlacklist;
     public static Set<ResourceLocation> choppingToolTagsBlacklist;
     public static int maxBreakLeavesDistance;
@@ -41,7 +41,7 @@ public class ConfigHandler {
         updateTags(BlockTags.getCollection());
     }
 
-    public static void updateTags(ITagCollection<Block> blockTags) {
+    public static void updateTags(TagCollection<Block> blockTags) {
         blockTagForDetectingLogs = blockTags.get(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
         blockTagForDetectingLeaves = blockTags.get(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
     }
