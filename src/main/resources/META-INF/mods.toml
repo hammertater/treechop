@@ -12,7 +12,7 @@ displayURL="https://www.curseforge.com/minecraft/mc-mods/treechop"
 logoFile="logo.png"
 credits="This one goes out to all the lumberjacks."
 authors="HammerTater"
-description="A mod that makes trees more choppable."
+description="Makes trees more choppable."
 
 [[dependencies.treechop]]
 modId="pmmo"

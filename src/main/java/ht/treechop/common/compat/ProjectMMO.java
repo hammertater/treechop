@@ -1,8 +1,10 @@
 package ht.treechop.common.compat;
 
 import harmonised.pmmo.events.BlockBrokenHandler;
+import ht.treechop.TreeChopMod;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.event.ChopEvent;
+import net.minecraft.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -10,7 +12,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = TreeChopMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class ProjectMMO {
 
     @SubscribeEvent
@@ -26,7 +28,7 @@ public class ProjectMMO {
             BlockBrokenHandler.handleBroken(new BlockEvent.BreakEvent(
                     event.getWorld(),
                     event.getChoppedBlockPos(),
-                    event.getChoppedBlockState(),
+                    Blocks.OAK_LOG.getDefaultState(), // TODO: use correct wood type
                     event.getPlayer()
             ));
         }
