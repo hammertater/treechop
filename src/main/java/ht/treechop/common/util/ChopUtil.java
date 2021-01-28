@@ -414,7 +414,9 @@ public class ChopUtil {
 
     @SuppressWarnings("ConstantConditions")
     public static ChopSettings getPlayerChopSettings(PlayerEntity player) {
-        return isLocalPlayer(player) ? Client.getChopSettings() : ChopSettingsCapability.forPlayer(player).orElse(new ChopSettingsCapability());
+        return isLocalPlayer(player)
+                ? Client.getChopSettings()
+                : ChopSettingsCapability.forPlayer(player).orElse(new ChopSettingsCapability());
     }
 
     public static void doItemDamage(ItemStack itemStack, World world, BlockState blockState, BlockPos blockPos, PlayerEntity agent) {

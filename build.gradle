@@ -103,6 +103,8 @@ dependencies {
     // compile "some.group:artifact:version"
     compileOnly fg.deobf("curse.maven:project-mmo:3157194")
 //    runtimeOnly fg.deobf("curse.maven:project-mmo:3157194")
+//    compileOnly fg.deobf("curse.maven:exotic-birds:3178599")
+//    runtimeOnly fg.deobf("curse.maven:exotic-birds:3178599")
 
     // Real examples
     // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env

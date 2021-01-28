@@ -1,16 +1,16 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/treechop",
   "promos": {
-    "1.16.5-latest": "0.12.1",
-    "1.16.5-recommended": "0.12.1",
-    "1.16.4-latest": "0.12.1",
-    "1.16.4-recommended": "0.12.1",
-    "1.16.3-latest": "0.12.1",
-    "1.16.3-recommended": "0.12.1",
-    "1.16.1-latest": "0.12.1",
-    "1.16.1-recommended": "0.12.1",
-    "1.15.2-latest": "0.12.1",
-    "1.15.2-recommended": "0.12.1",
+    "1.16.5-latest": "0.12.2",
+    "1.16.5-recommended": "0.12.2",
+    "1.16.4-latest": "0.12.2",
+    "1.16.4-recommended": "0.12.2",
+    "1.16.3-latest": "0.12.2",
+    "1.16.3-recommended": "0.12.2",
+    "1.16.1-latest": "0.12.2",
+    "1.16.1-recommended": "0.12.2",
+    "1.15.2-latest": "0.12.2",
+    "1.15.2-recommended": "0.12.2",
     "1.12.2-latest": "0.11.2",
     "1.12.2-recommended": "0.11.2"
   },
@@ -28,7 +28,8 @@
     "0.11.2": "Fixed non-standard keys causing unbound controls to trigger\nPrevent players from disabling felling when `canChooseNotToChop=true`\nShow players a message when trying to change chop behavior when `canChooseNotToChop=false`",
     "0.11.3": "Fixed conflict with CarryOn that caused pickup attempts to trigger chops",
     "0.12.0": "Added procedural chopped log models\nAdded compatibility with Project MMO\nAdded option to show chopped texture on interior tree blocks instead of bark\nAdded option to allow persistent leaves to be broken when felling\nAdded option to disable chopping in creative\nFixed issues with chopping interior logs on really big (3x3+) trees\nFixed chopping getting semi-permanently deactivated for specific players\nFixed sneak settings not getting saved\nFixed mod display name\nReorganized configs",
-    "0.12.1": "Fixed server crash on startup"
+    "0.12.1": "Fixed server crash on startup",
+    "0.12.2": "Fixed mod conflict on respawn"
   },
   "1.16.4": {
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
@@ -44,7 +45,8 @@
     "0.11.2": "Fixed non-standard keys causing unbound controls to trigger\nPrevent players from disabling felling when `canChooseNotToChop=true`\nShow players a message when trying to change chop behavior when `canChooseNotToChop=false`",
     "0.11.3": "Fixed conflict with CarryOn that caused pickup attempts to trigger chops",
     "0.12.0": "Added procedural chopped log models\nAdded compatibility with Project MMO\nAdded option to show chopped texture on interior tree blocks instead of bark\nAdded option to allow persistent leaves to be broken when felling\nAdded option to disable chopping in creative\nFixed issues with chopping interior logs on really big (3x3+) trees\nFixed chopping getting semi-permanently deactivated for specific players\nFixed sneak settings not getting saved\nFixed mod display name\nReorganized configs",
-    "0.12.1": "Fixed server crash on startup"
+    "0.12.1": "Fixed server crash on startup",
+    "0.12.2": "Fixed mod conflict on respawn"
   },
   "1.16.3": {
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
@@ -60,7 +62,8 @@
     "0.11.2": "Fixed non-standard keys causing unbound controls to trigger\nPrevent players from disabling felling when `canChooseNotToChop=true`\nShow players a message when trying to change chop behavior when `canChooseNotToChop=false`",
     "0.11.3": "Fixed conflict with CarryOn that caused pickup attempts to trigger chops",
     "0.12.0": "Added procedural chopped log models\nAdded compatibility with Project MMO\nAdded option to show chopped texture on interior tree blocks instead of bark\nAdded option to allow persistent leaves to be broken when felling\nAdded option to disable chopping in creative\nFixed issues with chopping interior logs on really big (3x3+) trees\nFixed chopping getting semi-permanently deactivated for specific players\nFixed sneak settings not getting saved\nFixed mod display name\nReorganized configs",
-    "0.12.1": "Fixed server crash on startup"
+    "0.12.1": "Fixed server crash on startup",
+    "0.12.2": "Fixed mod conflict on respawn"
   },
   "1.16.1": {
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
@@ -76,7 +79,8 @@
     "0.11.2": "Fixed non-standard keys causing unbound controls to trigger\nPrevent players from disabling felling when `canChooseNotToChop=true`\nShow players a message when trying to change chop behavior when `canChooseNotToChop=false`",
     "0.11.3": "Fixed conflict with CarryOn that caused pickup attempts to trigger chops",
     "0.12.0": "Added procedural chopped log models\nAdded compatibility with Project MMO\nAdded option to show chopped texture on interior tree blocks instead of bark\nAdded option to allow persistent leaves to be broken when felling\nAdded option to disable chopping in creative\nFixed issues with chopping interior logs on really big (3x3+) trees\nFixed chopping getting semi-permanently deactivated for specific players\nFixed sneak settings not getting saved\nFixed mod display name\nReorganized configs",
-    "0.12.1": "Fixed server crash on startup"
+    "0.12.1": "Fixed server crash on startup",
+    "0.12.2": "Fixed mod conflict on respawn"
   },
   "1.15.2": {
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
@@ -92,7 +96,8 @@
     "0.11.2": "Fixed non-standard keys causing unbound controls to trigger\nPrevent players from disabling felling when `canChooseNotToChop=true`\nShow players a message when trying to change chop behavior when `canChooseNotToChop=false`",
     "0.11.3": "Fixed conflict with CarryOn that caused pickup attempts to trigger chops",
     "0.12.0": "Added procedural chopped log models\nAdded compatibility with Project MMO\nAdded option to show chopped texture on interior tree blocks instead of bark\nAdded option to allow persistent leaves to be broken when felling\nAdded option to disable chopping in creative\nFixed issues with chopping interior logs on really big (3x3+) trees\nFixed chopping getting semi-permanently deactivated for specific players\nFixed sneak settings not getting saved\nFixed mod display name\nReorganized configs",
-    "0.12.1": "Fixed server crash on startup"
+    "0.12.1": "Fixed server crash on startup",
+    "0.12.2": "Fixed mod conflict on respawn"
   },
   "1.12.2": {
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
