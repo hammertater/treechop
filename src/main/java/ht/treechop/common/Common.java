@@ -22,29 +22,30 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
+import static net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
+@EventBusSubscriber(modid = TreeChopMod.MOD_ID, bus = EventBusSubscriber.Bus.FORGE)
 public class Common {
 
+    @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
-        IEventBus eventBus = MinecraftForge.EVENT_BUS;
-        eventBus.addListener(Common::onBreakEvent);
-        eventBus.addListener(Common::onTagsUpdated);
-        eventBus.addGenericListener(Entity.class, Common::onAttachCapabilities);
-
         ConfigHandler.onReload();
         ChopSettingsCapability.register();
         PacketHandler.init();
     }
 
-    private static void onTagsUpdated(TagsUpdatedEvent event) {
+    @SubscribeEvent
+    public static void onTagsUpdated(TagsUpdatedEvent event) {
         ITagCollection<Block> blockTags = event.getTagManager().getBlockTags();
         ConfigHandler.updateTags(blockTags);
     }
 
-    private static void onBreakEvent(BlockEvent.BreakEvent event) {
+    @SubscribeEvent
+    public static void onBreakEvent(BlockEvent.BreakEvent event) {
         PlayerEntity agent = event.getPlayer();
         ItemStack tool = agent.getHeldItemMainhand();
         BlockState blockState = event.getState();
@@ -90,8 +91,8 @@ public class Common {
         }
     }
 
-    // Helpful reference: https://gist.github.com/FireController1847/c7a50144f45806a996d13efcff468d1b
-    private static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
+    @SubscribeEvent
+    public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         final ResourceLocation loc = new ResourceLocation(TreeChopMod.MOD_ID + "chop_settings_capability");
 
         Entity entity = event.getObject();

@@ -38,9 +38,12 @@ public class PacketSetSneakBehavior {
             context.get().enqueueWork(() -> {
                 ServerPlayerEntity player = context.get().getSender();
                 if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
-                    ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
-                    chopSettings.setSneakBehavior(message.sneakBehavior);
-                    player.sendMessage(TreeChopMod.makeText("Sneak behavior " + chopSettings.getSneakBehavior().getString()), Util.DUMMY_UUID);
+                    ChopSettingsCapability.forPlayer(player).ifPresent(
+                            chopSettings -> {
+                                chopSettings.setSneakBehavior(message.sneakBehavior);
+                                player.sendMessage(TreeChopMod.makeText("Sneak behavior " + chopSettings.getSneakBehavior().getString()), Util.DUMMY_UUID);
+                            }
+                    );
                 } else {
                     player.sendMessage(TreeChopMod.makeText("Sneak behavior " + SneakBehavior.NONE.getString() + TextFormatting.RED + " (you are not permitted to disable chopping or felling)"), Util.DUMMY_UUID);
                 }

@@ -33,9 +33,12 @@ public class PacketEnableFelling {
             context.get().enqueueWork(() -> {
                 ServerPlayerEntity player = context.get().getSender();
                 if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
-                    ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
-                    chopSettings.setFellingEnabled(message.fellingEnabled);
-                    player.sendMessage(TreeChopMod.makeText("Felling " + (message.fellingEnabled ? "ON" : "OFF")), Util.DUMMY_UUID);
+                    ChopSettingsCapability.forPlayer(player).ifPresent(
+                            chopSettings -> {
+                                chopSettings.setFellingEnabled(message.fellingEnabled);
+                                player.sendMessage(TreeChopMod.makeText("Felling " + (message.fellingEnabled ? "ON" : "OFF")), Util.DUMMY_UUID);
+                            }
+                    );
                 } else {
                     player.sendMessage(TreeChopMod.makeText("Felling ON" + TextFormatting.RED + " (you are not permitted to disable felling)"), Util.DUMMY_UUID);
                 }

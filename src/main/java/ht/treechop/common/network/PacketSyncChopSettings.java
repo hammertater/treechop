@@ -7,6 +7,7 @@ import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.config.SneakBehavior;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.Util;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.apache.commons.lang3.EnumUtils;
 
@@ -60,20 +61,22 @@ public class PacketSyncChopSettings {
     @SuppressWarnings("ConstantConditions")
     public static void handleOnServer(PacketSyncChopSettings message, Supplier<NetworkEvent.Context> context) {
         ServerPlayerEntity player = context.get().getSender();
-        ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
+        ChopSettingsCapability.forPlayer(player).ifPresent(
+                chopSettings -> {
+                    if (!chopSettings.isSynced()) {
+                        TreeChopMod.LOGGER.info("Received chop settings from player " + player.getScoreboardName());
+                        chopSettings.copyFrom(message.chopSettings);
+                        chopSettings.setSynced();
+                    }
 
-        if (!chopSettings.isSynced()) {
-            TreeChopMod.LOGGER.info("Received chop settings from player " + player.getScoreboardName());
-            chopSettings.copyFrom(message.chopSettings);
-            chopSettings.setSynced();
-        }
+                    // Force settings through that aren't yet configurable in-game
+                    chopSettings.setTreesMustHaveLeaves(message.chopSettings.getTreesMustHaveLeaves());
+                    chopSettings.setChopInCreativeMode(message.chopSettings.getChopInCreativeMode());
 
-        // Force settings through that aren't yet configurable in-game
-        chopSettings.setTreesMustHaveLeaves(message.chopSettings.getTreesMustHaveLeaves());
-        chopSettings.setChopInCreativeMode(message.chopSettings.getChopInCreativeMode());
-
-        TreeChopMod.LOGGER.info("Sending chop settings to player " + player.getScoreboardName());
-        PacketHandler.sendTo(player, new PacketSyncChopSettings(chopSettings));
+                    TreeChopMod.LOGGER.info("Sending chop settings to player " + player.getScoreboardName());
+                    PacketHandler.sendTo(player, new PacketSyncChopSettings(chopSettings));
+                }
+        );
     }
 
 }

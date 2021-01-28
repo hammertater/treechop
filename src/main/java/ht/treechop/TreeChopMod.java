@@ -34,7 +34,6 @@ public class TreeChopMod {
         modBus.addListener((ModConfig.Reloading e) -> ConfigHandler.onReload());
 
         modBus.addListener(Common::onCommonSetup);
-        modBus.addListener(Server::onServerSetup);
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> Client::init);
 
         ModBlocks.BLOCKS.register(modBus);

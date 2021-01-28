@@ -1,12 +1,9 @@
 package ht.treechop.client;
 
 import ht.treechop.TreeChopMod;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
-import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.lwjgl.glfw.GLFW;
 
@@ -20,8 +17,6 @@ public class KeyBindings {
     public static final List<ActionableKeyBinding> allKeyBindings = new LinkedList<>();
 
     public static void init() {
-        MinecraftForge.EVENT_BUS.addListener(KeyBindings::buttonPressed);
-
         registerKeyBinding("toggle_chopping", getKey(GLFW.GLFW_KEY_N), Client::toggleChopping);
         registerKeyBinding("toggle_felling", getKey(GLFW.GLFW_KEY_UNKNOWN), Client::toggleFelling);
         registerKeyBinding("cycle_sneak_behavior", getKey(GLFW.GLFW_KEY_UNKNOWN), Client::cycleSneakBehavior);
@@ -45,17 +40,9 @@ public class KeyBindings {
         return InputMappings.Type.KEYSYM.getOrMakeInput(key);
     }
 
-    public static void buttonPressed(InputEvent.KeyInputEvent event) {
-        if (
-                event.isCanceled()
-                || Minecraft.getInstance().currentScreen != null
-                || event.getKey() == GLFW.GLFW_KEY_UNKNOWN
-        ) {
-            return;
-        }
-
+    public static void buttonPressed(int keyCode, int keyState) {
         for (ActionableKeyBinding keyBinding : allKeyBindings) {
-            if (event.getKey() == keyBinding.getKey().getKeyCode() && event.getAction() == GLFW.GLFW_PRESS) {
+            if (keyCode == keyBinding.getKey().getKeyCode() && keyState == GLFW.GLFW_PRESS) {
                 keyBinding.onPress();
                 return;
             }

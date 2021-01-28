@@ -7,6 +7,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.Objects;
@@ -33,9 +34,12 @@ public class PacketEnableChopping {
             context.get().enqueueWork(() -> {
                 ServerPlayerEntity player = Objects.requireNonNull(context.get().getSender());
                 if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
-                    ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
-                    chopSettings.setChoppingEnabled(message.choppingEnabled);
-                    player.sendMessage(TreeChopMod.makeText("Chopping " + (chopSettings.getChoppingEnabled() ? "ON" : "OFF")), Util.DUMMY_UUID);
+                    ChopSettingsCapability.forPlayer(player).ifPresent(
+                            chopSettings -> {
+                                chopSettings.setChoppingEnabled(message.choppingEnabled);
+                                player.sendMessage(TreeChopMod.makeText("Chopping " + (chopSettings.getChoppingEnabled() ? "ON" : "OFF")), Util.DUMMY_UUID);
+                            }
+                    );
                 } else {
                     player.sendMessage(TreeChopMod.makeText("Chopping ON" + TextFormatting.RED + " (you are not permitted to disable chopping)"), Util.DUMMY_UUID);
                 }
