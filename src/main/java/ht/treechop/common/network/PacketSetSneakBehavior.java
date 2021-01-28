@@ -7,6 +7,7 @@ import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.config.SneakBehavior;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.Util;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.apache.commons.lang3.EnumUtils;
@@ -38,9 +39,12 @@ public class PacketSetSneakBehavior {
             context.get().enqueueWork(() -> {
                 ServerPlayerEntity player = context.get().getSender();
                 if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
-                    ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
-                    chopSettings.setSneakBehavior(message.sneakBehavior);
-                    player.sendMessage(TreeChopMod.makeText("Sneak behavior " + chopSettings.getSneakBehavior().getString()), UUID.randomUUID());
+                    ChopSettingsCapability.forPlayer(player).ifPresent(
+                            chopSettings -> {
+                                chopSettings.setSneakBehavior(message.sneakBehavior);
+                                player.sendMessage(TreeChopMod.makeText("Sneak behavior " + chopSettings.getSneakBehavior().getString()), Util.DUMMY_UUID);
+                            }
+                    );
                 } else {
                     player.sendMessage(TreeChopMod.makeText("Sneak behavior " + SneakBehavior.NONE.getString() + TextFormatting.RED + " (you are not permitted to disable chopping or felling)"), UUID.randomUUID());
                 }

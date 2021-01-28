@@ -5,6 +5,7 @@ import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.Util;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -33,9 +34,12 @@ public class PacketEnableFelling {
             context.get().enqueueWork(() -> {
                 ServerPlayerEntity player = context.get().getSender();
                 if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
-                    ChopSettingsCapability chopSettings = ChopSettingsCapability.forPlayer(player);
-                    chopSettings.setFellingEnabled(message.fellingEnabled);
-                    player.sendMessage(TreeChopMod.makeText("Felling " + (message.fellingEnabled ? "ON" : "OFF")), UUID.randomUUID());
+                    ChopSettingsCapability.forPlayer(player).ifPresent(
+                            chopSettings -> {
+                                chopSettings.setFellingEnabled(message.fellingEnabled);
+                                player.sendMessage(TreeChopMod.makeText("Felling " + (message.fellingEnabled ? "ON" : "OFF")), Util.DUMMY_UUID);
+                            }
+                    );
                 } else {
                     player.sendMessage(TreeChopMod.makeText("Felling ON" + TextFormatting.RED + " (you are not permitted to disable felling)"), UUID.randomUUID());
                 }
