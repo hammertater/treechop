@@ -9,6 +9,7 @@ import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -33,8 +34,13 @@ public class ChopSettingsCapability extends ChopSettings {
     }
 
     @SuppressWarnings("ConstantConditions")
-    public static ChopSettingsCapability forPlayer(PlayerEntity player) {
-        return player.getCapability(CAPABILITY).orElseThrow(() -> new IllegalArgumentException(String.format("Missing chop settings for player \"%s\"", player.getScoreboardName())));
+    public static LazyOptional<ChopSettingsCapability> forPlayer(PlayerEntity player) {
+        LazyOptional<ChopSettingsCapability> lazyCapability = player.getCapability(CAPABILITY);
+        if (!lazyCapability.isPresent()) {
+            TreeChopMod.LOGGER.warn("Player " + player + " is missing chop settings");
+        }
+
+        return player.getCapability(CAPABILITY);
     }
 
     public static class Storage implements Capability.IStorage<ChopSettingsCapability> {
