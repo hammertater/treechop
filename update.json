@@ -11,8 +11,8 @@
     "1.16.1-recommended": "0.12.2",
     "1.15.2-latest": "0.12.2",
     "1.15.2-recommended": "0.12.2",
-    "1.12.2-latest": "0.11.2",
-    "1.12.2-recommended": "0.11.2"
+    "1.12.2-latest": "0.11.4",
+    "1.12.2-recommended": "0.11.4"
   },
   "1.16.5": {
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection",
@@ -111,6 +111,6 @@
     "0.11.0": "Added client-side config option to only chop \"trees\" with \"leaves\"\nAdded optional `treechop:choppables_except_mushrooms` block tag to disable chopping on mushrooms\nLet xp-dropping logs drop xp when felled\nFixed fortune and silk touch enchantment effects not getting applied (only for blocks you chop, not felled blocks)\nFixed occasional crashes when chopping with modded log-breaking items\nFixed client-side config sometimes not syncing properly when joining a server\nRewrote tree detection code to be more stable and maintainable\nPorted to 1.12.2",
     "0.11.1": "Fixed a crash when using Mekanism tools (and probably other modded items)\nFix chopping tools blacklist getting reset to the default value on startup",
     "0.11.2": "Fixed non-standard keys causing unbound controls to trigger\nPrevent players from disabling felling when `canChooseNotToChop=true`\nShow players a message when trying to change chop behavior when `canChooseNotToChop=false`",
-    "0.12.1": "Fixed server crash on startup"
+    "0.11.4": "Fixed conflict with EnderCore blocks\nDon't let chopping get disabled on mod conflicts"
   }
 }
