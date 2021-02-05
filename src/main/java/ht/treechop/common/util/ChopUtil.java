@@ -18,6 +18,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -56,11 +57,13 @@ public class ChopUtil {
 
     static public boolean isBlockALog(World world, BlockPos pos, IBlockState blockState) {
         Block block = blockState.getBlock();
-        return (block instanceof IChoppable
-                || ConfigHandler.getLogBlocks().contains(block)
-                || ConfigHandler.getLogItems().contains(block.getPickBlock(blockState, null, world, pos, null).getItem())
-                || isMushroomStem(blockState)
-        );
+        if (block instanceof IChoppable || ConfigHandler.getLogBlocks().contains(block) || isMushroomStem(blockState)) {
+            return true;
+        } else {
+            NonNullList<ItemStack> drops = NonNullList.create();
+            block.getDrops(drops, world, pos, blockState, 0);
+            return drops.stream().anyMatch(drop -> ConfigHandler.getLogItems().contains(drop.getItem()));
+        }
     }
 
     static public boolean isBlockALog(World world, BlockPos pos) {
