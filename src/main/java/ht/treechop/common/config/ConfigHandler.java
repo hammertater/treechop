@@ -118,13 +118,13 @@ public class ConfigHandler {
                     .comment("Whether felling a tree can require more chops than the number of blocks in the tree")
                     .define("canRequireMoreChopsThanBlocks", false);
 
-            builder.comment("See https://github.com/hammertater/treechop/README.md#Logarithmic").push("logarithmic");
+            builder.comment("See https://github.com/hammertater/treechop/#logarithmic").push("logarithmic");
             logarithmicA = builder
                     .comment("Determines the number of chops required to fell a tree; higher values require more chops for bigger trees")
                     .defineInRange("a", 10.0, 0.0, 10000.0);
             builder.pop();
 
-            builder.comment("See https://github.com/hammertater/treechop/README.md#Linear").push("linear");
+            builder.comment("See https://github.com/hammertater/treechop/#linear").push("linear");
             linearM = builder
                     .comment("The number of chops per block required to fell a tree; if chopsPerBlock = 0.5, it will take 50 chops to fell a 100 block tree")
                     .defineInRange("chopsPerBlock", 1.0, 0.0, 1.0);
