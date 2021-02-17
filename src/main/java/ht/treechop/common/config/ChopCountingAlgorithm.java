@@ -8,7 +8,6 @@ import static java.lang.Math.log;
 
 public enum ChopCountingAlgorithm implements IStringSerializable {
     LINEAR(
-            "linear",
             numBlocks -> {
                 double x = (double) numBlocks;
                 double m = ConfigHandler.COMMON.linearM.get();
@@ -17,7 +16,6 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
             }
     ),
     LOGARITHMIC(
-            "log",
             numBlocks -> {
                 double x = (double) numBlocks;
                 double a = ConfigHandler.COMMON.logarithmicA.get();
@@ -25,30 +23,27 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
             }
     );
 
-    private final String name;
-    private final Function<Integer, Double> calculation;
+    private final Function<Integer, Double> preciseCalculation;
 
-    ChopCountingAlgorithm(String name, Function<Integer, Double> calculation) {
-        this.name = name;
-        this.calculation = calculation;
-    }
-
-    public String toString() {
-        return name;
-    }
-
-    @SuppressWarnings("NullableProblems")
-    @Override
-    public String getString() {
-        return name;
+    ChopCountingAlgorithm(Function<Integer, Double> preciseCalculation) {
+        this.preciseCalculation = preciseCalculation;
     }
 
     public int calculate(int numBlocks) {
         Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
-        int unboundedCount = Math.max(1, rounder.round(calculation.apply(numBlocks)));
+        int unboundedCount = Math.max(1, rounder.round(preciseCalculation.apply(numBlocks)));
         return ConfigHandler.COMMON.canRequireMoreChopsThanBlocks.get()
                 ? unboundedCount
                 : Math.min(numBlocks, unboundedCount);
     }
 
+    @Override
+    public String toString() {
+        return name();
+    }
+
+    @Override
+    public String getString() {
+        return toString();
+    }
 }

@@ -1,24 +1,32 @@
 package ht.treechop.common.config;
 
-public enum Rounder {
-    DOWN {
-        @Override
-        public int round(double value) {
-            return (int) Math.floor(value);
-        }
-    },
-    NEAREST {
-        @Override
-        public int round(double value) {
-            return (int) Math.round(value);
-        }
-    },
-    UP {
-        @Override
-        public int round(double value) {
-            return (int) Math.ceil(value);
-        }
-    };
+import net.minecraft.util.IStringSerializable;
 
-    public abstract int round(double value);
+import java.util.function.Function;
+
+public enum Rounder implements IStringSerializable {
+    DOWN(value -> (int) Math.floor(value)),
+    NEAREST(value -> (int) Math.round(value)),
+    UP(value -> (int) Math.ceil(value))
+    ;
+
+    private final Function<Double, Integer> transformation;
+
+    Rounder(Function<Double, Integer> transformation) {
+        this.transformation = transformation;
+    }
+
+    public int round(double value) {
+        return transformation.apply(value);
+    }
+
+    @Override
+    public String toString() {
+        return name();
+    }
+
+    @Override
+    public String getString() {
+        return toString();
+    }
 }
