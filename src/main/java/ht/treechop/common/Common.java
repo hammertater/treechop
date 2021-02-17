@@ -3,9 +3,6 @@ package ht.treechop.common;
 import ht.treechop.TreeChopMod;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.capabilities.ChopSettingsProvider;
-import ht.treechop.common.compat.NoChopOnRightClick;
-import ht.treechop.common.compat.NoChopRecursion;
-import ht.treechop.common.compat.ProjectMMO;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.event.ChopEvent;
 import ht.treechop.common.network.PacketHandler;
@@ -24,30 +21,30 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
+import static net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
+@EventBusSubscriber(modid = TreeChopMod.MOD_ID, bus = EventBusSubscriber.Bus.FORGE)
 public class Common {
 
+    @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
-        IEventBus eventBus = MinecraftForge.EVENT_BUS;
-        eventBus.addListener(Common::onBreakEvent);
-        eventBus.addListener(Common::onTagsUpdated);
-        eventBus.addGenericListener(Entity.class, Common::onAttachCapabilities);
-
         ConfigHandler.onReload();
         ChopSettingsCapability.register();
         PacketHandler.init();
     }
 
-    private static void onTagsUpdated(TagsUpdatedEvent event) {
+    @SubscribeEvent
+    public static void onTagsUpdated(TagsUpdatedEvent event) {
         TagCollection<Block> blockTags = event.getTagManager().getBlocks();
         ConfigHandler.updateTags(blockTags);
     }
 
-    private static void onBreakEvent(BlockEvent.BreakEvent event) {
+    @SubscribeEvent
+    public static void onBreakEvent(BlockEvent.BreakEvent event) {
         PlayerEntity agent = event.getPlayer();
         ItemStack tool = agent.getHeldItemMainhand();
         BlockState blockState = event.getState();
@@ -56,17 +53,17 @@ public class Common {
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
         if (
                 !isBlockALog(blockState)
-                || !ConfigHandler.COMMON.enabled.get()
-                || !ChopUtil.canChopWithTool(tool)
-                || !ChopUtil.playerWantsToChop(agent)
-                || event.isCanceled()
-                || !(event.getWorld() instanceof World)
+                        || !ConfigHandler.COMMON.enabled.get()
+                        || !ChopUtil.canChopWithTool(tool)
+                        || !ChopUtil.playerWantsToChop(agent)
+                        || event.isCanceled()
+                        || !(event.getWorld() instanceof World)
         ) {
             return;
         }
 
-        World world = (World) event.getWorld();;
-        boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.StartChopEvent(world, agent, pos, blockState));
+        World world = (World) event.getWorld();
+        boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.StartChopEvent(event, world, agent, pos, blockState));
         if (canceled) {
             return;
         }
@@ -93,8 +90,8 @@ public class Common {
         }
     }
 
-    // Helpful reference: https://gist.github.com/FireController1847/c7a50144f45806a996d13efcff468d1b
-    private static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
+    @SubscribeEvent
+    public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         final ResourceLocation loc = new ResourceLocation(TreeChopMod.MOD_ID + "chop_settings_capability");
 
         Entity entity = event.getObject();
