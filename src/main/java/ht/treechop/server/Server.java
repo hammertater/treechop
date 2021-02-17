@@ -1,20 +1,17 @@
 package ht.treechop.server;
 
+import ht.treechop.TreeChopMod;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
+@EventBusSubscriber(modid = TreeChopMod.MOD_ID)
 public class Server {
 
-    public static void onServerSetup(FMLDedicatedServerSetupEvent event) {
-        IEventBus eventBus = MinecraftForge.EVENT_BUS;
-        eventBus.addListener(Server::onPlayerCloned);
-    }
-
+    @SubscribeEvent
     public static void onPlayerCloned(PlayerEvent.Clone event) {
         if (event.isWasDeath()) {
             PlayerEntity oldPlayer = event.getOriginal();

@@ -19,11 +19,19 @@ import java.util.Map;
 public class NoChopOnRightClick {
 
     private static final Map<Entity, Long> lastRightClickTickByPlayers = new HashMap<>();
+    private static boolean enabled = false;
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
         if (ConfigHandler.COMMON.preventChoppingOnRightClick.get()) {
-            MinecraftForge.EVENT_BUS.register(NoChopOnRightClick.EventHandler.class);
+            enable();
+        }
+    }
+
+    public static void enable() {
+        if (!enabled) {
+            MinecraftForge.EVENT_BUS.register(EventHandler.class);
+            enabled = true;
         }
     }
 

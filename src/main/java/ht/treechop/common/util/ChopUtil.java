@@ -117,10 +117,10 @@ public class ChopUtil {
                 pos1 -> {
                     BlockState blockState = world.getBlockState(pos1);
                     return ((isBlockLeaves(blockState) && !(blockState.getBlock() instanceof LeavesBlock))
-                                ? BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS // Red mushroom caps can be connected diagonally downward
-                                : BlockNeighbors.ADJACENTS)
-                        .asStream(pos1)
-                        .filter(pos2 -> markLeavesToDestroyAndKeepLooking(world, pos2, iterationCounter, leaves));
+                            ? BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS // Red mushroom caps can be connected diagonally downward
+                            : BlockNeighbors.ADJACENTS)
+                            .asStream(pos1)
+                            .filter(pos2 -> markLeavesToDestroyAndKeepLooking(world, pos2, iterationCounter, leaves));
                 },
                 maxNumLeavesBlocks,
                 iterationCounter
@@ -151,7 +151,7 @@ public class ChopUtil {
     }
 
     public static int numChopsToFell(int numBlocks) {
-        return (int) (ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(numBlocks) * ConfigHandler.COMMON.chopCountScale.get());
+        return ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(numBlocks);
     }
 
     public static ChopResult getChopResult(World world, BlockPos blockPos, PlayerEntity agent, int numChops, boolean fellIfPossible, Predicate<BlockPos> logCondition) {
@@ -368,8 +368,8 @@ public class ChopUtil {
     private static ChopResult tryToChopWithoutFelling(World world, BlockPos blockPos, int numChops) {
         return (isBlockChoppable(world, blockPos))
                 ? new ChopResult(Collections.singletonList(
-                        new TreeBlock(world, blockPos, getBlockStateAfterChops(world, blockPos, numChops, true), true)
-                ), false)
+                new TreeBlock(world, blockPos, getBlockStateAfterChops(world, blockPos, numChops, true), true)
+        ), false)
                 : ChopResult.IGNORED;
     }
 

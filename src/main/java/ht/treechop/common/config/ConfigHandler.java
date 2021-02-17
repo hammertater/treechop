@@ -60,7 +60,11 @@ public class ConfigHandler {
         protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeaves;
 
         public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
-        public final ForgeConfigSpec.DoubleValue chopCountScale;
+        public final ForgeConfigSpec.EnumValue<Rounder> chopCountRounding;
+        public final ForgeConfigSpec.BooleanValue canRequireMoreChopsThanBlocks;
+        public final ForgeConfigSpec.DoubleValue logarithmicA;
+        public final ForgeConfigSpec.DoubleValue linearM;
+        public final ForgeConfigSpec.DoubleValue linearB;
 
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppingToolsBlacklist;
 
@@ -105,17 +109,35 @@ public class ConfigHandler {
             builder.push("chopCounting");
             chopCountingAlgorithm = builder
                     .comment("Method to use for computing the number of chops needed to fell a tree")
-                    .defineEnum("chopCountingMethod", ChopCountingAlgorithm.LOGARITHMIC);
-            chopCountScale = builder
-                    .comment("Scales the number of chops (rounding down) required to fell a tree; with chopCountingMethod=LINEAR, this is exactly the number of chops per block")
-                    .defineInRange("chopCountScale", 1.0, 0.0, 1024.0);
+                    .defineEnum("algorithm", ChopCountingAlgorithm.LOGARITHMIC);
+            chopCountRounding = builder
+                    .comment("How to round the number of chops needed to fell a tree; this is more meaningful for smaller trees")
+                    .defineEnum("rounding", Rounder.NEAREST);
+            canRequireMoreChopsThanBlocks = builder
+                    .comment("Whether felling a tree can require more chops than the number of blocks in the tree")
+                    .define("canRequireMoreChopsThanBlocks", false);
+
+            builder.comment("See https://github.com/hammertater/treechop/#logarithmic").push("logarithmic");
+            logarithmicA = builder
+                    .comment("Determines the number of chops required to fell a tree; higher values require more chops for bigger trees")
+                    .defineInRange("a", 10.0, 0.0, 10000.0);
+            builder.pop();
+
+            builder.comment("See https://github.com/hammertater/treechop/#linear").push("linear");
+            linearM = builder
+                    .comment("The number of chops per block required to fell a tree; if chopsPerBlock = 0.5, it will take 50 chops to fell a 100 block tree")
+                    .defineInRange("chopsPerBlock", 1.0, 0.0, 1.0);
+            linearB = builder
+                    .comment("The base number of chops required to fell a tree regardless of its size")
+                    .defineInRange("baseNumChops", 0.0, -10000.0, 10000.0);
+            builder.pop();
             builder.pop();
 
             builder.push("compatibility");
             builder.push("general");
             preventChoppingOnRightClick = builder
-                    .comment("Whether to prevent chopping during right-click actions; fixes a conflict with Carry On (as of carryon-1.16.3-1.15.1.7)")
-                    .define("preventChoppingOnRightClick", true);
+                    .comment("Whether to prevent chopping during right-click actions")
+                    .define("preventChoppingOnRightClick", false);
             preventChopRecursion = builder
                     .comment("Whether to prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")
                     .define("preventChopRecursion", true);
@@ -129,7 +151,7 @@ public class ConfigHandler {
             builder.pop();
             builder.push("specific");
             compatForProjectMMO = builder
-                    .comment("Whether to enable compatibility with ProjectMMO; for example, award XP for chopping")
+                    .comment("Whether to enable compatibility with ProjectMMO; for example, award XP for chopping\nSee https://www.curseforge.com/minecraft/mc-mods/project-mmo")
                     .define("projectMMO", true);
             builder.pop();
             builder.pop();

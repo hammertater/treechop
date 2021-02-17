@@ -4,6 +4,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -39,8 +40,15 @@ public class ChopEvent extends Event {
 
     @Cancelable
     public static class StartChopEvent extends ChopEvent {
-        public StartChopEvent(World world, PlayerEntity player, BlockPos choppedBlockPos, BlockState choppedBlockState) {
+        private BlockEvent.BreakEvent breakEvent;
+
+        public StartChopEvent(BlockEvent.BreakEvent breakEvent, World world, PlayerEntity player, BlockPos choppedBlockPos, BlockState choppedBlockState) {
             super(world, player, choppedBlockPos, choppedBlockState);
+            this.breakEvent = breakEvent;
+        }
+
+        public BlockEvent.BreakEvent getBreakEvent() {
+            return breakEvent;
         }
     }
 

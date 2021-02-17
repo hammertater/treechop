@@ -4,7 +4,6 @@ import ht.treechop.client.Client;
 import ht.treechop.common.Common;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
-import ht.treechop.server.Server;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -34,7 +33,6 @@ public class TreeChopMod {
         modBus.addListener((ModConfig.Reloading e) -> ConfigHandler.onReload());
 
         modBus.addListener(Common::onCommonSetup);
-        modBus.addListener(Server::onServerSetup);
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> Client::init);
 
         ModBlocks.BLOCKS.register(modBus);
