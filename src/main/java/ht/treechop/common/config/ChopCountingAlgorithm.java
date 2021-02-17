@@ -4,14 +4,27 @@ import net.minecraft.util.IStringSerializable;
 
 import java.util.function.Function;
 
+import static java.lang.Math.log;
+
 public enum ChopCountingAlgorithm implements IStringSerializable {
     LINEAR(
             "linear",
-            numBlocks -> numBlocks
+            numBlocks -> {
+                double x = (double) numBlocks;
+                double m = ConfigHandler.COMMON.linearM.get();
+                double b = ConfigHandler.COMMON.linearB.get();
+                Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
+                return rounder.round(m * x + b);
+            }
     ),
     LOGARITHMIC(
             "log",
-            numBlocks -> (int) Math.floor(1 + 6 * log2(1 + ((double) numBlocks - 1) / 8))
+            numBlocks -> {
+                double x = (double) numBlocks;
+                double a = ConfigHandler.COMMON.logarithmicA.get();
+                Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
+                return rounder.round(1 + a * log(1 + (x - 1) / a));
+            }
     );
 
     private final String name;
@@ -36,8 +49,4 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
         return calculation.apply(numBlocks);
     }
 
-    static private double log2(double x) {
-        final double invBase = 1 / (Math.log(2));
-        return Math.log(x) * invBase;
-    }
 }

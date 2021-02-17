@@ -60,7 +60,10 @@ public class ConfigHandler {
         protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeaves;
 
         public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
-        public final ForgeConfigSpec.DoubleValue chopCountScale;
+        public final ForgeConfigSpec.EnumValue<Rounder> chopCountRounding;
+        public final ForgeConfigSpec.DoubleValue logarithmicA;
+        public final ForgeConfigSpec.DoubleValue linearM;
+        public final ForgeConfigSpec.DoubleValue linearB;
 
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppingToolsBlacklist;
 
@@ -105,10 +108,25 @@ public class ConfigHandler {
             builder.push("chopCounting");
             chopCountingAlgorithm = builder
                     .comment("Method to use for computing the number of chops needed to fell a tree")
-                    .defineEnum("chopCountingMethod", ChopCountingAlgorithm.LOGARITHMIC);
-            chopCountScale = builder
-                    .comment("Scales the number of chops (rounding down) required to fell a tree; with chopCountingMethod=LINEAR, this is exactly the number of chops per block")
-                    .defineInRange("chopCountScale", 1.0, 0.0, 1024.0);
+                    .defineEnum("algorithm", ChopCountingAlgorithm.LOGARITHMIC);
+            chopCountRounding = builder
+                    .comment("How to round the number of chops needed to fell a tree; more important for smaller trees")
+                    .defineEnum("rounding", Rounder.NEAREST);
+
+            builder.comment("See https://github.com/hammertater/treechop/README.md#Logarithmic").push("logarithmic");
+            logarithmicA = builder
+                    .comment("Determines the number of chops required to fell a tree; higher values require more chops for bigger trees")
+                    .defineInRange("a", 10.0, 0.0, 10000.0);
+            builder.pop();
+
+            builder.comment("See https://github.com/hammertater/treechop/README.md#Linear").push("linear");
+            linearM = builder
+                    .comment("The number of chops per block required to fell a tree; if chopsPerBlock = 0.5, it will take 50 chops to fell a 100 block tree")
+                    .defineInRange("chopsPerBlock", 1.0, 0.0, 1.0);
+            linearB = builder
+                    .comment("The base number of chops required to fell a tree regardless of its size")
+                    .defineInRange("baseNumChops", 0.0, -10000.0, 10000.0);
+            builder.pop();
             builder.pop();
 
             builder.push("compatibility");
