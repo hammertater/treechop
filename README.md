@@ -12,7 +12,7 @@ The number of chops required to fell a tree can depend on the size of the tree (
 The linear algorithm follows the function
 
 <!--\#chops = \mathbf{chopsPerBlock} \cdot \#blocks + \mathbf{baseNumChops}-->
-![linear_formula](docs/linear_formula.svg)
+![linear_formula](docs/linear_formula.png)
 
 where the actual number of chops required is rounded according to the `chopCountRounding` configuration.
 
@@ -23,7 +23,7 @@ If `chopsPerBlock > 1` or `baseNumChops > 0`, then you should consider the setti
 The logarithmic algorithm follows the function
 
 <!--\#chops = 1 + \mathbf{a} \cdot log \left(1 + \frac{\#blocks - 1}{\mathbf{a}} \right)-->
-![log formula](docs/log_formula.svg)
+![log formula](docs/log_formula.png)
 
 where the parameter `a` controls the steepness of the curve.
 
