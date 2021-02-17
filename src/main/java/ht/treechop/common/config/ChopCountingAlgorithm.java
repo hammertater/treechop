@@ -38,12 +38,7 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
     }
 
     @Override
-    public String toString() {
-        return name();
-    }
-
-    @Override
     public String getString() {
-        return toString();
+        return name();
     }
 }

@@ -18,7 +18,6 @@ public class CarryOn {
         if (ConfigHandler.COMMON.compatForCarryOn.get() && ModList.get().isLoaded("carryon")) {
             if (pickUpEventIsDefined()) {
                 MinecraftForge.EVENT_BUS.register(EventHandler.class);
-                TreeChopMod.LOGGER.info("Enabling Carry On compatibility");
             } else {
                 TreeChopMod.LOGGER.info("Disabling chopping during right-click actions to fix conflicts with Carry On (please update Carry On to carryon-1.16.5-1.15.2.9 or later for better compatibility)");
                 NoChopOnRightClick.enable();
