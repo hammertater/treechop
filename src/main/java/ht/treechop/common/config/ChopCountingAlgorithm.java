@@ -13,8 +13,7 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
                 double x = (double) numBlocks;
                 double m = ConfigHandler.COMMON.linearM.get();
                 double b = ConfigHandler.COMMON.linearB.get();
-                Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
-                return rounder.round(m * x + b);
+                return m * x + b;
             }
     ),
     LOGARITHMIC(
@@ -22,15 +21,14 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
             numBlocks -> {
                 double x = (double) numBlocks;
                 double a = ConfigHandler.COMMON.logarithmicA.get();
-                Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
-                return rounder.round(1 + a * log(1 + (x - 1) / a));
+                return 1 + a * log(1 + (x - 1) / a);
             }
     );
 
     private final String name;
-    private final Function<Integer, Integer> calculation;
+    private final Function<Integer, Double> calculation;
 
-    ChopCountingAlgorithm(String name, Function<Integer, Integer> calculation) {
+    ChopCountingAlgorithm(String name, Function<Integer, Double> calculation) {
         this.name = name;
         this.calculation = calculation;
     }
@@ -46,7 +44,11 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
     }
 
     public int calculate(int numBlocks) {
-        return calculation.apply(numBlocks);
+        Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
+        int unboundedCount = Math.max(1, rounder.round(calculation.apply(numBlocks)));
+        return ConfigHandler.COMMON.canRequireMoreChopsThanBlocks.get()
+                ? unboundedCount
+                : Math.min(numBlocks, unboundedCount);
     }
 
 }

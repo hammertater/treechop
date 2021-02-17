@@ -61,6 +61,7 @@ public class ConfigHandler {
 
         public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
         public final ForgeConfigSpec.EnumValue<Rounder> chopCountRounding;
+        public final ForgeConfigSpec.BooleanValue canRequireMoreChopsThanBlocks;
         public final ForgeConfigSpec.DoubleValue logarithmicA;
         public final ForgeConfigSpec.DoubleValue linearM;
         public final ForgeConfigSpec.DoubleValue linearB;
@@ -113,6 +114,9 @@ public class ConfigHandler {
             chopCountRounding = builder
                     .comment("How to round the number of chops needed to fell a tree; more important for smaller trees")
                     .defineEnum("rounding", Rounder.NEAREST);
+            canRequireMoreChopsThanBlocks = builder
+                    .comment("Whether felling a tree can require more chops than the number of blocks in the tree")
+                    .define("canRequireMoreChopsThanBlocks", false);
 
             builder.comment("See https://github.com/hammertater/treechop/README.md#Logarithmic").push("logarithmic");
             logarithmicA = builder
