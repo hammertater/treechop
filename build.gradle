@@ -101,6 +101,7 @@ dependencies {
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
     // compile "some.group:artifact:version"
+    compileOnly fg.deobf("curse.maven:carry-on:3206755" )
     compileOnly fg.deobf("curse.maven:project-mmo:3157194")
 //    runtimeOnly fg.deobf("curse.maven:project-mmo:3157194")
 //    compileOnly fg.deobf("curse.maven:exotic-birds:3178599")
