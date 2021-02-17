@@ -37,7 +37,8 @@ public class Common {
         PacketHandler.init();
     }
 
-    private static void onTagsUpdated(TagsUpdatedEvent event) {
+    @SubscribeEvent
+    public static void onTagsUpdated(TagsUpdatedEvent event) {
         TagCollection<Block> blockTags = event.getTagManager().getBlocks();
         ConfigHandler.updateTags(blockTags);
     }
@@ -61,7 +62,7 @@ public class Common {
             return;
         }
 
-        World world = (World) event.getWorld();;
+        World world = (World) event.getWorld();
         boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.StartChopEvent(event, world, agent, pos, blockState));
         if (canceled) {
             return;
