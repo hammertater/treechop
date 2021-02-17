@@ -7,7 +7,6 @@ import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.config.SneakBehavior;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Util;
 import net.minecraftforge.fml.network.NetworkEvent;
 import org.apache.commons.lang3.EnumUtils;
 
