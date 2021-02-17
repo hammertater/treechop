@@ -21,7 +21,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -64,7 +63,7 @@ public class Common {
         }
 
         World world = (World) event.getWorld();;
-        boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.StartChopEvent(world, agent, pos, blockState));
+        boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.StartChopEvent(event, world, agent, pos, blockState));
         if (canceled) {
             return;
         }

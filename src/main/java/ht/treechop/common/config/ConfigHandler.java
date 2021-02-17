@@ -70,6 +70,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
         public final ForgeConfigSpec.BooleanValue compatForProjectMMO;
+        public final ForgeConfigSpec.BooleanValue compatForCarryOn;
 
         public Common(ForgeConfigSpec.Builder builder) {
             builder.push("permissions");
@@ -132,8 +133,8 @@ public class ConfigHandler {
             builder.push("compatibility");
             builder.push("general");
             preventChoppingOnRightClick = builder
-                    .comment("Whether to prevent chopping during right-click actions; fixes a conflict with Carry On (as of carryon-1.16.3-1.15.1.7)")
-                    .define("preventChoppingOnRightClick", true);
+                    .comment("Whether to prevent chopping during right-click actions; automatically enabled if compatibility.carryOn = true with Carry On versions prior to carryon-1.16.5-1.15.2.9")
+                    .define("preventChoppingOnRightClick", false);
             preventChopRecursion = builder
                     .comment("Whether to prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")
                     .define("preventChopRecursion", true);
@@ -147,8 +148,11 @@ public class ConfigHandler {
             builder.pop();
             builder.push("specific");
             compatForProjectMMO = builder
-                    .comment("Whether to enable compatibility with ProjectMMO; for example, award XP for chopping")
+                    .comment("Whether to enable compatibility with ProjectMMO; for example, award XP for chopping\n See https://www.curseforge.com/minecraft/mc-mods/project-mmo")
                     .define("projectMMO", true);
+            compatForCarryOn = builder
+                    .comment("Whether to prevent conflicts with Carry On when it is configured to allow picking up logs\nSee https://www.curseforge.com/minecraft/mc-mods/carry-on")
+                    .define("carryOn", true);
             builder.pop();
             builder.pop();
         }
