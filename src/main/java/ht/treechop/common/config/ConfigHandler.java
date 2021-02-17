@@ -112,7 +112,7 @@ public class ConfigHandler {
                     .comment("Method to use for computing the number of chops needed to fell a tree")
                     .defineEnum("algorithm", ChopCountingAlgorithm.LOGARITHMIC);
             chopCountRounding = builder
-                    .comment("How to round the number of chops needed to fell a tree; more important for smaller trees")
+                    .comment("How to round the number of chops needed to fell a tree; this is more meaningful for smaller trees")
                     .defineEnum("rounding", Rounder.NEAREST);
             canRequireMoreChopsThanBlocks = builder
                     .comment("Whether felling a tree can require more chops than the number of blocks in the tree")
@@ -152,7 +152,7 @@ public class ConfigHandler {
             builder.pop();
             builder.push("specific");
             compatForProjectMMO = builder
-                    .comment("Whether to enable compatibility with ProjectMMO; for example, award XP for chopping\n See https://www.curseforge.com/minecraft/mc-mods/project-mmo")
+                    .comment("Whether to enable compatibility with ProjectMMO; for example, award XP for chopping\nSee https://www.curseforge.com/minecraft/mc-mods/project-mmo")
                     .define("projectMMO", true);
             compatForCarryOn = builder
                     .comment("Whether to prevent conflicts with Carry On when it is configured to allow picking up logs\nSee https://www.curseforge.com/minecraft/mc-mods/carry-on")
