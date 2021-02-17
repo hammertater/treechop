@@ -30,11 +30,15 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
     }
 
     public int calculate(int numBlocks) {
-        Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
-        int unboundedCount = Math.max(1, rounder.round(preciseCalculation.apply(numBlocks)));
-        return ConfigHandler.COMMON.canRequireMoreChopsThanBlocks.get()
-                ? unboundedCount
-                : Math.min(numBlocks, unboundedCount);
+        if (numBlocks == 1) {
+            return 1;
+        } else {
+            Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
+            int unboundedCount = Math.max(1, rounder.round(preciseCalculation.apply(numBlocks)));
+            return ConfigHandler.COMMON.canRequireMoreChopsThanBlocks.get()
+                    ? unboundedCount
+                    : Math.min(numBlocks, unboundedCount);
+        }
     }
 
     @Override
