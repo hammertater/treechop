@@ -18,7 +18,7 @@ The linear algorithm follows the function
 <!--\#chops = \mathbf{chopsPerBlock} \cdot \#blocks + \mathbf{baseNumChops}-->
 ![linear_formula](docs/linear_formula.png)
 
-where the actual number of chops required is rounded according to the `chopCountRounding` configuration.
+where `chopsPerBlock` and `baseNumChops` are configurable and the actual number of chops required is rounded either `UP`, `DOWN`, or to the `NEAREST` whole number depending on the `chopCountRounding` configuration.
 
 If `chopsPerBlock > 1` or `baseNumChops > 0`, then you should consider the setting for `canRequireMoreChopsThanBlocks`, which determines whether the number of chops required to fell a tree can exceed the number of blocks in the tree. For example, setting `baseNumChops = 8`, `chopsPerBlock = 0`, and `canRequireMoreChopsThanBlocks = true` would mean that all trees fall after exactly 8 chops (the number of chops needed to whittle a single log block down to nothing).
 
@@ -29,7 +29,7 @@ The logarithmic algorithm follows the function
 <!--\#chops = 1 + \mathbf{a} \cdot log \left(1 + \frac{\#blocks - 1}{\mathbf{a}} \right)-->
 ![log formula](docs/log_formula.png)
 
-where the parameter `a` controls the steepness of the curve.
+where the parameter `a` is configurable and controls the steepness of the curve as the tree size (*#blocks*) increases.
 
 The figure and tables below show how `a` affects the number of chops required for different tree sizes. The default value `a = 10` results in the gray curve. At the extremes, if `a = 0`, then any size tree will only require one chop, and if `a = ∞`, then felling a tree will require the same amount of chops as there are blocks (the red curve).   
 
