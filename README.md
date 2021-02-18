@@ -11,7 +11,11 @@ Let me know [here!](https://github.com/hammertater/treechop/issues/44)
 
 The number of chops required to fell a tree can depend on the size of the tree (the number of log blocks it contains), and is very configurable. Below, configuration options are highlighted `like this` and can be found in the `/[your minecraft folder]/config/treechop-common.toml` file after starting Minecraft with TreeChop installed at least once.
 
+The `algorithm` used to determine the number of chops can be set to any of the options below, where each comes with its own set of parameters.
+
 ### Linear
+
+`algorithm = "LINEAR"`
 
 The linear algorithm follows the function
 
@@ -24,6 +28,9 @@ If `chopsPerBlock > 1` or `baseNumChops > 0`, then you should consider the setti
 
 
 ### Logarithmic
+
+`algorithm = "LOGARITHMIC"`
+
 The logarithmic algorithm follows the function
 
 <!--\#chops = 1 + \mathbf{a} \cdot log \left(1 + \frac{\#blocks - 1}{\mathbf{a}} \right)-->
