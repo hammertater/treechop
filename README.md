@@ -5,7 +5,7 @@ For a far more fun description, see https://www.curseforge.com/minecraft/mc-mods
 ## Configuring chop counting (version 0.13.0 and later)
 <!-- For generating equation svgs: https://www.codecogs.com/latex/eqneditor.php-->
 
-The number of chops required to fell a tree can depend on the size of the tree (the number of log blocks it contains).
+The number of chops required to fell a tree can depend on the size of the tree (the number of log blocks it contains), and is very configurable. Below, configuration options are highlighted `like this` and can be found in the `/[your minecraft folder]/config/treechop-common.toml` file after starting Minecraft with TreeChop installed at least once.
 
 ### Linear
 
