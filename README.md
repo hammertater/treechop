@@ -2,6 +2,10 @@
 
 For a far more fun description, see https://www.curseforge.com/minecraft/mc-mods/treechop.
 
+## Are trees leaving behind floating blocks?
+
+Let me know [here!](https://github.com/hammertater/treechop/issues/44)
+
 ## Configuring chop counting (version 0.13.0 and later)
 <!-- For generating equation svgs: https://www.codecogs.com/latex/eqneditor.php-->
 
