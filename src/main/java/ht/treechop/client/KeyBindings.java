@@ -20,11 +20,12 @@ public class KeyBindings {
         registerKeyBinding("toggle_chopping", getKey(GLFW.GLFW_KEY_N), Client::toggleChopping);
         registerKeyBinding("toggle_felling", getKey(GLFW.GLFW_KEY_UNKNOWN), Client::toggleFelling);
         registerKeyBinding("cycle_sneak_behavior", getKey(GLFW.GLFW_KEY_UNKNOWN), Client::cycleSneakBehavior);
+        registerKeyBinding("open_settings_overlay", getKey(GLFW.GLFW_KEY_M), Client::openSettingsOverlay);
     }
 
     private static ActionableKeyBinding registerKeyBinding(String name, InputMappings.Input defaultKey, Runnable callback) {
         ActionableKeyBinding keyBinding = new ActionableKeyBinding(
-                String.format("key.%s.%s", TreeChopMod.MOD_ID, name),
+                String.format("%s.key.%s", TreeChopMod.MOD_ID, name),
                 defaultKey,
                 callback
         );

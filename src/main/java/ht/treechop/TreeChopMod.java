@@ -1,6 +1,7 @@
 package ht.treechop;
 
 import ht.treechop.client.Client;
+import ht.treechop.client.gui.screen.ConfigScreen;
 import ht.treechop.common.Common;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
@@ -10,6 +11,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -36,6 +38,11 @@ public class TreeChopMod {
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> Client::init);
 
         ModBlocks.BLOCKS.register(modBus);
+
+        ModLoadingContext.get().registerExtensionPoint(
+                ExtensionPoint.CONFIGGUIFACTORY,
+                () -> ConfigScreen::new
+        );
     }
 
     public static ITextComponent makeText(String string) {

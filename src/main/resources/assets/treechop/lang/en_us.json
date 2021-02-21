@@ -1,6 +1,23 @@
 {
-  "block.treechop.chopped_log": "Chopped Log",
-  "key.treechop.toggle_chopping": "Toggle Chopping",
-  "key.treechop.toggle_felling": "Toggle Felling",
-  "key.treechop.cycle_sneak_behavior": "Cycle Sneak Behavior"
+  "treechop.block.chopped_log": "Chopped Log",
+  "treechop.key.cycle_sneak_behavior": "Cycle Sneak Behavior",
+  "treechop.key.toggle_chopping": "Toggle Chopping",
+  "treechop.key.toggle_felling": "Toggle Felling",
+  "treechop.key.open_settings_overlay": "Open Settings Overlay",
+  "treechop.gui.settings.button.chopping": "CHOPPING",
+  "treechop.gui.settings.button.felling": "FELLING",
+  "treechop.gui.settings.button.no": "NO",
+  "treechop.gui.settings.button.nothing": "NEITHER",
+  "treechop.gui.settings.button.off": "OFF",
+  "treechop.gui.settings.button.on": "ON",
+  "treechop.gui.settings.button.yes": "YES",
+  "treechop.gui.settings.label.chop_in_creative_mode": "Chop in creative mode",
+  "treechop.gui.settings.label.chopping": "Chopping enabled",
+  "treechop.gui.settings.label.felling": "Felling",
+  "treechop.gui.settings.label.only_chop_trees_with_leaves": "Trees need leaves",
+  "treechop.gui.settings.label.sneaking_inverts": "Sneaking inverts",
+  "treechop.gui.settings.title": "%s Settings",
+  "treechop.sneak_behavior.invert_chopping": "INVERT CHOPPING",
+  "treechop.sneak_behavior.invert_felling": "INVERT FELLING",
+  "treechop.sneak_behavior.none": "NONE"
 }
