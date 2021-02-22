@@ -1,7 +1,8 @@
 package ht.treechop.common.capabilities;
 
 import ht.treechop.TreeChopMod;
-import ht.treechop.common.config.SneakBehavior;
+import ht.treechop.common.settings.SneakBehavior;
+import ht.treechop.common.settings.ChopSettings;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;

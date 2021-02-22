@@ -1,6 +1,7 @@
 package ht.treechop.common.config;
 
-import ht.treechop.common.capabilities.ChopSettings;
+import ht.treechop.common.settings.ChopSettings;
+import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.block.Block;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ITag;

@@ -13,7 +13,7 @@ public class StickyWidget extends Widget {
     private final Runnable onPress;
 
     public StickyWidget(int x, int y, int width, int height, ITextComponent name, Runnable onPress, Supplier<Boolean> stateSupplier) {
-        super(x, y, width, height, name);
+        super(x, y, Math.max(width, GUIUtil.getMinimumButtonWidth(name)), Math.max(height, GUIUtil.BUTTON_HEIGHT), name);
         this.onPress = onPress;
         this.stateSupplier = stateSupplier;
     }

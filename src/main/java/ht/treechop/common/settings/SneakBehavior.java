@@ -1,4 +1,4 @@
-package ht.treechop.common.config;
+package ht.treechop.common.settings;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.IStringSerializable;

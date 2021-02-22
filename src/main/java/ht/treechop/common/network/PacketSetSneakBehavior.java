@@ -1,10 +1,10 @@
 package ht.treechop.common.network;
 
 import ht.treechop.TreeChopMod;
-import ht.treechop.common.capabilities.ChopSettings;
+import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.config.SneakBehavior;
+import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Util;

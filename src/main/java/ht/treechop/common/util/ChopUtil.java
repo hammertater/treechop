@@ -4,7 +4,7 @@ import ht.treechop.TreeChopMod;
 import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.block.IChoppable;
-import ht.treechop.common.capabilities.ChopSettings;
+import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;

@@ -3,7 +3,7 @@ package ht.treechop.client;
 import ht.treechop.TreeChopMod;
 import ht.treechop.client.gui.screen.OverlayScreen;
 import ht.treechop.client.model.ChoppedLogBakedModel;
-import ht.treechop.common.capabilities.ChopSettings;
+import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.network.PacketEnableChopping;

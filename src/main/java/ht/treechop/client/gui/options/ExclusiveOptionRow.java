@@ -15,12 +15,32 @@ import java.util.stream.Collectors;
 
 public class ExclusiveOptionRow extends OptionRow {
 
-    private List<Widget> widgets;
+    private final List<Widget> widgets;
 
     protected ExclusiveOptionRow(Collection<Widget> widgets) {
         this.widgets = Lists.newArrayList(widgets);
     }
 
+    @Override
+    public void resize(int width) {
+        if (getMinimumWidth() < width) {
+            int targetWidth = width / widgets.size();
+            List<Widget> smallerWidgets = widgets.stream().filter(widget -> widget.getWidth() <= targetWidth).collect(Collectors.toList());
+            List<Widget> biggerWidgets = widgets.stream().filter(widget -> widget.getWidth() > targetWidth).collect(Collectors.toList());
+            int totalWidthForSmallers = width - biggerWidgets.stream().map(Widget::getWidth).reduce(Integer::sum).orElse(0);
+            int i = 0;
+            // Do this incrementally to account for rounding errors
+            for (Widget widget : smallerWidgets) {
+                double lower = (double) i / smallerWidgets.size();
+                double upper = (double) (i + 1) / smallerWidgets.size();
+                int widgetWidth = (int) (totalWidthForSmallers * (upper - lower));
+                widget.setWidth(widgetWidth);
+                ++i;
+            }
+        }
+    }
+
+    @SuppressWarnings("NullableProblems")
     @Override
     public List<? extends IGuiEventListener> getEventListeners() {
         return widgets;
@@ -28,19 +48,18 @@ public class ExclusiveOptionRow extends OptionRow {
 
     @Override
     public void render(MatrixStack matrixStack, int entryIdx, int top, int left, int width, int height, int mouseX, int mouseY, boolean someBoolean, float partialTicks) {
-        int i = 0;
+        int x = left;
         for (Widget widget : widgets) {
-            widget.x = getButtonX(left, width, i);
+            widget.x = x;
             widget.y = top;
-            widget.setWidth(getButtonX(left, width, i + 1) - widget.x);
-            widget.setHeight(height);
             widget.render(matrixStack, mouseX, mouseY, partialTicks);
-            ++i;
+            x += widget.getWidth();
         }
     }
 
-    private int getButtonX(int left, int width, int buttonIndex) {
-        return left + (int) ((double) width * buttonIndex / widgets.size());
+    @Override
+    protected int getMinimumWidth() {
+        return widgets.stream().map(Widget::getWidth).reduce(Integer::sum).orElse(0);
     }
 
     public static class Builder {

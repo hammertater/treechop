@@ -7,12 +7,15 @@ import ht.treechop.client.gui.options.ExclusiveOptionRow;
 import ht.treechop.client.gui.options.LabeledOptionRow;
 import ht.treechop.client.gui.options.OptionList;
 import ht.treechop.client.gui.util.GUIUtil;
-import ht.treechop.common.config.SneakBehavior;
+import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+
+import java.util.Collection;
+import java.util.LinkedList;
 
 public abstract class ModSettingsScreen extends Screen {
 
@@ -21,6 +24,7 @@ public abstract class ModSettingsScreen extends Screen {
     private static final int ROW_HEIGHT = 25;
 
     protected OptionList optionsRowList;
+    private Button doneButton;
 
     public ModSettingsScreen() {
         super(new TranslationTextComponent("treechop.gui.settings.title", TreeChopMod.MOD_NAME));
@@ -30,27 +34,20 @@ public abstract class ModSettingsScreen extends Screen {
     protected void init() {
         super.init();
 
-        this.optionsRowList = addListener(new OptionList(
-                minecraft,
-                width,
-                height,
-                TOP_Y,
-                height - BOTTOM_Y_OFFSET,
-                ROW_HEIGHT
-        ));
+        Collection<LabeledOptionRow> optionRows = new LinkedList<>();
 
-        optionsRowList.addRow(
+        optionRows.add(
                 new LabeledOptionRow(
                         font,
-                        new TranslationTextComponent("treechop.gui.settings.label.chopping"),
+                        new TranslationTextComponent("treechop.gui.settings.label.chopping_enabled"),
                         new ExclusiveOptionRow.Builder()
                                 .add(
-                                        new TranslationTextComponent("treechop.gui.settings.button.on"),
+                                        new TranslationTextComponent("gui.yes"),
                                         () -> Client.getChopSettings().setChoppingEnabled(true),
                                         () -> Client.getChopSettings().getChoppingEnabled()
                                 )
                                 .add(
-                                        new TranslationTextComponent("treechop.gui.settings.button.off"),
+                                        new TranslationTextComponent("gui.no"),
                                         () -> Client.getChopSettings().setChoppingEnabled(false),
                                         () -> !Client.getChopSettings().getChoppingEnabled()
                                 )
@@ -58,18 +55,18 @@ public abstract class ModSettingsScreen extends Screen {
                 )
         );
 
-        this.optionsRowList.addRow(
+        optionRows.add(
                 new LabeledOptionRow(
                         font,
-                        new TranslationTextComponent("treechop.gui.settings.label.felling"),
+                        new TranslationTextComponent("treechop.gui.settings.label.felling_enabled"),
                         new ExclusiveOptionRow.Builder()
                                 .add(
-                                        new TranslationTextComponent("treechop.gui.settings.button.on"),
+                                        new TranslationTextComponent("gui.yes"),
                                         () -> Client.getChopSettings().setFellingEnabled(true),
                                         () -> Client.getChopSettings().getFellingEnabled()
                                 )
                                 .add(
-                                        new TranslationTextComponent("treechop.gui.settings.button.off"),
+                                        new TranslationTextComponent("gui.no"),
                                         () -> Client.getChopSettings().setFellingEnabled(false),
                                         () -> !Client.getChopSettings().getFellingEnabled()
                                 )
@@ -77,10 +74,10 @@ public abstract class ModSettingsScreen extends Screen {
                 )
         );
 
-        this.optionsRowList.addRow(
+        optionRows.add(
                 new LabeledOptionRow(
                         font,
-                        new TranslationTextComponent("treechop.gui.settings.label.sneaking_inverts"),
+                        new TranslationTextComponent("treechop.gui.settings.label.sneaking_affects"),
                         new ExclusiveOptionRow.Builder()
                                 .add(
                                         new TranslationTextComponent("treechop.gui.settings.button.chopping"),
@@ -101,18 +98,18 @@ public abstract class ModSettingsScreen extends Screen {
                 )
         );
 
-        this.optionsRowList.addRow(
+        optionRows.add(
                 new LabeledOptionRow(
                         font,
                         new TranslationTextComponent("treechop.gui.settings.label.only_chop_trees_with_leaves"),
                         new ExclusiveOptionRow.Builder()
                                 .add(
-                                        new TranslationTextComponent("treechop.gui.settings.button.yes"),
+                                        new TranslationTextComponent("gui.yes"),
                                         () -> Client.getChopSettings().setTreesMustHaveLeaves(true),
                                         () -> Client.getChopSettings().getTreesMustHaveLeaves()
                                 )
                                 .add(
-                                        new TranslationTextComponent("treechop.gui.settings.button.no"),
+                                        new TranslationTextComponent("gui.no"),
                                         () -> Client.getChopSettings().setTreesMustHaveLeaves(false),
                                         () -> !Client.getChopSettings().getTreesMustHaveLeaves()
                                 )
@@ -120,18 +117,18 @@ public abstract class ModSettingsScreen extends Screen {
                 )
         );
 
-        this.optionsRowList.addRow(
+        optionRows.add(
                 new LabeledOptionRow(
                         font,
                         new TranslationTextComponent("treechop.gui.settings.label.chop_in_creative_mode"),
                         new ExclusiveOptionRow.Builder()
                                 .add(
-                                        new TranslationTextComponent("treechop.gui.settings.button.yes"),
+                                        new TranslationTextComponent("gui.yes"),
                                         () -> Client.getChopSettings().setChopInCreativeMode(true),
                                         () -> Client.getChopSettings().getChopInCreativeMode()
                                 )
                                 .add(
-                                        new TranslationTextComponent("treechop.gui.settings.button.no"),
+                                        new TranslationTextComponent("gui.no"),
                                         () -> Client.getChopSettings().setChopInCreativeMode(false),
                                         () -> !Client.getChopSettings().getChopInCreativeMode()
                                 )
@@ -139,10 +136,20 @@ public abstract class ModSettingsScreen extends Screen {
                 )
         );
 
+        this.optionsRowList = addListener(new OptionList(
+                minecraft,
+                width,
+                height,
+                TOP_Y,
+                height - BOTTOM_Y_OFFSET,
+                ROW_HEIGHT,
+                optionRows
+        ));
+
         final int doneButtonWidth = 200;
-        addButton(new Button(
-                (doneButtonWidth - 200) / 2,
-                height - 26,
+        doneButton = addButton(new Button(
+                (width - doneButtonWidth) / 2,
+                getDoneButtonTop(),
                 doneButtonWidth,
                 GUIUtil.BUTTON_HEIGHT,
                 ITextComponent.getTextComponentOrEmpty(I18n.format("gui.done")),
@@ -152,10 +159,20 @@ public abstract class ModSettingsScreen extends Screen {
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        doneButton.y = getDoneButtonTop();
+
         this.renderBackground(matrixStack);
         optionsRowList.render(matrixStack, mouseX, mouseY, partialTicks);
-        drawCenteredString(matrixStack, this.font, this.title, this.width / 2, 20, 16777215);
+        drawCenteredString(matrixStack, this.font, this.title, this.width / 2, getTitleTop(), 16777215);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         // TODO: check out ModSettingsScreen.func_243293_a for draw reordering; might be important for tooltips
+    }
+
+    protected int getDoneButtonTop() {
+        return height - 26;
+    }
+
+    protected int getTitleTop() {
+        return 20;
     }
 }

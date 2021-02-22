@@ -14,13 +14,28 @@ import java.util.stream.Stream;
 
 public class LabeledOptionRow extends OptionRow {
 
-    private static final double LABEL_WIDTH_FRACTION = 0.3;
     private final TextWidget label;
     private final OptionRow options;
+    private int leftColumnWidth;
+    private int rightcolumnWidth;
 
     public LabeledOptionRow(FontRenderer font, ITextComponent label, OptionRow options) {
         this.label = new TextWidget(0, 0, font, label);
         this.options = options;
+        this.leftColumnWidth = getLeftColumnWidth();
+        this.rightcolumnWidth = getRightColumnWidth();
+    }
+
+    public int getMinimumWidth() {
+        return getLeftColumnWidth() + options.getMinimumWidth();
+    }
+
+    public int getLeftColumnWidth() {
+        return label.getWidth() + 8;
+    }
+
+    public int getRightColumnWidth() {
+        return options.getMinimumWidth();
     }
 
     @Override
@@ -31,8 +46,11 @@ public class LabeledOptionRow extends OptionRow {
     }
 
     @Override
+    public void resize(int width) {
+    }
+
+    @Override
     public void render(MatrixStack matrixStack, int entryIdx, int top, int left, int width, int height, int mouseX, int mouseY, boolean someBoolean, float partialTicks) {
-        int labelWidth = (int) (width * LABEL_WIDTH_FRACTION);
         this.label.x = left;
         this.label.y = top + (height - 8) / 2;
         this.label.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -40,8 +58,8 @@ public class LabeledOptionRow extends OptionRow {
                 matrixStack,
                 entryIdx,
                 top,
-                left + labelWidth,
-                width - labelWidth,
+                left + leftColumnWidth,
+                rightcolumnWidth,
                 height,
                 mouseX,
                 mouseY,
@@ -50,4 +68,9 @@ public class LabeledOptionRow extends OptionRow {
         );
     }
 
+    public void setColumnWidths(int biggestLeftColumnWidth, int biggestRightColumnWidth) {
+        this.leftColumnWidth = biggestLeftColumnWidth;
+        this.rightcolumnWidth = biggestRightColumnWidth;
+        options.resize(biggestRightColumnWidth);
+    }
 }
