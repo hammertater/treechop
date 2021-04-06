@@ -2,30 +2,41 @@
 
 For a far more fun description, see https://www.curseforge.com/minecraft/mc-mods/treechop.
 
+## Are trees leaving behind floating blocks?
+
+Let me know [here!](https://github.com/hammertater/treechop/issues/44)
+
 ## Configuring chop counting (version 0.13.0 and later)
 <!-- For generating equation svgs: https://www.codecogs.com/latex/eqneditor.php-->
 
-The number of chops required to fell a tree can depend on the size of the tree (the number of log blocks it contains).
+The number of chops required to fell a tree can depend on the size of the tree (the number of log blocks it contains), and is very configurable. Below, configuration options are highlighted `like this` and can be found in the `/[your minecraft folder]/config/treechop-common.toml` file after starting Minecraft with TreeChop installed at least once.
+
+The `algorithm` used to determine the number of chops can be set to any of the options below, where each comes with its own set of parameters.
 
 ### Linear
+
+`algorithm = "LINEAR"`
 
 The linear algorithm follows the function
 
 <!--\#chops = \mathbf{chopsPerBlock} \cdot \#blocks + \mathbf{baseNumChops}-->
 ![linear_formula](docs/linear_formula.png)
 
-where the actual number of chops required is rounded according to the `chopCountRounding` configuration.
+where `chopsPerBlock` and `baseNumChops` are configurable and the actual number of chops required is rounded either `UP`, `DOWN`, or to the `NEAREST` whole number depending on the `chopCountRounding` configuration.
 
 If `chopsPerBlock > 1` or `baseNumChops > 0`, then you should consider the setting for `canRequireMoreChopsThanBlocks`, which determines whether the number of chops required to fell a tree can exceed the number of blocks in the tree. For example, setting `baseNumChops = 8`, `chopsPerBlock = 0`, and `canRequireMoreChopsThanBlocks = true` would mean that all trees fall after exactly 8 chops (the number of chops needed to whittle a single log block down to nothing).
 
 
 ### Logarithmic
+
+`algorithm = "LOGARITHMIC"`
+
 The logarithmic algorithm follows the function
 
 <!--\#chops = 1 + \mathbf{a} \cdot log \left(1 + \frac{\#blocks - 1}{\mathbf{a}} \right)-->
 ![log formula](docs/log_formula.png)
 
-where the parameter `a` controls the steepness of the curve.
+where the parameter `a` is configurable and controls the steepness of the curve as the tree size (*#blocks*) increases.
 
 The figure and tables below show how `a` affects the number of chops required for different tree sizes. The default value `a = 10` results in the gray curve. At the extremes, if `a = 0`, then any size tree will only require one chop, and if `a = ∞`, then felling a tree will require the same amount of chops as there are blocks (the red curve).   
 
