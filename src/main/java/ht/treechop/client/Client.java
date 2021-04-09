@@ -1,13 +1,14 @@
 package ht.treechop.client;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.client.gui.ChopIndicator;
 import ht.treechop.client.gui.screen.InGameSettingsScreen;
 import ht.treechop.client.model.ChoppedLogBakedModel;
 import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
-import ht.treechop.common.network.ClientRequestSettingsPacket;
 import ht.treechop.common.network.PacketHandler;
+import ht.treechop.common.network.ClientRequestSettingsPacket;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.client.Minecraft;
@@ -16,6 +17,8 @@ import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -27,11 +30,16 @@ import org.lwjgl.glfw.GLFW;
 public class Client {
 
     private static final ClientChopSettings chopSettings = new ClientChopSettings();
+    private static final ChopIndicator chopIndicator = new ChopIndicator();
 
     public static void init() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         if (ConfigHandler.CLIENT.useProceduralChoppedModels.get()) {
             modBus.addListener(ChoppedLogBakedModel::overrideBlockStateModels);
+        }
+
+        if (ConfigHandler.CLIENT.showChoppingIndicators.get()) {
+            MinecraftForge.EVENT_BUS.addListener(Client::renderOverlay);
         }
 
         KeyBindings.init();
@@ -85,6 +93,16 @@ public class Client {
 
     public static void openSettingsOverlay() {
         Minecraft.getInstance().displayGuiScreen(new InGameSettingsScreen());
+    }
+
+    public static void renderOverlay(RenderGameOverlayEvent.Post event) {
+        if (event.getType() == RenderGameOverlayEvent.ElementType.CROSSHAIRS) {
+            chopIndicator.render(
+                    event.getWindow(),
+                    event.getMatrixStack(),
+                    event.getPartialTicks()
+            );
+        }
     }
 
 }

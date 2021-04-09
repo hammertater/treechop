@@ -180,6 +180,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue treesMustHaveLeaves;
         public final ForgeConfigSpec.BooleanValue chopInCreativeMode;
         public final ForgeConfigSpec.BooleanValue useProceduralChoppedModels;
+        public final ForgeConfigSpec.BooleanValue showChoppingIndicators;
         public final ForgeConfigSpec.BooleanValue removeBarkOnInteriorLogs;
 
 //        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
@@ -210,6 +211,9 @@ public class ConfigHandler {
             removeBarkOnInteriorLogs = builder
                     .comment("Whether to replace the interior sides of logs with a chopped texture instead of bark")
                     .define("removeBarkOnInteriorLogs", true);
+            showChoppingIndicators = builder
+                    .comment("Whether to show on-screen icons indicating whether targeted blocks can be chopped")
+                    .define("showChoppingIndicators", true);
             builder.pop();
 
 //            treesMustBeUniform = builder

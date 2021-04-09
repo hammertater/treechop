@@ -11,6 +11,7 @@ public class OptionList extends AbstractOptionList<OptionRow> {
     private final int rowSeparation;
     private final int biggestLeftColumnWidth;
     private final int biggestRightColumnWidth;
+    private final int EXCESS_SCROLL = 4;
 
     private int rowWidth = 200;
 
@@ -29,7 +30,7 @@ public class OptionList extends AbstractOptionList<OptionRow> {
 
     @Override
     public int getMaxScroll() {
-        return getHeightForRows(Math.max(0, getItemCount()), itemHeight) - (y1 - y0);
+        return getHeightForRows(Math.max(0, getItemCount()), itemHeight) - (y1 - y0) - EXCESS_SCROLL;
     }
 
     public void setBackgroundEnabled(boolean enabled) {

@@ -387,12 +387,16 @@ public class ChopUtil {
     }
 
     public static boolean playerWantsToChop(PlayerEntity player) {
+        ChopSettings chopSettings = getPlayerChopSettings(player);
+        return playerWantsToChop(player, chopSettings);
+    }
+
+    public static boolean playerWantsToChop(PlayerEntity player, ChopSettings chopSettings) {
         if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
-            ChopSettings chopSettings = getPlayerChopSettings(player);
             if (!player.isCreative() || chopSettings.getChopInCreativeMode()) {
                 return chopSettings.getChoppingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
             } else {
-                return chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
+                return false;
             }
         } else {
             return true;
@@ -401,6 +405,10 @@ public class ChopUtil {
 
     public static boolean playerWantsToFell(PlayerEntity player) {
         ChopSettings chopSettings = getPlayerChopSettings(player);
+        return playerWantsToFell(player, chopSettings);
+    }
+
+    public static boolean playerWantsToFell(PlayerEntity player, ChopSettings chopSettings) {
         if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
             return chopSettings.getFellingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeFellBehavior(player);
         } else {
