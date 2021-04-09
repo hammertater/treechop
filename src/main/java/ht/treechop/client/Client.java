@@ -1,16 +1,15 @@
 package ht.treechop.client;
 
 import ht.treechop.TreeChopMod;
-import ht.treechop.client.gui.screen.OverlayScreen;
+import ht.treechop.client.gui.screen.InGameSettingsScreen;
 import ht.treechop.client.model.ChoppedLogBakedModel;
-import ht.treechop.common.settings.ChopSettings;
+import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
-import ht.treechop.common.network.PacketEnableChopping;
-import ht.treechop.common.network.PacketEnableFelling;
+import ht.treechop.common.network.ClientRequestSettingsPacket;
 import ht.treechop.common.network.PacketHandler;
-import ht.treechop.common.network.PacketSetSneakBehavior;
-import ht.treechop.common.network.PacketSyncChopSettings;
+import ht.treechop.common.settings.Setting;
+import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
@@ -27,7 +26,7 @@ import org.lwjgl.glfw.GLFW;
 @EventBusSubscriber(modid = TreeChopMod.MOD_ID, bus = EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class Client {
 
-    private static final ChopSettings chopSettings = new ChopSettings();
+    private static final ClientChopSettings chopSettings = new ClientChopSettings();
 
     public static void init() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -47,7 +46,7 @@ public class Client {
     public static void onConnect(ClientPlayerNetworkEvent.LoggedInEvent event) {
         chopSettings.copyFrom(ConfigHandler.CLIENT.getChopSettings());
         TreeChopMod.LOGGER.info("Sending chop settings sync request");
-        PacketHandler.sendToServer(new PacketSyncChopSettings(chopSettings));
+        PacketHandler.sendToServer(new ClientRequestSettingsPacket(chopSettings));
     }
 
     @SubscribeEvent
@@ -61,26 +60,31 @@ public class Client {
         }
     }
 
+    public static void requestSetting(Setting field, Object value) {
+        PacketHandler.sendToServer(new ClientRequestSettingsPacket(field, value));
+    }
+
     public static void toggleChopping() {
-        chopSettings.toggleChopping();
-        PacketHandler.sendToServer(new PacketEnableChopping(chopSettings.getChoppingEnabled()));
+        boolean newValue = !chopSettings.get(Setting.CHOPPING, Boolean.class);
+        chopSettings.set(Setting.CHOPPING, newValue);
     }
 
     public static void toggleFelling() {
-        chopSettings.toggleFelling();
-        PacketHandler.sendToServer(new PacketEnableFelling(chopSettings.getFellingEnabled()));
+        boolean newValue = !chopSettings.get(Setting.FELLING, Boolean.class);
+        chopSettings.set(Setting.FELLING, newValue);
     }
 
     public static void cycleSneakBehavior() {
-        chopSettings.cycleSneakBehavior();
-        PacketHandler.sendToServer(new PacketSetSneakBehavior(chopSettings.getSneakBehavior()));
+        SneakBehavior newValue = chopSettings.getSneakBehavior().cycle();
+        chopSettings.set(Setting.SNEAK_BEHAVIOR, newValue);
     }
 
-    public static ChopSettings getChopSettings() {
+    public static ClientChopSettings getChopSettings() {
         return chopSettings;
     }
 
     public static void openSettingsOverlay() {
-        Minecraft.getInstance().displayGuiScreen(new OverlayScreen());
+        Minecraft.getInstance().displayGuiScreen(new InGameSettingsScreen());
     }
+
 }

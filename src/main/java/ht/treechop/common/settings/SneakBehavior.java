@@ -1,5 +1,6 @@
 package ht.treechop.common.settings;
 
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.text.ITextComponent;
@@ -16,14 +17,18 @@ public enum SneakBehavior implements IStringSerializable {
 
     public final static int maxNameLength = Arrays.stream(SneakBehavior.values()).map(SneakBehavior::name).map(String::length).max(Integer::compareTo).orElse(0);
 
-    private final ITextComponent fancyName;
     private final Predicate<Entity> chopBehavior;
     private final Predicate<Entity> fellBehavior;
+    private final String langKey;
 
-    SneakBehavior(String textKey, Predicate<Entity> chopBehavior, Predicate<Entity> fellBehavior) {
+    SneakBehavior(String langKey, Predicate<Entity> chopBehavior, Predicate<Entity> fellBehavior) {
         this.chopBehavior = chopBehavior;
         this.fellBehavior = fellBehavior;
-        this.fancyName = new TranslationTextComponent(textKey);
+        this.langKey = langKey;
+    }
+
+    public SneakBehavior cycle() {
+        return SneakBehavior.values()[Math.floorMod(ordinal() + 1, SneakBehavior.values().length)];
     }
 
     public String toString() {
@@ -43,7 +48,8 @@ public enum SneakBehavior implements IStringSerializable {
         return fellBehavior.test(agent);
     }
 
-    public ITextComponent getFancyText() {
-        return fancyName;
+    public String getFancyText() {
+        return I18n.format(langKey);
     }
+
 }

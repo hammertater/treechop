@@ -17,16 +17,14 @@ import net.minecraft.util.text.TranslationTextComponent;
 import java.util.Collection;
 import java.util.LinkedList;
 
-public abstract class ModSettingsScreen extends Screen {
+public abstract class ClientSettingsScreen extends Screen {
 
-    private static final int TOP_Y = 32;
-    private static final int BOTTOM_Y_OFFSET = 32;
-    private static final int ROW_HEIGHT = 25;
+    protected static final int ROW_HEIGHT = 25;
 
     protected OptionList optionsRowList;
     private Button doneButton;
 
-    public ModSettingsScreen() {
+    public ClientSettingsScreen() {
         super(new TranslationTextComponent("treechop.gui.settings.title", TreeChopMod.MOD_NAME));
     }
 
@@ -139,9 +137,8 @@ public abstract class ModSettingsScreen extends Screen {
         this.optionsRowList = addListener(new OptionList(
                 minecraft,
                 width,
-                height,
-                TOP_Y,
-                height - BOTTOM_Y_OFFSET,
+                getListTop(),
+                getListBottom(),
                 ROW_HEIGHT,
                 optionRows
         ));
@@ -165,14 +162,30 @@ public abstract class ModSettingsScreen extends Screen {
         optionsRowList.render(matrixStack, mouseX, mouseY, partialTicks);
         drawCenteredString(matrixStack, this.font, this.title, this.width / 2, getTitleTop(), 16777215);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
-        // TODO: check out ModSettingsScreen.func_243293_a for draw reordering; might be important for tooltips
+        // TODO: check out ClientSettingsScreen.func_243293_a for draw reordering; might be important for tooltips
     }
 
-    protected int getDoneButtonTop() {
-        return height - 26;
+    protected int getTop() {
+        return 32;
+    }
+
+    protected int getBottom() {
+        return height - 32;
     }
 
     protected int getTitleTop() {
-        return 20;
+        return getTop() + 20;
+    }
+
+    protected int getListTop() {
+        return getTop() + 52;
+    }
+
+    protected int getListBottom() {
+        return getListTop() + OptionList.getHeightForRows(5, ROW_HEIGHT);
+    }
+
+    protected int getDoneButtonTop() {
+        return getBottom() - GUIUtil.BUTTON_HEIGHT;
     }
 }

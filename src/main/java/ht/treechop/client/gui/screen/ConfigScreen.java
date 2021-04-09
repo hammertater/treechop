@@ -3,7 +3,7 @@ package ht.treechop.client.gui.screen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 
-public class ConfigScreen extends ModSettingsScreen {
+public class ConfigScreen extends ClientSettingsScreen {
 
     public ConfigScreen(Minecraft minecraft, Screen screen) {
         super();

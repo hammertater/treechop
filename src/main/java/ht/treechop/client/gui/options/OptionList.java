@@ -14,14 +14,11 @@ public class OptionList extends AbstractOptionList<OptionRow> {
 
     private int rowWidth = 200;
 
-    public OptionList(Minecraft minecraft, int width, int height, int top, int bottom, int itemHeight, Collection<LabeledOptionRow> rows) {
-        super(minecraft, width, height, top, bottom, itemHeight);
+    public OptionList(Minecraft minecraft, int width, int top, int bottom, int itemHeight, Collection<LabeledOptionRow> rows) {
+        super(minecraft, width, top - bottom, top, bottom, itemHeight);
         setBackgroundEnabled(false);
         this.rowSeparation = itemHeight - GUIUtil.BUTTON_HEIGHT;
-
-        int frameHeight = bottom - top;
-        int listHeight = rows.size() * itemHeight - rowSeparation;
-        headerHeight = Math.max(0, (frameHeight - listHeight) / 2);
+        setRenderHeader(false, 0);
 
         rows.forEach(this::addEntry);
         biggestLeftColumnWidth = rows.stream().map(LabeledOptionRow::getLeftColumnWidth).reduce(Integer::max).orElse(0);
@@ -31,8 +28,8 @@ public class OptionList extends AbstractOptionList<OptionRow> {
     }
 
     @Override
-    public double getScrollAmount() {
-        return super.getScrollAmount() + 4;
+    public int getMaxScroll() {
+        return getHeightForRows(Math.max(0, getItemCount()), itemHeight) - (y1 - y0);
     }
 
     public void setBackgroundEnabled(boolean enabled) {
@@ -60,7 +57,12 @@ public class OptionList extends AbstractOptionList<OptionRow> {
     }
 
     public int getBottom() {
-        return getTop() + getItemCount() * itemHeight - rowSeparation;
+        return Math.min(y1, getTop() + getItemCount() * itemHeight - rowSeparation);
+    }
+
+    static public int getHeightForRows(int numRows, int rowHeight) {
+        int rowSeparation = rowHeight - GUIUtil.BUTTON_HEIGHT;
+        return numRows * rowHeight - rowSeparation;
     }
 
 }

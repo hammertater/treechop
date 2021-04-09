@@ -1,10 +1,18 @@
 package ht.treechop.common.settings;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.common.network.SingleSetting;
+import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public class ChopSettings {
+
+    private SingleSetting setting;
 
     public ChopSettings() {
         for (Setting field : Setting.values()) {
@@ -46,12 +54,20 @@ public class ChopSettings {
     public <T> T get(Setting field, Class<T> type) {
         Object value = fieldValues.get(field);
         if (!type.isInstance(value)) {
-            TreeChopMod.LOGGER.warn(String.format("Setting %s has illegal value %s (%s); reverting to default", field, value, value.getClass()));
+//            TreeChopMod.LOGGER.warn(String.format("Setting %s has illegal value %s (%s); reverting to default", field, value, value.getClass()));
             value = field.getDefaultValue();
             fieldValues.put(field, value);
         }
 
         return type.cast(value);
+    }
+
+    public Object get(Setting field) {
+        return fieldValues.get(field);
+    }
+
+    public void forEachSetting(BiConsumer<Setting, Object> consumer) {
+        fieldValues.forEach(consumer);
     }
 
     public void set(Setting field, Object value) {
@@ -62,4 +78,17 @@ public class ChopSettings {
         }
     }
 
+    public void set(Pair<Setting, Object> fieldValuePair) {
+        set(fieldValuePair.getLeft(), fieldValuePair.getRight());
+    }
+
+    public void set(SingleSetting setting) {
+        set(setting.getField(), setting.getValue());
+    }
+
+    public List<SingleSetting> getAll() {
+        return Arrays.stream(Setting.values())
+                .map(field -> new SingleSetting(field, get(field)))
+                .collect(Collectors.toList());
+    }
 }

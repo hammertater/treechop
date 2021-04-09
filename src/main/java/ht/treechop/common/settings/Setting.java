@@ -1,9 +1,10 @@
 package ht.treechop.common.settings;
 
+import ht.treechop.common.network.SingleSetting;
 import ht.treechop.common.settings.codec.Codecs;
 import ht.treechop.common.settings.codec.SimpleCodec;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.network.PacketBuffer;
-import org.apache.commons.lang3.tuple.Pair;
 
 public enum Setting {
     CHOPPING("treechop.setting.chopping", Boolean.TRUE),
@@ -23,8 +24,8 @@ public enum Setting {
         this.codec = Codecs.forType(defaultValue.getClass());
     }
 
-    public String getLangKey() {
-        return langKey;
+    public String getFancyName() {
+        return I18n.format(langKey);
     }
 
     public Object getDefaultValue() {
@@ -32,7 +33,7 @@ public enum Setting {
     }
 
     public void encode(PacketBuffer buffer, Object value) {
-        buffer.writeInt(ordinal());
+        buffer.writeByte(ordinal());
         codec.encode(buffer, value);
     }
 
@@ -40,10 +41,13 @@ public enum Setting {
         return codec.decode(buffer);
     }
 
-    public static Pair<Setting, Object> decode(PacketBuffer buffer) {
-        Setting setting = Setting.values()[buffer.readInt()];
-        Object value = setting.decodeValue(buffer);
-        return Pair.of(setting, value);
+    public static SingleSetting decode(PacketBuffer buffer) {
+        Setting field = Setting.values()[buffer.readByte()];
+        Object value = field.decodeValue(buffer);
+        return new SingleSetting(field, value);
     }
 
+    public String getValueName(Object value) {
+        return I18n.format(codec.getLocalizationString(value));
+    }
 }

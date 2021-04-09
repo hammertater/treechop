@@ -5,7 +5,8 @@ import ht.treechop.client.gui.screen.ConfigScreen;
 import ht.treechop.common.Common;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.Util;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
@@ -39,13 +40,16 @@ public class TreeChopMod {
 
         ModBlocks.BLOCKS.register(modBus);
 
-        ModLoadingContext.get().registerExtensionPoint(
-                ExtensionPoint.CONFIGGUIFACTORY,
-                () -> ConfigScreen::new
-        );
+        // TODO: Config screen should show server-side settings, not client-side
+//        ModLoadingContext.get().registerExtensionPoint(
+//                ExtensionPoint.CONFIGGUIFACTORY,
+//                () -> ConfigScreen::new
+//        );
     }
 
-    public static ITextComponent makeText(String string) {
-        return new StringTextComponent(TextFormatting.GRAY + "[TreeChop] " + TextFormatting.WHITE + string);
+    @SuppressWarnings("ConstantConditions")
+    public static void showText(String text) {
+        Minecraft.getInstance().player.sendMessage(new StringTextComponent(String.format("%s[%s] %s%s", TextFormatting.GRAY, TreeChopMod.MOD_NAME, TextFormatting.WHITE, text)), Util.DUMMY_UUID);
     }
+
 }

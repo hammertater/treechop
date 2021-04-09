@@ -2,7 +2,7 @@ package ht.treechop.common.settings.codec;
 
 import net.minecraft.network.PacketBuffer;
 
-public class EnumCodec<T extends Enum<T>> implements SimpleCodec<T> {
+public class EnumCodec<T extends Enum<T>> extends AbstractSimpleCodec<T> {
 
     private final Class<T> enumType;
 
@@ -12,15 +12,22 @@ public class EnumCodec<T extends Enum<T>> implements SimpleCodec<T> {
 
     @Override
     public T decode(PacketBuffer buffer) {
-        return Enum.valueOf(enumType, buffer.readString());
+        try {
+            return Enum.valueOf(enumType, buffer.readString());
+        } catch (IllegalArgumentException e) {
+            return enumType.getEnumConstants()[0];
+        }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public void encode(PacketBuffer buffer, Object value) {
-        if (enumType.isInstance(value)) {
-            buffer.writeString(((T)value).name());
-        }
+    public void encode(PacketBuffer buffer, Object object) {
+        // Use the name instead of the ordinal just to be extra safe
+        buffer.writeString(getValueOf(object).map(Enum::name).orElse(""));
+    }
+
+    @Override
+    public Class<T> getTypeClass() {
+        return enumType;
     }
 
 }
