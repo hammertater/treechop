@@ -50,7 +50,19 @@ public class ConfigHandler {
     public static class Common {
 
         public final ForgeConfigSpec.BooleanValue enabled;
-        public final ForgeConfigSpec.BooleanValue canChooseNotToChop;
+
+        public final ForgeConfigSpec.BooleanValue choppingEnabledCanBeTrue;
+        public final ForgeConfigSpec.BooleanValue choppingEnabledCanBeFalse;
+
+        public final ForgeConfigSpec.BooleanValue fellingEnabledCanBeTrue;
+        public final ForgeConfigSpec.BooleanValue fellingEnabledCanBeFalse;
+
+        public final ForgeConfigSpec.BooleanValue treesMustHaveLeavesCanBeTrue;
+        public final ForgeConfigSpec.BooleanValue treesMustHaveLeavesCanBeFalse;
+
+        public final ForgeConfigSpec.BooleanValue sneakBehaviorCanInvertChopping;
+        public final ForgeConfigSpec.BooleanValue sneakBehaviorCanInvertFelling;
+        public final ForgeConfigSpec.BooleanValue sneakBehaviorCanDoNothing;
 
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
@@ -79,9 +91,20 @@ public class ConfigHandler {
             enabled = builder
                     .comment("Whether this mod is enabled or not")
                     .define("enabled", true);
-            canChooseNotToChop = builder
-                    .comment("Whether players can deactivate chopping e.g. by sneaking")
-                    .define("canChooseNotToChop", true);
+
+            choppingEnabledCanBeTrue = builder.define("choppingEnabled.canBeTrue", true);
+            choppingEnabledCanBeFalse = builder.define("choppingEnabled.canBeFalse", true);
+
+            fellingEnabledCanBeTrue = builder.define("choppingEnabled.canBeTrue", true);
+            fellingEnabledCanBeFalse = builder.define("choppingEnabled.canBeFalse", true);
+
+            treesMustHaveLeavesCanBeTrue = builder.define("treesMustHaveLeaves.canBeTrue", true);
+            treesMustHaveLeavesCanBeFalse = builder.define("treesMustHaveLeaves.canBeFalse", true);
+
+            sneakBehaviorCanInvertChopping = builder.define("sneakBehavior.canInvertChopping", true);
+            sneakBehaviorCanInvertFelling = builder.define("sneakBehavior.canInvertFelling", true);
+            sneakBehaviorCanDoNothing = builder.define("sneakBehavior.canDoNothing", true);
+
             builder.pop();
 
             builder.push("treeDetection");
@@ -198,7 +221,7 @@ public class ConfigHandler {
                     .defineEnum("sneakBehavior", SneakBehavior.INVERT_CHOPPING);
             treesMustHaveLeaves = builder
                     .comment("Whether to ignore trees without connected leaves")
-                    .define("onlyBreakTreesWithLeaves", true);
+                    .define("treesMustHaveLeaves", true);
             chopInCreativeMode = builder
                     .comment("Whether to enable chopping when in creative mode (even when false, sneaking can still enable chopping)")
                     .define("chopInCreativeMode", false);

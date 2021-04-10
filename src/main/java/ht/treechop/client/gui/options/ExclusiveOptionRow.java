@@ -65,7 +65,7 @@ public class ExclusiveOptionRow extends OptionRow {
     public static class Builder {
         private final List<Option> options = new LinkedList<>();
 
-        public Builder add(ITextComponent name, Runnable onPress, Supplier<Boolean> stateSupplier) {
+        public Builder add(ITextComponent name, Runnable onPress, Supplier<StickyWidget.State> stateSupplier) {
             options.add(new Option(name, onPress, stateSupplier));
             return this;
         }
@@ -80,13 +80,14 @@ public class ExclusiveOptionRow extends OptionRow {
         private static class Option {
             private ITextComponent name;
             private Runnable onPress;
-            private Supplier<Boolean> stateSupplier;
+            private Supplier<StickyWidget.State> stateSupplier;
 
-            public Option(ITextComponent name, Runnable onPress, Supplier<Boolean> stateSupplier) {
+            public Option(ITextComponent name, Runnable onPress, Supplier<StickyWidget.State> stateSupplier) {
                 this.name = name;
                 this.onPress = onPress;
                 this.stateSupplier = stateSupplier;
             }
         }
     }
+
 }
