@@ -198,7 +198,7 @@ public class ConfigHandler {
                     .defineEnum("sneakBehavior", SneakBehavior.INVERT_CHOPPING);
             treesMustHaveLeaves = builder
                     .comment("Whether to ignore trees without connected leaves")
-                    .define("onlyBreakTreesWithLeaves", false);
+                    .define("onlyBreakTreesWithLeaves", true);
             chopInCreativeMode = builder
                     .comment("Whether to enable chopping when in creative mode (even when false, sneaking can still enable chopping)")
                     .define("chopInCreativeMode", false);
