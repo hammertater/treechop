@@ -77,6 +77,7 @@ public class ChopIndicator extends AbstractGui {
                 || chopSettings.getChoppingEnabled() != lastChoppingEnabled
                 || chopSettings.getFellingEnabled() != lastFellingEnabled) {
             Minecraft minecraft = Minecraft.getInstance();
+            lastBlockPos = pos;
             lastChoppingEnabled = chopSettings.getChoppingEnabled();
             lastFellingEnabled = chopSettings.getFellingEnabled();
 
