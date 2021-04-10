@@ -41,12 +41,8 @@ public class ServerConfirmSettingsPacket {
     }
 
     private static void processSingleSetting(ConfirmedSetting setting) {
-        Client.getChopSettings().accept(setting.field, setting.value);
+        Client.getChopSettings().accept(setting.getField(), setting.getValue());
         setting.event.run(setting);
-    }
-
-    private static boolean playerHasPermission(PlayerEntity player, SettingsField field, Object value) {
-        return true; // TODO
     }
 
 }

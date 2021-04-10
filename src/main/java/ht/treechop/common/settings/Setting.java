@@ -2,7 +2,7 @@ package ht.treechop.common.settings;
 
 import net.minecraft.network.PacketBuffer;
 
-class Setting {
+public class Setting {
 
     private final SettingsField field;
     private Object value;
@@ -12,7 +12,7 @@ class Setting {
         this.value = field.getDefaultValue();
     }
 
-    Setting(SettingsField field, Object value) {
+    public Setting(SettingsField field, Object value) {
         this.field = field;
         this.value = value;
     }
