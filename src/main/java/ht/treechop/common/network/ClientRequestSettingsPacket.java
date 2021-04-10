@@ -4,6 +4,7 @@ import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Setting;
+import ht.treechop.server.Server;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -64,17 +65,21 @@ public class ClientRequestSettingsPacket {
     }
 
     private static void processSettingsRequest(ChopSettingsCapability capability, ClientRequestSettingsPacket message, ServerPlayerEntity player) {
-        if (message.event == Event.FIRST_TIME_SYNC) {
-            if (capability.isSynced()) {
-                return;
-            } else {
-                capability.setSynced();
-            }
+        List<ConfirmedSetting> settings;
+        if (message.event == Event.FIRST_TIME_SYNC && capability.isSynced()) {
+            settings = capability.getAll().stream().map(setting -> new ConfirmedSetting(setting, ConfirmedSetting.Event.OVERRIDE))
+                    .map(setting -> processSingleSettingRequest(setting, player, capability, message.event))
+                    .collect(Collectors.toList());
+        } else {
+            settings = message.settings.stream()
+                    .map(setting -> processSingleSettingRequest(setting, player, capability, message.event))
+                    .collect(Collectors.toList());
         }
 
-        List<ConfirmedSetting> settings = message.settings.stream()
-                .map(setting -> processSingleSettingRequest(setting, player, capability, message.event))
-                .collect(Collectors.toList());
+        if (message.event == Event.FIRST_TIME_SYNC && !capability.isSynced()) {
+            capability.setSynced();
+        }
+
         PacketHandler.sendTo(player, new ServerConfirmSettingsPacket(settings));
     }
 

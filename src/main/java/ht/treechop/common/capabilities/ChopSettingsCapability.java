@@ -21,10 +21,16 @@ public class ChopSettingsCapability extends ChopSettings {
 
     private boolean isSynced = false;
 
-    public ChopSettingsCapability() {}
+    public ChopSettingsCapability() {
+    }
 
-    public boolean isSynced() { return isSynced; }
-    public void setSynced() { this.isSynced = true; }
+    public boolean isSynced() {
+        return isSynced;
+    }
+
+    public void setSynced() {
+        this.isSynced = true;
+    }
 
     public static void register() {
         CapabilityManager.INSTANCE.register(

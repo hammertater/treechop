@@ -15,6 +15,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
@@ -161,9 +162,22 @@ public class ChopUtil {
     }
 
     private static ChopResult getChopResult(World world, BlockPos blockPos, PlayerEntity agent, int numChops, Predicate<BlockPos> logCondition) {
-        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
+        Set<BlockPos> supportedBlocks = getTreeBlocks(world, blockPos, logCondition, getPlayerChopSettings(agent).getTreesMustHaveLeaves());
+        return chopTree(world, blockPos, supportedBlocks, numChops);
+    }
 
-        AtomicBoolean hasLeaves = new AtomicBoolean(!getPlayerChopSettings(agent).getTreesMustHaveLeaves());
+    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, boolean mustHaveLeaves) {
+        return getTreeBlocks(world, blockPos, logPos -> isBlockALog(world, logPos), mustHaveLeaves);
+    }
+
+    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, Predicate<BlockPos> logCondition, boolean mustHaveLeaves) {
+        if (!logCondition.test(blockPos)) {
+            return Collections.emptySet();
+        }
+
+        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
+        AtomicBoolean hasLeaves = new AtomicBoolean(!mustHaveLeaves);
+
         Set<BlockPos> supportedBlocks = getConnectedBlocks(
                 Collections.singletonList(blockPos),
                 somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)
@@ -172,15 +186,11 @@ public class ChopUtil {
                 maxNumTreeBlocks
         );
 
-        if (!hasLeaves.get()) {
-            return ChopResult.IGNORED;
-        }
-
         if (supportedBlocks.size() >= maxNumTreeBlocks) {
             TreeChopMod.LOGGER.warn(String.format("Max tree size reached: %d >= %d blocks (not including leaves)", supportedBlocks.size(), maxNumTreeBlocks));
         }
 
-        return chopTree(world, blockPos, supportedBlocks, numChops);
+        return hasLeaves.get() ? supportedBlocks : Collections.emptySet();
     }
 
     private static ChopResult chopTree(World world, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
@@ -367,9 +377,15 @@ public class ChopUtil {
 
     private static ChopResult tryToChopWithoutFelling(World world, BlockPos blockPos, int numChops) {
         return (isBlockChoppable(world, blockPos))
-                ? new ChopResult(Collections.singletonList(
-                        new TreeBlock(world, blockPos, getBlockStateAfterChops(world, blockPos, numChops, true), true)
-                ), false)
+                ? new ChopResult(
+                        Collections.singletonList(new TreeBlock(
+                                world,
+                                blockPos,
+                                getBlockStateAfterChops(world, blockPos, numChops, true),
+                                true
+                        )),
+                        false
+                )
                 : ChopResult.IGNORED;
     }
 
@@ -416,7 +432,6 @@ public class ChopUtil {
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     public static ChopSettings getPlayerChopSettings(PlayerEntity player) {
         return ChopSettingsCapability.forPlayer(player).orElse(new ChopSettingsCapability());
     }
@@ -435,4 +450,8 @@ public class ChopUtil {
         }
     }
 
+    public static boolean isPartOfATree(ClientWorld world, BlockPos pos, boolean mustHaveLeaves) {
+        Set<BlockPos> treeBlocks = getTreeBlocks(world, pos, mustHaveLeaves);
+        return (treeBlocks.size() > 1);
+    }
 }
