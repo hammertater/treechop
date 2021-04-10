@@ -95,8 +95,8 @@ public class ConfigHandler {
             choppingEnabledCanBeTrue = builder.define("choppingEnabled.canBeTrue", true);
             choppingEnabledCanBeFalse = builder.define("choppingEnabled.canBeFalse", true);
 
-            fellingEnabledCanBeTrue = builder.define("choppingEnabled.canBeTrue", true);
-            fellingEnabledCanBeFalse = builder.define("choppingEnabled.canBeFalse", true);
+            fellingEnabledCanBeTrue = builder.define("fellingEnabled.canBeTrue", true);
+            fellingEnabledCanBeFalse = builder.define("fellingEnabled.canBeFalse", true);
 
             treesMustHaveLeavesCanBeTrue = builder.define("treesMustHaveLeaves.canBeTrue", true);
             treesMustHaveLeavesCanBeFalse = builder.define("treesMustHaveLeaves.canBeFalse", true);
