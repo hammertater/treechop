@@ -41,7 +41,7 @@ public class InGameSettingsScreen extends ClientSettingsScreen {
     }
 
     private int getListHeight() {
-        return OptionList.getHeightForRows(5, ROW_HEIGHT);
+        return OptionList.getHeightForRows(6, ROW_HEIGHT);
     }
 
     @Override

@@ -91,6 +91,14 @@ public class Client {
         return chopSettings;
     }
 
+    public static void setChoppingIndicatorVisible(boolean showChoppingIndicator) {
+        ConfigHandler.CLIENT.showChoppingIndicators.set(showChoppingIndicator);
+    }
+
+    public static boolean getChoppingIndicatorVisible() {
+        return ConfigHandler.CLIENT.showChoppingIndicators.get();
+    }
+
     public static void openSettingsOverlay() {
         Minecraft.getInstance().displayGuiScreen(new InGameSettingsScreen());
     }

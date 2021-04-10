@@ -16,7 +16,7 @@ public class ChopIndicator extends AbstractGui {
     private static final int TEXTURE_WIDTH = 64;
     private static final int TEXTURE_HEIGHT = 64;
 
-    private static final int INDICATOR_X_OFFSET = 17;
+    private static final int INDICATOR_X_OFFSET = 16;
 
     private static final double IMAGE_SCALE = 1.0;
     private static final int IMAGE_UV_WIDTH = 20;
@@ -27,6 +27,7 @@ public class ChopIndicator extends AbstractGui {
         RayTraceResult mouseOver = minecraft.objectMouseOver;
         if (mouseOver != null
                 && mouseOver.getType() == RayTraceResult.Type.BLOCK
+                && Client.getChoppingIndicatorVisible()
                 && ChopUtil.playerWantsToChop(minecraft.player, Client.getChopSettings())
                 && ChopUtil.isBlockChoppable(minecraft.world, ((BlockRayTraceResult) mouseOver).getPos())
         ) {

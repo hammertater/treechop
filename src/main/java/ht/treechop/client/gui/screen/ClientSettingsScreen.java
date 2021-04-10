@@ -134,6 +134,25 @@ public abstract class ClientSettingsScreen extends Screen {
                 )
         );
 
+        optionRows.add(
+                new LabeledOptionRow(
+                        font,
+                        new TranslationTextComponent("treechop.gui.settings.label.show_chopping_indicator"),
+                        new ExclusiveOptionRow.Builder()
+                                .add(
+                                        new TranslationTextComponent("gui.yes"),
+                                        () -> Client.setChoppingIndicatorVisible(true),
+                                        () -> Client.getChoppingIndicatorVisible()
+                                )
+                                .add(
+                                        new TranslationTextComponent("gui.no"),
+                                        () -> Client.setChoppingIndicatorVisible(false),
+                                        () -> !Client.getChoppingIndicatorVisible()
+                                )
+                                .build()
+                )
+        );
+
         this.optionsRowList = addListener(new OptionList(
                 minecraft,
                 width,
@@ -182,7 +201,7 @@ public abstract class ClientSettingsScreen extends Screen {
     }
 
     protected int getListBottom() {
-        return getListTop() + OptionList.getHeightForRows(5, ROW_HEIGHT);
+        return getListTop() + OptionList.getHeightForRows(6, ROW_HEIGHT);
     }
 
     protected int getDoneButtonTop() {
