@@ -4,7 +4,7 @@ import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Setting;
-import ht.treechop.server.Server;
+import ht.treechop.common.settings.SettingsField;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -19,16 +19,16 @@ import java.util.stream.IntStream;
 
 public class ClientRequestSettingsPacket {
 
-    private final List<SingleSetting> settings;
+    private final List<Setting> settings;
     private final Event event;
 
-    public ClientRequestSettingsPacket(final List<SingleSetting> settings, Event event) {
+    public ClientRequestSettingsPacket(final List<Setting> settings, Event event) {
         this.settings = settings;
         this.event = event;
     }
 
-    public ClientRequestSettingsPacket(Setting field, Object value) {
-        this(Collections.singletonList(new SingleSetting(field, value)), Event.REQUEST);
+    public ClientRequestSettingsPacket(SettingsField field, Object value) {
+        this(Collections.singletonList(new Setting(field, value)), Event.REQUEST);
     }
 
     public ClientRequestSettingsPacket(ClientChopSettings chopSettings) {
@@ -44,8 +44,8 @@ public class ClientRequestSettingsPacket {
     public static ClientRequestSettingsPacket decode(PacketBuffer buffer) {
         Event event = Event.decode(buffer);
         int numSettings = buffer.readInt();
-        List<SingleSetting> settings = IntStream.range(0, numSettings)
-                .mapToObj($ -> SingleSetting.decode(buffer))
+        List<Setting> settings = IntStream.range(0, numSettings)
+                .mapToObj($ -> Setting.decode(buffer))
                 .collect(Collectors.toList());
 
         return new ClientRequestSettingsPacket(settings, event);
@@ -83,7 +83,7 @@ public class ClientRequestSettingsPacket {
         PacketHandler.sendTo(player, new ServerConfirmSettingsPacket(settings));
     }
 
-    private static ConfirmedSetting processSingleSettingRequest(SingleSetting setting, ServerPlayerEntity player, ChopSettings chopSettings, Event requestEvent) {
+    private static ConfirmedSetting processSingleSettingRequest(Setting setting, ServerPlayerEntity player, ChopSettings chopSettings, Event requestEvent) {
         ConfirmedSetting.Event confirmEvent;
         if (playerHasPermission(player, setting)) {
             chopSettings.set(setting);
@@ -96,11 +96,11 @@ public class ClientRequestSettingsPacket {
             confirmEvent = ConfirmedSetting.Event.OVERRIDE;
         }
 
-        Setting field = setting.getField();
-        return new ConfirmedSetting(new SingleSetting(field, chopSettings.get(field)), confirmEvent);
+        SettingsField field = setting.getField();
+        return new ConfirmedSetting(new Setting(field, chopSettings.get(field)), confirmEvent);
     }
 
-    private static boolean playerHasPermission(PlayerEntity player, SingleSetting setting) {
+    private static boolean playerHasPermission(PlayerEntity player, Setting setting) {
         return true; // TODO
 //        if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
     }

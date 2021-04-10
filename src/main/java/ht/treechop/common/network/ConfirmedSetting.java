@@ -1,16 +1,17 @@
 package ht.treechop.common.network;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.common.settings.Setting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.TextFormatting;
 
-public class ConfirmedSetting extends SingleSetting {
+public class ConfirmedSetting extends Setting {
 
     protected final Event event;
 
-    public ConfirmedSetting(SingleSetting setting, Event event) {
+    public ConfirmedSetting(Setting setting, Event event) {
         super(setting.getField(), setting.getValue());
         this.event = event;
     }
@@ -22,7 +23,7 @@ public class ConfirmedSetting extends SingleSetting {
     }
 
     public static ConfirmedSetting decode(PacketBuffer buffer) {
-        SingleSetting setting = SingleSetting.decode(buffer);
+        Setting setting = Setting.decode(buffer);
         Event event = Event.decode(buffer);
         return new ConfirmedSetting(setting, event);
     }
@@ -32,8 +33,8 @@ public class ConfirmedSetting extends SingleSetting {
             @Override
             public void run(ConfirmedSetting setting) {
                 if (Minecraft.getInstance().currentScreen == null) {
-                    String fieldName = setting.field.getFancyName();
-                    String valueName = setting.field.getValueName(setting.getValue());
+                    String fieldName = setting.getField().getFancyName();
+                    String valueName = setting.getField().getValueName(setting.getValue());
                     TreeChopMod.showText(String.format(
                             "%s %s",
                             fieldName,
@@ -46,8 +47,8 @@ public class ConfirmedSetting extends SingleSetting {
             @Override
             public void run(ConfirmedSetting setting) {
                 if (Minecraft.getInstance().currentScreen == null) {
-                    String fieldName = setting.field.getFancyName();
-                    String valueName = setting.field.getValueName(setting.getValue());
+                    String fieldName = setting.getField().getFancyName();
+                    String valueName = setting.getField().getValueName(setting.getValue());
                     TreeChopMod.showText(String.format(
                             "%s %s %s(%s)",
                             fieldName,

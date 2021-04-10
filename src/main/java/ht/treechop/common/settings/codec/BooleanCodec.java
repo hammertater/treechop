@@ -2,7 +2,21 @@ package ht.treechop.common.settings.codec;
 
 import net.minecraft.network.PacketBuffer;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class BooleanCodec extends AbstractSimpleCodec<Boolean> {
+
+    public static final Set<Boolean> values = Collections.unmodifiableSet(Stream.of(
+            Boolean.TRUE, Boolean.FALSE
+    ).collect(Collectors.toSet()));
+
+    @Override
+    public Set<Boolean> getValues() {
+        return values;
+    }
 
     @Override
     public Boolean decode(PacketBuffer buffer) {
@@ -23,5 +37,4 @@ public class BooleanCodec extends AbstractSimpleCodec<Boolean> {
     public Class<Boolean> getTypeClass() {
         return Boolean.class;
     }
-
 }

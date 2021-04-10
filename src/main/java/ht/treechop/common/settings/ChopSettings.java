@@ -1,7 +1,6 @@
 package ht.treechop.common.settings;
 
 import ht.treechop.TreeChopMod;
-import ht.treechop.common.network.SingleSetting;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
@@ -12,49 +11,34 @@ import java.util.stream.Collectors;
 
 public class ChopSettings {
 
-    private SingleSetting setting;
+    private EnumMap<SettingsField, Object> fieldValues = new EnumMap<>(SettingsField.class);
 
     public ChopSettings() {
-        for (Setting field : Setting.values()) {
-            fieldValues.put(field, new ChopSettingsFieldValue(field));
+        for (SettingsField field : SettingsField.values()) {
+            fieldValues.put(field, new Setting(field));
         }
     }
 
-    public boolean getChoppingEnabled() { return get(Setting.CHOPPING, Boolean.class); }
-    public boolean getFellingEnabled() { return get(Setting.FELLING, Boolean.class); }
-    public SneakBehavior getSneakBehavior() { return get(Setting.SNEAK_BEHAVIOR, SneakBehavior.class); }
-    public boolean getTreesMustHaveLeaves() { return get(Setting.TREES_MUST_HAVE_LEAVES, Boolean.class); }
-    public boolean getChopInCreativeMode() { return get(Setting.CHOP_IN_CREATIVE_MODE, Boolean.class); }
+    public boolean getChoppingEnabled() { return get(SettingsField.CHOPPING, Boolean.class); }
+    public boolean getFellingEnabled() { return get(SettingsField.FELLING, Boolean.class); }
+    public SneakBehavior getSneakBehavior() { return get(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.class); }
+    public boolean getTreesMustHaveLeaves() { return get(SettingsField.TREES_MUST_HAVE_LEAVES, Boolean.class); }
+    public boolean getChopInCreativeMode() { return get(SettingsField.CHOP_IN_CREATIVE_MODE, Boolean.class); }
 
-    public void setChoppingEnabled(boolean enabled) { set(Setting.CHOPPING, enabled); }
-    public void setFellingEnabled(boolean enabled) { set(Setting.FELLING, enabled); }
-    public void setSneakBehavior(SneakBehavior behavior) { set(Setting.SNEAK_BEHAVIOR, behavior); }
-    public void setTreesMustHaveLeaves(boolean enabled) { set(Setting.TREES_MUST_HAVE_LEAVES, enabled); }
-    public void setChopInCreativeMode(boolean enabled) { set(Setting.CHOP_IN_CREATIVE_MODE, enabled); }
-
-    public void toggleChopping() {
-        setChoppingEnabled(!getChoppingEnabled());
-    }
-
-    public void toggleFelling() {
-        setFellingEnabled(!getFellingEnabled());
-    }
-
-    public void cycleSneakBehavior() {
-        SneakBehavior nextSneakBehavior = SneakBehavior.values()[Math.floorMod(getSneakBehavior().ordinal() + 1, SneakBehavior.values().length)];
-        setSneakBehavior(nextSneakBehavior);
-    }
+    public void setChoppingEnabled(boolean enabled) { set(SettingsField.CHOPPING, enabled); }
+    public void setFellingEnabled(boolean enabled) { set(SettingsField.FELLING, enabled); }
+    public void setSneakBehavior(SneakBehavior behavior) { set(SettingsField.SNEAK_BEHAVIOR, behavior); }
+    public void setTreesMustHaveLeaves(boolean enabled) { set(SettingsField.TREES_MUST_HAVE_LEAVES, enabled); }
+    public void setChopInCreativeMode(boolean enabled) { set(SettingsField.CHOP_IN_CREATIVE_MODE, enabled); }
 
     public void copyFrom(ChopSettings other) {
         fieldValues.putAll(other.fieldValues);
     }
 
-    private EnumMap<Setting, Object> fieldValues = new EnumMap<>(Setting.class);
-
-    public <T> T get(Setting field, Class<T> type) {
+    public <T> T get(SettingsField field, Class<T> type) {
         Object value = fieldValues.get(field);
         if (!type.isInstance(value)) {
-//            TreeChopMod.LOGGER.warn(String.format("Setting %s has illegal value %s (%s); reverting to default", field, value, value.getClass()));
+//            TreeChopMod.LOGGER.warn(String.format("SettingsField %s has illegal value %s (%s); reverting to default", field, value, value.getClass()));
             value = field.getDefaultValue();
             fieldValues.put(field, value);
         }
@@ -62,15 +46,15 @@ public class ChopSettings {
         return type.cast(value);
     }
 
-    public Object get(Setting field) {
+    public Object get(SettingsField field) {
         return fieldValues.get(field);
     }
 
-    public void forEachSetting(BiConsumer<Setting, Object> consumer) {
+    public void forEachSetting(BiConsumer<SettingsField, Object> consumer) {
         fieldValues.forEach(consumer);
     }
 
-    public void set(Setting field, Object value) {
+    public void set(SettingsField field, Object value) {
         if (field.getDefaultValue().getClass().isInstance(value)) {
             fieldValues.put(field, value);
         } else {
@@ -78,17 +62,17 @@ public class ChopSettings {
         }
     }
 
-    public void set(Pair<Setting, Object> fieldValuePair) {
+    public void set(Pair<SettingsField, Object> fieldValuePair) {
         set(fieldValuePair.getLeft(), fieldValuePair.getRight());
     }
 
-    public void set(SingleSetting setting) {
+    public void set(Setting setting) {
         set(setting.getField(), setting.getValue());
     }
 
-    public List<SingleSetting> getAll() {
-        return Arrays.stream(Setting.values())
-                .map(field -> new SingleSetting(field, get(field)))
+    public List<Setting> getAll() {
+        return Arrays.stream(SettingsField.values())
+                .map(field -> new Setting(field, get(field)))
                 .collect(Collectors.toList());
     }
 }

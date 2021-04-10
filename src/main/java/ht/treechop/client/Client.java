@@ -9,7 +9,8 @@ import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.network.ClientRequestSettingsPacket;
-import ht.treechop.common.settings.Setting;
+import ht.treechop.common.settings.Permissions;
+import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -31,6 +32,7 @@ public class Client {
 
     private static final ClientChopSettings chopSettings = new ClientChopSettings();
     private static final ChopIndicator chopIndicator = new ChopIndicator();
+    private static final Permissions serverPermissions = new Permissions();
 
     public static void init() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -68,23 +70,23 @@ public class Client {
         }
     }
 
-    public static void requestSetting(Setting field, Object value) {
+    public static void requestSetting(SettingsField field, Object value) {
         PacketHandler.sendToServer(new ClientRequestSettingsPacket(field, value));
     }
 
     public static void toggleChopping() {
-        boolean newValue = !chopSettings.get(Setting.CHOPPING, Boolean.class);
-        chopSettings.set(Setting.CHOPPING, newValue);
+        boolean newValue = !chopSettings.get(SettingsField.CHOPPING, Boolean.class);
+        chopSettings.set(SettingsField.CHOPPING, newValue);
     }
 
     public static void toggleFelling() {
-        boolean newValue = !chopSettings.get(Setting.FELLING, Boolean.class);
-        chopSettings.set(Setting.FELLING, newValue);
+        boolean newValue = !chopSettings.get(SettingsField.FELLING, Boolean.class);
+        chopSettings.set(SettingsField.FELLING, newValue);
     }
 
     public static void cycleSneakBehavior() {
         SneakBehavior newValue = chopSettings.getSneakBehavior().cycle();
-        chopSettings.set(Setting.SNEAK_BEHAVIOR, newValue);
+        chopSettings.set(SettingsField.SNEAK_BEHAVIOR, newValue);
     }
 
     public static ClientChopSettings getChopSettings() {

@@ -1,7 +1,7 @@
 package ht.treechop.common.network;
 
 import ht.treechop.client.Client;
-import ht.treechop.common.settings.Setting;
+import ht.treechop.common.settings.SettingsField;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -45,7 +45,7 @@ public class ServerConfirmSettingsPacket {
         setting.event.run(setting);
     }
 
-    private static boolean playerHasPermission(PlayerEntity player, Setting field, Object value) {
+    private static boolean playerHasPermission(PlayerEntity player, SettingsField field, Object value) {
         return true; // TODO
     }
 

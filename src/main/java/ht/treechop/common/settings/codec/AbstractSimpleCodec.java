@@ -23,4 +23,5 @@ public abstract class AbstractSimpleCodec<T> implements SimpleCodec<T> {
             return Optional.empty();
         }
     }
+
 }
