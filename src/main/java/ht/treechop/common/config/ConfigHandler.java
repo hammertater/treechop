@@ -20,96 +20,171 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
+
+import static net.minecraftforge.common.config.Configuration.CATEGORY_SPLITTER;
 
 public class ConfigHandler {
 
-    public static boolean enabled = true;
-    public static boolean canChooseNotToChop = true;
+    private static final String LIST_SEPARATOR = ",";
+    
+    public static boolean enabled;
+    public static boolean canChooseNotToChop;
 
-    public static int maxNumTreeBlocks = 8096;
-    public static int maxNumLeavesBlocks = 8096;
-    public static boolean breakLeaves = true;
-    public static int maxBreakLeavesDistance = 4;
+    public static int maxNumTreeBlocks;
+    public static int maxNumLeavesBlocks;
+    public static boolean breakLeaves;
+    public static boolean breakPersistentLeaves;
+    public static int maxBreakLeavesDistance;
+    private static List<String> logBlockSynonyms;
+    private static List<String> leavesBlockSynonyms;
 
-    public static ChopCountingAlgorithm chopCountingAlgorithm = ChopCountingAlgorithm.LOGARITHMIC;
-    public static float chopCountScale = 1F;
+    public static ChopCountingAlgorithm chopCountingAlgorithm;
+    public static Rounder chopCountRounding;
+    public static boolean canRequireMoreChopsThanBlocks;
+    public static float logarithmicA;
+    public static float linearM;
+    public static float linearB;
+
+    private static List<String> choppingToolBlacklistNames;
 
     public static boolean choppingEnabled = true;
     public static boolean fellingEnabled = true;
     public static SneakBehavior sneakBehavior = SneakBehavior.INVERT_CHOPPING;
     public static boolean onlyChopTreesWithLeaves = false;
 
-    private static List<String> logBlockSynonyms = Lists.newArrayList("logWood");
-    private static List<String> leavesBlockSynonyms = Lists.newArrayList("treeLeaves");
-    private static List<String> choppingToolBlacklistNames = Lists.newArrayList("mekanism:atomic_disassembler");
     private static Set<Block> logBlocks = null;
     private static Set<Block> leavesBlocks = null;
     private static Set<Item> choppingToolBlacklistItems = null;
 
-    static Configuration config;
-
-    private static final String GENERAL = "1-GENERAL";
-    private static final String PLAYER_SETTINGS = "2-DEFAULT_PLAYER_SETTINGS";
-    private static final String TREE_DETECTION = "3-TREE-DETECTION";
-    private static final String CHOPPING = "4-CHOP-COUNTING";
-    private static String category;
+    private static Configuration config;
+    private static Stack<String> categoryStack = new Stack<>();
 
     // Good reference: https://github.com/Vazkii/Botania/blob/1.12-final/src/main/java/vazkii/botania/common/core/handler/ConfigHandler.java
     public static void onReload() {
-        category(GENERAL);
-        enabled = getBoolean("enabled", "Whether this mod is enabled or not",
-                enabled);
-        canChooseNotToChop = getBoolean("canChooseNotToChop", "Whether players can deactivate chopping e.g. by sneaking",
-                canChooseNotToChop);
+        reloadCommon();
+
+        logBlocks = null;
+        leavesBlocks = null;
+        choppingToolBlacklistItems = null;
+    }
+
+    private static void reloadCommon() {
+        pushCategory("permissions");
+        enabled = getBoolean(
+                "Whether this mod is enabled or not", "enabled",
+                true);
+        canChooseNotToChop = getBoolean(
+                "Whether players can deactivate chopping e.g. by sneaking", "canChooseNotToChop",
+                true);
+        popCategory();
 
         if (TreeChopMod.proxy.isClient()) {
-        category(PLAYER_SETTINGS);
-            choppingEnabled = getBoolean("choppingEnabled", "Default setting for whether or not the user wishes to chop (can be toggled in-game)",
-                    choppingEnabled);
-            fellingEnabled = getBoolean("fellingEnabled", "Default setting for whether or not the user wishes to fell tree when chopping (can be toggled in-game)",
-                    fellingEnabled);
-            sneakBehavior = getEnum("sneakBehavior", "Default setting for the effect that sneaking has on chopping (can be cycled in-game)",
-                    sneakBehavior, SneakBehavior.class);
-            onlyChopTreesWithLeaves = getBoolean("onlyChopTreesWithLeaves", "Whether to ignore trees without connected leaves",
-                    onlyChopTreesWithLeaves);
+            pushCategory("defaultPlayerSettings");
+            choppingEnabled = getBoolean(
+                    "Default setting for whether or not the user wishes to chop (can be toggled in-game)",
+                    "choppingEnabled",
+                    true);
+            fellingEnabled = getBoolean(
+                    "Default setting for whether or not the user wishes to fell tree when chopping (can be toggled in-game)",
+                    "fellingEnabled",
+                    true);
+            sneakBehavior = getEnum(
+                    "Default setting for the effect that sneaking has on chopping (can be cycled in-game)",
+                    "sneakBehavior",
+                    SneakBehavior.INVERT_CHOPPING, SneakBehavior.class);
+            onlyChopTreesWithLeaves = getBoolean(
+                    "Whether to ignore trees without connected leaves",
+                    "onlyChopTreesWithLeaves",
+                    true);
 
             if (Minecraft.getMinecraft().world != null) {
                 Client.updateChopSettings(getChopSettings());
             }
+            popCategory();
         }
 
-        category(TREE_DETECTION);
-        maxNumTreeBlocks = getInt("maxNumTreeBlocks", "Maximum number of log block that can be detected to belong to one tree",
-                maxNumTreeBlocks, 0, 8096);
-        maxNumLeavesBlocks = getInt("maxNumLeavesBlocks", "Maximum number of leaves block that can destroyed when a tree is felled",
-                maxNumLeavesBlocks, 0, 8096);
-        breakLeaves = getBoolean("breakLeaves", "Whether to destroy leaves when a tree is felled",
-                breakLeaves);
-        maxBreakLeavesDistance = getInt("maxBreakLeavesDistance", "Maximum distance from tree blocks to destroy leaves blocks when felling (Note: smart leaves destruction is not supported in 1.12.2)",
-                maxBreakLeavesDistance, 0, 16);
+        pushCategory("treeDetection");
+        maxNumTreeBlocks = getInt(
+                "Maximum number of log block that can be detected to belong to one tree",
+                "maxNumTreeBlocks", 512, 1, 8096);
+        maxNumLeavesBlocks = getInt(
+                "Maximum number of leaves block that can destroyed when a tree is felled",
+                "maxNumLeavesBlocks", 1024, 1, 8096);
+        breakLeaves = getBoolean(
+                "Whether to destroy leaves when a tree is felled",
+                "breakLeaves", true);
+        maxBreakLeavesDistance = getInt(
+                "Maximum distance from tree blocks to destroy leaves blocks when felling (Note: smart leaves destruction is not supported in 1.12.2)",
+                "maxBreakLeavesDistance", 4, 0, 16);
+        logBlockSynonyms = getStringList(
+                "Comma-separated list of blocks that can be chopped\nOre dictionary names are also acceptable",
+                "logBlocks", Lists.newArrayList("logWood"));
+        leavesBlockSynonyms = getStringList(
+                "Comma-separated list of blocks that are automatically broken when attached to a felled tree and breakLeaves=true\nOre dictionary names are also acceptable",
+                "leavesBlocks", Lists.newArrayList("treeLeaves"));
+        popCategory();
 
-        logBlockSynonyms = getStringList("logBlocks", "Blocks that can be chopped\nOre dictionary names are also acceptable",
-                logBlockSynonyms);
-        logBlocks = null;
+        pushCategory("chopCounting");
+        chopCountingAlgorithm = getEnum(
+                "Method to use for computing the number of chops needed to fell a tree",
+                "algorithm", ChopCountingAlgorithm.LOGARITHMIC, ChopCountingAlgorithm.class);
+        chopCountRounding = getEnum(
+                "How to round the number of chops needed to fell a tree; this is more meaningful for smaller trees",
+                "rounding", Rounder.NEAREST, Rounder.class);
+        canRequireMoreChopsThanBlocks = getBoolean(
+                "Whether felling a tree can require more chops than the number of blocks in the tree",
+                "canRequireMoreChopsThanBlocks", false);
 
-        leavesBlockSynonyms = getStringList("leavesBlocks", "Blocks that are automatically broken when attached to a felled tree and breakLeaves=true\nOre dictionary names are also acceptable",
-                leavesBlockSynonyms);
-        leavesBlocks = null;
+        pushCategory("logarithmic", "See https://github.com/hammertater/treechop/#logarithmic");
+        logarithmicA = getFloat(
+                "Determines the number of chops required to fell a tree; higher values require more chops for bigger trees",
+                "a", 10f, 0f, 10000f);
+        popCategory();
 
-        choppingToolBlacklistNames = getStringList("choppingToolsBlacklist", "List of items that should not chop when used to break a log\nOre dictionary names are also acceptable",
-                choppingToolBlacklistNames);
-        choppingToolBlacklistItems = null;
+        pushCategory("linear", "See https://github.com/hammertater/treechop/#linear");
+        linearM = getFloat(
+                "The number of chops per block required to fell a tree; if chopsPerBlock = 0.5, it will take 50 chops to fell a 100 block tree",
+                "chopsPerBlock", 1f, 0f, 1f);
+        linearB = getFloat(
+                "The base number of chops required to fell a tree regardless of its size",
+                "baseNumChops", 0f, -10000f, 10000f);
+        popCategory();
+        popCategory();
 
-        category(CHOPPING);
-        chopCountingAlgorithm = getEnum("chopCountingMethod", "Method to use for computing the number of chops needed to fell a tree",
-                chopCountingAlgorithm, ChopCountingAlgorithm.class);
-        chopCountScale = getFloat("chopCountScale", "Scales the number of chops (rounding down) required to fell a tree; with chopCountingMethod=LINEAR, this is exactly the number of chops per block",
-                chopCountScale, 0, 1024);
-        
+        pushCategory("compatibility");
+        pushCategory("general");
+        choppingToolBlacklistNames = getStringList(
+                "Comma-separated list of items that should not chop when used to break a log\nOre dictionary names are also acceptable",
+                "choppingToolsBlacklist",
+                Lists.newArrayList("mekanism:atomic_disassembler"));
+        popCategory();
+
+        pushCategory("specific");
+        popCategory();
+        popCategory();
+
         if (config.hasChanged()) {
             config.save();
         }
+    }
+
+    private static void pushCategory(String name, String comment) {
+        pushCategory(name);
+        config.setCategoryComment(getCategory(), comment);
+    }
+
+    private static void pushCategory(String name) {
+        categoryStack.push(name);
+    }
+
+    private static void popCategory() {
+        categoryStack.pop();
+    }
+
+    private static String getCategory() {
+        return String.join(CATEGORY_SPLITTER, categoryStack);
     }
 
     public static ChopSettings getChopSettings() {
@@ -121,35 +196,31 @@ public class ConfigHandler {
         return chopSettings;
     }
 
-    private static List<String> getStringList(String key, String comment, List<String> defaultValues) {
-        return Arrays.stream(config.getString(key, category, String.join(",", defaultValues).concat(","), comment)
-                .split(","))
+    private static List<String> getStringList(String comment, String key, List<String> defaultValues) {
+        return Arrays.stream(config.getString(key, getCategory(), String.join(",", defaultValues).concat(","), comment)
+                .split(LIST_SEPARATOR))
                 .map(String::trim)
                 .collect(Collectors.toList());
     }
 
-    private static boolean getBoolean(String key, String comment, boolean defaultValue) {
-        return config.getBoolean(key, category, defaultValue, comment);
+    private static boolean getBoolean(String comment, String key, boolean defaultValue) {
+        return config.getBoolean(key, getCategory(), defaultValue, comment);
     }
 
-    private static int getInt(String key, String comment, int defaultValue, int lowerBound, int upperBound) {
-        return config.getInt(key, category, defaultValue, lowerBound, upperBound, comment);
+    private static int getInt(String comment, String key, int defaultValue, int lowerBound, int upperBound) {
+        return config.getInt(key, getCategory(), defaultValue, lowerBound, upperBound, comment);
     }
 
-    private static float getFloat(String key, String comment, float defaultValue, float lowerBound, float upperBound) {
-        return config.getFloat(key, category, defaultValue, lowerBound, upperBound, comment);
+    private static float getFloat(String comment, String key, float defaultValue, float lowerBound, float upperBound) {
+        return config.getFloat(key, getCategory(), defaultValue, lowerBound, upperBound, comment);
     }
 
-    private static <T extends Enum<T>> T getEnum(String key, String comment, T defaultValue, Class<T> enumClass) {
+    private static <T extends Enum<T>> T getEnum(String comment, String key, T defaultValue, Class<T> enumClass) {
         String[] possibleValues = getEnumValuesAsStrings(enumClass);
         return Enum.valueOf(enumClass, config.getString(
-                key, category, defaultValue.name(),
+                key, getCategory(), defaultValue.name(),
                 String.format("%s\nOptions: %s", comment, String.join(", ", possibleValues)),
                 possibleValues, possibleValues));
-    }
-
-    private static void category(String name) {
-        category = name;
     }
 
     private static <T extends Enum<T>> String[] getEnumValuesAsStrings(Class<T> enumClass) {
