@@ -8,6 +8,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
@@ -42,9 +43,7 @@ public class ConfigHandler {
     private static List<String> logBlockSynonyms = Lists.newArrayList("logWood");
     private static List<String> leavesBlockSynonyms = Lists.newArrayList("treeLeaves");
     private static List<String> choppingToolBlacklistNames = Lists.newArrayList("mekanism:atomic_disassembler");
-    private static Set<Item> logItems = null;
     private static Set<Block> logBlocks = null;
-    private static Set<Item> leavesItems = null;
     private static Set<Block> leavesBlocks = null;
     private static Set<Item> choppingToolBlacklistItems = null;
 
@@ -92,13 +91,11 @@ public class ConfigHandler {
 
         logBlockSynonyms = getStringList("logBlocks", "Blocks that can be chopped\nOre dictionary names are also acceptable",
                 logBlockSynonyms);
-        logItems = null;
         logBlocks = null;
 
         leavesBlockSynonyms = getStringList("leavesBlocks", "Blocks that are automatically broken when attached to a felled tree and breakLeaves=true\nOre dictionary names are also acceptable",
                 leavesBlockSynonyms);
         leavesBlocks = null;
-        leavesItems = null;
 
         choppingToolBlacklistNames = getStringList("choppingToolsBlacklist", "List of items that should not chop when used to break a log\nOre dictionary names are also acceptable",
                 choppingToolBlacklistNames);
@@ -167,14 +164,11 @@ public class ConfigHandler {
         onReload();
     }
 
-    public static Set<Item> getLogItems() {
-        if (logItems == null) {
-            logItems = logBlockSynonyms.stream()
-                    .flatMap(str -> OreDictionary.getOres(str).stream())
-                    .map(ItemStack::getItem)
-                    .collect(Collectors.toSet());
-        }
-        return logItems;
+    private static Set<Item> getLogItems() {
+         return logBlockSynonyms.stream()
+                .flatMap(str -> OreDictionary.getOres(str).stream())
+                .map(ItemStack::getItem)
+                .collect(Collectors.toSet());
     }
 
     public static Set<Block> getLogBlocks() {
@@ -184,18 +178,22 @@ public class ConfigHandler {
                     .filter(Objects::nonNull)
                     .filter(b -> b != Blocks.AIR)
                     .collect(Collectors.toSet());
+
+            Set<Block> logItemBlocks = getLogItems().stream()
+                    .filter(item -> item instanceof ItemBlock)
+                    .map(item -> (ItemBlock) item)
+                    .map(ItemBlock::getBlock)
+                    .collect(Collectors.toSet());
+            logBlocks.addAll(logItemBlocks);
         }
         return logBlocks;
     }
 
-    public static Set<Item> getLeavesItems() {
-        if (leavesItems == null) {
-            leavesItems = leavesBlockSynonyms.stream()
-                    .flatMap(str -> OreDictionary.getOres(str).stream())
-                    .map(ItemStack::getItem)
-                    .collect(Collectors.toSet());
-        }
-        return leavesItems;
+    private static Set<Item> getLeavesItems() {
+        return leavesBlockSynonyms.stream()
+                .flatMap(str -> OreDictionary.getOres(str).stream())
+                .map(ItemStack::getItem)
+                .collect(Collectors.toSet());
     }
 
     public static Set<Block> getLeavesBlocks() {
@@ -205,6 +203,13 @@ public class ConfigHandler {
                     .filter(Objects::nonNull)
                     .filter(b -> b != Blocks.AIR)
                     .collect(Collectors.toSet());
+
+            Set<Block> leavesItemBlocks = getLeavesItems().stream()
+                    .filter(item -> item instanceof ItemBlock)
+                    .map(item -> (ItemBlock) item)
+                    .map(ItemBlock::getBlock)
+                    .collect(Collectors.toSet());
+            leavesBlocks.addAll(leavesItemBlocks);
         }
         return leavesBlocks;
     }

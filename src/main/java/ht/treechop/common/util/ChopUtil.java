@@ -57,13 +57,7 @@ public class ChopUtil {
 
     static public boolean isBlockALog(World world, BlockPos pos, IBlockState blockState) {
         Block block = blockState.getBlock();
-        if (block instanceof IChoppable || ConfigHandler.getLogBlocks().contains(block) || isMushroomStem(blockState)) {
-            return true;
-        } else {
-            NonNullList<ItemStack> drops = NonNullList.create();
-            block.getDrops(drops, world, pos, blockState, 0);
-            return drops.stream().anyMatch(drop -> ConfigHandler.getLogItems().contains(drop.getItem()));
-        }
+        return block instanceof IChoppable || ConfigHandler.getLogBlocks().contains(block) || isMushroomStem(blockState);
     }
 
     static public boolean isBlockALog(World world, BlockPos pos) {
@@ -76,16 +70,7 @@ public class ChopUtil {
 
     static public boolean isBlockLeaves(World world, BlockPos pos, IBlockState blockState) {
         Block block = blockState.getBlock();
-        if (ConfigHandler.getLeavesBlocks().contains(block) || isMushroomCap(blockState)) {
-            return true;
-        } else {
-            ItemStack pickItem = block.getPickBlock(blockState, null, world, pos, null);
-            if (pickItem != null && ConfigHandler.getLeavesItems().contains(pickItem.getItem())) {
-                return true;
-            } else {
-                return false;
-            }
-        }
+        return ConfigHandler.getLeavesBlocks().contains(block) || isMushroomCap(blockState);
     }
 
     private static boolean isMushroomCap(IBlockState blockState) {
