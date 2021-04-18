@@ -28,7 +28,7 @@ import static net.minecraftforge.common.config.Configuration.CATEGORY_SPLITTER;
 public class ConfigHandler {
 
     private static final String LIST_SEPARATOR = ",";
-    
+
     public static boolean enabled;
     public static boolean canChooseNotToChop;
 
@@ -81,7 +81,7 @@ public class ConfigHandler {
         popCategory();
 
         if (TreeChopMod.proxy.isClient()) {
-            pushCategory("defaultPlayerSettings");
+            pushCategory("default-player-settings");
             choppingEnabled = getBoolean(
                     "Default setting for whether or not the user wishes to chop (can be toggled in-game)",
                     "choppingEnabled",
@@ -105,7 +105,7 @@ public class ConfigHandler {
             popCategory();
         }
 
-        pushCategory("treeDetection");
+        pushCategory("tree-detection");
         maxNumTreeBlocks = getInt(
                 "Maximum number of log block that can be detected to belong to one tree",
                 "maxNumTreeBlocks", 512, 1, 8096);
@@ -126,7 +126,7 @@ public class ConfigHandler {
                 "leavesBlocks", Lists.newArrayList("treeLeaves"));
         popCategory();
 
-        pushCategory("chopCounting");
+        pushCategory("chop-counting");
         chopCountingAlgorithm = getEnum(
                 "Method to use for computing the number of chops needed to fell a tree",
                 "algorithm", ChopCountingAlgorithm.LOGARITHMIC, ChopCountingAlgorithm.class);
