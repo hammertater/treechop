@@ -169,7 +169,7 @@ public class ChopUtil {
     }
 
     static public int numChopsToFell(int numBlocks) {
-        return (int) (ConfigHandler.chopCountingAlgorithm.calculate(numBlocks) * ConfigHandler.chopCountScale);
+        return ConfigHandler.chopCountingAlgorithm.calculate(numBlocks);
     }
 
     public static ChopResult getChopResult(World world, BlockPos blockPos, EntityPlayer agent, int numChops, ItemStack tool, boolean fellIfPossible, Predicate<BlockPos> logCondition) {

@@ -4,40 +4,45 @@ import net.minecraft.util.IStringSerializable;
 
 import java.util.function.Function;
 
+import static java.lang.Math.log;
+
 public enum ChopCountingAlgorithm implements IStringSerializable {
     LINEAR(
-            "linear",
-            numBlocks -> numBlocks
+            numBlocks -> {
+                double x = (double) numBlocks;
+                double m = ConfigHandler.linearM;
+                double b = ConfigHandler.linearB;
+                return m * x + b;
+            }
     ),
     LOGARITHMIC(
-            "log",
-            numBlocks -> (int) Math.floor(1 + 6 * log2(1 + ((double) numBlocks - 1) / 8))
+            numBlocks -> {
+                double x = (double) numBlocks;
+                double a = ConfigHandler.logarithmicA;
+                return 1 + a * log(1 + (x - 1) / a);
+            }
     );
 
-    private final String name;
-    private final Function<Integer, Integer> calculation;
+    private final Function<Integer, Double> preciseCalculation;
 
-    ChopCountingAlgorithm(String name, Function<Integer, Integer> calculation) {
-        this.name = name;
-        this.calculation = calculation;
-    }
-
-    public String toString() {
-        return name;
-    }
-
-    @SuppressWarnings("NullableProblems")
-    @Override
-    public String getName() {
-        return name;
+    ChopCountingAlgorithm(Function<Integer, Double> preciseCalculation) {
+        this.preciseCalculation = preciseCalculation;
     }
 
     public int calculate(int numBlocks) {
-        return calculation.apply(numBlocks);
+        if (numBlocks == 1) {
+            return 1;
+        } else {
+            Rounder rounder = ConfigHandler.chopCountRounding;
+            int unboundedCount = Math.max(1, rounder.round(preciseCalculation.apply(numBlocks)));
+            return ConfigHandler.canRequireMoreChopsThanBlocks
+                    ? unboundedCount
+                    : Math.min(numBlocks, unboundedCount);
+        }
     }
 
-    static private double log2(double x) {
-        final double invBase = 1 / (Math.log(2));
-        return Math.log(x) * invBase;
+    @Override
+    public String getName() {
+        return name();
     }
 }
