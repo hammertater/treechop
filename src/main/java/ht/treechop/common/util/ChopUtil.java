@@ -64,10 +64,10 @@ public class ChopUtil {
     }
 
     public static boolean isBlockLeaves(BlockState blockState) {
-        if (blockState.hasProperty(LeavesBlock.PERSISTENT) && !ConfigHandler.breakPersistentLeaves && blockState.get(LeavesBlock.PERSISTENT)) {
-            return false;
+        if (blockState.getBlock().isIn(ConfigHandler.blockTagForDetectingLeaves)) {
+            return !blockState.hasProperty(LeavesBlock.PERSISTENT) || ConfigHandler.breakPersistentLeaves || !blockState.get(LeavesBlock.PERSISTENT);
         } else {
-            return blockState.getBlock().isIn(ConfigHandler.blockTagForDetectingLeaves);
+            return false;
         }
     }
 
