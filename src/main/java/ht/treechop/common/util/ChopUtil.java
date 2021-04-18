@@ -76,10 +76,16 @@ public class ChopUtil {
 
     static public boolean isBlockLeaves(World world, BlockPos pos, IBlockState blockState) {
         Block block = blockState.getBlock();
-        return (ConfigHandler.getLeavesBlocks().contains(block)
-                || ConfigHandler.getLeavesItems().contains(block.getPickBlock(blockState, null, world, pos, null).getItem())
-                || isMushroomCap(blockState)
-        );
+        if (ConfigHandler.getLeavesBlocks().contains(block) || isMushroomCap(blockState)) {
+            return true;
+        } else {
+            ItemStack pickItem = block.getPickBlock(blockState, null, world, pos, null);
+            if (pickItem != null && ConfigHandler.getLeavesItems().contains(pickItem.getItem())) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     private static boolean isMushroomCap(IBlockState blockState) {
