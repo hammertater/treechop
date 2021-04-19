@@ -7,51 +7,51 @@ import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
 import ht.treechop.server.Server;
 import net.minecraft.block.Block;
-import net.minecraft.tags.BlockTags;
+import net.minecraft.item.Item;
 import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITagCollection;
+import net.minecraft.tags.ITagCollectionSupplier;
+import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ConfigHandler {
 
     public static ITag<Block> blockTagForDetectingLogs;
     public static ITag<Block> blockTagForDetectingLeaves;
-    public static Set<ResourceLocation> choppingToolItemsBlacklist;
-    public static Set<ResourceLocation> choppingToolTagsBlacklist;
+    private static Set<Item> itemsBlacklist = null;
+    public static Set<Item> itemsToOverride = null;
     public static int maxBreakLeavesDistance;
     public static boolean ignorePersistentLeaves;
 
     public static void onReload() {
-        choppingToolItemsBlacklist = COMMON.choppingToolsBlacklist.get().stream()
-                .filter(tag -> !tag.startsWith("#"))
-                .map(ResourceLocation::tryCreate)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-        choppingToolTagsBlacklist = COMMON.choppingToolsBlacklist.get().stream()
-                .filter(tag -> tag.startsWith("#"))
-                .map(tag -> ResourceLocation.tryCreate(tag.substring(1)))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
         maxBreakLeavesDistance = COMMON.maxBreakLeavesDistance.get();
         ignorePersistentLeaves = COMMON.ignorePersistentLeaves.get();
 
-        updateTags(BlockTags.getCollection());
+        updateTags();
         updatePermissions();
     }
 
-    public static void updateTags(ITagCollection<Block> blockTags) {
-        blockTagForDetectingLogs = blockTags.get(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
-        blockTagForDetectingLeaves = blockTags.get(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
+    public static void updateTags() {
+        updateTags(TagCollectionManager.getManager());
+    }
+
+    public static void updateTags(ITagCollectionSupplier tagManager) {
+        blockTagForDetectingLogs = tagManager.getBlockTags().get(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
+        blockTagForDetectingLeaves = tagManager.getBlockTags().get(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
+        itemsBlacklist = null;
+        itemsToOverride = null;
     }
 
     private static void updatePermissions() {
@@ -63,6 +63,39 @@ public class ConfigHandler {
         Permissions permissions = new Permissions(permittedSettings);
 
         Server.updatePermissions(permissions);
+    }
+
+    private static Set<Item> getItemsFromConfigList(ITagCollectionSupplier tagManager, List<? extends String> identifiers) {
+        Stream<Item> itemsFromIDs = identifiers.stream()
+                .filter(tag -> !tag.startsWith("#"))
+                .map(ResourceLocation::tryCreate)
+                .filter(Objects::nonNull)
+                .map(ForgeRegistries.ITEMS::getValue);
+
+        Stream<Item> itemsFromTags = identifiers.stream()
+                .filter(tag -> tag.startsWith("#"))
+                .map(tag -> ResourceLocation.tryCreate(tag.substring(1)))
+                .filter(Objects::nonNull)
+                .map(tagManager.getItemTags()::get)
+                .filter(Objects::nonNull)
+                .map(ITag::getAllElements)
+                .flatMap(Collection::stream);
+
+        return Stream.concat(itemsFromIDs, itemsFromTags).collect(Collectors.toSet());
+    }
+
+    public static boolean shouldOverrideItemBehavior(Item item) {
+        if (itemsToOverride == null) {
+            itemsToOverride = getItemsFromConfigList(TagCollectionManager.getManager(), COMMON.itemsToOverride.get());
+        }
+        return itemsToOverride.contains(item);
+    }
+
+    public static boolean canChopWithItem(Item item) {
+        if (itemsBlacklist == null) {
+            itemsBlacklist = getItemsFromConfigList(TagCollectionManager.getManager(), COMMON.itemsToBlacklist.get());
+        }
+        return !itemsBlacklist.contains(item);
     }
 
     public static class Common {
@@ -86,7 +119,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue linearM;
         public final ForgeConfigSpec.DoubleValue linearB;
 
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppingToolsBlacklist;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> itemsToBlacklist;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> itemsToOverride;
 
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
@@ -169,13 +203,16 @@ public class ConfigHandler {
             preventChopRecursion = builder
                     .comment("Whether to prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")
                     .define("preventChopRecursion", true);
-            choppingToolsBlacklist = builder
+            itemsToBlacklist = builder
                     .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not chop when used to break a log")
-                    .defineList(
-                            "choppingToolsBlacklist",
-                            Arrays.asList("#forge:saws", "mekanism:atomic_disassembler"),
-                            always -> true
-                    );
+                    .defineList("choppingToolsBlacklist",
+                            Arrays.asList("mekanism:atomic_disassembler"),
+                            always -> true);
+            itemsToOverride = builder
+                    .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not execute their default behavior when chopping")
+                    .defineList("choppingToolsOverrideList",
+                            Arrays.asList("#forge:saws", "#tconstruct:modifiable/harvest"),
+                            always -> true);
             builder.pop();
             builder.push("specific");
             compatForProjectMMO = builder

@@ -39,8 +39,7 @@ public class Common {
 
     @SubscribeEvent
     public static void onTagsUpdated(TagsUpdatedEvent event) {
-        ITagCollection<Block> blockTags = event.getTagManager().getBlockTags();
-        ConfigHandler.updateTags(blockTags);
+        ConfigHandler.updateTags(event.getTagManager());
     }
 
     @SubscribeEvent

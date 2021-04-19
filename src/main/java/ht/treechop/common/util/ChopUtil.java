@@ -98,12 +98,21 @@ public class ChopUtil {
 
     @SuppressWarnings("ConstantConditions")
     public static boolean canChangeBlock(World world, BlockPos blockPos, PlayerEntity agent) {
-        return !agent.blockActionRestricted(world, blockPos, agent.getServer().getGameType());
+        return canChangeBlock(world, blockPos, agent, ItemStack.EMPTY);
     }
 
     @SuppressWarnings("ConstantConditions")
     public static boolean canChangeBlock(World world, BlockPos blockPos, PlayerEntity agent, ItemStack tool) {
-        return !(agent.blockActionRestricted(world, blockPos, agent.getServer().getGameType()) || (!tool.isEmpty() && tool.getItem().onBlockStartBreak(tool, blockPos, agent)));
+        if (!agent.blockActionRestricted(world, blockPos, agent.getServer().getGameType())) {
+            if (tool.isEmpty()) {
+                return true;
+            } else {
+                return ConfigHandler.shouldOverrideItemBehavior(tool.getItem()) || !tool.getItem().onBlockStartBreak(tool, blockPos, agent);
+            }
+        }
+        else {
+            return false;
+        }
     }
 
     public static List<BlockPos> getTreeLeaves(World world, Collection<BlockPos> treeBlocks) {
@@ -392,8 +401,7 @@ public class ChopUtil {
     }
 
     public static boolean canChopWithTool(ItemStack tool) {
-        return !(ConfigHandler.choppingToolItemsBlacklist.contains(tool.getItem().getRegistryName()) ||
-                tool.getItem().getTags().stream().anyMatch(ConfigHandler.choppingToolTagsBlacklist::contains));
+        return ConfigHandler.canChopWithItem(tool.getItem());
     }
 
     public static int getNumChopsByTool(ItemStack tool) {
