@@ -9,21 +9,27 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public enum SettingsField {
-    CHOPPING("treechop.setting.chopping", Boolean.TRUE),
-    FELLING("treechop.setting.felling", Boolean.TRUE),
-    SNEAK_BEHAVIOR("treechop.setting.sneak_behavior", SneakBehavior.INVERT_CHOPPING),
-    TREES_MUST_HAVE_LEAVES("treechop.setting.trees_must_have_leaves", Boolean.TRUE),
-    CHOP_IN_CREATIVE_MODE("treechop.setting.chop_in_creative_mode", Boolean.FALSE)
+    CHOPPING("choppingEnabled", "treechop.setting.chopping", Boolean.TRUE),
+    FELLING("fellingEnabled", "treechop.setting.felling", Boolean.TRUE),
+    SNEAK_BEHAVIOR("sneakBehavior", "treechop.setting.sneak_behavior", SneakBehavior.INVERT_CHOPPING),
+    TREES_MUST_HAVE_LEAVES("treeMustHaveLeaves", "treechop.setting.trees_must_have_leaves", Boolean.TRUE),
+    CHOP_IN_CREATIVE_MODE("chopInCreativeMode", "treechop.setting.chop_in_creative_mode", Boolean.FALSE)
     ;
 
+    private final String configKey;
     private final String langKey;
     private final SimpleCodec<?> codec;
     private Object defaultValue;
 
-    SettingsField(String langKey, Object defaultValue) {
+    SettingsField(String configKey, String langKey, Object defaultValue) {
+        this.configKey = configKey;
         this.langKey = langKey;
         this.defaultValue = defaultValue;
         this.codec = Codecs.forType(defaultValue.getClass());
+    }
+
+    public String getConfigKey() {
+        return configKey;
     }
 
     public String getFancyName() {

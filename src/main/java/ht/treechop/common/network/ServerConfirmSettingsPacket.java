@@ -1,8 +1,6 @@
 package ht.treechop.common.network;
 
 import ht.treechop.client.Client;
-import ht.treechop.common.settings.SettingsField;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 

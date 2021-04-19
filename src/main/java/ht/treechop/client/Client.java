@@ -7,8 +7,8 @@ import ht.treechop.client.model.ChoppedLogBakedModel;
 import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
-import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.network.ClientRequestSettingsPacket;
+import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
@@ -54,8 +54,8 @@ public class Client {
 
     @SubscribeEvent
     public static void onConnect(ClientPlayerNetworkEvent.LoggedInEvent event) {
-        chopSettings.copyFrom(ConfigHandler.CLIENT.getChopSettings());
         TreeChopMod.LOGGER.info("Sending chop settings sync request");
+        chopSettings.copyFrom(ConfigHandler.CLIENT.getChopSettings());
         PacketHandler.sendToServer(new ClientRequestSettingsPacket(chopSettings));
     }
 
@@ -115,4 +115,11 @@ public class Client {
         }
     }
 
+    public static void updatePermissions(Permissions permissions) {
+        serverPermissions.copy(permissions);
+    }
+
+    public static Permissions getServerPermissions() {
+        return serverPermissions;
+    }
 }

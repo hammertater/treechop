@@ -59,7 +59,7 @@ public class ConfirmedSetting extends Setting {
                 }
             }
         },
-        OVERRIDE
+        SILENT
         ;
 
         public void run(ConfirmedSetting message) {

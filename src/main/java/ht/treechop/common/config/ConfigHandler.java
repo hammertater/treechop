@@ -1,16 +1,22 @@
 package ht.treechop.common.config;
 
 import ht.treechop.common.settings.ChopSettings;
+import ht.treechop.common.settings.Permissions;
+import ht.treechop.common.settings.Setting;
+import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
+import ht.treechop.server.Server;
 import net.minecraft.block.Block;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ITagCollection;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -40,6 +46,7 @@ public class ConfigHandler {
         breakPersistentLeaves = COMMON.breakPersistentLeaves.get();
 
         updateTags(BlockTags.getCollection());
+        updatePermissions();
     }
 
     public static void updateTags(ITagCollection<Block> blockTags) {
@@ -47,22 +54,22 @@ public class ConfigHandler {
         blockTagForDetectingLeaves = blockTags.get(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
     }
 
+    private static void updatePermissions() {
+        Set<Setting> permittedSettings = COMMON.rawPermissions.stream()
+                .filter(settingAndConfig -> settingAndConfig.getRight().get())
+                .map(Pair::getLeft)
+                .collect(Collectors.toSet());
+
+        Permissions permissions = new Permissions(permittedSettings);
+
+        Server.updatePermissions(permissions);
+    }
+
     public static class Common {
 
         public final ForgeConfigSpec.BooleanValue enabled;
 
-        public final ForgeConfigSpec.BooleanValue choppingEnabledCanBeTrue;
-        public final ForgeConfigSpec.BooleanValue choppingEnabledCanBeFalse;
-
-        public final ForgeConfigSpec.BooleanValue fellingEnabledCanBeTrue;
-        public final ForgeConfigSpec.BooleanValue fellingEnabledCanBeFalse;
-
-        public final ForgeConfigSpec.BooleanValue treesMustHaveLeavesCanBeTrue;
-        public final ForgeConfigSpec.BooleanValue treesMustHaveLeavesCanBeFalse;
-
-        public final ForgeConfigSpec.BooleanValue sneakBehaviorCanInvertChopping;
-        public final ForgeConfigSpec.BooleanValue sneakBehaviorCanInvertFelling;
-        public final ForgeConfigSpec.BooleanValue sneakBehaviorCanDoNothing;
+        protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
 
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
@@ -92,18 +99,14 @@ public class ConfigHandler {
                     .comment("Whether this mod is enabled or not")
                     .define("enabled", true);
 
-            choppingEnabledCanBeTrue = builder.define("choppingEnabled.canBeTrue", true);
-            choppingEnabledCanBeFalse = builder.define("choppingEnabled.canBeFalse", true);
-
-            fellingEnabledCanBeTrue = builder.define("fellingEnabled.canBeTrue", true);
-            fellingEnabledCanBeFalse = builder.define("fellingEnabled.canBeFalse", true);
-
-            treesMustHaveLeavesCanBeTrue = builder.define("treesMustHaveLeaves.canBeTrue", true);
-            treesMustHaveLeavesCanBeFalse = builder.define("treesMustHaveLeaves.canBeFalse", true);
-
-            sneakBehaviorCanInvertChopping = builder.define("sneakBehavior.canInvertChopping", true);
-            sneakBehaviorCanInvertFelling = builder.define("sneakBehavior.canInvertFelling", true);
-            sneakBehaviorCanDoNothing = builder.define("sneakBehavior.canDoNothing", true);
+            for (SettingsField field : SettingsField.values()) {
+                String fieldName = field.getConfigKey();
+                for (Object value : field.getValues()) {
+                    String valueName = getPrettyValueName(value);
+                    ForgeConfigSpec.BooleanValue configHandle = builder.define(fieldName + ".canBe" + valueName, true);
+                    rawPermissions.add(Pair.of(new Setting(field, value), configHandle));
+                }
+            }
 
             builder.pop();
 
@@ -183,6 +186,13 @@ public class ConfigHandler {
                     .define("carryOn", true);
             builder.pop();
             builder.pop();
+        }
+
+        @SuppressWarnings("deprecation")
+        private String getPrettyValueName(Object value) {
+            return Arrays.stream(value.toString().toLowerCase().split("_"))
+                    .map(WordUtils::capitalize)
+                    .collect(Collectors.joining());
         }
     }
 

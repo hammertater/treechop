@@ -22,6 +22,7 @@ public final class PacketHandler {
         int id = 0;
         HANDLER.registerMessage(id++, ClientRequestSettingsPacket.class, ClientRequestSettingsPacket::encode, ClientRequestSettingsPacket::decode, ClientRequestSettingsPacket::handle);
         HANDLER.registerMessage(id++, ServerConfirmSettingsPacket.class, ServerConfirmSettingsPacket::encode, ServerConfirmSettingsPacket::decode, ServerConfirmSettingsPacket::handle);
+        HANDLER.registerMessage(id++, ServerPermissionsPacket.class, ServerPermissionsPacket::encode, ServerPermissionsPacket::decode, ServerPermissionsPacket::handle);
     }
 
     public static void sendToServer(Object msg) {

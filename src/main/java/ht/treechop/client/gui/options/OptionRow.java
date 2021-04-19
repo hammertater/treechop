@@ -3,8 +3,6 @@ package ht.treechop.client.gui.options;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.widget.list.AbstractOptionList;
 
-import java.util.Objects;
-
 public abstract class OptionRow extends AbstractOptionList.Entry<OptionRow> {
 
     public abstract void resize(int width);

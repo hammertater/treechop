@@ -5,6 +5,7 @@ import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
+import ht.treechop.server.Server;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -65,22 +66,23 @@ public class ClientRequestSettingsPacket {
     }
 
     private static void processSettingsRequest(ChopSettingsCapability capability, ClientRequestSettingsPacket message, ServerPlayerEntity player) {
-        List<ConfirmedSetting> settings;
-        if (message.event == Event.FIRST_TIME_SYNC && capability.isSynced()) {
-            settings = capability.getAll().stream().map(setting -> new ConfirmedSetting(setting, ConfirmedSetting.Event.OVERRIDE))
-                    .map(setting -> processSingleSettingRequest(setting, player, capability, message.event))
-                    .collect(Collectors.toList());
-        } else {
-            settings = message.settings.stream()
-                    .map(setting -> processSingleSettingRequest(setting, player, capability, message.event))
-                    .collect(Collectors.toList());
-        }
+        List<Setting> settings = (message.event == Event.FIRST_TIME_SYNC && capability.isSynced())
+                ? capability.getAll()
+                : message.settings;
 
-        if (message.event == Event.FIRST_TIME_SYNC && !capability.isSynced()) {
-            capability.setSynced();
-        }
+        List<ConfirmedSetting> confirmedSettings = settings.stream()
+                .map(setting -> processSingleSettingRequest(setting, player, capability, message.event))
+                .collect(Collectors.toList());;
 
-        PacketHandler.sendTo(player, new ServerConfirmSettingsPacket(settings));
+        PacketHandler.sendTo(player, new ServerConfirmSettingsPacket(confirmedSettings));
+
+        if (message.event == Event.FIRST_TIME_SYNC) {
+            if (!capability.isSynced()) {
+                capability.setSynced();
+            }
+
+            PacketHandler.sendTo(player, new ServerPermissionsPacket(Server.getPermissions()));
+        }
     }
 
     private static ConfirmedSetting processSingleSettingRequest(Setting setting, ServerPlayerEntity player, ChopSettings chopSettings, Event requestEvent) {
@@ -89,20 +91,25 @@ public class ClientRequestSettingsPacket {
             chopSettings.set(setting);
             confirmEvent = ConfirmedSetting.Event.ACCEPT;
         } else {
+            Setting defaultSetting = getDefaultSetting(player, setting);
+            chopSettings.set(defaultSetting);
             confirmEvent = ConfirmedSetting.Event.DENY;
         }
 
         if (requestEvent == Event.FIRST_TIME_SYNC) {
-            confirmEvent = ConfirmedSetting.Event.OVERRIDE;
+            confirmEvent = ConfirmedSetting.Event.SILENT;
         }
 
         SettingsField field = setting.getField();
         return new ConfirmedSetting(new Setting(field, chopSettings.get(field)), confirmEvent);
     }
 
+    private static Setting getDefaultSetting(ServerPlayerEntity player, Setting setting) {
+        return Server.getDefaultPlayerSettings().getSetting(setting.getField());
+    }
+
     private static boolean playerHasPermission(PlayerEntity player, Setting setting) {
-        return true; // TODO
-//        if (ConfigHandler.COMMON.canChooseNotToChop.get()) {
+        return Server.getPermissions().isPermitted(setting);
     }
 
     private enum Event {

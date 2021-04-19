@@ -1,6 +1,7 @@
 package ht.treechop.common.settings;
 
 import net.minecraft.network.PacketBuffer;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Setting {
 
@@ -41,4 +42,23 @@ public class Setting {
         return SettingsField.decode(buffer);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        } if (!(other instanceof Setting)) {
+            return false;
+        } else {
+            Setting otherSetting = (Setting) other;
+            return field == otherSetting.field && value.equals(otherSetting.value);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 31)
+                .append(field)
+                .append(value)
+                .toHashCode();
+    }
 }

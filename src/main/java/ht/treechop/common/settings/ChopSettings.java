@@ -15,7 +15,7 @@ public class ChopSettings {
 
     public ChopSettings() {
         for (SettingsField field : SettingsField.values()) {
-            fieldValues.put(field, new Setting(field));
+            fieldValues.put(field, field.getDefaultValue());
         }
     }
 
@@ -74,5 +74,9 @@ public class ChopSettings {
         return Arrays.stream(SettingsField.values())
                 .map(field -> new Setting(field, get(field)))
                 .collect(Collectors.toList());
+    }
+
+    public Setting getSetting(SettingsField field) {
+        return new Setting(field, get(field));
     }
 }

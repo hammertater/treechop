@@ -16,5 +16,4 @@ public interface SimpleCodec<T> {
     Optional<T> getValueOf(Object object);
 
     Set<T> getValues();
-
 }

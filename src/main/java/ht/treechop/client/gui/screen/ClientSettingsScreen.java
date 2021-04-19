@@ -8,7 +8,8 @@ import ht.treechop.client.gui.options.LabeledOptionRow;
 import ht.treechop.client.gui.options.OptionList;
 import ht.treechop.client.gui.util.GUIUtil;
 import ht.treechop.client.gui.widget.StickyWidget;
-import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.settings.Setting;
+import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -44,12 +45,12 @@ public abstract class ClientSettingsScreen extends Screen {
                                 .add(
                                         new TranslationTextComponent("gui.yes"),
                                         () -> Client.getChopSettings().setChoppingEnabled(true),
-                                        () -> StickyWidget.State.of(Client.getChopSettings().getChoppingEnabled(), ConfigHandler.COMMON.choppingEnabledCanBeTrue.get())
+                                        () -> makeSettingWidgetState(SettingsField.CHOPPING, true)
                                 )
                                 .add(
                                         new TranslationTextComponent("gui.no"),
                                         () -> Client.getChopSettings().setChoppingEnabled(false),
-                                        () -> StickyWidget.State.of(!Client.getChopSettings().getChoppingEnabled(), ConfigHandler.COMMON.choppingEnabledCanBeFalse.get())
+                                        () -> makeSettingWidgetState(SettingsField.CHOPPING, false)
                                 )
                                 .build()
                 )
@@ -63,12 +64,12 @@ public abstract class ClientSettingsScreen extends Screen {
                                 .add(
                                         new TranslationTextComponent("gui.yes"),
                                         () -> Client.getChopSettings().setFellingEnabled(true),
-                                        () -> StickyWidget.State.of(Client.getChopSettings().getFellingEnabled(), ConfigHandler.COMMON.fellingEnabledCanBeTrue.get())
+                                        () -> makeSettingWidgetState(SettingsField.FELLING, true)
                                 )
                                 .add(
                                         new TranslationTextComponent("gui.no"),
                                         () -> Client.getChopSettings().setFellingEnabled(false),
-                                        () -> StickyWidget.State.of(!Client.getChopSettings().getFellingEnabled(), ConfigHandler.COMMON.fellingEnabledCanBeFalse.get())
+                                        () -> makeSettingWidgetState(SettingsField.FELLING, false)
                                 )
                                 .build()
                 )
@@ -84,7 +85,8 @@ public abstract class ClientSettingsScreen extends Screen {
                                         () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.INVERT_CHOPPING),
                                         () -> StickyWidget.State.of(
                                                 Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_CHOPPING,
-                                                ConfigHandler.COMMON.sneakBehaviorCanInvertChopping.get()
+                                                isSettingPermitted(SettingsField.CHOPPING, !Client.getChopSettings().getChoppingEnabled())
+                                                        && isSettingPermitted(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.INVERT_CHOPPING)
                                         )
                                 )
                                 .add(
@@ -92,16 +94,14 @@ public abstract class ClientSettingsScreen extends Screen {
                                         () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.INVERT_FELLING),
                                         () -> StickyWidget.State.of(
                                                 Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_FELLING,
-                                                ConfigHandler.COMMON.sneakBehaviorCanInvertFelling.get()
+                                                isSettingPermitted(SettingsField.FELLING, !Client.getChopSettings().getFellingEnabled())
+                                                        && isSettingPermitted(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.INVERT_FELLING)
                                         )
                                 )
                                 .add(
                                         new TranslationTextComponent("treechop.gui.settings.button.nothing"),
                                         () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.NONE),
-                                        () -> StickyWidget.State.of(
-                                                Client.getChopSettings().getSneakBehavior() == SneakBehavior.NONE,
-                                                ConfigHandler.COMMON.sneakBehaviorCanDoNothing.get()
-                                        )
+                                        () -> makeSettingWidgetState(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.NONE)
                                 )
                                 .build()
                 )
@@ -115,12 +115,12 @@ public abstract class ClientSettingsScreen extends Screen {
                                 .add(
                                         new TranslationTextComponent("gui.yes"),
                                         () -> Client.getChopSettings().setTreesMustHaveLeaves(true),
-                                        () -> StickyWidget.State.of(Client.getChopSettings().getTreesMustHaveLeaves(), ConfigHandler.COMMON.treesMustHaveLeavesCanBeTrue.get())
+                                        () -> makeSettingWidgetState(SettingsField.TREES_MUST_HAVE_LEAVES, true)
                                 )
                                 .add(
                                         new TranslationTextComponent("gui.no"),
                                         () -> Client.getChopSettings().setTreesMustHaveLeaves(false),
-                                        () -> StickyWidget.State.of(!Client.getChopSettings().getTreesMustHaveLeaves(), ConfigHandler.COMMON.treesMustHaveLeavesCanBeFalse.get())
+                                        () -> makeSettingWidgetState(SettingsField.TREES_MUST_HAVE_LEAVES, false)
                                 )
                                 .build()
                 )
@@ -134,12 +134,12 @@ public abstract class ClientSettingsScreen extends Screen {
                                 .add(
                                         new TranslationTextComponent("gui.yes"),
                                         () -> Client.getChopSettings().setChopInCreativeMode(true),
-                                        () -> StickyWidget.State.of(Client.getChopSettings().getChopInCreativeMode(), true)
+                                        () -> makeSettingWidgetState(SettingsField.CHOP_IN_CREATIVE_MODE, true)
                                 )
                                 .add(
                                         new TranslationTextComponent("gui.no"),
                                         () -> Client.getChopSettings().setChopInCreativeMode(false),
-                                        () -> StickyWidget.State.of(!Client.getChopSettings().getChopInCreativeMode(), true)
+                                        () -> makeSettingWidgetState(SettingsField.CHOP_IN_CREATIVE_MODE, false)
                                 )
                                 .build()
                 )
@@ -182,6 +182,17 @@ public abstract class ClientSettingsScreen extends Screen {
                 ITextComponent.getTextComponentOrEmpty(I18n.format("gui.done")),
                 button -> closeScreen()
         ));
+    }
+
+    private boolean isSettingPermitted(SettingsField field, Object value) {
+        return Client.getServerPermissions().isPermitted(new Setting(field, value));
+    }
+
+    private StickyWidget.State makeSettingWidgetState(SettingsField field, Object value) {
+        return StickyWidget.State.of(
+                Client.getChopSettings().get(field) == value,
+                Client.getServerPermissions().isPermitted(new Setting(field, value))
+        );
     }
 
     @Override

@@ -3,8 +3,6 @@ package ht.treechop.common.settings;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Arrays;
 import java.util.function.Predicate;

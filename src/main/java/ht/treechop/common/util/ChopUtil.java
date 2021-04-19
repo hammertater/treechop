@@ -1,7 +1,6 @@
 package ht.treechop.common.util;
 
 import ht.treechop.TreeChopMod;
-import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.block.IChoppable;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
@@ -14,7 +13,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LeavesBlock;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
