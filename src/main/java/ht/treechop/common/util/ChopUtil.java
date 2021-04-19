@@ -63,7 +63,7 @@ public class ChopUtil {
 
     public static boolean isBlockLeaves(BlockState blockState) {
         if (blockState.getBlock().isIn(ConfigHandler.blockTagForDetectingLeaves)) {
-            return !blockState.hasProperty(LeavesBlock.PERSISTENT) || ConfigHandler.breakPersistentLeaves || !blockState.get(LeavesBlock.PERSISTENT);
+            return !ConfigHandler.ignorePersistentLeaves || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.get(LeavesBlock.PERSISTENT);
         } else {
             return false;
         }

@@ -29,7 +29,7 @@ public class ConfigHandler {
     public static Set<ResourceLocation> choppingToolItemsBlacklist;
     public static Set<ResourceLocation> choppingToolTagsBlacklist;
     public static int maxBreakLeavesDistance;
-    public static boolean breakPersistentLeaves;
+    public static boolean ignorePersistentLeaves;
 
     public static void onReload() {
         choppingToolItemsBlacklist = COMMON.choppingToolsBlacklist.get().stream()
@@ -43,7 +43,7 @@ public class ConfigHandler {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         maxBreakLeavesDistance = COMMON.maxBreakLeavesDistance.get();
-        breakPersistentLeaves = COMMON.breakPersistentLeaves.get();
+        ignorePersistentLeaves = COMMON.ignorePersistentLeaves.get();
 
         updateTags(BlockTags.getCollection());
         updatePermissions();
@@ -74,7 +74,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
         public final ForgeConfigSpec.BooleanValue breakLeaves;
-        public final ForgeConfigSpec.BooleanValue breakPersistentLeaves;
+        public final ForgeConfigSpec.BooleanValue ignorePersistentLeaves;
         protected final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
         protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLogs;
         protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeaves;
@@ -120,9 +120,9 @@ public class ConfigHandler {
             breakLeaves = builder
                     .comment("Whether to destroy leaves when a tree is felled")
                     .define("breakLeaves", true);
-            breakPersistentLeaves = builder
-                    .comment("If breakLeaves is true, whether to destroy leaves that are marked as persistent when a tree is felled")
-                    .define("breakPersistentLeaves", true);
+            ignorePersistentLeaves = builder
+                    .comment("Whether non-decayable leaves are ignored when detecting leaves")
+                    .define("ignorePersistentLeaves", true);
             maxBreakLeavesDistance = builder
                     .comment("Maximum distance from log blocks to destroy non-standard leaves blocks (e.g. mushroom caps) when felling")
                     .defineInRange("maxBreakLeavesDistance", 7, 0, 16);
