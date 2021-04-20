@@ -6,6 +6,7 @@ import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -81,7 +82,8 @@ public class ChopIndicator extends AbstractGui {
             lastChoppingEnabled = chopSettings.getChoppingEnabled();
             lastFellingEnabled = chopSettings.getFellingEnabled();
 
-            if (ChopUtil.playerWantsToFell(minecraft.player, Client.getChopSettings())) {
+            ClientPlayerEntity player = minecraft.player;
+            if (player != null && ChopUtil.playerWantsToFell(player, Client.getChopSettings()) && ChopUtil.canChopWithTool(player.getHeldItemMainhand())) {
                 lastBlockWouldBeChopped = ChopUtil.isPartOfATree(
                         minecraft.world, pos, Client.getChopSettings().getTreesMustHaveLeaves()
                 );
