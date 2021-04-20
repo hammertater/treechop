@@ -1,9 +1,9 @@
 package ht.treechop.common.util;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.api.IChoppableBlock;
 import ht.treechop.api.IChopperItem;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.api.IChoppableBlock;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
@@ -14,7 +14,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LeavesBlock;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -455,7 +454,7 @@ public class ChopUtil {
         }
     }
 
-    public static boolean isPartOfATree(ClientWorld world, BlockPos pos, boolean mustHaveLeaves) {
+    public static boolean isPartOfATree(World world, BlockPos pos, boolean mustHaveLeaves) {
         Set<BlockPos> treeBlocks = getTreeBlocks(world, pos, mustHaveLeaves);
         return (treeBlocks.size() > 1);
     }
