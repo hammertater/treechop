@@ -153,12 +153,12 @@ public abstract class ClientSettingsScreen extends Screen {
                                 .add(
                                         new TranslationTextComponent("gui.yes"),
                                         () -> Client.setChoppingIndicatorVisible(true),
-                                        () -> StickyWidget.State.of(Client.getChoppingIndicatorVisible(), true)
+                                        () -> StickyWidget.State.of(Client.isChoppingIndicatorEnabled(), true)
                                 )
                                 .add(
                                         new TranslationTextComponent("gui.no"),
                                         () -> Client.setChoppingIndicatorVisible(false),
-                                        () -> StickyWidget.State.of(!Client.getChoppingIndicatorVisible(), true)
+                                        () -> StickyWidget.State.of(!Client.isChoppingIndicatorEnabled(), true)
                                 )
                                 .build()
                 )

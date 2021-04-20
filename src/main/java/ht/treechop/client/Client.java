@@ -97,7 +97,7 @@ public class Client {
         ConfigHandler.CLIENT.showChoppingIndicators.set(showChoppingIndicator);
     }
 
-    public static boolean getChoppingIndicatorVisible() {
+    public static boolean isChoppingIndicatorEnabled() {
         return ConfigHandler.CLIENT.showChoppingIndicators.get();
     }
 
