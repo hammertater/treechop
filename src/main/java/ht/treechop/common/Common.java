@@ -60,7 +60,17 @@ public class Common {
         }
 
         World world = (World) event.getWorld();
-        boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.StartChopEvent(event, world, agent, pos, blockState));
+        ChopEvent.StartChopEvent startChopEvent = new ChopEvent.StartChopEvent(
+                event,
+                world,
+                agent,
+                pos,
+                blockState,
+                ChopUtil.getNumChopsByTool(tool, blockState),
+                ChopUtil.playerWantsToFell(agent)
+        );
+
+        boolean canceled = MinecraftForge.EVENT_BUS.post(startChopEvent);
         if (canceled) {
             return;
         }
@@ -69,8 +79,8 @@ public class Common {
                 world,
                 pos,
                 agent,
-                ChopUtil.getNumChopsByTool(tool, blockState),
-                ChopUtil.playerWantsToFell(agent),
+                startChopEvent.getNumChops(),
+                startChopEvent.getFelling(),
                 logPos -> isBlockALog(world, logPos)
         );
 

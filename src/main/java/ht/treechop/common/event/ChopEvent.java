@@ -41,14 +41,34 @@ public class ChopEvent extends Event {
     @Cancelable
     public static class StartChopEvent extends ChopEvent {
         private BlockEvent.BreakEvent breakEvent;
+        private int numChops;
+        private boolean felling;
 
-        public StartChopEvent(BlockEvent.BreakEvent breakEvent, World world, PlayerEntity player, BlockPos choppedBlockPos, BlockState choppedBlockState) {
+        public StartChopEvent(BlockEvent.BreakEvent breakEvent, World world, PlayerEntity player, BlockPos choppedBlockPos, BlockState choppedBlockState, int numChops, boolean felling) {
             super(world, player, choppedBlockPos, choppedBlockState);
             this.breakEvent = breakEvent;
+            this.numChops = numChops;
+            this.felling = felling;
         }
 
         public BlockEvent.BreakEvent getBreakEvent() {
             return breakEvent;
+        }
+
+        public int getNumChops() {
+            return numChops;
+        }
+
+        public boolean getFelling() {
+            return felling;
+        }
+
+        public void setNumChops(int numChops) {
+            this.numChops = numChops;
+        }
+
+        public void setFelling(boolean felling) {
+            this.felling = felling;
         }
     }
 
