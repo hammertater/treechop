@@ -297,10 +297,10 @@ public class ConfigHandler {
                     .comment("Whether to show an on-screen icon indicating whether targeted blocks can be chopped")
                     .define("enabled", true);
             indicatorXOffset = builder
-                    .comment("Horizontal location of the indicator relative to the player's crosshairs")
+                    .comment("Horizontal location of the indicator relative to the player's crosshairs; positive values move the indicator to the right")
                     .defineInRange("xOffset", 16, -256, 256);
             indicatorYOffset = builder
-                    .comment("Vertical location of the indicator relative to the player's crosshairs")
+                    .comment("Vertical location of the indicator relative to the player's crosshairs; positive values move the indicator down")
                     .defineInRange("yOffset", 0, -256, 256);
             builder.pop();
             builder.pop();
