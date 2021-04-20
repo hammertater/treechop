@@ -14,7 +14,7 @@
   "treechop.gui.settings.label.felling_enabled": "Felling enabled",
   "treechop.gui.settings.label.only_chop_trees_with_leaves": "Trees need leaves",
   "treechop.gui.settings.label.show_chopping_indicator": "Show chopping indicator",
-  "treechop.gui.settings.label.sneaking_affects": "Sneaking affects",
+  "treechop.gui.settings.label.sneaking_inverts": "Sneaking inverts",
   "treechop.gui.settings.title": "%s Settings",
   "treechop.sneak_behavior.invert_chopping": "INVERT CHOPPING",
   "treechop.sneak_behavior.invert_felling": "INVERT FELLING",

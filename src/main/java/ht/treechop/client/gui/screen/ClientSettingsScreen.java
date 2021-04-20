@@ -78,7 +78,7 @@ public abstract class ClientSettingsScreen extends Screen {
         optionRows.add(
                 new LabeledOptionRow(
                         font,
-                        new TranslationTextComponent("treechop.gui.settings.label.sneaking_affects"),
+                        new TranslationTextComponent("treechop.gui.settings.label.sneaking_inverts"),
                         new ExclusiveOptionRow.Builder()
                                 .add(
                                         new TranslationTextComponent("treechop.gui.settings.button.chopping"),
