@@ -8,6 +8,7 @@ import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -74,21 +75,23 @@ public class ChopIndicator extends AbstractGui {
 
     private boolean blockWouldBeChopped(BlockPos pos) {
         ChopSettings chopSettings = Client.getChopSettings();
+        Minecraft minecraft = Minecraft.getInstance();
+        ClientPlayerEntity player = minecraft.player;
+        ClientWorld world = minecraft.world;
+
         if (pos != lastBlockPos
                 || chopSettings.getChoppingEnabled() != lastChoppingEnabled
                 || chopSettings.getFellingEnabled() != lastFellingEnabled) {
-            Minecraft minecraft = Minecraft.getInstance();
             lastBlockPos = pos;
             lastChoppingEnabled = chopSettings.getChoppingEnabled();
             lastFellingEnabled = chopSettings.getFellingEnabled();
 
-            ClientPlayerEntity player = minecraft.player;
-            if (player != null && ChopUtil.playerWantsToFell(player, Client.getChopSettings()) && ChopUtil.canChopWithTool(player.getHeldItemMainhand())) {
+            if (ChopUtil.playerWantsToFell(player, Client.getChopSettings()) && ChopUtil.canChopWithTool(player.getHeldItemMainhand())) {
                 lastBlockWouldBeChopped = ChopUtil.isPartOfATree(
-                        minecraft.world, pos, Client.getChopSettings().getTreesMustHaveLeaves()
+                        world, pos, Client.getChopSettings().getTreesMustHaveLeaves()
                 );
             } else {
-                lastBlockWouldBeChopped = ChopUtil.isBlockALog(minecraft.world, pos);
+                lastBlockWouldBeChopped = ChopUtil.isBlockALog(world, pos);
             }
         }
         return lastBlockWouldBeChopped;
