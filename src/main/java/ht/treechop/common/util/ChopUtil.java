@@ -1,8 +1,9 @@
 package ht.treechop.common.util;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.api.IChopperItem;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.block.IChoppable;
+import ht.treechop.api.IChoppableBlock;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
@@ -15,6 +16,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -41,7 +43,7 @@ import java.util.stream.Stream;
 public class ChopUtil {
 
     public static boolean isBlockChoppable(IWorld world, BlockPos pos, BlockState blockState) {
-        return (blockState.getBlock() instanceof IChoppable) ||
+        return (blockState.getBlock() instanceof IChoppableBlock) ||
                 (isBlockALog(blockState) && !(isBlockALog(world, pos.west()) && isBlockALog(world, pos.north()) && isBlockALog(world, pos.east()) && isBlockALog(world, pos.south())));
     }
 
@@ -218,7 +220,7 @@ public class ChopUtil {
 
             if (totalNumChops >= numChopsToFell) {
                 List<BlockPos> choppedLogsSortedByY = nearbyChoppableBlocks.stream()
-                        .filter(pos1 -> world.getBlockState(pos1).getBlock() instanceof IChoppable)
+                        .filter(pos1 -> world.getBlockState(pos1).getBlock() instanceof IChoppableBlock)
                         .sorted(Comparator.comparingInt(Vector3i::getY))
                         .collect(Collectors.toList());
 
@@ -252,7 +254,7 @@ public class ChopUtil {
                     .filter(blockPos1 -> {
                         BlockState blockState1 = world.getBlockState(blockPos1);
                         Block block1 = blockState1.getBlock();
-                        if (block1 instanceof IChoppable) {
+                        if (block1 instanceof IChoppableBlock) {
                             return getNumChops(blockState1) < getMaxNumChops(world, blockPos1, blockState1);
                         } else {
                             return blockPos1.getY() >= target.getY();
@@ -303,11 +305,11 @@ public class ChopUtil {
     public static BlockState getBlockStateAfterChops(World world, BlockPos blockPos, int numChops, boolean destructive) {
         BlockState blockState = world.getBlockState(blockPos);
         Block block = blockState.getBlock();
-        if (block instanceof IChoppable) {
-            return getBlockStateAfterChops((IChoppable) block, blockState, numChops, destructive);
+        if (block instanceof IChoppableBlock) {
+            return getBlockStateAfterChops((IChoppableBlock) block, blockState, numChops, destructive);
         } else {
             if (isBlockChoppable(world, blockPos, blockState)) {
-                IChoppable choppedBlock = getChoppedBlock(blockState);
+                IChoppableBlock choppedBlock = getChoppedBlock(blockState);
                 if (choppedBlock instanceof Block) {
                     ChoppedLogShape shape = ChoppedLogBlock.getPlacementShape(world, blockPos);
                     BlockState defaultChoppedState = ((Block) choppedBlock).getDefaultState().with(BlockStateProperties.CHOPPED_LOG_SHAPE, shape);
@@ -326,7 +328,7 @@ public class ChopUtil {
         }
     }
 
-    public static BlockState getBlockStateAfterChops(IChoppable choppableBlock, BlockState blockState, int numChops, boolean destructive) {
+    public static BlockState getBlockStateAfterChops(IChoppableBlock choppableBlock, BlockState blockState, int numChops, boolean destructive) {
         int currentNumChops = getNumChops(blockState);
         int maxNumChops = choppableBlock.getMaxNumChops();
         int newNumChops = currentNumChops + numChops;
@@ -342,11 +344,11 @@ public class ChopUtil {
 
     public static int getMaxNumChops(World world, BlockPos blockPos, BlockState blockState) {
         Block block = blockState.getBlock();
-        if (block instanceof IChoppable) {
-            return ((IChoppable) block).getMaxNumChops();
+        if (block instanceof IChoppableBlock) {
+            return ((IChoppableBlock) block).getMaxNumChops();
         } else {
             if (isBlockChoppable(world, blockPos, world.getBlockState(blockPos))) {
-                IChoppable choppedBlock = getChoppedBlock(blockState);
+                IChoppableBlock choppedBlock = getChoppedBlock(blockState);
                 return (choppedBlock != null) ? choppedBlock.getMaxNumChops() : 0;
             } else {
                 return 0;
@@ -354,9 +356,9 @@ public class ChopUtil {
         }
     }
 
-    public static IChoppable getChoppedBlock(BlockState blockState) {
+    public static IChoppableBlock getChoppedBlock(BlockState blockState) {
         if (isBlockALog(blockState)) {
-            return (IChoppable) (blockState.getBlock() instanceof IChoppable ? blockState.getBlock() : ModBlocks.CHOPPED_LOG.get());
+            return (IChoppableBlock) (blockState.getBlock() instanceof IChoppableBlock ? blockState.getBlock() : ModBlocks.CHOPPED_LOG.get());
         } else {
             return null;
         }
@@ -368,14 +370,14 @@ public class ChopUtil {
 
     public static int getNumChops(BlockState blockState) {
         Block block = blockState.getBlock();
-        return block instanceof IChoppable ? ((IChoppable) block).getNumChops(blockState) : 0;
+        return block instanceof IChoppableBlock ? ((IChoppableBlock) block).getNumChops(blockState) : 0;
     }
 
     public static int getNumChops(World world, Set<BlockPos> positions) {
         return positions.stream()
                 .map(world::getBlockState)
-                .map(blockState1 -> blockState1.getBlock() instanceof IChoppable
-                        ? ((IChoppable) blockState1.getBlock()).getNumChops(blockState1)
+                .map(blockState1 -> blockState1.getBlock() instanceof IChoppableBlock
+                        ? ((IChoppableBlock) blockState1.getBlock()).getNumChops(blockState1)
                         : 0
                 )
                 .reduce(Integer::sum)
@@ -404,8 +406,13 @@ public class ChopUtil {
         return ConfigHandler.canChopWithItem(tool.getItem());
     }
 
-    public static int getNumChopsByTool(ItemStack tool) {
-        return 1;
+    public static int getNumChopsByTool(ItemStack tool, BlockState blockState) {
+        Item toolItem = tool.getItem();
+        if (toolItem instanceof IChopperItem) {
+            return ((IChopperItem) toolItem).getNumChops(tool, blockState);
+        } else {
+            return 1;
+        }
     }
 
     public static boolean playerWantsToChop(PlayerEntity player) {

@@ -71,7 +71,7 @@ public class Common {
                 world,
                 pos,
                 agent,
-                ChopUtil.getNumChopsByTool(tool),
+                ChopUtil.getNumChopsByTool(tool, blockState),
                 ChopUtil.playerWantsToFell(agent),
                 logPos -> isBlockALog(world, logPos)
         );

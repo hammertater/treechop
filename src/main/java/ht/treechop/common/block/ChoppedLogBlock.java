@@ -1,5 +1,6 @@
 package ht.treechop.common.block;
 
+import ht.treechop.api.IChoppableBlock;
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
 import net.minecraft.block.Block;
@@ -19,7 +20,7 @@ import net.minecraft.world.IWorld;
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
 import static ht.treechop.common.util.ChopUtil.isBlockLeaves;
 
-public class ChoppedLogBlock extends Block implements IChoppable {
+public class ChoppedLogBlock extends Block implements IChoppableBlock {
 
     protected static final IntegerProperty CHOPS = BlockStateProperties.CHOP_COUNT;
     protected static final EnumProperty<ChoppedLogShape> SHAPE = BlockStateProperties.CHOPPED_LOG_SHAPE;
