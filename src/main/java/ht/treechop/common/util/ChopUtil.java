@@ -456,6 +456,6 @@ public class ChopUtil {
 
     public static boolean isPartOfATree(World world, BlockPos pos, boolean mustHaveLeaves) {
         Set<BlockPos> treeBlocks = getTreeBlocks(world, pos, mustHaveLeaves);
-        return (treeBlocks.size() > 1);
+        return !treeBlocks.isEmpty();
     }
 }
