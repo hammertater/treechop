@@ -25,7 +25,7 @@ public class EnumCodec<T extends Enum<T>> extends AbstractSimpleCodec<T> {
     @Override
     public T decode(PacketBuffer buffer) {
         try {
-            return Enum.valueOf(enumType, buffer.readString());
+            return Enum.valueOf(enumType, buffer.readString(64));
         } catch (IllegalArgumentException e) {
             return enumType.getEnumConstants()[0];
         }
