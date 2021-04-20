@@ -93,7 +93,7 @@ public class Client {
         return chopSettings;
     }
 
-    public static void setChoppingIndicatorVisible(boolean showChoppingIndicator) {
+    public static void setChoppingIndicatorVisibility(boolean showChoppingIndicator) {
         ConfigHandler.CLIENT.showChoppingIndicators.set(showChoppingIndicator);
     }
 

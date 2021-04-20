@@ -6,8 +6,10 @@ import ht.treechop.client.Client;
 import ht.treechop.client.gui.options.ExclusiveOptionRow;
 import ht.treechop.client.gui.options.LabeledOptionRow;
 import ht.treechop.client.gui.options.OptionList;
+import ht.treechop.client.gui.options.ToggleOptionRow;
 import ht.treechop.client.gui.util.GUIUtil;
 import ht.treechop.client.gui.widget.StickyWidget;
+import ht.treechop.client.gui.widget.ToggleWidget;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
@@ -41,18 +43,7 @@ public abstract class ClientSettingsScreen extends Screen {
                 new LabeledOptionRow(
                         font,
                         new TranslationTextComponent("treechop.gui.settings.label.chopping_enabled"),
-                        new ExclusiveOptionRow.Builder()
-                                .add(
-                                        new TranslationTextComponent("gui.yes"),
-                                        () -> Client.getChopSettings().setChoppingEnabled(true),
-                                        () -> makeSettingWidgetState(SettingsField.CHOPPING, true)
-                                )
-                                .add(
-                                        new TranslationTextComponent("gui.no"),
-                                        () -> Client.getChopSettings().setChoppingEnabled(false),
-                                        () -> makeSettingWidgetState(SettingsField.CHOPPING, false)
-                                )
-                                .build()
+                        makeToggleSettingRow(SettingsField.CHOPPING)
                 )
         );
 
@@ -60,18 +51,7 @@ public abstract class ClientSettingsScreen extends Screen {
                 new LabeledOptionRow(
                         font,
                         new TranslationTextComponent("treechop.gui.settings.label.felling_enabled"),
-                        new ExclusiveOptionRow.Builder()
-                                .add(
-                                        new TranslationTextComponent("gui.yes"),
-                                        () -> Client.getChopSettings().setFellingEnabled(true),
-                                        () -> makeSettingWidgetState(SettingsField.FELLING, true)
-                                )
-                                .add(
-                                        new TranslationTextComponent("gui.no"),
-                                        () -> Client.getChopSettings().setFellingEnabled(false),
-                                        () -> makeSettingWidgetState(SettingsField.FELLING, false)
-                                )
-                                .build()
+                        makeToggleSettingRow(SettingsField.FELLING)
                 )
         );
 
@@ -101,7 +81,7 @@ public abstract class ClientSettingsScreen extends Screen {
                                 .add(
                                         new TranslationTextComponent("treechop.gui.settings.button.nothing"),
                                         () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.NONE),
-                                        () -> makeSettingWidgetState(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.NONE)
+                                        () -> makeStickyWidgetState(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.NONE)
                                 )
                                 .build()
                 )
@@ -111,18 +91,7 @@ public abstract class ClientSettingsScreen extends Screen {
                 new LabeledOptionRow(
                         font,
                         new TranslationTextComponent("treechop.gui.settings.label.only_chop_trees_with_leaves"),
-                        new ExclusiveOptionRow.Builder()
-                                .add(
-                                        new TranslationTextComponent("gui.yes"),
-                                        () -> Client.getChopSettings().setTreesMustHaveLeaves(true),
-                                        () -> makeSettingWidgetState(SettingsField.TREES_MUST_HAVE_LEAVES, true)
-                                )
-                                .add(
-                                        new TranslationTextComponent("gui.no"),
-                                        () -> Client.getChopSettings().setTreesMustHaveLeaves(false),
-                                        () -> makeSettingWidgetState(SettingsField.TREES_MUST_HAVE_LEAVES, false)
-                                )
-                                .build()
+                        makeToggleSettingRow(SettingsField.TREES_MUST_HAVE_LEAVES)
                 )
         );
 
@@ -130,18 +99,7 @@ public abstract class ClientSettingsScreen extends Screen {
                 new LabeledOptionRow(
                         font,
                         new TranslationTextComponent("treechop.gui.settings.label.chop_in_creative_mode"),
-                        new ExclusiveOptionRow.Builder()
-                                .add(
-                                        new TranslationTextComponent("gui.yes"),
-                                        () -> Client.getChopSettings().setChopInCreativeMode(true),
-                                        () -> makeSettingWidgetState(SettingsField.CHOP_IN_CREATIVE_MODE, true)
-                                )
-                                .add(
-                                        new TranslationTextComponent("gui.no"),
-                                        () -> Client.getChopSettings().setChopInCreativeMode(false),
-                                        () -> makeSettingWidgetState(SettingsField.CHOP_IN_CREATIVE_MODE, false)
-                                )
-                                .build()
+                        makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
                 )
         );
 
@@ -149,18 +107,10 @@ public abstract class ClientSettingsScreen extends Screen {
                 new LabeledOptionRow(
                         font,
                         new TranslationTextComponent("treechop.gui.settings.label.show_chopping_indicator"),
-                        new ExclusiveOptionRow.Builder()
-                                .add(
-                                        new TranslationTextComponent("gui.yes"),
-                                        () -> Client.setChoppingIndicatorVisible(true),
-                                        () -> StickyWidget.State.of(Client.isChoppingIndicatorEnabled(), true)
-                                )
-                                .add(
-                                        new TranslationTextComponent("gui.no"),
-                                        () -> Client.setChoppingIndicatorVisible(false),
-                                        () -> StickyWidget.State.of(!Client.isChoppingIndicatorEnabled(), true)
-                                )
-                                .build()
+                        new ToggleOptionRow(
+                                () -> Client.setChoppingIndicatorVisibility(!Client.isChoppingIndicatorEnabled()),
+                                () -> ToggleWidget.State.of(Client.isChoppingIndicatorEnabled(), true)
+                        )
                 )
         );
 
@@ -184,11 +134,21 @@ public abstract class ClientSettingsScreen extends Screen {
         ));
     }
 
+    private ToggleOptionRow makeToggleSettingRow(SettingsField field) {
+        return new ToggleOptionRow(
+                () -> Client.getChopSettings().set(field, !Client.getChopSettings().get(field, Boolean.class)),
+                () -> ToggleWidget.State.of(
+                        Client.getChopSettings().get(field, Boolean.class),
+                        Client.getServerPermissions().isPermitted(new Setting(field, !Client.getChopSettings().get(field, Boolean.class)))
+                )
+        );
+    }
+
     private boolean isSettingPermitted(SettingsField field, Object value) {
         return Client.getServerPermissions().isPermitted(new Setting(field, value));
     }
 
-    private StickyWidget.State makeSettingWidgetState(SettingsField field, Object value) {
+    private StickyWidget.State makeStickyWidgetState(SettingsField field, Object value) {
         return StickyWidget.State.of(
                 Client.getChopSettings().get(field) == value,
                 Client.getServerPermissions().isPermitted(new Setting(field, value))

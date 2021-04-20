@@ -8,10 +8,6 @@ import net.minecraft.util.text.ITextComponent;
 public class GUIUtil {
     public static final int TEXT_LINE_HEIGHT = 8;
     public static final int BUTTON_HEIGHT = 20;
-    public static final ResourceLocation TEXTURE_PATH =
-            new ResourceLocation("treechop", "textures/gui/widgets.png");
-    public static final int TEXTURE_WIDTH = 64;
-    public static final int TEXTURE_HEIGHT = 96;
 
     public static int getTextWidth(ITextComponent name) {
         return getTextWidth(name.getString());
