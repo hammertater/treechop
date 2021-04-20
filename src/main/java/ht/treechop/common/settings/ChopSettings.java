@@ -31,6 +31,19 @@ public class ChopSettings {
     public void setTreesMustHaveLeaves(boolean enabled) { set(SettingsField.TREES_MUST_HAVE_LEAVES, enabled); }
     public void setChopInCreativeMode(boolean enabled) { set(SettingsField.CHOP_IN_CREATIVE_MODE, enabled); }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        } else if (other instanceof ChopSettings) {
+            ChopSettings otherSettings = (ChopSettings) other;
+            return Arrays.stream(SettingsField.VALUES)
+                    .allMatch(field -> this.get(field).equals(otherSettings.get(field)));
+        } else {
+            return false;
+        }
+    }
+
     public void copyFrom(ChopSettings other) {
         fieldValues.putAll(other.fieldValues);
     }

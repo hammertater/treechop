@@ -16,6 +16,8 @@ public enum SettingsField {
     CHOP_IN_CREATIVE_MODE("chopInCreativeMode", "treechop.setting.chop_in_creative_mode", Boolean.FALSE)
     ;
 
+    public static final SettingsField[] VALUES = values();
+
     private final String configKey;
     private final String langKey;
     private final SimpleCodec<?> codec;

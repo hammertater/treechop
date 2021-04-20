@@ -28,18 +28,18 @@ public class ChopIndicator extends AbstractGui {
     private static final int IMAGE_UV_HEIGHT = 20;
 
     private static BlockPos lastBlockPos = null;
+    private static final ChopSettings lastChopSettings = new ChopSettings();
     private static boolean lastBlockWouldBeChopped = false;
-    private static boolean lastChoppingEnabled = false;
-    private static boolean lastFellingEnabled = false;
 
     public void render(MainWindow window, MatrixStack matrixStack, float partialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
         RayTraceResult mouseOver = minecraft.objectMouseOver;
 
-        if (mouseOver != null && mouseOver.getType() == RayTraceResult.Type.BLOCK) {
+        if (mouseOver != null && mouseOver.getType() == RayTraceResult.Type.BLOCK && mouseOver instanceof BlockRayTraceResult) {
             BlockPos blockPos = ((BlockRayTraceResult) mouseOver).getPos();
 
-            if (Client.getChoppingIndicatorVisible()
+            if (Client.isChoppingIndicatorEnabled()
+                    && minecraft.player != null
                     && ChopUtil.playerWantsToChop(minecraft.player, Client.getChopSettings())
                     && blockWouldBeChopped(blockPos)
             ) {
@@ -79,14 +79,12 @@ public class ChopIndicator extends AbstractGui {
         ClientPlayerEntity player = minecraft.player;
         ClientWorld world = minecraft.world;
 
-        if (pos != lastBlockPos
-                || chopSettings.getChoppingEnabled() != lastChoppingEnabled
-                || chopSettings.getFellingEnabled() != lastFellingEnabled) {
+        if (world != null && (pos != lastBlockPos
+                || !chopSettings.equals(lastChopSettings))) {
             lastBlockPos = pos;
-            lastChoppingEnabled = chopSettings.getChoppingEnabled();
-            lastFellingEnabled = chopSettings.getFellingEnabled();
+            lastChopSettings.copyFrom(chopSettings);
 
-            if (ChopUtil.playerWantsToFell(player, Client.getChopSettings()) && ChopUtil.canChopWithTool(player.getHeldItemMainhand())) {
+            if (player != null && ChopUtil.playerWantsToFell(player, Client.getChopSettings()) && ChopUtil.canChopWithTool(player.getHeldItemMainhand())) {
                 lastBlockWouldBeChopped = ChopUtil.isPartOfATree(
                         world, pos, Client.getChopSettings().getTreesMustHaveLeaves()
                 );
@@ -94,6 +92,7 @@ public class ChopIndicator extends AbstractGui {
                 lastBlockWouldBeChopped = ChopUtil.isBlockALog(world, pos);
             }
         }
+
         return lastBlockWouldBeChopped;
     }
 
