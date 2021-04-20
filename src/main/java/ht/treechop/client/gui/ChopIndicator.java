@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import ht.treechop.client.Client;
 import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.util.GUIUtil;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.client.MainWindow;
@@ -17,8 +18,6 @@ import net.minecraft.util.math.RayTraceResult;
 
 public class ChopIndicator extends AbstractGui {
 
-    private static final int INDICATOR_X_OFFSET = 16;
-
     private static final double IMAGE_SCALE = 1.0;
 
     private static BlockPos lastBlockPos = null;
@@ -31,6 +30,7 @@ public class ChopIndicator extends AbstractGui {
 
         if (mouseOver != null && mouseOver.getType() == RayTraceResult.Type.BLOCK && mouseOver instanceof BlockRayTraceResult) {
             BlockPos blockPos = ((BlockRayTraceResult) mouseOver).getPos();
+            lastBlockPos = blockPos;
 
             if (Client.isChoppingIndicatorEnabled()
                     && minecraft.player != null
@@ -41,8 +41,8 @@ public class ChopIndicator extends AbstractGui {
                 int windowHeight = window.getScaledHeight();
                 Minecraft.getInstance().getTextureManager().bindTexture(GUIUtil.TEXTURE_PATH);
 
-                int indicatorCenterX = windowWidth / 2 + INDICATOR_X_OFFSET;
-                int indicatorCenterY = windowHeight / 2;
+                int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset.get();
+                int indicatorCenterY = windowHeight / 2 + ConfigHandler.CLIENT.indicatorYOffset.get();
 
                 Sprite sprite = ChopUtil.playerWantsToFell(minecraft.player, Client.getChopSettings()) ? Sprite.CHOP_INDICATOR : Sprite.NO_FELL_INDICATOR;
                 int imageWidth = (int) (sprite.width * IMAGE_SCALE);
@@ -55,7 +55,6 @@ public class ChopIndicator extends AbstractGui {
                         imageHeight
                 );
             }
-            lastBlockPos = blockPos;
         } else {
             lastBlockPos = null;
         }

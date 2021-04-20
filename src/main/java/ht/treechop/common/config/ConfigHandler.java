@@ -260,6 +260,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue useProceduralChoppedModels;
         public final ForgeConfigSpec.BooleanValue showChoppingIndicators;
         public final ForgeConfigSpec.BooleanValue removeBarkOnInteriorLogs;
+        public final ForgeConfigSpec.IntValue indicatorXOffset;
+        public final ForgeConfigSpec.IntValue indicatorYOffset;
 
 //        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
 
@@ -289,9 +291,18 @@ public class ConfigHandler {
             removeBarkOnInteriorLogs = builder
                     .comment("Whether to replace the interior sides of logs with a chopped texture instead of bark")
                     .define("removeBarkOnInteriorLogs", true);
+
+            builder.push("choppingIndicator");
             showChoppingIndicators = builder
-                    .comment("Whether to show on-screen icons indicating whether targeted blocks can be chopped")
-                    .define("showChoppingIndicators", true);
+                    .comment("Whether to show an on-screen icon indicating whether targeted blocks can be chopped")
+                    .define("enabled", true);
+            indicatorXOffset = builder
+                    .comment("Horizontal location of the indicator relative to the player's crosshairs")
+                    .defineInRange("xOffset", 16, -256, 256);
+            indicatorYOffset = builder
+                    .comment("Vertical location of the indicator relative to the player's crosshairs")
+                    .defineInRange("yOffset", 0, -256, 256);
+            builder.pop();
             builder.pop();
 
 //            treesMustBeUniform = builder
