@@ -208,12 +208,12 @@ public class ConfigHandler {
             itemsToBlacklist = builder
                     .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not chop when used to break a log")
                     .defineList("choppingToolsBlacklist",
-                            Arrays.asList("#forge:saws", "mekanism:atomic_disassembler"),
+                            Arrays.asList("mekanism:atomic_disassembler"),
                             always -> true);
             itemsToOverride = builder
                     .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not execute their default behavior when chopping")
                     .defineList("choppingToolsOverrideList",
-                            Arrays.asList("#tconstruct:modifiable/harvest"),
+                            Arrays.asList("silentgear:saw", "#tconstruct:modifiable/harvest"),
                             always -> true);
             builder.pop();
             builder.push("specific");

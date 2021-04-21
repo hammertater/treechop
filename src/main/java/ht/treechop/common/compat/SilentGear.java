@@ -3,6 +3,7 @@ package ht.treechop.common.compat;
 import ht.treechop.TreeChopMod;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.event.ChopEvent;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
@@ -20,10 +21,14 @@ public class SilentGear {
     }
 
     private static class EventHandler {
+        private static final ResourceLocation SAW = new ResourceLocation("silentgear", "saw");
+
         @SubscribeEvent
         public static void onStartChop(ChopEvent.StartChopEvent event) {
-            int numChops = event.getNumChops() + ConfigHandler.COMMON.numChopsForSilentGearSaw.get() - 1;
-            event.setNumChops(numChops);
+            if (event.getPlayer().getHeldItemMainhand().getItem().getRegistryName() == SAW) {
+                int numChops = event.getNumChops() + ConfigHandler.COMMON.numChopsForSilentGearSaw.get() - 1;
+                event.setNumChops(numChops);
+            }
         }
     }
 
