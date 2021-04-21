@@ -8,12 +8,13 @@ import java.util.Collection;
 
 public class OptionList extends AbstractOptionList<OptionRow> {
 
+    private final int EXCESS_SCROLL = 4;
+    private final int MINIMUM_ROW_WIDTH = 0;
+
     private final int rowSeparation;
     private final int biggestLeftColumnWidth;
     private final int biggestRightColumnWidth;
-    private final int EXCESS_SCROLL = 4;
-
-    private int rowWidth = 200;
+    private final int rowWidth;
 
     public OptionList(Minecraft minecraft, int width, int top, int bottom, int itemHeight, Collection<LabeledOptionRow> rows) {
         super(minecraft, width, top - bottom, top, bottom, itemHeight);
@@ -25,7 +26,7 @@ public class OptionList extends AbstractOptionList<OptionRow> {
         biggestLeftColumnWidth = rows.stream().map(LabeledOptionRow::getLeftColumnWidth).reduce(Integer::max).orElse(0);
         biggestRightColumnWidth = rows.stream().map(LabeledOptionRow::getRightColumnWidth).reduce(Integer::max).orElse(0);
         rows.forEach(row -> row.setColumnWidths(biggestLeftColumnWidth, biggestRightColumnWidth));
-        rowWidth = Math.max(rowWidth, biggestLeftColumnWidth + biggestRightColumnWidth);
+        rowWidth = Math.max(MINIMUM_ROW_WIDTH, biggestLeftColumnWidth + biggestRightColumnWidth);
     }
 
     @Override
@@ -49,8 +50,14 @@ public class OptionList extends AbstractOptionList<OptionRow> {
         return super.getScrollbarPosition() + 32;
     }
 
+    @Override
     protected int getRowTop(int row) {
         return getTop() + row * itemHeight;
+    }
+
+    @Override
+    public int getRowLeft() {
+        return this.x0 + this.width / 2 - this.getRowWidth() / 2;
     }
 
     public int getTop() {

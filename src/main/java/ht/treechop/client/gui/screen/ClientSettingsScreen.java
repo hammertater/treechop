@@ -24,7 +24,7 @@ import java.util.LinkedList;
 
 public abstract class ClientSettingsScreen extends Screen {
 
-    protected static final int ROW_HEIGHT = 25;
+    protected static final int ROW_HEIGHT = GUIUtil.BUTTON_HEIGHT + 3;
 
     protected OptionList optionsRowList;
     private Button doneButton;

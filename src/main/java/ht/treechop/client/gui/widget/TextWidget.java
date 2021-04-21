@@ -15,10 +15,19 @@ public class TextWidget extends Widget {
         this.font = font;
     }
 
-    @SuppressWarnings({"SuspiciousNameCombination", "NullableProblems"})
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks, boolean rightAligned) {
+        render(matrixStack, mouseX, mouseY, partialTicks, rightAligned ? -font.getStringWidth(getMessage().getString()) : 0);
+    }
+
+    @SuppressWarnings("NullableProblems")
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        drawString(matrixStack, font, getMessage(), x, y, 0xFFFFFF);
+        render(matrixStack, mouseX, mouseY, partialTicks, 0);
+    }
+
+    @SuppressWarnings({"SuspiciousNameCombination"})
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks, int xOffset) {
+        drawString(matrixStack, font, getMessage(), x + xOffset, y, 0xFFFFFF);
     }
 
 }
