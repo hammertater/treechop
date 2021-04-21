@@ -24,7 +24,7 @@ public enum Sprite {
     public static final ResourceLocation TEXTURE_PATH =
             new ResourceLocation("treechop", "textures/gui/widgets.png");
     public static final int TEXTURE_WIDTH = 64;
-    public static final int TEXTURE_HEIGHT = 100;
+    public static final int TEXTURE_HEIGHT = 120;
 
     private final int u;
     private final int v;

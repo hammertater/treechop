@@ -262,6 +262,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue removeBarkOnInteriorLogs;
         public final ForgeConfigSpec.IntValue indicatorXOffset;
         public final ForgeConfigSpec.IntValue indicatorYOffset;
+        public final ForgeConfigSpec.BooleanValue showFellingOptions;
 
 //        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
 
@@ -302,6 +303,12 @@ public class ConfigHandler {
             indicatorYOffset = builder
                     .comment("Vertical location of the indicator relative to the player's crosshairs; positive values move the indicator down")
                     .defineInRange("yOffset", 0, -256, 256);
+            builder.pop();
+
+            builder.push("settingsScreen");
+            showFellingOptions = builder
+                    .comment("Whether to show in-game options for enabling and disable felling")
+                    .define("showFellingOptions", false);
             builder.pop();
             builder.pop();
 
