@@ -8,7 +8,7 @@ import java.util.Collection;
 
 public class OptionList extends AbstractOptionList<OptionRow> {
 
-    private final int EXCESS_SCROLL = 4;
+    private final int EXCESS_SCROLL = 4; // Vanilla adds this random offset everywhere, it's terrible
     private final int MINIMUM_ROW_WIDTH = 0;
 
     private final int rowSeparation;
@@ -48,6 +48,11 @@ public class OptionList extends AbstractOptionList<OptionRow> {
 
     protected int getScrollbarPosition() {
         return super.getScrollbarPosition() + 32;
+    }
+
+    @Override
+    public double getScrollAmount() {
+        return super.getScrollAmount() + EXCESS_SCROLL;
     }
 
     @Override
