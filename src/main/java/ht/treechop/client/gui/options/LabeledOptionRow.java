@@ -35,11 +35,11 @@ public class LabeledOptionRow extends OptionRow {
     }
 
     public int getLeftColumnWidth() {
-        return label.getWidth();
+        return label.getWidth() + COLUMN_PADDING;
     }
 
     public int getRightColumnWidth() {
-        return options.getMinimumWidth();
+        return options.getMinimumWidth() + COLUMN_PADDING;
     }
 
     @Override
