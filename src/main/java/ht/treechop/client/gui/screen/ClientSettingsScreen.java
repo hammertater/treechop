@@ -33,7 +33,7 @@ public class ClientSettingsScreen extends Screen {
 
     protected OptionList optionsRowList;
     private Button doneButton;
-    private boolean showMore = false;
+    private int optionsPage = 0;
     private int numRows = 0;
     private boolean needToRebuild = false;
 
@@ -48,27 +48,62 @@ public class ClientSettingsScreen extends Screen {
     }
 
     private void rebuild() {
-        Collection<OptionRow> optionRows = new LinkedList<>();
+        Collection<OptionRow> optionRows = optionsPage == 0 ? makePageOne() : makePageTwo();
 
         optionRows.add(
-                new LabeledOptionRow(
-                        font,
+                new ButtonOptionRow(
+                        optionsPage == 0 ? Sprite.PAGE_ONE : Sprite.PAGE_TWO,
+                        optionsPage == 0 ? Sprite.HIGHLIGHTED_PAGE_ONE : Sprite.HIGHLIGHTED_PAGE_TWO,
+                        () -> {
+                            needToRebuild = true;
+                            optionsPage = optionsPage == 0 ? 1 : 0;
+                        }
+                )
+        );
+
+        setNumRows(optionRows.size());
+
+        int listTop = getListTop();
+        int listBottom = getListBottom();
+        this.optionsRowList = addListener(new OptionList(
+                minecraft,
+                width,
+                listTop,
+                listBottom,
+                ROW_HEIGHT,
+                optionRows
+        ));
+
+        final int doneButtonWidth = 200;
+        doneButton = addButton(new Button(
+                (width - doneButtonWidth) / 2,
+                getDoneButtonTop(),
+                doneButtonWidth,
+                GUIUtil.BUTTON_HEIGHT,
+                ITextComponent.getTextComponentOrEmpty(I18n.format("gui.done")),
+                button -> closeScreen()
+        ));
+    }
+
+    private LinkedList<OptionRow> makePageOne() {
+        LinkedList<OptionRow> optionRows = new LinkedList<>();
+
+        optionRows.add(
+                new LabeledOptionRow(font,
                         new TranslationTextComponent("treechop.gui.settings.label.chopping"),
                         makeToggleSettingRow(SettingsField.CHOPPING)
                 )
         );
 
 //        optionRows.add(
-//                new LabeledOptionRow(
-//                        font,
+//                new LabeledOptionRow(font,
 //                        new TranslationTextComponent("treechop.gui.settings.label.felling"),
 //                        makeToggleSettingRow(SettingsField.FELLING)
 //                )
 //        );
 
         optionRows.add(
-                new LabeledOptionRow(
-                        font,
+                new LabeledOptionRow(font,
                         new TranslationTextComponent("treechop.gui.settings.label.sneaking_inverts_chopping"),
                         new ToggleOptionRow(
                                 () -> Client.getChopSettings().setSneakBehavior(getNextSneakBehavior()),
@@ -81,8 +116,7 @@ public class ClientSettingsScreen extends Screen {
         );
 
 //        optionRows.add(
-//                new LabeledOptionRow(
-//                        font,
+//                new LabeledOptionRow(font,
 //                        new TranslationTextComponent("treechop.gui.settings.label.sneaking_inverts"),
 //                        new ExclusiveOptionRow.Builder()
 //                                .add(
@@ -113,67 +147,36 @@ public class ClientSettingsScreen extends Screen {
 //        );
 
         optionRows.add(
-                new LabeledOptionRow(
-                        font,
+                new LabeledOptionRow(font,
                         new TranslationTextComponent("treechop.gui.settings.label.only_chop_trees_with_leaves"),
                         makeToggleSettingRow(SettingsField.TREES_MUST_HAVE_LEAVES)
                 )
         );
 
-        if (showMore) {
-            optionRows.add(
-                    new LabeledOptionRow(
-                            font,
-                            new TranslationTextComponent("treechop.gui.settings.label.chop_in_creative_mode"),
-                            makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
-                    )
-            );
+        return optionRows;
+    }
 
-            optionRows.add(
-                    new LabeledOptionRow(
-                            font,
-                            new TranslationTextComponent("treechop.gui.settings.label.chopping_indicator"),
-                            new ToggleOptionRow(
-                                    () -> Client.setChoppingIndicatorVisibility(!Client.isChoppingIndicatorEnabled()),
-                                    () -> ToggleWidget.State.of(Client.isChoppingIndicatorEnabled(), true)
-                            )
-                    )
-            );
-        }
+    private LinkedList<OptionRow> makePageTwo() {
+        LinkedList<OptionRow> optionRows = new LinkedList<>();
 
         optionRows.add(
-                new ButtonOptionRow(
-                        Sprite.SHOW_MORE,
-                        Sprite.HIGHLIGHTED_SHOW_MORE,
-                        () -> {
-                            needToRebuild = true;
-                            showMore = !showMore;
-                        }
+                new LabeledOptionRow(font,
+                        new TranslationTextComponent("treechop.gui.settings.label.chop_in_creative_mode"),
+                        makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
                 )
         );
 
-        setNumRows(optionRows.size());
+        optionRows.add(
+                new LabeledOptionRow(font,
+                        new TranslationTextComponent("treechop.gui.settings.label.chopping_indicator"),
+                        new ToggleOptionRow(
+                                () -> Client.setChoppingIndicatorVisibility(!Client.isChoppingIndicatorEnabled()),
+                                () -> ToggleWidget.State.of(Client.isChoppingIndicatorEnabled(), true)
+                        )
+                )
+        );
 
-        int listTop = getListTop();
-        int listBottom = getListBottom();
-        this.optionsRowList = addListener(new OptionList(
-                minecraft,
-                width,
-                listTop,
-                listBottom,
-                ROW_HEIGHT,
-                optionRows
-        ));
-
-        final int doneButtonWidth = 200;
-        doneButton = addButton(new Button(
-                (width - doneButtonWidth) / 2,
-                getDoneButtonTop(),
-                doneButtonWidth,
-                GUIUtil.BUTTON_HEIGHT,
-                ITextComponent.getTextComponentOrEmpty(I18n.format("gui.done")),
-                button -> closeScreen()
-        ));
+        return optionRows;
     }
 
     private void setNumRows(int numRows) {

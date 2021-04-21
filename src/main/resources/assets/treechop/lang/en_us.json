@@ -13,7 +13,7 @@
   "treechop.gui.settings.label.chopping": "Chopping",
   "treechop.gui.settings.label.felling": "Felling",
   "treechop.gui.settings.label.only_chop_trees_with_leaves": "Trees need leaves",
-  "treechop.gui.settings.label.chopping_indicator": "Chopping indicator",
+  "treechop.gui.settings.label.chopping_indicator": "Show chopping indicator",
   "treechop.gui.settings.label.sneaking_inverts": "Sneaking inverts",
   "treechop.gui.settings.label.sneaking_inverts_chopping": "Sneaking inverts chopping",
   "treechop.gui.settings.title": "%s Settings",

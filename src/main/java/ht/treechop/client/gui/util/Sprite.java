@@ -15,8 +15,10 @@ public enum Sprite {
     HIGHLIGHTED_TOGGLE_BUTTON_ON(32, 40, 32, 20),
     LOCKED_TOGGLE_BUTTON_OFF(0, 60, 32, 20),
     LOCKED_TOGGLE_BUTTON_ON(32, 60, 32, 20),
-    SHOW_MORE(0, 80, 32, 20),
-    HIGHLIGHTED_SHOW_MORE(32, 80, 32, 20)
+    PAGE_ONE(0, 80, 32, 20),
+    HIGHLIGHTED_PAGE_ONE(32, 80, 32, 20),
+    PAGE_TWO(0, 100, 32, 20),
+    HIGHLIGHTED_PAGE_TWO(32, 100, 32, 20),
     ;
 
     public static final ResourceLocation TEXTURE_PATH =
