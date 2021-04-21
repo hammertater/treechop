@@ -99,6 +99,13 @@ dependencies {
 
     compileOnly fg.deobf("curse.maven:carry-on:3206755" )
     compileOnly fg.deobf("curse.maven:project-mmo:3157194")
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 jar {
