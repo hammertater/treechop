@@ -57,7 +57,7 @@ public class LabeledOptionRow extends OptionRow {
     public void render(MatrixStack matrixStack, int entryIdx, int top, int left, int width, int height, int mouseX, int mouseY, boolean someBoolean, float partialTicks) {
         int center = left + leftColumnWidth;
         this.label.x = center - COLUMN_PADDING + (rightAlignLabels ? 0 : -leftColumnWidth);
-        this.label.y = top + (height - 8) / 2;
+        this.label.y = top + (height - 6) / 2;
         this.label.render(matrixStack, mouseX, mouseY, partialTicks, rightAlignLabels);
         this.options.render(
                 matrixStack,

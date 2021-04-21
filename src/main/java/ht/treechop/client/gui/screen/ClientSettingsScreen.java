@@ -3,11 +3,13 @@ package ht.treechop.client.gui.screen;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import ht.treechop.TreeChopMod;
 import ht.treechop.client.Client;
-import ht.treechop.client.gui.options.ExclusiveOptionRow;
 import ht.treechop.client.gui.options.LabeledOptionRow;
 import ht.treechop.client.gui.options.OptionList;
+import ht.treechop.client.gui.options.OptionRow;
+import ht.treechop.client.gui.options.ButtonOptionRow;
 import ht.treechop.client.gui.options.ToggleOptionRow;
 import ht.treechop.client.gui.util.GUIUtil;
+import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.widget.StickyWidget;
 import ht.treechop.client.gui.widget.ToggleWidget;
 import ht.treechop.common.settings.Setting;
@@ -22,12 +24,18 @@ import net.minecraft.util.text.TranslationTextComponent;
 import java.util.Collection;
 import java.util.LinkedList;
 
-public abstract class ClientSettingsScreen extends Screen {
+public class ClientSettingsScreen extends Screen {
 
-    protected static final int ROW_HEIGHT = GUIUtil.BUTTON_HEIGHT + 3;
+    private static final int ROW_HEIGHT = GUIUtil.BUTTON_HEIGHT + 1;
+    private static final int INSET_SIZE = 20;
+    private static final boolean IS_PAUSE_SCREEN = true;
+    private static final int SPACE_ABOVE_AND_BELOW_LIST = 20;
 
     protected OptionList optionsRowList;
     private Button doneButton;
+    private boolean showMore = false;
+    private int numRows = 0;
+    private boolean needToRebuild = false;
 
     public ClientSettingsScreen() {
         super(new TranslationTextComponent("treechop.gui.settings.title", TreeChopMod.MOD_NAME));
@@ -36,8 +44,11 @@ public abstract class ClientSettingsScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+        rebuild();
+    }
 
-        Collection<LabeledOptionRow> optionRows = new LinkedList<>();
+    private void rebuild() {
+        Collection<OptionRow> optionRows = new LinkedList<>();
 
         optionRows.add(
                 new LabeledOptionRow(
@@ -109,30 +120,47 @@ public abstract class ClientSettingsScreen extends Screen {
                 )
         );
 
+        if (showMore) {
+            optionRows.add(
+                    new LabeledOptionRow(
+                            font,
+                            new TranslationTextComponent("treechop.gui.settings.label.chop_in_creative_mode"),
+                            makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
+                    )
+            );
+
+            optionRows.add(
+                    new LabeledOptionRow(
+                            font,
+                            new TranslationTextComponent("treechop.gui.settings.label.chopping_indicator"),
+                            new ToggleOptionRow(
+                                    () -> Client.setChoppingIndicatorVisibility(!Client.isChoppingIndicatorEnabled()),
+                                    () -> ToggleWidget.State.of(Client.isChoppingIndicatorEnabled(), true)
+                            )
+                    )
+            );
+        }
+
         optionRows.add(
-                new LabeledOptionRow(
-                        font,
-                        new TranslationTextComponent("treechop.gui.settings.label.chop_in_creative_mode"),
-                        makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
+                new ButtonOptionRow(
+                        Sprite.SHOW_MORE,
+                        Sprite.HIGHLIGHTED_SHOW_MORE,
+                        () -> {
+                            needToRebuild = true;
+                            showMore = !showMore;
+                        }
                 )
         );
 
-        optionRows.add(
-                new LabeledOptionRow(
-                        font,
-                        new TranslationTextComponent("treechop.gui.settings.label.chopping_indicator"),
-                        new ToggleOptionRow(
-                                () -> Client.setChoppingIndicatorVisibility(!Client.isChoppingIndicatorEnabled()),
-                                () -> ToggleWidget.State.of(Client.isChoppingIndicatorEnabled(), true)
-                        )
-                )
-        );
+        setNumRows(optionRows.size());
 
+        int listTop = getListTop();
+        int listBottom = getListBottom();
         this.optionsRowList = addListener(new OptionList(
                 minecraft,
                 width,
-                getListTop(),
-                getListBottom(),
+                listTop,
+                listBottom,
                 ROW_HEIGHT,
                 optionRows
         ));
@@ -146,6 +174,10 @@ public abstract class ClientSettingsScreen extends Screen {
                 ITextComponent.getTextComponentOrEmpty(I18n.format("gui.done")),
                 button -> closeScreen()
         ));
+    }
+
+    private void setNumRows(int numRows) {
+        this.numRows = numRows;
     }
 
     private SneakBehavior getNextSneakBehavior() {
@@ -175,6 +207,13 @@ public abstract class ClientSettingsScreen extends Screen {
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        if (needToRebuild) {
+            children.clear();
+            buttons.clear();
+            rebuild();
+            needToRebuild = false;
+        }
+
         doneButton.y = getDoneButtonTop();
 
         this.renderBackground(matrixStack);
@@ -182,6 +221,17 @@ public abstract class ClientSettingsScreen extends Screen {
         drawCenteredString(matrixStack, this.font, this.title, this.width / 2, getTitleTop(), 16777215);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         // TODO: check out ClientSettingsScreen.func_243293_a for draw reordering; might be important for tooltips
+    }
+
+    @Override
+    public void renderBackground(MatrixStack matrixStack) {
+        super.renderBackground(matrixStack);
+        fill(matrixStack, INSET_SIZE, INSET_SIZE, width - INSET_SIZE, height - INSET_SIZE, 0x00000080);
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return IS_PAUSE_SCREEN;
     }
 
     protected int getTop() {
@@ -192,19 +242,27 @@ public abstract class ClientSettingsScreen extends Screen {
         return height - 32;
     }
 
+    protected int getMiddleY() {
+        return (getTop() + getBottom()) / 2;
+    }
+
     protected int getTitleTop() {
-        return getTop() + 20;
+        return getListTop() - SPACE_ABOVE_AND_BELOW_LIST - GUIUtil.TEXT_LINE_HEIGHT;
     }
 
     protected int getListTop() {
-        return getTop() + 52;
+        return getMiddleY() - getListHeight() / 2;
+    }
+
+    protected int getListHeight() {
+        return OptionList.getHeightForRows(numRows, ROW_HEIGHT);
     }
 
     protected int getListBottom() {
-        return getListTop() + OptionList.getHeightForRows(6, ROW_HEIGHT);
+        return getMiddleY() + getListHeight() / 2;
     }
 
     protected int getDoneButtonTop() {
-        return getBottom() - GUIUtil.BUTTON_HEIGHT;
+        return getListBottom() + SPACE_ABOVE_AND_BELOW_LIST;
     }
 }

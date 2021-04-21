@@ -16,15 +16,15 @@ public class OptionList extends AbstractOptionList<OptionRow> {
     private final int biggestRightColumnWidth;
     private final int rowWidth;
 
-    public OptionList(Minecraft minecraft, int width, int top, int bottom, int itemHeight, Collection<LabeledOptionRow> rows) {
+    public OptionList(Minecraft minecraft, int width, int top, int bottom, int itemHeight, Collection<OptionRow> rows) {
         super(minecraft, width, top - bottom, top, bottom, itemHeight);
         setBackgroundEnabled(false);
         this.rowSeparation = itemHeight - GUIUtil.BUTTON_HEIGHT;
         setRenderHeader(false, 0);
 
         rows.forEach(this::addEntry);
-        biggestLeftColumnWidth = rows.stream().map(LabeledOptionRow::getLeftColumnWidth).reduce(Integer::max).orElse(0);
-        biggestRightColumnWidth = rows.stream().map(LabeledOptionRow::getRightColumnWidth).reduce(Integer::max).orElse(0);
+        biggestLeftColumnWidth = rows.stream().map(OptionRow::getLeftColumnWidth).reduce(Integer::max).orElse(0);
+        biggestRightColumnWidth = rows.stream().map(OptionRow::getRightColumnWidth).reduce(Integer::max).orElse(0);
         rows.forEach(row -> row.setColumnWidths(biggestLeftColumnWidth, biggestRightColumnWidth));
         rowWidth = Math.max(MINIMUM_ROW_WIDTH, biggestLeftColumnWidth + biggestRightColumnWidth);
     }
@@ -78,4 +78,7 @@ public class OptionList extends AbstractOptionList<OptionRow> {
         return numRows * rowHeight - rowSeparation;
     }
 
+    public int getNumRows() {
+        return getEventListeners().size();
+    }
 }

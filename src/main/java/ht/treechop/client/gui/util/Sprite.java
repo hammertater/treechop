@@ -1,6 +1,8 @@
 package ht.treechop.client.gui.util;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.ResourceLocation;
 
@@ -13,12 +15,14 @@ public enum Sprite {
     HIGHLIGHTED_TOGGLE_BUTTON_ON(32, 40, 32, 20),
     LOCKED_TOGGLE_BUTTON_OFF(0, 60, 32, 20),
     LOCKED_TOGGLE_BUTTON_ON(32, 60, 32, 20),
+    SHOW_MORE(0, 80, 32, 20),
+    HIGHLIGHTED_SHOW_MORE(32, 80, 32, 20)
     ;
 
     public static final ResourceLocation TEXTURE_PATH =
             new ResourceLocation("treechop", "textures/gui/widgets.png");
     public static final int TEXTURE_WIDTH = 64;
-    public static final int TEXTURE_HEIGHT = 96;
+    public static final int TEXTURE_HEIGHT = 100;
 
     private final int u;
     private final int v;
@@ -30,6 +34,16 @@ public enum Sprite {
         this.v = v;
         this.width = width;
         this.height = height;
+    }
+
+    public static void setRenderState(float alpha) {
+        Minecraft minecraft = Minecraft.getInstance();
+        minecraft.getTextureManager().bindTexture(Sprite.TEXTURE_PATH);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
     }
 
     public void blit(MatrixStack matrixStack, int x, int y) {

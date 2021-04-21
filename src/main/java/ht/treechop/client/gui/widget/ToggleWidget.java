@@ -38,13 +38,7 @@ public class ToggleWidget extends Widget {
     @SuppressWarnings("NullableProblems")
     @Override
     public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bindTexture(Sprite.TEXTURE_PATH);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.alpha);
-
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
+        Sprite.setRenderState(this.alpha);
 
         final EnumMap<State, Sprite> spriteForState = new EnumMap<State, Sprite>(Stream.of(
                 Pair.of(State.OFF, Sprite.TOGGLE_BUTTON_OFF),

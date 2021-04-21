@@ -12,4 +12,15 @@ public abstract class OptionRow extends AbstractOptionList.Entry<OptionRow> {
 
     protected abstract int getMinimumWidth();
 
+    public int getLeftColumnWidth() {
+        return getMinimumWidth() / 2;
+    }
+
+    public int getRightColumnWidth() {
+        return getMinimumWidth() / 2;
+    }
+
+    public void setColumnWidths(int leftColumnWidth, int rightColumnWidth) {
+    }
+
 }

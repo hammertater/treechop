@@ -1,8 +1,8 @@
 package ht.treechop.client;
 
 import ht.treechop.TreeChopMod;
-import ht.treechop.client.gui.ChopIndicator;
-import ht.treechop.client.gui.screen.InGameSettingsScreen;
+import ht.treechop.client.gui.screen.ChopIndicator;
+import ht.treechop.client.gui.screen.ClientSettingsScreen;
 import ht.treechop.client.model.ChoppedLogBakedModel;
 import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.config.ConfigHandler;
@@ -102,7 +102,7 @@ public class Client {
     }
 
     public static void openSettingsOverlay() {
-        Minecraft.getInstance().displayGuiScreen(new InGameSettingsScreen());
+        Minecraft.getInstance().displayGuiScreen(new ClientSettingsScreen());
     }
 
     public static void renderOverlay(RenderGameOverlayEvent.Post event) {

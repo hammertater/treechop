@@ -1,4 +1,4 @@
-package ht.treechop.client.gui;
+package ht.treechop.client.gui.screen;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import ht.treechop.client.Client;
