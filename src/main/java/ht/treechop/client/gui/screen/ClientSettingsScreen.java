@@ -42,7 +42,7 @@ public abstract class ClientSettingsScreen extends Screen {
         optionRows.add(
                 new LabeledOptionRow(
                         font,
-                        new TranslationTextComponent("treechop.gui.settings.label.chopping_enabled"),
+                        new TranslationTextComponent("treechop.gui.settings.label.chopping"),
                         makeToggleSettingRow(SettingsField.CHOPPING)
                 )
         );
@@ -50,7 +50,7 @@ public abstract class ClientSettingsScreen extends Screen {
 //        optionRows.add(
 //                new LabeledOptionRow(
 //                        font,
-//                        new TranslationTextComponent("treechop.gui.settings.label.felling_enabled"),
+//                        new TranslationTextComponent("treechop.gui.settings.label.felling"),
 //                        makeToggleSettingRow(SettingsField.FELLING)
 //                )
 //        );
@@ -58,7 +58,7 @@ public abstract class ClientSettingsScreen extends Screen {
         optionRows.add(
                 new LabeledOptionRow(
                         font,
-                        new TranslationTextComponent("treechop.gui.settings.label.sneaking_inverts"),
+                        new TranslationTextComponent("treechop.gui.settings.label.sneaking_inverts_chopping"),
                         new ToggleOptionRow(
                                 () -> Client.getChopSettings().setSneakBehavior(getNextSneakBehavior()),
                                 () -> ToggleWidget.State.of(
@@ -120,7 +120,7 @@ public abstract class ClientSettingsScreen extends Screen {
         optionRows.add(
                 new LabeledOptionRow(
                         font,
-                        new TranslationTextComponent("treechop.gui.settings.label.show_chopping_indicator"),
+                        new TranslationTextComponent("treechop.gui.settings.label.chopping_indicator"),
                         new ToggleOptionRow(
                                 () -> Client.setChoppingIndicatorVisibility(!Client.isChoppingIndicatorEnabled()),
                                 () -> ToggleWidget.State.of(Client.isChoppingIndicatorEnabled(), true)
