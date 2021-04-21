@@ -63,7 +63,6 @@ public class Client {
     public static void onKeyInput(InputEvent.KeyInputEvent event) {
         if (
                 !event.isCanceled()
-                && Minecraft.getInstance().currentScreen == null
                 && event.getKey() != GLFW.GLFW_KEY_UNKNOWN
         ) {
             KeyBindings.buttonPressed(event.getKey(), event.getAction());
@@ -101,8 +100,13 @@ public class Client {
         return ConfigHandler.CLIENT.showChoppingIndicators.get();
     }
 
-    public static void openSettingsOverlay() {
-        Minecraft.getInstance().displayGuiScreen(new ClientSettingsScreen());
+    public static void toggleSettingsOverlay() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.currentScreen instanceof ClientSettingsScreen) {
+            minecraft.currentScreen.closeScreen();
+        } else {
+            minecraft.displayGuiScreen(new ClientSettingsScreen());
+        }
     }
 
     public static void renderOverlay(RenderGameOverlayEvent.Post event) {
