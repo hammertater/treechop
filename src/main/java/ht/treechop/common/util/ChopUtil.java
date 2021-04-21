@@ -97,7 +97,6 @@ public class ChopUtil {
         return getConnectedBlocks(startingPoints, searchOffsetsSupplier, maxNumBlocks, new AtomicInteger());
     }
 
-    @SuppressWarnings("ConstantConditions")
     public static boolean canChangeBlock(World world, BlockPos blockPos, PlayerEntity agent) {
         return canChangeBlock(world, blockPos, agent, ItemStack.EMPTY);
     }
@@ -407,7 +406,11 @@ public class ChopUtil {
 
     public static int getNumChopsByTool(ItemStack tool, BlockState blockState) {
         Item toolItem = tool.getItem();
-        if (toolItem instanceof IChopperItem) {
+
+        Integer overrideChops = ConfigHandler.getNumChopsOverride(tool.getItem());
+        if (overrideChops != null) {
+            return overrideChops;
+        } else if (toolItem instanceof IChopperItem) {
             return ((IChopperItem) toolItem).getNumChops(tool, blockState);
         } else {
             return 1;

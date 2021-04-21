@@ -1,5 +1,6 @@
 package ht.treechop.common.config;
 
+import ht.treechop.TreeChopMod;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.Setting;
@@ -8,6 +9,7 @@ import ht.treechop.common.settings.SneakBehavior;
 import ht.treechop.server.Server;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ITagCollectionSupplier;
 import net.minecraft.tags.TagCollectionManager;
@@ -19,19 +21,22 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ConfigHandler {
 
     public static ITag<Block> blockTagForDetectingLogs;
     public static ITag<Block> blockTagForDetectingLeaves;
     private static Set<Item> itemsBlacklist = null;
-    public static Set<Item> itemsToOverride = null;
+    public static Map<Item, Integer> itemOverrides = null;
     public static int maxBreakLeavesDistance;
     public static boolean ignorePersistentLeaves;
 
@@ -51,7 +56,7 @@ public class ConfigHandler {
         blockTagForDetectingLogs = tagManager.getBlockTags().get(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
         blockTagForDetectingLeaves = tagManager.getBlockTags().get(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
         itemsBlacklist = null;
-        itemsToOverride = null;
+        itemOverrides = null;
     }
 
     private static void updatePermissions() {
@@ -66,29 +71,91 @@ public class ConfigHandler {
     }
 
     private static Set<Item> getItemsFromConfigList(ITagCollectionSupplier tagManager, List<? extends String> identifiers) {
-        Stream<Item> itemsFromIDs = identifiers.stream()
-                .filter(tag -> !tag.startsWith("#"))
-                .map(ResourceLocation::tryCreate)
-                .filter(Objects::nonNull)
-                .map(ForgeRegistries.ITEMS::getValue);
+        Map<Item, Integer> qualifiedItems = getQualifiedItemsFromConfigList(tagManager, identifiers, $ -> 0);
+        return qualifiedItems.keySet();
+    }
 
-        Stream<Item> itemsFromTags = identifiers.stream()
-                .filter(tag -> tag.startsWith("#"))
-                .map(tag -> ResourceLocation.tryCreate(tag.substring(1)))
-                .filter(Objects::nonNull)
-                .map(tagManager.getItemTags()::get)
-                .filter(Objects::nonNull)
-                .map(ITag::getAllElements)
-                .flatMap(Collection::stream);
+    private static <T> Map<Item, T> getQualifiedItemsFromConfigList(ITagCollectionSupplier tagManager, List<? extends String> identifiers, Function<String, T> qualifierParser) {
+        final Pattern pattern = Pattern.compile("^\\s*(#?[a-z:_]+)(.*)$");
+        return transformConfigList(identifiers, entry -> {
+            Matcher matcher = pattern.matcher(entry);
+            matcher.find();
+            List<Item> items = getReferencedItems(tagManager, matcher.groupCount() >= 1 ? matcher.group(1) : "");
+            T qualifier = qualifierParser.apply(matcher.groupCount() >= 2 ? matcher.group(2) : "");
+            return items.stream().map(item -> Pair.of(item, qualifier)).collect(Collectors.toList());
+        }).stream()
+                .flatMap(Collection::stream)
+                .filter(itemQualifierPair -> itemQualifierPair.getLeft() != Items.AIR && itemQualifierPair.getRight() != null)
+                .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+    }
 
-        return Stream.concat(itemsFromIDs, itemsFromTags).collect(Collectors.toSet());
+    /**
+     * @param identifier either an item identifier (e.g. minecraft:stone) or tag (e.g. #minecraft:logs_that_burn)
+     * @return a list of Items identified by identifier
+     */
+    private static List<Item> getReferencedItems(ITagCollectionSupplier tagManager, String identifier) {
+        if (identifier.startsWith("#")) {
+            ResourceLocation resource = ResourceLocation.tryCreate(identifier.substring(1));
+            if (resource != null) {
+                ITag<Item> tag = tagManager.getItemTags().get(resource);
+                if (tag != null) {
+                    return tag.getAllElements();
+                } else {
+                    TreeChopMod.LOGGER.warn(String.format("Configuration: item tag %s does not exist", identifier));
+                }
+            } else {
+                TreeChopMod.LOGGER.warn(String.format("Configuration: %s is not a valid item tag", identifier));
+            }
+        } else {
+            ResourceLocation resource = ResourceLocation.tryCreate(identifier);
+            if (resource != null) {
+                Item item = ForgeRegistries.ITEMS.getValue(resource);
+                if (item != null) {
+                    return Collections.singletonList(item);
+                } else {
+                    TreeChopMod.LOGGER.warn(String.format("Configuration: item %s does not exist", identifier));
+                }
+            } else {
+                TreeChopMod.LOGGER.warn(String.format("Configuration: %s is not a valid item ID", identifier));
+            }
+        }
+
+        return Collections.emptyList();
+    }
+
+    private static <T> List<T> transformConfigList(List<? extends String> identifiers, Function<String, T> transformer) {
+        return identifiers.stream().map(transformer).collect(Collectors.toList());
     }
 
     public static boolean shouldOverrideItemBehavior(Item item) {
-        if (itemsToOverride == null) {
-            itemsToOverride = getItemsFromConfigList(TagCollectionManager.getManager(), COMMON.itemsToOverride.get());
+        return getItemOverrides().get(item) != null;
+    }
+
+    private static Map<Item, Integer> getItemOverrides() {
+        if (itemOverrides == null) {
+            itemOverrides = getQualifiedItemsFromConfigList(
+                    TagCollectionManager.getManager(),
+                    COMMON.itemsToOverride.get(),
+                    qualifier -> {
+                        if (qualifier.equals("")) {
+                            return 1;
+                        }
+
+                        try {
+                            return Integer.valueOf(qualifier.substring(1));
+                        } catch (NumberFormatException e) {
+                            TreeChopMod.LOGGER.warn(String.format("Configuration: qualifier %s is malformed in choppingToolsOverrideList", qualifier));
+                            return 1;
+                        }
+                    }
+            );
         }
-        return itemsToOverride.contains(item);
+
+        return itemOverrides;
+    }
+
+    public static Integer getNumChopsOverride(Item item) {
+        return getItemOverrides().get(item);
     }
 
     public static boolean canChopWithItem(Item item) {
@@ -211,9 +278,16 @@ public class ConfigHandler {
                             Arrays.asList("mekanism:atomic_disassembler"),
                             always -> true);
             itemsToOverride = builder
-                    .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not execute their default behavior when chopping")
+                    .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not execute their default behavior when chopping\nAdd =N to specify N the number of chops to be performed when breaking a log with the item")
                     .defineList("choppingToolsOverrideList",
-                            Arrays.asList("silentgear:saw", "#tconstruct:modifiable/harvest"),
+                            Arrays.asList(
+                                    "#tconstruct:modifiable/harvest",
+                                    "silentgear:saw=3",
+                                    "practicaltools:iron_greataxe=2",
+                                    "practicaltools:golden_greataxe=2",
+                                    "practicaltools:diamond_greataxe=2",
+                                    "practicaltools:netherite_greataxe=2"
+                            ),
                             always -> true);
             builder.pop();
             builder.push("specific");
