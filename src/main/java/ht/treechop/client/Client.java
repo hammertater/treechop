@@ -84,7 +84,9 @@ public class Client {
     }
 
     public static void cycleSneakBehavior() {
-        SneakBehavior newValue = chopSettings.getSneakBehavior().cycle();
+        SneakBehavior newValue = ConfigHandler.CLIENT.showFellingOptions.get()
+                ? chopSettings.getSneakBehavior().cycle()
+                : (chopSettings.getSneakBehavior() == SneakBehavior.NONE ? SneakBehavior.INVERT_CHOPPING : SneakBehavior.NONE);
         chopSettings.set(SettingsField.SNEAK_BEHAVIOR, newValue);
     }
 
