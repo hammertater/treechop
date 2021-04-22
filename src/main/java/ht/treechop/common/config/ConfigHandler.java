@@ -79,9 +79,9 @@ public class ConfigHandler {
         final Pattern pattern = Pattern.compile("^\\s*(#?[a-z:_]+)(.*)$");
         return transformConfigList(identifiers, entry -> {
             Matcher matcher = pattern.matcher(entry);
-            matcher.find();
-            List<Item> items = getReferencedItems(tagManager, matcher.groupCount() >= 1 ? matcher.group(1) : "");
-            T qualifier = qualifierParser.apply(matcher.groupCount() >= 2 ? matcher.group(2) : "");
+            boolean wellFormed = matcher.find();
+            List<Item> items = getReferencedItems(tagManager, wellFormed ? matcher.group(1) : "");
+            T qualifier = qualifierParser.apply(wellFormed ? matcher.group(2) : "");
             return items.stream().map(item -> Pair.of(item, qualifier)).collect(Collectors.toList());
         }).stream()
                 .flatMap(Collection::stream)
