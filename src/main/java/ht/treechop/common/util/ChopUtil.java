@@ -173,17 +173,18 @@ public class ChopUtil {
         return chopTree(world, blockPos, supportedBlocks, numChops);
     }
 
-    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, boolean mustHaveLeaves) {
-        return getTreeBlocks(world, blockPos, logPos -> isBlockALog(world, logPos), mustHaveLeaves);
+    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, Predicate<BlockPos> logCondition, boolean mustHaveLeaves) {
+        AtomicBoolean hasLeaves = new AtomicBoolean(!mustHaveLeaves);
+        Set<BlockPos> treeBlocks = getTreeBlocks(world, blockPos, logCondition, hasLeaves);
+        return hasLeaves.get() ? treeBlocks : Collections.emptySet();
     }
 
-    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, Predicate<BlockPos> logCondition, boolean mustHaveLeaves) {
+    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, Predicate<BlockPos> logCondition, AtomicBoolean hasLeaves) {
         if (!logCondition.test(blockPos)) {
             return Collections.emptySet();
         }
 
         int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
-        AtomicBoolean hasLeaves = new AtomicBoolean(!mustHaveLeaves);
 
         Set<BlockPos> supportedBlocks = getConnectedBlocks(
                 Collections.singletonList(blockPos),
@@ -197,7 +198,7 @@ public class ChopUtil {
             TreeChopMod.LOGGER.warn(String.format("Max tree size reached: %d >= %d blocks (not including leaves)", supportedBlocks.size(), maxNumTreeBlocks));
         }
 
-        return hasLeaves.get() ? supportedBlocks : Collections.emptySet();
+        return supportedBlocks;
     }
 
     private static ChopResult chopTree(World world, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
@@ -458,7 +459,17 @@ public class ChopUtil {
     }
 
     public static boolean isPartOfATree(World world, BlockPos pos, boolean mustHaveLeaves) {
-        Set<BlockPos> treeBlocks = getTreeBlocks(world, pos, mustHaveLeaves);
-        return !treeBlocks.isEmpty();
+        AtomicBoolean hasLeaves = new AtomicBoolean(false);
+        Set<BlockPos> treeBlocks = getTreeBlocks(world, pos, blockPos -> isBlockALog(world, blockPos), hasLeaves);
+
+        if (treeBlocks.isEmpty()) {
+            return false;
+        } else {
+            if (mustHaveLeaves) {
+                return hasLeaves.get();
+            } else {
+                return treeBlocks.size() >= (hasLeaves.get() ? 1 : 2);
+            }
+        }
     }
 }

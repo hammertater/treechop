@@ -63,19 +63,21 @@ public class ChopIndicator extends AbstractGui {
     }
 
     private boolean blockWouldBeChopped(BlockPos pos) {
-        ChopSettings chopSettings = Client.getChopSettings();
         Minecraft minecraft = Minecraft.getInstance();
         ClientPlayerEntity player = minecraft.player;
         ClientWorld world = minecraft.world;
 
-        if (world != null && player != null) {
-            if (ChopUtil.playerWantsToFell(player, Client.getChopSettings()) && ChopUtil.canChopWithTool(player.getHeldItemMainhand())) {
+        if (world != null && player != null && ChopUtil.canChopWithTool(player.getHeldItemMainhand())) {
+            if (ChopUtil.playerWantsToFell(player, Client.getChopSettings())) {
                 lastBlockWouldBeChopped = ChopUtil.isPartOfATree(
                         world, pos, Client.getChopSettings().getTreesMustHaveLeaves()
                 );
             } else {
                 lastBlockWouldBeChopped = ChopUtil.isBlockALog(world, pos);
             }
+        }
+        else {
+            lastBlockWouldBeChopped = false;
         }
 
         return lastBlockWouldBeChopped;
