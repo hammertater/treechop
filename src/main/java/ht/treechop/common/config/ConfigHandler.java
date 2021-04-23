@@ -1,6 +1,7 @@
 package ht.treechop.common.config;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.common.config.item.ItemIdentifier;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.Setting;
@@ -11,6 +12,7 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.tags.ITag;
+import net.minecraft.tags.ITagCollection;
 import net.minecraft.tags.ITagCollectionSupplier;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
@@ -21,14 +23,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ConfigHandler {
@@ -70,57 +69,21 @@ public class ConfigHandler {
         Server.updatePermissions(permissions);
     }
 
-    private static Set<Item> getItemsFromConfigList(ITagCollectionSupplier tagManager, List<? extends String> identifiers) {
-        Map<Item, Integer> qualifiedItems = getQualifiedItemsFromConfigList(tagManager, identifiers, $ -> 0);
+    private static Set<Item> getItemsFromConfigList(ITagCollection<Item> tags, List<? extends String> identifiers) {
+        Map<Item, Integer> qualifiedItems = getQualifiedItemsFromConfigList(tags, identifiers, $ -> 0);
         return qualifiedItems.keySet();
     }
 
-    private static <T> Map<Item, T> getQualifiedItemsFromConfigList(ITagCollectionSupplier tagManager, List<? extends String> identifiers, Function<String, T> qualifierParser) {
-        final Pattern pattern = Pattern.compile("^\\s*(#?[a-z:_]+)(.*)$");
-        return transformConfigList(identifiers, entry -> {
-            Matcher matcher = pattern.matcher(entry);
-            boolean wellFormed = matcher.find();
-            List<Item> items = getReferencedItems(tagManager, wellFormed ? matcher.group(1) : "");
-            T qualifier = qualifierParser.apply(wellFormed ? matcher.group(2) : "");
+    private static <T> Map<Item, T> getQualifiedItemsFromConfigList(ITagCollection<Item> tags, List<? extends String> identifiers, Function<String, T> qualifierParser) {
+        return transformConfigList(identifiers, string -> {
+            ItemIdentifier id = ItemIdentifier.from(string);
+            List<Item> items = id.resolve(tags, ForgeRegistries.ITEMS);
+            T qualifier = qualifierParser.apply(id.getQualifier());
             return items.stream().map(item -> Pair.of(item, qualifier)).collect(Collectors.toList());
         }).stream()
                 .flatMap(Collection::stream)
                 .filter(itemQualifierPair -> itemQualifierPair.getLeft() != Items.AIR && itemQualifierPair.getRight() != null)
                 .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-    }
-
-    /**
-     * @param identifier either an item identifier (e.g. minecraft:stone) or tag (e.g. #minecraft:logs_that_burn)
-     * @return a list of Items identified by identifier
-     */
-    private static List<Item> getReferencedItems(ITagCollectionSupplier tagManager, String identifier) {
-        if (identifier.startsWith("#")) {
-            ResourceLocation resource = ResourceLocation.tryCreate(identifier.substring(1));
-            if (resource != null) {
-                ITag<Item> tag = tagManager.getItemTags().get(resource);
-                if (tag != null) {
-                    return tag.getAllElements();
-                } else {
-                    TreeChopMod.LOGGER.warn(String.format("Configuration: item tag %s does not exist", identifier));
-                }
-            } else {
-                TreeChopMod.LOGGER.warn(String.format("Configuration: %s is not a valid item tag", identifier));
-            }
-        } else {
-            ResourceLocation resource = ResourceLocation.tryCreate(identifier);
-            if (resource != null) {
-                Item item = ForgeRegistries.ITEMS.getValue(resource);
-                if (item != null) {
-                    return Collections.singletonList(item);
-                } else {
-                    TreeChopMod.LOGGER.warn(String.format("Configuration: item %s does not exist", identifier));
-                }
-            } else {
-                TreeChopMod.LOGGER.warn(String.format("Configuration: %s is not a valid item ID", identifier));
-            }
-        }
-
-        return Collections.emptyList();
     }
 
     private static <T> List<T> transformConfigList(List<? extends String> identifiers, Function<String, T> transformer) {
@@ -134,18 +97,18 @@ public class ConfigHandler {
     private static Map<Item, Integer> getItemOverrides() {
         if (itemOverrides == null) {
             itemOverrides = getQualifiedItemsFromConfigList(
-                    TagCollectionManager.getManager(),
+                    TagCollectionManager.getManager().getItemTags(),
                     COMMON.itemsToOverride.get(),
                     qualifier -> {
                         if (qualifier.equals("")) {
                             return 1;
-                        }
-
-                        try {
-                            return Integer.valueOf(qualifier.substring(1));
-                        } catch (NumberFormatException e) {
-                            TreeChopMod.LOGGER.warn(String.format("Configuration: qualifier %s is malformed in choppingToolsOverrideList", qualifier));
-                            return 1;
+                        } else {
+                            try {
+                                return Integer.parseInt(qualifier.substring(1));
+                            } catch (NumberFormatException e) {
+                                TreeChopMod.LOGGER.warn(String.format("Configuration: qualifier %s is malformed in choppingToolsOverrideList", qualifier));
+                                return 1;
+                            }
                         }
                     }
             );
@@ -160,7 +123,7 @@ public class ConfigHandler {
 
     public static boolean canChopWithItem(Item item) {
         if (itemsBlacklist == null) {
-            itemsBlacklist = getItemsFromConfigList(TagCollectionManager.getManager(), COMMON.itemsToBlacklist.get());
+            itemsBlacklist = getItemsFromConfigList(TagCollectionManager.getManager().getItemTags(), COMMON.itemsToBlacklist.get());
         }
         return !itemsBlacklist.contains(item);
     }
@@ -193,8 +156,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
         public final ForgeConfigSpec.BooleanValue compatForProjectMMO;
         public final ForgeConfigSpec.BooleanValue compatForCarryOn;
-        public final ForgeConfigSpec.BooleanValue compatForSilentGear;
-        public final ForgeConfigSpec.IntValue numChopsForSilentGearSaw;
+        public final ForgeConfigSpec.BooleanValue compatForLumberjack;
+        public final ForgeConfigSpec.IntValue lumberjackLumberaxeChops;
 
         public Common(ForgeConfigSpec.Builder builder) {
             builder.push("permissions");
@@ -273,16 +236,19 @@ public class ConfigHandler {
                     .comment("Whether to prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")
                     .define("preventChopRecursion", true);
             itemsToBlacklist = builder
-                    .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not chop when used to break a log")
+                    .comment("List of item registry names (mod:item) and tags (#mod:tag) and namespaces (@mod) for items that should not chop when used to break a log")
                     .defineList("choppingToolsBlacklist",
-                            Arrays.asList("mekanism:atomic_disassembler"),
+                            Arrays.asList(
+                                    "mekanism:atomic_disassembler"
+                            ),
                             always -> true);
             itemsToOverride = builder
-                    .comment("List of item registry names (mod:item) and tags (#mod:tag) for items that should not execute their default behavior when chopping\nAdd =N to specify N the number of chops to be performed when breaking a log with the item")
+                    .comment("List of item registry names (mod:item) and tags (#mod:tag) and namespaces (@mod) for items that should not execute their default behavior when chopping\nAdd =N to specify the number of chops to be performed when breaking a log with the item")
                     .defineList("choppingToolsOverrideList",
                             Arrays.asList(
                                     "#tconstruct:modifiable/harvest",
                                     "silentgear:saw=3",
+                                    "@lumberjack=2",
                                     "practicaltools:iron_greataxe=2",
                                     "practicaltools:golden_greataxe=2",
                                     "practicaltools:diamond_greataxe=2",
@@ -297,12 +263,15 @@ public class ConfigHandler {
             compatForCarryOn = builder
                     .comment("Whether to prevent conflicts with Carry On when it is configured to allow picking up logs\nSee https://www.curseforge.com/minecraft/mc-mods/carry-on")
                     .define("carryOn", true);
-            compatForSilentGear = builder
-                    .comment("Whether to override Silent Gear saws to use chopping mechanics")
-                    .define("silentGear.enabled", true);
-            numChopsForSilentGearSaw = builder
-                    .comment("Number of chops to perform when breaking a tree block with a Silent Gear saw")
-                    .defineInRange("silentGear.numSawChops", 3, 1, 8096);
+
+            builder.push("lumberjack");
+            compatForLumberjack = builder
+                    .comment("Whether to override Lumberjack axes to use TreeChop mechanics\nSee https://www.curseforge.com/minecraft/mc-mods/lumberjack")
+                    .define("enabled", true);
+            lumberjackLumberaxeChops = builder
+                    .comment("Number of chops to perform when breaking a tree block with a lumberaxe")
+                    .defineInRange("numLumberaxeChops", 2, 1, 8096);
+            builder.pop();
             builder.pop();
             builder.pop();
         }
