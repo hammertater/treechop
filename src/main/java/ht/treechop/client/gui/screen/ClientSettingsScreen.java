@@ -17,6 +17,7 @@ import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
@@ -157,6 +158,15 @@ public class ClientSettingsScreen extends Screen {
                         makeToggleSettingRow(SettingsField.TREES_MUST_HAVE_LEAVES)
                 )
         );
+;
+        if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.isCreative()) {
+            optionRows.add(
+                    new LabeledOptionRow(font,
+                            new TranslationTextComponent("treechop.gui.settings.label.chop_in_creative_mode"),
+                            makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
+                    )
+            );
+        }
 
         return optionRows;
     }
