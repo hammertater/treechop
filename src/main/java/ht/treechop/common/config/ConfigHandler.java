@@ -156,8 +156,6 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
         public final ForgeConfigSpec.BooleanValue compatForProjectMMO;
         public final ForgeConfigSpec.BooleanValue compatForCarryOn;
-        public final ForgeConfigSpec.BooleanValue compatForLumberjack;
-        public final ForgeConfigSpec.IntValue lumberjackLumberaxeChops;
 
         public Common(ForgeConfigSpec.Builder builder) {
             builder.push("permissions");
@@ -263,15 +261,6 @@ public class ConfigHandler {
             compatForCarryOn = builder
                     .comment("Whether to prevent conflicts with Carry On when it is configured to allow picking up logs\nSee https://www.curseforge.com/minecraft/mc-mods/carry-on")
                     .define("carryOn", true);
-
-            builder.push("lumberjack");
-            compatForLumberjack = builder
-                    .comment("Whether to override Lumberjack axes to use TreeChop mechanics\nSee https://www.curseforge.com/minecraft/mc-mods/lumberjack")
-                    .define("enabled", true);
-            lumberjackLumberaxeChops = builder
-                    .comment("Number of chops to perform when breaking a tree block with a lumberaxe")
-                    .defineInRange("numLumberaxeChops", 2, 1, 8096);
-            builder.pop();
             builder.pop();
             builder.pop();
         }
