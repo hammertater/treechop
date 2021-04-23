@@ -336,12 +336,12 @@ public class ConfigHandler {
                     .comment("Vertical location of the indicator relative to the player's crosshairs; positive values move the indicator down")
                     .defineInRange("yOffset", 0, -256, 256);
             builder.pop();
+            builder.pop();
 
             builder.push("settingsScreen");
             showFellingOptions = builder
                     .comment("Whether to show in-game options for enabling and disable felling")
                     .define("showFellingOptions", false);
-            builder.pop();
             builder.pop();
 
 //            treesMustBeUniform = builder
