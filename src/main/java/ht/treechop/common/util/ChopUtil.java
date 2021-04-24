@@ -232,6 +232,7 @@ public class ChopUtil {
                     }
                 }
             } else {
+                nearbyChoppableBlocks.remove(target);
                 return gatherChops(world, target, numChops, nearbyChoppableBlocks);
             }
         }
