@@ -247,7 +247,7 @@ public class ConfigHandler {
                             ),
                             always -> true);
             itemsToOverride = builder
-                    .comment("List of item registry names (mod:item) and tags (#mod:tag) and namespaces (@mod) for items that should not execute their default behavior when chopping\nAdd =N to specify the number of chops to be performed when breaking a log with the item")
+                    .comment("List of item registry names (mod:item) and tags (#mod:tag) and namespaces (@mod) for items that should not execute their default behavior when chopping\nAdd =N to specify the number of chops to be performed when breaking a log with the item (defaults to 1)")
                     .defineList("choppingToolsOverrideList",
                             Arrays.asList(
                                     "#tconstruct:modifiable/harvest=1"
