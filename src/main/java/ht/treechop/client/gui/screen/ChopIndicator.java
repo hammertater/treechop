@@ -64,10 +64,11 @@ public class ChopIndicator extends AbstractGui {
         ClientPlayerEntity player = minecraft.player;
         ClientWorld world = minecraft.world;
 
-        if (world != null & minecraft.player != null) {
-            if ((pos.equals(lastBlockPos) || !Client.getChopSettings().equals(lastChopSettings)) &&
-                    ChopUtil.playerWantsToChop(minecraft.player, Client.getChopSettings()) &&
-                    ChopUtil.canChopWithTool(player.getHeldItemMainhand())
+        if (world != null & minecraft.player != null &&
+                ChopUtil.canChopWithTool(player.getHeldItemMainhand()) &&
+                ChopUtil.playerWantsToChop(minecraft.player, Client.getChopSettings())
+        ) {
+            if ((pos.equals(lastBlockPos) || !Client.getChopSettings().equals(lastChopSettings))
             ) {
                 if (ChopUtil.playerWantsToFell(player, Client.getChopSettings())) {
                     lastBlockWouldBeChopped = ChopUtil.isPartOfATree(
