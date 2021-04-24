@@ -27,14 +27,13 @@ public class ChopIndicator extends AbstractGui {
         Minecraft minecraft = Minecraft.getInstance();
         RayTraceResult mouseOver = minecraft.objectMouseOver;
 
-        if (minecraft.currentScreen == null && mouseOver != null && mouseOver.getType() == RayTraceResult.Type.BLOCK && mouseOver instanceof BlockRayTraceResult) {
+        if (Client.isChoppingIndicatorEnabled() &&
+                minecraft.currentScreen == null && mouseOver != null &&
+                mouseOver.getType() == RayTraceResult.Type.BLOCK &&
+                mouseOver instanceof BlockRayTraceResult
+        ) {
             BlockPos blockPos = ((BlockRayTraceResult) mouseOver).getPos();
-
-            if (Client.isChoppingIndicatorEnabled()
-                    && (blockPos != lastBlockPos || !Client.getChopSettings().equals(lastChopSettings))
-                    && minecraft.player != null && ChopUtil.playerWantsToChop(minecraft.player, Client.getChopSettings())
-                    && blockWouldBeChopped(blockPos)
-            ) {
+            if (blockWouldBeChopped(blockPos)) {
                 int windowWidth = window.getScaledWidth();
                 int windowHeight = window.getScaledHeight();
                 Minecraft.getInstance().getTextureManager().bindTexture(Sprite.TEXTURE_PATH);
@@ -52,11 +51,9 @@ public class ChopIndicator extends AbstractGui {
                         imageWidth,
                         imageHeight
                 );
-
-                lastBlockPos = blockPos;
-                lastChopSettings.copyFrom(Client.getChopSettings());
             }
-
+            lastBlockPos = blockPos;
+            lastChopSettings.copyFrom(Client.getChopSettings());
         } else {
             lastBlockPos = null;
         }
@@ -67,16 +64,20 @@ public class ChopIndicator extends AbstractGui {
         ClientPlayerEntity player = minecraft.player;
         ClientWorld world = minecraft.world;
 
-        if (world != null && player != null && ChopUtil.canChopWithTool(player.getHeldItemMainhand())) {
-            if (ChopUtil.playerWantsToFell(player, Client.getChopSettings())) {
-                lastBlockWouldBeChopped = ChopUtil.isPartOfATree(
-                        world, pos, Client.getChopSettings().getTreesMustHaveLeaves()
-                );
-            } else {
-                lastBlockWouldBeChopped = ChopUtil.isBlockALog(world, pos);
+        if (world != null & minecraft.player != null) {
+            if ((pos.equals(lastBlockPos) || !Client.getChopSettings().equals(lastChopSettings)) &&
+                    ChopUtil.playerWantsToChop(minecraft.player, Client.getChopSettings()) &&
+                    ChopUtil.canChopWithTool(player.getHeldItemMainhand())
+            ) {
+                if (ChopUtil.playerWantsToFell(player, Client.getChopSettings())) {
+                    lastBlockWouldBeChopped = ChopUtil.isPartOfATree(
+                            world, pos, Client.getChopSettings().getTreesMustHaveLeaves()
+                    );
+                } else {
+                    lastBlockWouldBeChopped = ChopUtil.isBlockALog(world, pos);
+                }
             }
-        }
-        else {
+        } else {
             lastBlockWouldBeChopped = false;
         }
 
