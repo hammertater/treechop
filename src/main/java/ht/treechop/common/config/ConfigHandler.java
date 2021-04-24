@@ -234,23 +234,23 @@ public class ConfigHandler {
                     .comment("Whether to prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")
                     .define("preventChopRecursion", true);
             itemsToBlacklist = builder
-                    .comment("List of item registry names (mod:item) and tags (#mod:tag) and namespaces (@mod) for items that should not chop when used to break a log")
+                    .comment("List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not chop when used to break a log")
                     .defineList("choppingToolsBlacklist",
                             Arrays.asList(
-                                    "mekanism:atomic_disassembler"
+                                    "mekanism:atomic_disassembler",
+                                    "silentgear:saw",
+                                    "@lumberjack",
+                                    "practicaltools:iron_greataxe",
+                                    "practicaltools:golden_greataxe",
+                                    "practicaltools:diamond_greataxe",
+                                    "practicaltools:netherite_greataxe"
                             ),
                             always -> true);
             itemsToOverride = builder
                     .comment("List of item registry names (mod:item) and tags (#mod:tag) and namespaces (@mod) for items that should not execute their default behavior when chopping\nAdd =N to specify the number of chops to be performed when breaking a log with the item")
                     .defineList("choppingToolsOverrideList",
                             Arrays.asList(
-                                    "#tconstruct:modifiable/harvest",
-                                    "silentgear:saw=3",
-                                    "@lumberjack=2",
-                                    "practicaltools:iron_greataxe=2",
-                                    "practicaltools:golden_greataxe=2",
-                                    "practicaltools:diamond_greataxe=2",
-                                    "practicaltools:netherite_greataxe=2"
+                                    "#tconstruct:modifiable/harvest=1"
                             ),
                             always -> true);
             builder.pop();
