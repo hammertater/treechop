@@ -2,7 +2,7 @@ package ht.treechop.common.util;
 
 import ht.treechop.TreeChopMod;
 import ht.treechop.api.IChoppableBlock;
-import ht.treechop.api.IChopperItem;
+import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.config.ConfigHandler;
@@ -411,8 +411,8 @@ public class ChopUtil {
         Integer overrideChops = ConfigHandler.getNumChopsOverride(tool.getItem());
         if (overrideChops != null) {
             return overrideChops;
-        } else if (toolItem instanceof IChopperItem) {
-            return ((IChopperItem) toolItem).getNumChops(tool, blockState);
+        } else if (toolItem instanceof IChoppingItem) {
+            return ((IChoppingItem) toolItem).getNumChops(tool, blockState);
         } else {
             return 1;
         }
