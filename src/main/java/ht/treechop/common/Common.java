@@ -8,13 +8,15 @@ import ht.treechop.common.event.ChopEvent;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.util.ChopResult;
 import ht.treechop.common.util.ChopUtil;
+import ht.treechop.common.util.FauxPlayerInteractionManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
@@ -42,24 +44,32 @@ public class Common {
 
     @SubscribeEvent
     public static void onBreakEvent(BlockEvent.BreakEvent event) {
-        PlayerEntity agent = event.getPlayer();
-        ItemStack tool = agent.getHeldItemMainhand();
+        ItemStack tool = event.getPlayer().getHeldItemMainhand();
         BlockState blockState = event.getState();
         BlockPos pos = event.getPos();
 
-        // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
-        if (
-                !isBlockALog(blockState)
-                || !ConfigHandler.COMMON.enabled.get()
-                || !ChopUtil.canChopWithTool(tool)
-                || !ChopUtil.playerWantsToChop(agent)
+        if (!isBlockALog(blockState)
+                || ConfigHandler.COMMON.enabled.get()
+                || ChopUtil.canChopWithTool(tool)
                 || event.isCanceled()
-                || !(event.getWorld() instanceof World)
+                || !(event.getWorld() instanceof ServerWorld)
+                || !(event.getPlayer() instanceof ServerPlayerEntity)
         ) {
+           return;
+        }
+
+        ServerWorld world = (ServerWorld) event.getWorld();
+        ServerPlayerEntity agent = (ServerPlayerEntity) event.getPlayer();
+
+        if (!ChopUtil.playerWantsToChop(agent)) {
+            if (ConfigHandler.shouldOverrideItemBehavior(tool.getItem())) {
+                FauxPlayerInteractionManager.harvestBlockSkippingOnBlockStartBreak(agent, world, blockState, pos, event.getExpToDrop());
+                event.setCanceled(true);
+            }
+
             return;
         }
 
-        World world = (World) event.getWorld();
         ChopEvent.StartChopEvent startChopEvent = new ChopEvent.StartChopEvent(
                 event,
                 world,
