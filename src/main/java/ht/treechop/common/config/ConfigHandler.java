@@ -1,6 +1,5 @@
 package ht.treechop.common.config;
 
-import ht.treechop.TreeChopMod;
 import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.config.item.ItemIdentifier;
 import ht.treechop.common.settings.ChopSettings;
@@ -79,11 +78,15 @@ public class ConfigHandler {
         return qualifiedItems.keySet();
     }
 
-    private static <T> Map<Item, T> getQualifiedItemsFromConfigList(ITagCollection<Item> tags, List<? extends String> identifiers, Predicate<Item> filter, Function<String, T> qualifierParser) {
+    private static <T> Map<Item, T> getQualifiedItemsFromConfigList(
+            ITagCollection<Item> tags,
+            List<? extends String> identifiers,
+            Predicate<Item> filter,
+            Function<ItemIdentifier, T> qualifierParser) {
         return transformConfigList(identifiers, string -> {
             ItemIdentifier id = ItemIdentifier.from(string);
             List<Item> items = id.resolve(tags, ForgeRegistries.ITEMS);
-            T qualifier = qualifierParser.apply(id.getQualifier());
+            T qualifier = qualifierParser.apply(id);
             return items.stream().map(item -> Pair.of(item, qualifier)).collect(Collectors.toList());
         }).stream()
                 .flatMap(Collection::stream)
@@ -108,14 +111,15 @@ public class ConfigHandler {
                         TagCollectionManager.getManager().getItemTags(),
                         COMMON.itemsToOverride.get(),
                         item -> item instanceof IChoppingItem,
-                        qualifier -> {
+                        id -> {
+                            String qualifier = id.getQualifier();
                             if (qualifier.equals("")) {
                                 return 1;
                             } else {
                                 try {
                                     return Integer.parseInt(qualifier.substring(1));
                                 } catch (NumberFormatException e) {
-                                    TreeChopMod.LOGGER.warn(String.format("Configuration: qualifier %s is malformed in choppingToolsOverrideList", qualifier));
+                                    id.parsingError(String.format("qualifier \"%s\" is malformed", qualifier));
                                     return 1;
                                 }
                             }

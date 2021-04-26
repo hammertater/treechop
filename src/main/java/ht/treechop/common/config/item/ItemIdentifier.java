@@ -80,7 +80,7 @@ public abstract class ItemIdentifier {
 
     public abstract List<Item> resolve(ITagCollection<Item> tagSupplier, IForgeRegistry<Item> registry);
 
-    protected void parsingError(String message) {
+    public void parsingError(String message) {
         TreeChopMod.LOGGER.warn("Configuration error when parsing \"{}\": {}", getString(), message);
     }
 
