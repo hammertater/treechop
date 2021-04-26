@@ -23,6 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +37,14 @@ public class ConfigHandler {
     public static ITag<Block> blockTagForDetectingLeaves;
     private static Set<Item> itemsBlacklist = null;
     public static Map<Item, Integer> itemOverrides = null;
-    public static int maxBreakLeavesDistance;
-    public static boolean ignorePersistentLeaves;
+    public static int maxBreakLeavesDistance = 7;
+    public static boolean ignorePersistentLeaves = true;
+    public static OverrideBehavior whenToOverrideItems = OverrideBehavior.ONLY_WHEN_CHOPPING;
 
     public static void onReload() {
         maxBreakLeavesDistance = COMMON.maxBreakLeavesDistance.get();
         ignorePersistentLeaves = COMMON.ignorePersistentLeaves.get();
+        whenToOverrideItems = COMMON.overrideItems.get();
 
         updateTags();
         updatePermissions();
@@ -96,22 +99,26 @@ public class ConfigHandler {
 
     private static Map<Item, Integer> getItemOverrides() {
         if (itemOverrides == null) {
-            itemOverrides = getQualifiedItemsFromConfigList(
-                    TagCollectionManager.getManager().getItemTags(),
-                    COMMON.itemsToOverride.get(),
-                    qualifier -> {
-                        if (qualifier.equals("")) {
-                            return 1;
-                        } else {
-                            try {
-                                return Integer.parseInt(qualifier.substring(1));
-                            } catch (NumberFormatException e) {
-                                TreeChopMod.LOGGER.warn(String.format("Configuration: qualifier %s is malformed in choppingToolsOverrideList", qualifier));
+            if (COMMON.overrideItems.get() == OverrideBehavior.NEVER) {
+                itemOverrides = Collections.emptyMap();
+            } else {
+                itemOverrides = getQualifiedItemsFromConfigList(
+                        TagCollectionManager.getManager().getItemTags(),
+                        COMMON.itemsToOverride.get(),
+                        qualifier -> {
+                            if (qualifier.equals("")) {
                                 return 1;
+                            } else {
+                                try {
+                                    return Integer.parseInt(qualifier.substring(1));
+                                } catch (NumberFormatException e) {
+                                    TreeChopMod.LOGGER.warn(String.format("Configuration: qualifier %s is malformed in choppingToolsOverrideList", qualifier));
+                                    return 1;
+                                }
                             }
                         }
-                    }
-            );
+                );
+            }
         }
 
         return itemOverrides;
@@ -151,6 +158,7 @@ public class ConfigHandler {
 
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> itemsToBlacklist;
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> itemsToOverride;
+        protected final ForgeConfigSpec.EnumValue<OverrideBehavior> overrideItems;
 
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
@@ -237,23 +245,30 @@ public class ConfigHandler {
                     .comment("List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not chop when used to break a log")
                     .defineList("choppingToolsBlacklist",
                             Arrays.asList(
-                                    "mekanism:atomic_disassembler",
-                                    "silentgear:saw",
-                                    "@lumberjack",
-                                    "practicaltools:iron_greataxe",
-                                    "practicaltools:golden_greataxe",
-                                    "practicaltools:diamond_greataxe",
-                                    "practicaltools:netherite_greataxe"
+                                    "mekanism:atomic_disassembler"
                             ),
                             always -> true);
+
+            builder.push("itemsToOverride");
+            overrideItems = builder
+                    .comment("When to override the behaviors of items\nSet to ALWAYS to prevent items from performing their default behavior when chopping is disabled\nALWAYS is not the default option because mod authors worked hard to implement their tree felling items")
+                    .defineEnum("whenToOverrideBehavior", OverrideBehavior.ONLY_WHEN_CHOPPING);
             itemsToOverride = builder
-                    .comment("List of item registry names (mod:item) and tags (#mod:tag) and namespaces (@mod) for items that should not execute their default behavior when chopping\nAdd =N to specify the number of chops to be performed when breaking a log with the item (defaults to 1)")
-                    .defineList("choppingToolsOverrideList",
+                    .comment("List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod)\nAdd =N to specify the number of chops to be performed when breaking a log with the item (defaults to 1)")
+                    .defineList("itemsToOverride",
                             Arrays.asList(
-                                    "#tconstruct:modifiable/harvest=1"
+                                    "#tconstruct:modifiable/harvest=1",
+                                    "silentgear:saw=3",
+                                    "@lumberjack=2",
+                                    "practicaltools:iron_greataxe=2",
+                                    "practicaltools:golden_greataxe=2",
+                                    "practicaltools:diamond_greataxe=2",
+                                    "practicaltools:netherite_greataxe=2"
                             ),
                             always -> true);
             builder.pop();
+            builder.pop();
+
             builder.push("specific");
             compatForProjectMMO = builder
                     .comment("Whether to enable compatibility with ProjectMMO; for example, award XP for chopping\nSee https://www.curseforge.com/minecraft/mc-mods/project-mmo")
