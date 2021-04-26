@@ -50,8 +50,8 @@ public class Common {
         BlockPos pos = event.getPos();
 
         if (!isBlockALog(blockState)
-                || ConfigHandler.COMMON.enabled.get()
-                || ChopUtil.canChopWithTool(tool)
+                || !ConfigHandler.COMMON.enabled.get()
+                || !ChopUtil.canChopWithTool(tool)
                 || event.isCanceled()
                 || !(event.getWorld() instanceof ServerWorld)
                 || !(event.getPlayer() instanceof ServerPlayerEntity)
