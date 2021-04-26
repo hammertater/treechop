@@ -1,6 +1,7 @@
 package ht.treechop.common.config;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.config.item.ItemIdentifier;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Permissions;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ConfigHandler {
@@ -73,11 +75,11 @@ public class ConfigHandler {
     }
 
     private static Set<Item> getItemsFromConfigList(ITagCollection<Item> tags, List<? extends String> identifiers) {
-        Map<Item, Integer> qualifiedItems = getQualifiedItemsFromConfigList(tags, identifiers, $ -> 0);
+        Map<Item, Integer> qualifiedItems = getQualifiedItemsFromConfigList(tags, identifiers, $ -> true, $ -> 0);
         return qualifiedItems.keySet();
     }
 
-    private static <T> Map<Item, T> getQualifiedItemsFromConfigList(ITagCollection<Item> tags, List<? extends String> identifiers, Function<String, T> qualifierParser) {
+    private static <T> Map<Item, T> getQualifiedItemsFromConfigList(ITagCollection<Item> tags, List<? extends String> identifiers, Predicate<Item> filter, Function<String, T> qualifierParser) {
         return transformConfigList(identifiers, string -> {
             ItemIdentifier id = ItemIdentifier.from(string);
             List<Item> items = id.resolve(tags, ForgeRegistries.ITEMS);
@@ -85,7 +87,7 @@ public class ConfigHandler {
             return items.stream().map(item -> Pair.of(item, qualifier)).collect(Collectors.toList());
         }).stream()
                 .flatMap(Collection::stream)
-                .filter(itemQualifierPair -> itemQualifierPair.getLeft() != Items.AIR && itemQualifierPair.getRight() != null)
+                .filter(itemQualifierPair -> itemQualifierPair.getLeft() != Items.AIR && itemQualifierPair.getRight() != null && filter.test(itemQualifierPair.getLeft()))
                 .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
     }
 
@@ -105,6 +107,7 @@ public class ConfigHandler {
                 itemOverrides = getQualifiedItemsFromConfigList(
                         TagCollectionManager.getManager().getItemTags(),
                         COMMON.itemsToOverride.get(),
+                        item -> item instanceof IChoppingItem,
                         qualifier -> {
                             if (qualifier.equals("")) {
                                 return 1;
