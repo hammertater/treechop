@@ -110,7 +110,7 @@ public class ConfigHandler {
                 itemOverrides = getQualifiedItemsFromConfigList(
                         TagCollectionManager.getManager().getItemTags(),
                         COMMON.itemsToOverride.get(),
-                        item -> item instanceof IChoppingItem,
+                        item -> !(item instanceof IChoppingItem),
                         id -> {
                             String qualifier = id.getQualifier();
                             if (qualifier.equals("")) {
