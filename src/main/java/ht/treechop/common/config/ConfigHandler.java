@@ -254,7 +254,7 @@ public class ConfigHandler {
 
             builder.push("itemsToOverride");
             overrideItems = builder
-                    .comment("When to override the behaviors of items\nSet to ALWAYS to prevent items from performing their default behavior when chopping is disabled\nALWAYS is not the default option because mod authors worked hard to implement their tree felling items")
+                    .comment("When to override the behaviors of items\nSet to ALWAYS to prevent items from performing their default behavior when breaking a log when chopping is disabled\nALWAYS is not the default option because mod authors worked hard to implement their tree felling items")
                     .defineEnum("whenToOverrideBehavior", OverrideBehavior.ONLY_WHEN_CHOPPING);
             itemsToOverride = builder
                     .comment("List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod)\nAdd =N to specify the number of chops to be performed when breaking a log with the item (defaults to 1)")
