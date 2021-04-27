@@ -143,7 +143,12 @@ public class ConfigHandler {
                     COMMON.itemsToBlacklist.get(),
                     item1 -> !(item1 instanceof IChoppingItem));
         }
-        return !itemsBlacklist.contains(item);
+
+        if (COMMON.blacklistOrWhitelist.get() == ListType.BLACKLIST) {
+            return !itemsBlacklist.contains(item);
+        } else {
+            return itemsBlacklist.contains(item);
+        }
     }
 
     public static class Common {
@@ -167,6 +172,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue linearM;
         public final ForgeConfigSpec.DoubleValue linearB;
 
+        public final ForgeConfigSpec.EnumValue<ListType> blacklistOrWhitelist;
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> itemsToBlacklist;
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> itemsToOverride;
 
@@ -251,11 +257,16 @@ public class ConfigHandler {
             preventChopRecursion = builder
                     .comment("Whether to prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")
                     .define("preventChopRecursion", true);
+
+            builder.push("blacklist");
+            blacklistOrWhitelist = builder
+                    .comment("Whether the listed items should be blacklisted or whitelisted")
+                    .defineEnum("blacklistOrWhitelist", ListType.BLACKLIST);
             itemsToBlacklist = builder
                     .comment(String.join("\n",
                             "List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not chop when used to break a log",
                             "- Items in this list that have special support for TreeChop will not be blacklisted; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md"))
-                    .defineList("choppingToolsBlacklist",
+                    .defineList("items",
                             Arrays.asList(
                                     "mekanism:atomic_disassembler",
                                     "practicaltools:iron_greataxe",
@@ -263,6 +274,7 @@ public class ConfigHandler {
                                     "practicaltools:diamond_greataxe",
                                     "practicaltools:netherite_greataxe"),
                             always -> true);
+            builder.pop();
 
             itemsToOverride = builder
                     .comment(String.join("\n",
