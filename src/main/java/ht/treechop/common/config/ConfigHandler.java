@@ -252,7 +252,11 @@ public class ConfigHandler {
                     .comment("List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not chop when used to break a log")
                     .defineList("choppingToolsBlacklist",
                             Arrays.asList(
-                                    "mekanism:atomic_disassembler"
+                                    "mekanism:atomic_disassembler",
+                                    "practicaltools:iron_greataxe",
+                                    "practicaltools:golden_greataxe",
+                                    "practicaltools:diamond_greataxe",
+                                    "practicaltools:netherite_greataxe"
                             ),
                             always -> true);
 
@@ -266,11 +270,7 @@ public class ConfigHandler {
                             Arrays.asList(
                                     "#tconstruct:modifiable/harvest=1",
                                     "silentgear:saw=3",
-                                    "@lumberjack=2",
-                                    "practicaltools:iron_greataxe=2",
-                                    "practicaltools:golden_greataxe=2",
-                                    "practicaltools:diamond_greataxe=2",
-                                    "practicaltools:netherite_greataxe=2"
+                                    "@lumberjack=2"
                             ),
                             always -> true);
             builder.pop();
