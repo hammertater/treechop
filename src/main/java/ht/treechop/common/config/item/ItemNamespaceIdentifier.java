@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 
 public class ItemNamespaceIdentifier extends ItemIdentifier {
 
-    public ItemNamespaceIdentifier(String namespace, String parameters, String string) {
-        super(namespace, "", parameters, string);
+    public ItemNamespaceIdentifier(String namespace, List<IdentifierQualifier> qualifiers, String string) {
+        super(namespace, "", qualifiers, string);
     }
 
     @Override

@@ -11,8 +11,8 @@ import java.util.List;
 
 public class SingleItemIdentifier extends ItemIdentifier {
 
-    public SingleItemIdentifier(String nameSpace, String localSpace, String parameters, String string) {
-        super(nameSpace, localSpace, parameters, string);
+    public SingleItemIdentifier(String nameSpace, String localSpace, List<IdentifierQualifier> qualifiers, String string) {
+        super(nameSpace, localSpace, qualifiers, string);
     }
 
     @Override

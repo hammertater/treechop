@@ -10,7 +10,7 @@ import java.util.List;
 public class MalformedItemIdentifier extends ItemIdentifier {
 
     public MalformedItemIdentifier(String string, String explanation) {
-        super("", "", "", string);
+        super("", "", Collections.emptyList(), string);
         parsingError(explanation);
     }
 

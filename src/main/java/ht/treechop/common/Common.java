@@ -4,7 +4,6 @@ import ht.treechop.TreeChopMod;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.capabilities.ChopSettingsProvider;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.config.OverrideBehavior;
 import ht.treechop.common.event.ChopEvent;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.util.ChopResult;
@@ -63,7 +62,7 @@ public class Common {
         ServerPlayerEntity agent = (ServerPlayerEntity) event.getPlayer();
 
         if (!ChopUtil.playerWantsToChop(agent)) {
-            if (ConfigHandler.whenToOverrideItems == OverrideBehavior.ALWAYS && ConfigHandler.shouldOverrideItemBehavior(tool.getItem())) {
+            if (ConfigHandler.shouldOverrideItemBehavior(tool.getItem(), false)) {
                 FauxPlayerInteractionManager.harvestBlockSkippingOnBlockStartBreak(agent, world, blockState, pos, event.getExpToDrop());
                 event.setCanceled(true);
             }

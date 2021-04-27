@@ -23,10 +23,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -37,15 +37,13 @@ public class ConfigHandler {
     public static ITag<Block> blockTagForDetectingLogs;
     public static ITag<Block> blockTagForDetectingLeaves;
     private static Set<Item> itemsBlacklist = null;
-    public static Map<Item, Integer> itemOverrides = null;
+    public static Map<Item, OverrideInfo> itemOverrides = null;
     public static int maxBreakLeavesDistance = 7;
     public static boolean ignorePersistentLeaves = true;
-    public static OverrideBehavior whenToOverrideItems = OverrideBehavior.ONLY_WHEN_CHOPPING;
 
     public static void onReload() {
         maxBreakLeavesDistance = COMMON.maxBreakLeavesDistance.get();
         ignorePersistentLeaves = COMMON.ignorePersistentLeaves.get();
-        whenToOverrideItems = COMMON.overrideItems.get();
 
         updateTags();
         updatePermissions();
@@ -73,8 +71,8 @@ public class ConfigHandler {
         Server.updatePermissions(permissions);
     }
 
-    private static Set<Item> getItemsFromConfigList(ITagCollection<Item> tags, List<? extends String> identifiers) {
-        Map<Item, Integer> qualifiedItems = getQualifiedItemsFromConfigList(tags, identifiers, $ -> true, $ -> 0);
+    private static Set<Item> getItemsFromConfigList(ITagCollection<Item> tags, List<? extends String> identifiers, Predicate<Item> filter) {
+        Map<Item, Integer> qualifiedItems = getQualifiedItemsFromConfigList(tags, identifiers, filter, $ -> 0);
         return qualifiedItems.keySet();
     }
 
@@ -98,46 +96,52 @@ public class ConfigHandler {
         return identifiers.stream().map(transformer).collect(Collectors.toList());
     }
 
-    public static boolean shouldOverrideItemBehavior(Item item) {
-        return getItemOverrides().get(item) != null;
+    public static boolean shouldOverrideItemBehavior(Item item, boolean chopping) {
+        OverrideInfo info = getItemOverrides().get(item);
+        return (info != null && (chopping || info.always()));
     }
 
-    private static Map<Item, Integer> getItemOverrides() {
+    private static Map<Item, OverrideInfo> getItemOverrides() {
         if (itemOverrides == null) {
-            if (COMMON.overrideItems.get() == OverrideBehavior.NEVER) {
-                itemOverrides = Collections.emptyMap();
-            } else {
-                itemOverrides = getQualifiedItemsFromConfigList(
-                        TagCollectionManager.getManager().getItemTags(),
-                        COMMON.itemsToOverride.get(),
-                        item -> !(item instanceof IChoppingItem),
-                        id -> {
-                            String qualifier = id.getQualifier();
-                            if (qualifier.equals("")) {
-                                return 1;
-                            } else {
-                                try {
-                                    return Integer.parseInt(qualifier.substring(1));
-                                } catch (NumberFormatException e) {
-                                    id.parsingError(String.format("qualifier \"%s\" is malformed", qualifier));
-                                    return 1;
-                                }
-                            }
-                        }
-                );
-            }
+            itemOverrides = getQualifiedItemsFromConfigList(
+                    TagCollectionManager.getManager().getItemTags(),
+                    COMMON.itemsToOverride.get(),
+                    item -> !(item instanceof IChoppingItem),
+                    id -> new OverrideInfo(getQualifierChops(id), id.hasQualifier("always"))
+            );
         }
 
         return itemOverrides;
     }
 
+    private static int getQualifierChops(ItemIdentifier id) {
+        Optional<String> chops = id.getQualifier("chops");
+        if (chops.isPresent()) {
+            try {
+                return Integer.parseInt(chops.get());
+            } catch (NumberFormatException e) {
+                id.parsingError(String.format("chops value \"%s\" is not an integer", chops.get()));
+                return 1;
+            }
+        } else {
+            return 1;
+        }
+    }
+
+    /**
+     * @return {@code null} if there is no override info for {@code item}
+     */
     public static Integer getNumChopsOverride(Item item) {
-        return getItemOverrides().get(item);
+        OverrideInfo overrideInfo = getItemOverrides().get(item);
+        return overrideInfo == null ? null : overrideInfo.getNumChops();
     }
 
     public static boolean canChopWithItem(Item item) {
         if (itemsBlacklist == null) {
-            itemsBlacklist = getItemsFromConfigList(TagCollectionManager.getManager().getItemTags(), COMMON.itemsToBlacklist.get());
+            itemsBlacklist = getItemsFromConfigList(
+                    TagCollectionManager.getManager().getItemTags(),
+                    COMMON.itemsToBlacklist.get(),
+                    item1 -> !(item1 instanceof IChoppingItem));
         }
         return !itemsBlacklist.contains(item);
     }
@@ -165,7 +169,6 @@ public class ConfigHandler {
 
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> itemsToBlacklist;
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> itemsToOverride;
-        protected final ForgeConfigSpec.EnumValue<OverrideBehavior> overrideItems;
 
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
@@ -249,39 +252,43 @@ public class ConfigHandler {
                     .comment("Whether to prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")
                     .define("preventChopRecursion", true);
             itemsToBlacklist = builder
-                    .comment("List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not chop when used to break a log")
+                    .comment(String.join("\n",
+                            "List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not chop when used to break a log",
+                            "- Items in this list that have special support for TreeChop will not be blacklisted; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md"))
                     .defineList("choppingToolsBlacklist",
                             Arrays.asList(
                                     "mekanism:atomic_disassembler",
                                     "practicaltools:iron_greataxe",
                                     "practicaltools:golden_greataxe",
                                     "practicaltools:diamond_greataxe",
-                                    "practicaltools:netherite_greataxe"
-                            ),
+                                    "practicaltools:netherite_greataxe"),
                             always -> true);
 
-            builder.push("itemsToOverride");
-            overrideItems = builder
-                    .comment("When to override the behaviors of items\nSet to ALWAYS to prevent items from performing their default behavior when breaking a log when chopping is disabled\nALWAYS is not the default option because mod authors worked hard to implement their tree felling items")
-                    .defineEnum("whenToOverrideBehavior", OverrideBehavior.ONLY_WHEN_CHOPPING);
             itemsToOverride = builder
-                    .comment("List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod)\nAdd =N to specify the number of chops to be performed when breaking a log with the item (defaults to 1)")
+                    .comment(String.join("\n",
+                            "List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod)",
+                            "- Add \"?chops=N\" to specify the number of chops to be performed when breaking a log with the item (defaults to 1)",
+                            "- Add \"?always\" to disable default behavior even when chopping is disabled",
+                            "- Items in this list that have special support for TreeChop will not be overridden; https://github.com/hammertater/treechop/blob/main/docs/compatibility.md",
+                            "- This might not work as expected for some items; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#overrides"))
                     .defineList("itemsToOverride",
                             Arrays.asList(
-                                    "#tconstruct:modifiable/harvest=1",
-                                    "silentgear:saw=3",
-                                    "@lumberjack=2"
-                            ),
+                                    "#tconstruct:modifiable/harvest",
+                                    "silentgear:saw?chops=3,always",
+                                    "@lumberjack?chops=2,always"),
                             always -> true);
-            builder.pop();
             builder.pop();
 
             builder.push("specific");
             compatForProjectMMO = builder
-                    .comment("Whether to enable compatibility with ProjectMMO; for example, award XP for chopping\nSee https://www.curseforge.com/minecraft/mc-mods/project-mmo")
+                    .comment(String.join("\n",
+                            "Whether to enable compatibility with ProjectMMO; for example, award XP for chopping",
+                            "See https://www.curseforge.com/minecraft/mc-mods/project-mmo"))
                     .define("projectMMO", true);
             compatForCarryOn = builder
-                    .comment("Whether to prevent conflicts with Carry On when it is configured to allow picking up logs\nSee https://www.curseforge.com/minecraft/mc-mods/carry-on")
+                    .comment(String.join("\n",
+                            "Whether to prevent conflicts with Carry On when it is configured to allow picking up logs",
+                            "See https://www.curseforge.com/minecraft/mc-mods/carry-on"))
                     .define("carryOn", true);
             builder.pop();
             builder.pop();

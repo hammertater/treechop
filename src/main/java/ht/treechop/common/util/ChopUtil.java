@@ -107,7 +107,7 @@ public class ChopUtil {
             if (tool.isEmpty()) {
                 return true;
             } else {
-                return ConfigHandler.shouldOverrideItemBehavior(tool.getItem()) || !tool.getItem().onBlockStartBreak(tool, blockPos, agent);
+                return ConfigHandler.shouldOverrideItemBehavior(tool.getItem(), true) || !tool.getItem().onBlockStartBreak(tool, blockPos, agent);
             }
         }
         else {

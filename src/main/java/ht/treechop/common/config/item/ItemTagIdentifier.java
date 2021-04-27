@@ -11,8 +11,8 @@ import java.util.List;
 
 public class ItemTagIdentifier extends ItemIdentifier {
 
-    public ItemTagIdentifier(String nameSpace, String localSpace, String parameters, String string) {
-        super(nameSpace, localSpace, parameters, string);
+    public ItemTagIdentifier(String nameSpace, String localSpace, List<IdentifierQualifier> qualifiers, String string) {
+        super(nameSpace, localSpace, qualifiers, string);
     }
 
     @Override
