@@ -3,7 +3,12 @@ package ht.treechop.common.config;
 import com.google.common.collect.Lists;
 import ht.treechop.TreeChopMod;
 import ht.treechop.client.Client;
-import ht.treechop.common.capabilities.ChopSettings;
+import ht.treechop.common.settings.ChopSettings;
+import ht.treechop.common.settings.Permissions;
+import ht.treechop.common.settings.Setting;
+import ht.treechop.common.settings.SettingsField;
+import ht.treechop.common.settings.SneakBehavior;
+import ht.treechop.server.Server;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
@@ -12,11 +17,15 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.oredict.OreDictionary;
+import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -30,12 +39,11 @@ public class ConfigHandler {
     private static final String LIST_SEPARATOR = ",";
 
     public static boolean enabled;
-    public static boolean canChooseNotToChop;
 
     public static int maxNumTreeBlocks;
     public static int maxNumLeavesBlocks;
     public static boolean breakLeaves;
-    public static boolean breakPersistentLeaves;
+    public static boolean ignorePersistentLeaves;
     public static int maxBreakLeavesDistance;
     private static List<String> logBlockSynonyms;
     private static List<String> leavesBlockSynonyms;
@@ -60,6 +68,7 @@ public class ConfigHandler {
 
     private static Configuration config;
     private static Stack<String> categoryStack = new Stack<>();
+    private static final List<Pair<Setting, Boolean>> rawPermissions = new LinkedList<>();
 
     // Good reference: https://github.com/Vazkii/Botania/blob/1.12-final/src/main/java/vazkii/botania/common/core/handler/ConfigHandler.java
     public static void onReload() {
@@ -68,6 +77,19 @@ public class ConfigHandler {
         logBlocks = null;
         leavesBlocks = null;
         choppingToolBlacklistItems = null;
+
+        updatePermissions();
+    }
+
+    private static void updatePermissions() {
+        Set<Setting> permittedSettings = rawPermissions.stream()
+                .filter(Pair::getRight)
+                .map(Pair::getLeft)
+                .collect(Collectors.toSet());
+
+        Permissions permissions = new Permissions(permittedSettings);
+
+        Server.updatePermissions(permissions);
     }
 
     private static void reloadCommon() {
@@ -75,12 +97,21 @@ public class ConfigHandler {
         enabled = getBoolean(
                 "Whether this mod is enabled or not", "enabled",
                 true);
-        canChooseNotToChop = getBoolean(
-                "Whether players can deactivate chopping e.g. by sneaking", "canChooseNotToChop",
-                true);
+
+        rawPermissions.clear();
+        for (SettingsField field : SettingsField.values()) {
+            String fieldName = field.getConfigKey();
+            pushCategory(fieldName);
+            for (Object value : field.getValues()) {
+                String valueName = getPrettyValueName(value);
+                boolean permitted = getBoolean( "canBe" + valueName, true);
+                rawPermissions.add(Pair.of(new Setting(field, value), permitted));
+            }
+            popCategory();
+        }
         popCategory();
 
-        if (TreeChopMod.proxy.isClient()) {
+        if (TreeChopMod.proxy instanceof Client) {
             pushCategory("default-player-settings");
             choppingEnabled = getBoolean(
                     "Default setting for whether or not the user wishes to chop (can be toggled in-game)",
@@ -100,7 +131,7 @@ public class ConfigHandler {
                     true);
 
             if (Minecraft.getMinecraft().world != null) {
-                Client.updateChopSettings(getChopSettings());
+                Client.updateChopSettings();
             }
             popCategory();
         }
@@ -115,6 +146,9 @@ public class ConfigHandler {
         breakLeaves = getBoolean(
                 "Whether to destroy leaves when a tree is felled",
                 "breakLeaves", true);
+        ignorePersistentLeaves = getBoolean(
+                "Whether non-decayable leaves are ignored when detecting leaves",
+                "ignorePersistentLeaves", true);
         maxBreakLeavesDistance = getInt(
                 "Maximum distance from tree blocks to destroy leaves blocks when felling (Note: smart leaves destruction is not supported in 1.12.2)",
                 "maxBreakLeavesDistance", 4, 0, 16);
@@ -170,13 +204,23 @@ public class ConfigHandler {
         }
     }
 
+    private static String getPrettyValueName(Object value) {
+        return Arrays.stream(value.toString().toLowerCase().split("_"))
+                .map(WordUtils::capitalize)
+                .collect(Collectors.joining());
+    }
+
+    private static String getPrettyCategoryName(Object value) {
+        return value.toString().replaceAll("([A-Z])", "-$1").toLowerCase();
+    }
+
     private static void pushCategory(String name, String comment) {
         pushCategory(name);
         config.setCategoryComment(getCategory(), comment);
     }
 
     private static void pushCategory(String name) {
-        categoryStack.push(name);
+        categoryStack.push(getPrettyCategoryName(name));
     }
 
     private static void popCategory() {
@@ -192,7 +236,7 @@ public class ConfigHandler {
         chopSettings.setChoppingEnabled(choppingEnabled);
         chopSettings.setFellingEnabled(fellingEnabled);
         chopSettings.setSneakBehavior(sneakBehavior);
-        chopSettings.setOnlyChopTreesWithLeaves(onlyChopTreesWithLeaves);
+        chopSettings.setTreesMustHaveLeaves(onlyChopTreesWithLeaves);
         return chopSettings;
     }
 
@@ -205,6 +249,12 @@ public class ConfigHandler {
 
     private static boolean getBoolean(String comment, String key, boolean defaultValue) {
         return config.getBoolean(key, getCategory(), defaultValue, comment);
+    }
+
+    private static boolean getBoolean(String key, boolean defaultValue) {
+        Property prop = config.get(getCategory(), key, defaultValue);
+        prop.setLanguageKey(key);
+        return prop.getBoolean(defaultValue);
     }
 
     private static int getInt(String comment, String key, int defaultValue, int lowerBound, int upperBound) {

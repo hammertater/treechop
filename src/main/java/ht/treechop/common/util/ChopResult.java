@@ -64,7 +64,6 @@ public class ChopResult {
                         treeBlock.getPos(),
                         agent,
                         (treeBlock.wasChopped()) ? tool : ItemStack.EMPTY
-
                 ))
                 .peek(treeBlock -> {
                     IBlockState blockState = world.getBlockState(treeBlock.getPos());

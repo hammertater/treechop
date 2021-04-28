@@ -1,14 +1,14 @@
 package ht.treechop.client;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.Common;
-import ht.treechop.common.capabilities.ChopSettings;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.network.PacketEnableChopping;
-import ht.treechop.common.network.PacketEnableFelling;
+import ht.treechop.common.network.ClientRequestSettingsPacket;
 import ht.treechop.common.network.PacketHandler;
-import ht.treechop.common.network.PacketSetSneakBehavior;
-import ht.treechop.common.network.PacketSyncChopSettingsToServer;
+import ht.treechop.common.settings.Permissions;
+import ht.treechop.common.settings.SettingsField;
+import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -19,7 +19,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class Client extends Common {
 
-    private static final ChopSettings chopSettings = new ChopSettings();
+    private static final ClientChopSettings chopSettings = new ClientChopSettings();
+    private static final Permissions serverPermissions = new Permissions();
+
     private static boolean pendingSync = false;
 
     /**
@@ -33,15 +35,15 @@ public class Client extends Common {
     @SubscribeEvent
     public void onConnectDelayed(EntityJoinWorldEvent event) {
         if (pendingSync && event.getEntity() == Minecraft.getMinecraft().player) {
-            updateChopSettings(ConfigHandler.getChopSettings());
+            updateChopSettings();
             pendingSync = false;
         }
     }
 
-    public static void updateChopSettings(ChopSettings chopSettingsIn) {
+    public static void updateChopSettings() {
         TreeChopMod.LOGGER.info("Sending chop settings sync request");
-        chopSettings.copyFrom(chopSettingsIn);
-        PacketHandler.sendToServer(new PacketSyncChopSettingsToServer(chopSettingsIn));
+        chopSettings.copyFrom(ConfigHandler.getChopSettings());
+        PacketHandler.sendToServer(new ClientRequestSettingsPacket(chopSettings));
     }
 
     @Override
@@ -50,28 +52,35 @@ public class Client extends Common {
         KeyBindings.init();
     }
 
-    @Override
-    public boolean isClient() {
-        return true;
+    public static void requestSetting(SettingsField field, Object value) {
+        PacketHandler.sendToServer(new ClientRequestSettingsPacket(field, value));
     }
 
     public static void toggleChopping() {
-        chopSettings.toggleChopping();
-        PacketHandler.sendToServer(new PacketEnableChopping(chopSettings.getChoppingEnabled()));
+        boolean newValue = !chopSettings.get(SettingsField.CHOPPING, Boolean.class);
+        chopSettings.set(SettingsField.CHOPPING, newValue);
     }
 
     public static void toggleFelling() {
-        chopSettings.toggleFelling();
-        PacketHandler.sendToServer(new PacketEnableFelling(chopSettings.getFellingEnabled()));
+        boolean newValue = !chopSettings.get(SettingsField.FELLING, Boolean.class);
+        chopSettings.set(SettingsField.FELLING, newValue);
     }
 
     public static void cycleSneakBehavior() {
-        chopSettings.cycleSneakBehavior();
-        PacketHandler.sendToServer(new PacketSetSneakBehavior(chopSettings.getSneakBehavior()));
+        SneakBehavior newValue = chopSettings.getSneakBehavior().cycle();
+        chopSettings.set(SettingsField.SNEAK_BEHAVIOR, newValue);
     }
 
-    public static ChopSettings getChopSettings() {
+    public static ClientChopSettings getChopSettings() {
         return chopSettings;
+    }
+
+    public static void updatePermissions(Permissions permissions) {
+        serverPermissions.copy(permissions);
+    }
+
+    public static Permissions getServerPermissions() {
+        return serverPermissions;
     }
 
 }

@@ -13,12 +13,9 @@ public final class PacketHandler {
     @SuppressWarnings("UnusedAssignment")
     public static void init() {
         int id = 0;
-        HANDLER.registerMessage(PacketEnableChopping.Handler.class, PacketEnableChopping.class, id++, Side.SERVER);
-        HANDLER.registerMessage(PacketEnableFelling.Handler.class, PacketEnableFelling.class, id++, Side.SERVER);
-        HANDLER.registerMessage(PacketSetSneakBehavior.Handler.class, PacketSetSneakBehavior.class, id++, Side.SERVER);
-        HANDLER.registerMessage(PacketSyncChopSettingsToServer.Handler.class, PacketSyncChopSettingsToServer.class, id++, Side.SERVER);
-        HANDLER.registerMessage(PacketSyncChopSettingsToClient.Handler.class, PacketSyncChopSettingsToClient.class, id++, Side.CLIENT);
-        HANDLER.registerMessage(PacketRequestChopSettings.Handler.class, PacketRequestChopSettings.class, id++, Side.CLIENT);
+        HANDLER.registerMessage(ClientRequestSettingsPacket.Handler.class, ClientRequestSettingsPacket.class, id++, Side.SERVER);
+        HANDLER.registerMessage(ServerConfirmSettingsPacket.Handler.class, ServerConfirmSettingsPacket.class, id++, Side.CLIENT);
+        HANDLER.registerMessage(ServerPermissionsPacket.Handler.class, ServerPermissionsPacket.class, id++, Side.CLIENT);
     }
 
     public static void sendToServer(IMessage message) {

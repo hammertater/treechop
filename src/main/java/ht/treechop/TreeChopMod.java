@@ -2,7 +2,7 @@ package ht.treechop;
 
 import ht.treechop.common.Common;
 import ht.treechop.common.config.ConfigHandler;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
@@ -36,8 +36,9 @@ public class TreeChopMod {
         proxy.preInit();
     }
 
-    public static ITextComponent makeText(String string) {
-        return new TextComponentString(TextFormatting.GRAY + "[TreeChop] " + TextFormatting.WHITE + string);
+    @SuppressWarnings("ConstantConditions")
+    public static void showText(String text) {
+        Minecraft.getMinecraft().player.sendMessage(new TextComponentString(String.format("%s[%s] %s%s", TextFormatting.GRAY, TreeChopMod.MOD_NAME, TextFormatting.WHITE, text)));
     }
 
 }
