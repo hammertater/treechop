@@ -193,7 +193,7 @@ public class ClientSettingsScreen extends Screen {
 
         optionRows.add(
                 new LabeledOptionRow(font,
-                        new TranslationTextComponent("treechop.gui.settings.label.show_feedback_messages"),
+                        new TranslationTextComponent("treechop.gui.settings.label.feedback_messages"),
                         new ToggleOptionRow(
                                 () -> ConfigHandler.CLIENT.showFeedbackMessages.set(!ConfigHandler.CLIENT.showFeedbackMessages.get()),
                                 () -> ToggleWidget.State.of(ConfigHandler.CLIENT.showFeedbackMessages.get(), true)
@@ -203,7 +203,7 @@ public class ClientSettingsScreen extends Screen {
 
         optionRows.add(
                 new LabeledOptionRow(font,
-                        new TranslationTextComponent("treechop.gui.settings.label.show_felling_options"),
+                        new TranslationTextComponent("treechop.gui.settings.label.felling_options"),
                         new ToggleOptionRow(
                                 () -> ConfigHandler.CLIENT.showFellingOptions.set(!ConfigHandler.CLIENT.showFellingOptions.get()),
                                 () -> ToggleWidget.State.of(
