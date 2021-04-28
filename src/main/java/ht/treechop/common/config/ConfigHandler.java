@@ -288,6 +288,7 @@ public class ConfigHandler {
                     .defineList("items",
                             Arrays.asList(
                                     "mekanism:atomic_disassembler",
+                                    "@lumberjack",
                                     "practicaltools:iron_greataxe",
                                     "practicaltools:golden_greataxe",
                                     "practicaltools:diamond_greataxe",
@@ -307,8 +308,7 @@ public class ConfigHandler {
                     .defineList("items",
                             Arrays.asList(
                                     "#tconstruct:modifiable/harvest",
-                                    "silentgear:saw?chops=3,override=always",
-                                    "@lumberjack?chops=2,override=always"),
+                                    "silentgear:saw?chops=3,override=always"),
                             always -> true);
             builder.pop();
             builder.pop();
