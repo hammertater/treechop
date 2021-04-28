@@ -33,18 +33,16 @@ We aren't limited to only altering single items. Whole item tags and mods can be
 
 The `chops=N`, `always`, and `never` qualifiers also work when specifying tags and mods. For example, `itemsToOverride = ["#modname:tag?chops=3,override=never", "@modname?override=always"]`.
 
-### Caveats
-
-Some items might cause unexpected behavior when added to the overrides list.
-
-- In Java, the `onBlockStartBreak` method will not be called for items in the overrides list *when breaking a log block*. This does not suppress any other item methods, such as `onBlockDestroyed`. Items that do not rely on `onBlockStartBreak` will require special support (see [API](#api)).
-- Items that have special support for TreeChop (see [API](#api)) cannot be blacklisted or overridden
-
 ## Blacklist
 
 Items added to the blacklist will never trigger chopping mechanics. The same syntax used for [Overrides](#overrides) can be used when specifying items to blacklist. That is, we can blacklist single items (`minecraft:dirt`), items with a certain tag (`forge:saws`), and all items from a certain mod (`@modname`).
 
 The blacklist can be changed to a whitelist by changing `blacklistOrWhitelist = BLACKLIST` to `blacklistOrWhitelist = WHITELIST`. When using a whitelist, only the specified items can be used to chop. This could be used to, for example, require players to use an axe in order to chop trees.
+
+## Caveats
+
+- Some items might cause unexpected behavior when added to the overrides list. In Java, the `onBlockStartBreak` method will not be called for items in the overrides list *when breaking a log block*. This does not suppress any other item methods, such as `onBlockDestroyed`. Items that do not rely on `onBlockStartBreak` will require special support (see [API](#api)).
+- Items that have special support for TreeChop (see [API](#api)) cannot be blacklisted or overridden
 
 ## API
 
