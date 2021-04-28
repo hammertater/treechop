@@ -16,6 +16,7 @@
   "treechop.gui.settings.label.chopping_indicator": "Show chopping indicator",
   "treechop.gui.settings.label.sneaking_inverts": "Sneaking inverts",
   "treechop.gui.settings.label.sneaking_inverts_chopping": "Sneaking inverts chopping",
+  "treechop.gui.settings.label.show_feedback_messages": "Show feedback messages",
   "treechop.gui.settings.label.show_felling_options": "Show felling options",
   "treechop.gui.settings.title": "%s Settings",
   "treechop.sneak_behavior.invert_chopping": "INVERT CHOPPING",

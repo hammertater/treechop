@@ -356,6 +356,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue indicatorXOffset;
         public final ForgeConfigSpec.IntValue indicatorYOffset;
         public final ForgeConfigSpec.BooleanValue showFellingOptions;
+        public final ForgeConfigSpec.BooleanValue showFeedbackMessages;
 
 //        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
 
@@ -403,6 +404,9 @@ public class ConfigHandler {
             showFellingOptions = builder
                     .comment("Whether to show in-game options for enabling and disable felling")
                     .define("showFellingOptions", false);
+            showFeedbackMessages = builder
+                    .comment("Whether to show chat confirmations when using hotkeys to change chop settings")
+                    .define("showFeedbackMessages", true);
             builder.pop();
 
 //            treesMustBeUniform = builder
