@@ -17,7 +17,7 @@ class ItemIdentifierTest {
         ItemIdentifier id = ItemIdentifier.from("log");
         assertThat(id.getNamespace(), is("minecraft"));
         assertThat(id.getLocalSpace(), is("log"));
-        assertThat(id.getQualifiers(), is(""));
+        assertThat(id.getQualifiers().size(), is(0));
     }
 
     @Test
@@ -25,7 +25,7 @@ class ItemIdentifierTest {
         ItemIdentifier id = ItemIdentifier.from("chimney:chute");
         assertThat(id.getNamespace(), is("chimney"));
         assertThat(id.getLocalSpace(), is("chute"));
-        assertThat(id.getQualifiers(), is(""));
+        assertThat(id.getQualifiers().size(), is(0));
     }
 
     @Test
@@ -33,7 +33,8 @@ class ItemIdentifierTest {
         ItemIdentifier id = ItemIdentifier.from("chimney:chute?nice");
         assertThat(id.getNamespace(), is("chimney"));
         assertThat(id.getLocalSpace(), is("chute"));
-        assertThat(id.getQualifiers(), is("?nice"));
+        assertThat(id.getQualifiers().size(), is(1));
+        assertTrue(id.hasQualifier("nice"));
     }
 
     @Test
@@ -42,7 +43,7 @@ class ItemIdentifierTest {
         assertTrue(id instanceof ItemNamespaceIdentifier);
         assertThat(id.getNamespace(), is("chimney"));
         assertThat(id.getLocalSpace(), is(""));
-        assertThat(id.getQualifiers(), is(""));
+        assertThat(id.getQualifiers().size(), is(0));
     }
 
     @Test
@@ -51,7 +52,8 @@ class ItemIdentifierTest {
         assertTrue(id instanceof ItemNamespaceIdentifier);
         assertThat(id.getNamespace(), is("chimney"));
         assertThat(id.getLocalSpace(), is(""));
-        assertThat(id.getQualifiers(), is("?nice"));
+        assertThat(id.getQualifiers().size(), is(1));
+        assertTrue(id.hasQualifier("nice"));
     }
 
     @Test
@@ -66,7 +68,7 @@ class ItemIdentifierTest {
         assertTrue(id instanceof ItemTagIdentifier);
         assertThat(id.getNamespace(), is("minecraft"));
         assertThat(id.getLocalSpace(), is("logs"));
-        assertThat(id.getQualifiers(), is(""));
+        assertThat(id.getQualifiers().size(), is(0));
     }
 
     @Test
@@ -75,7 +77,8 @@ class ItemIdentifierTest {
         assertTrue(id instanceof ItemTagIdentifier);
         assertThat(id.getNamespace(), is("minecraft"));
         assertThat(id.getLocalSpace(), is("logs"));
-        assertThat(id.getQualifiers(), is("?nice"));
+        assertThat(id.getQualifiers().size(), is(1));
+        assertTrue(id.hasQualifier("nice"));
     }
 
     @Test
@@ -84,16 +87,29 @@ class ItemIdentifierTest {
         assertTrue(id instanceof ItemTagIdentifier);
         assertThat(id.getNamespace(), is("chimney"));
         assertThat(id.getLocalSpace(), is("chutes"));
-        assertThat(id.getQualifiers(), is(""));
+        assertThat(id.getQualifiers().size(), is(0));
     }
 
     @Test
     void fromExplicitTagWithQualifier() {
-        ItemIdentifier id = ItemIdentifier.from("#chimney:chutes?nice");
+        ItemIdentifier id = ItemIdentifier.from("#chimney:chutes?nice,horse=stallion");
         assertTrue(id instanceof ItemTagIdentifier);
         assertThat(id.getNamespace(), is("chimney"));
         assertThat(id.getLocalSpace(), is("chutes"));
-        assertThat(id.getQualifiers(), is("?nice"));
+        assertThat(id.getQualifiers().size(), is(2));
+        assertTrue(id.hasQualifier("nice"));
+        assertThat(id.getQualifier("horse").orElse(null), is("stallion"));
+    }
+
+    @Test
+    void fromOverride() {
+        ItemIdentifier id = ItemIdentifier.from("#chimney:chutes?chops=3,override=always");
+        assertTrue(id instanceof ItemTagIdentifier);
+        assertThat(id.getNamespace(), is("chimney"));
+        assertThat(id.getLocalSpace(), is("chutes"));
+        assertThat(id.getQualifiers().size(), is(2));
+        assertThat(id.getQualifier("chops").orElse(null), is("3"));
+        assertThat(id.getQualifier("override").orElse(null), is("always"));
     }
 
 }

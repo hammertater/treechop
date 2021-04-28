@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public abstract class ItemIdentifier {
 
     private static final Pattern PATTERN = Pattern.compile("^\\s*([#@])?([a-z0-9_\\-.]*(?=:))?:?([a-z0-9_\\-./]*)?(.*)?");
-    private static final Pattern QUALIFIERS_PATTERN = Pattern.compile("^?(.*)$");
+    private static final Pattern QUALIFIERS_PATTERN = Pattern.compile("^\\?(.*)$");
     private static final String DEFAULT_NAMESPACE = "minecraft";
 
     private final String nameSpace;
@@ -71,7 +71,7 @@ public abstract class ItemIdentifier {
     }
 
     private static IdentifierQualifier parseQualifier(String string) {
-        String[] parts = string.split("=", 1);
+        String[] parts = string.split("=", 2);
         if (parts.length <= 1) {
             return new IdentifierQualifier(string, null);
         } else {
