@@ -295,6 +295,7 @@ public class ConfigHandler {
                             always -> true);
             builder.pop();
 
+            builder.push("overrides");
             itemsToOverride = builder
                     .comment(String.join("\n",
                             "List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not perform their default behavior when chopping",
@@ -303,12 +304,13 @@ public class ConfigHandler {
                             "- Add \"?override=never\" to never disable default behavior",
                             "- Items in this list that have special support for TreeChop will not be overridden; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#overrides",
                             "- This might not work as expected for some items; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#caveats"))
-                    .defineList("itemsToOverride",
+                    .defineList("items",
                             Arrays.asList(
                                     "#tconstruct:modifiable/harvest",
                                     "silentgear:saw?chops=3,override=always",
                                     "@lumberjack?chops=2,override=always"),
                             always -> true);
+            builder.pop();
             builder.pop();
 
             builder.push("specific");
