@@ -78,11 +78,4 @@ public class ChopEvent extends Event {
         }
     }
 
-    @Cancelable
-    public static class FellEvent extends ChopEvent {
-        public FellEvent(World world, PlayerEntity player, BlockPos choppedBlockPos, BlockState choppedBlockState) {
-            super(world, player, choppedBlockPos, choppedBlockState);
-        }
-    }
-
 }

@@ -98,7 +98,7 @@ public class ConfigHandler {
 
     public static boolean shouldOverrideItemBehavior(Item item, boolean chopping) {
         OverrideInfo info = getItemOverrides().get(item);
-        return (info != null && (chopping || info.always()));
+        return (info != null && info.shouldOverride(chopping));
     }
 
     private static Map<Item, OverrideInfo> getItemOverrides() {
@@ -107,11 +107,30 @@ public class ConfigHandler {
                     TagCollectionManager.getManager().getItemTags(),
                     COMMON.itemsToOverride.get(),
                     item -> !(item instanceof IChoppingItem),
-                    id -> new OverrideInfo(getQualifierChops(id), id.hasQualifier("always"))
+                    id -> new OverrideInfo(getQualifierChops(id), getQualifierOverride(id))
             );
         }
 
         return itemOverrides;
+    }
+
+    private static OverrideType getQualifierOverride(ItemIdentifier id) {
+        Optional<String> override = id.getQualifier("override");
+        if (override.isPresent()) {
+            switch (override.get().toLowerCase()) {
+                case "always":
+                    return OverrideType.ALWAYS;
+                case "chopping":
+                    return OverrideType.WHEN_CHOPPING;
+                case "never":
+                    return OverrideType.NEVER;
+                default:
+                    id.parsingError(String.format("override qualifier value \"%s\" is not valid", override.get()));
+                    return OverrideType.WHEN_CHOPPING;
+            }
+        } else {
+            return OverrideType.WHEN_CHOPPING;
+        }
     }
 
     private static int getQualifierChops(ItemIdentifier id) {
@@ -265,7 +284,7 @@ public class ConfigHandler {
             itemsToBlacklist = builder
                     .comment(String.join("\n",
                             "List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not chop when used to break a log",
-                            "- Items in this list that have special support for TreeChop will not be blacklisted; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md"))
+                            "- Items in this list that have special support for TreeChop will not be blacklisted; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#blacklist"))
                     .defineList("items",
                             Arrays.asList(
                                     "mekanism:atomic_disassembler",
@@ -278,16 +297,17 @@ public class ConfigHandler {
 
             itemsToOverride = builder
                     .comment(String.join("\n",
-                            "List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod)",
+                            "List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not perform their default behavior when chopping",
                             "- Add \"?chops=N\" to specify the number of chops to be performed when breaking a log with the item (defaults to 1)",
-                            "- Add \"?always\" to disable default behavior even when chopping is disabled",
-                            "- Items in this list that have special support for TreeChop will not be overridden; https://github.com/hammertater/treechop/blob/main/docs/compatibility.md",
-                            "- This might not work as expected for some items; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#overrides"))
+                            "- Add \"?override=always\" to disable default behavior even when chopping is disabled",
+                            "- Add \"?override=never\" to never disable default behavior",
+                            "- Items in this list that have special support for TreeChop will not be overridden; https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#overrides",
+                            "- This might not work as expected for some items; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#caveats"))
                     .defineList("itemsToOverride",
                             Arrays.asList(
                                     "#tconstruct:modifiable/harvest",
-                                    "silentgear:saw?chops=3,always",
-                                    "@lumberjack?chops=2,always"),
+                                    "silentgear:saw?chops=3,override=always",
+                                    "@lumberjack?chops=2,override=always"),
                             always -> true);
             builder.pop();
 

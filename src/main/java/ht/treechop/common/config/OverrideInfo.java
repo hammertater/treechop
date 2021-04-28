@@ -2,18 +2,25 @@ package ht.treechop.common.config;
 
 public class OverrideInfo {
     private final int numChops;
-    private final boolean always;
+    private final OverrideType type;
 
-    public OverrideInfo(int numChops, boolean always) {
+    public OverrideInfo(int numChops, OverrideType always) {
         this.numChops = numChops;
-        this.always = always;
+        this.type = always;
     }
 
     public int getNumChops() {
         return numChops;
     }
 
-    public boolean always() {
-        return always;
+    public boolean shouldOverride(boolean chopping) {
+        if (type == OverrideType.ALWAYS) {
+            return true;
+        } else if (type == OverrideType.NEVER) {
+            return false;
+        } else {
+            return chopping;
+        }
     }
+
 }
