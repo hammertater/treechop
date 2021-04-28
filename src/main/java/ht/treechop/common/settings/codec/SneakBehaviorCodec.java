@@ -4,12 +4,12 @@ import ht.treechop.common.settings.SneakBehavior;
 
 public class SneakBehaviorCodec extends EnumCodec<SneakBehavior> {
 
-    public SneakBehaviorCodec(Class<SneakBehavior> enumType) {
-        super(enumType);
+    public SneakBehaviorCodec() {
+        super(SneakBehavior.class);
     }
 
     @Override
-    public String localizeSafe(SneakBehavior sneakBehavior) {
+    protected String localizeSafe(SneakBehavior sneakBehavior) {
         return sneakBehavior.getFancyText();
     }
 

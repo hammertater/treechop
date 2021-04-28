@@ -29,7 +29,7 @@ public class BooleanCodec extends AbstractSimpleCodec<Boolean> {
     }
 
     @Override
-    public String localizeSafe(Boolean object) {
+    protected String localizeSafe(Boolean object) {
         return object ? "treechop.gui.big_on" : "treechop.gui.big_off";
     }
 

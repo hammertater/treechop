@@ -11,7 +11,7 @@ public class Codecs {
 
     static {
         codecs.put(Boolean.class, new BooleanCodec());
-        codecs.put(SneakBehavior.class, new EnumCodec<>(SneakBehavior.class));
+        codecs.put(SneakBehavior.class, new SneakBehaviorCodec());
     }
 
     public static SimpleCodec<?> forType(Class<?> type) {
