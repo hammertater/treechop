@@ -301,7 +301,7 @@ public class ConfigHandler {
                             "- Add \"?chops=N\" to specify the number of chops to be performed when breaking a log with the item (defaults to 1)",
                             "- Add \"?override=always\" to disable default behavior even when chopping is disabled",
                             "- Add \"?override=never\" to never disable default behavior",
-                            "- Items in this list that have special support for TreeChop will not be overridden; https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#overrides",
+                            "- Items in this list that have special support for TreeChop will not be overridden; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#overrides",
                             "- This might not work as expected for some items; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#caveats"))
                     .defineList("itemsToOverride",
                             Arrays.asList(
