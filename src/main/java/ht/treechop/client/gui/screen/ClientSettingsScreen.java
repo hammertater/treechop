@@ -3,12 +3,12 @@ package ht.treechop.client.gui.screen;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import ht.treechop.TreeChopMod;
 import ht.treechop.client.Client;
-import ht.treechop.client.gui.options.ExclusiveOptionRow;
-import ht.treechop.client.gui.options.LabeledOptionRow;
-import ht.treechop.client.gui.options.OptionList;
-import ht.treechop.client.gui.options.OptionRow;
-import ht.treechop.client.gui.options.ButtonOptionRow;
-import ht.treechop.client.gui.options.ToggleOptionRow;
+import ht.treechop.client.gui.options.ExclusiveButtonsGui;
+import ht.treechop.client.gui.options.LabeledGui;
+import ht.treechop.client.gui.options.RowsGui;
+import ht.treechop.client.gui.options.NestedGui;
+import ht.treechop.client.gui.options.ButtonGui;
+import ht.treechop.client.gui.options.ToggleGui;
 import ht.treechop.client.gui.util.GUIUtil;
 import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.widget.StickyWidget;
@@ -34,7 +34,7 @@ public class ClientSettingsScreen extends Screen {
     private static final boolean IS_PAUSE_SCREEN = true;
     private static final int SPACE_ABOVE_AND_BELOW_LIST = 20;
 
-    protected OptionList optionsRowList;
+    protected RowsGui optionsList;
     private Button doneButton;
     private int optionsPage = 0;
     private int numRows = 0;
@@ -51,10 +51,10 @@ public class ClientSettingsScreen extends Screen {
     }
 
     private void rebuild() {
-        Collection<OptionRow> optionRows = optionsPage == 0 ? makePageOne() : makePageTwo();
+        Collection<NestedGui> optionRows = optionsPage == 0 ? makePageOne() : makePageTwo();
 
         optionRows.add(
-                new ButtonOptionRow(
+                new ButtonGui(
                         optionsPage == 0 ? Sprite.PAGE_ONE : Sprite.PAGE_TWO,
                         optionsPage == 0 ? Sprite.HIGHLIGHTED_PAGE_ONE : Sprite.HIGHLIGHTED_PAGE_TWO,
                         () -> {
@@ -66,13 +66,8 @@ public class ClientSettingsScreen extends Screen {
 
         setNumRows(optionRows.size());
 
-        int listTop = getListTop();
-        int listBottom = getListBottom();
-        this.optionsRowList = addListener(new OptionList(
+        this.optionsList = addListener(new RowsGui(
                 minecraft,
-                width,
-                listTop,
-                listBottom,
                 ROW_HEIGHT,
                 optionRows
         ));
@@ -88,11 +83,11 @@ public class ClientSettingsScreen extends Screen {
         ));
     }
 
-    private LinkedList<OptionRow> makePageOne() {
-        LinkedList<OptionRow> optionRows = new LinkedList<>();
+    private LinkedList<NestedGui> makePageOne() {
+        LinkedList<NestedGui> optionRows = new LinkedList<>();
 
         optionRows.add(
-                new LabeledOptionRow(font,
+                new LabeledGui(font,
                         new TranslationTextComponent("treechop.gui.settings.label.chopping"),
                         makeToggleSettingRow(SettingsField.CHOPPING)
                 )
@@ -100,16 +95,16 @@ public class ClientSettingsScreen extends Screen {
 
         if (ConfigHandler.CLIENT.showFellingOptions.get()) {
             optionRows.add(
-                    new LabeledOptionRow(font,
+                    new LabeledGui(font,
                             new TranslationTextComponent("treechop.gui.settings.label.felling"),
                             makeToggleSettingRow(SettingsField.FELLING)
                     )
             );
 
             optionRows.add(
-                    new LabeledOptionRow(font,
+                    new LabeledGui(font,
                             new TranslationTextComponent("treechop.gui.settings.label.sneaking_inverts"),
-                            new ExclusiveOptionRow.Builder()
+                            new ExclusiveButtonsGui.Builder()
                                     .add(
                                             new TranslationTextComponent("treechop.gui.settings.button.chopping"),
                                             () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.INVERT_CHOPPING),
@@ -139,9 +134,9 @@ public class ClientSettingsScreen extends Screen {
         }
         else {
             optionRows.add(
-                    new LabeledOptionRow(font,
+                    new LabeledGui(font,
                             new TranslationTextComponent("treechop.gui.settings.label.sneaking_inverts_chopping"),
-                            new ToggleOptionRow(
+                            new ToggleGui(
                                     () -> Client.getChopSettings().setSneakBehavior(getNextSneakBehavior()),
                                     () -> ToggleWidget.State.of(
                                             Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_CHOPPING,
@@ -153,7 +148,7 @@ public class ClientSettingsScreen extends Screen {
         }
 
         optionRows.add(
-                new LabeledOptionRow(font,
+                new LabeledGui(font,
                         new TranslationTextComponent("treechop.gui.settings.label.only_chop_trees_with_leaves"),
                         makeToggleSettingRow(SettingsField.TREES_MUST_HAVE_LEAVES)
                 )
@@ -161,7 +156,7 @@ public class ClientSettingsScreen extends Screen {
 ;
         if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.isCreative()) {
             optionRows.add(
-                    new LabeledOptionRow(font,
+                    new LabeledGui(font,
                             new TranslationTextComponent("treechop.gui.settings.label.chop_in_creative_mode"),
                             makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
                     )
@@ -171,20 +166,20 @@ public class ClientSettingsScreen extends Screen {
         return optionRows;
     }
 
-    private LinkedList<OptionRow> makePageTwo() {
-        LinkedList<OptionRow> optionRows = new LinkedList<>();
+    private LinkedList<NestedGui> makePageTwo() {
+        LinkedList<NestedGui> optionRows = new LinkedList<>();
 
         optionRows.add(
-                new LabeledOptionRow(font,
+                new LabeledGui(font,
                         new TranslationTextComponent("treechop.gui.settings.label.chop_in_creative_mode"),
                         makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
                 )
         );
 
         optionRows.add(
-                new LabeledOptionRow(font,
+                new LabeledGui(font,
                         new TranslationTextComponent("treechop.gui.settings.label.chopping_indicator"),
-                        new ToggleOptionRow(
+                        new ToggleGui(
                                 () -> Client.setChoppingIndicatorVisibility(!Client.isChoppingIndicatorEnabled()),
                                 () -> ToggleWidget.State.of(Client.isChoppingIndicatorEnabled(), true)
                         )
@@ -192,9 +187,9 @@ public class ClientSettingsScreen extends Screen {
         );
 
         optionRows.add(
-                new LabeledOptionRow(font,
+                new LabeledGui(font,
                         new TranslationTextComponent("treechop.gui.settings.label.feedback_messages"),
-                        new ToggleOptionRow(
+                        new ToggleGui(
                                 () -> ConfigHandler.CLIENT.showFeedbackMessages.set(!ConfigHandler.CLIENT.showFeedbackMessages.get()),
                                 () -> ToggleWidget.State.of(ConfigHandler.CLIENT.showFeedbackMessages.get(), true)
                         )
@@ -202,9 +197,9 @@ public class ClientSettingsScreen extends Screen {
         );
 
         optionRows.add(
-                new LabeledOptionRow(font,
+                new LabeledGui(font,
                         new TranslationTextComponent("treechop.gui.settings.label.felling_options"),
-                        new ToggleOptionRow(
+                        new ToggleGui(
                                 () -> ConfigHandler.CLIENT.showFellingOptions.set(!ConfigHandler.CLIENT.showFellingOptions.get()),
                                 () -> ToggleWidget.State.of(
                                         ConfigHandler.CLIENT.showFellingOptions.get(),
@@ -225,8 +220,8 @@ public class ClientSettingsScreen extends Screen {
         return Client.getChopSettings().getSneakBehavior() == SneakBehavior.NONE ? SneakBehavior.INVERT_CHOPPING : SneakBehavior.NONE;
     }
 
-    private ToggleOptionRow makeToggleSettingRow(SettingsField field) {
-        return new ToggleOptionRow(
+    private ToggleGui makeToggleSettingRow(SettingsField field) {
+        return new ToggleGui(
                 () -> Client.getChopSettings().set(field, !Client.getChopSettings().get(field, Boolean.class)),
                 () -> ToggleWidget.State.of(
                         Client.getChopSettings().get(field, Boolean.class),
@@ -255,10 +250,14 @@ public class ClientSettingsScreen extends Screen {
             needToRebuild = false;
         }
 
+        renderBackground(matrixStack);
+
         doneButton.y = getDoneButtonTop();
 
-        this.renderBackground(matrixStack);
-        optionsRowList.render(matrixStack, mouseX, mouseY, partialTicks);
+        int listTop = getListTop();
+        int listBottom = getListBottom();
+        optionsList.setBox(0, listTop, width, listBottom - listTop);
+        optionsList.render(matrixStack, mouseX, mouseY, partialTicks);
         drawCenteredString(matrixStack, this.font, this.title, this.width / 2, getTitleTop(), 16777215);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         // TODO: check out ClientSettingsScreen.func_243293_a for draw reordering; might be important for tooltips
@@ -296,7 +295,7 @@ public class ClientSettingsScreen extends Screen {
     }
 
     protected int getListHeight() {
-        return OptionList.getHeightForRows(numRows, ROW_HEIGHT);
+        return RowsGui.getHeightForRows(numRows, ROW_HEIGHT);
     }
 
     protected int getListBottom() {

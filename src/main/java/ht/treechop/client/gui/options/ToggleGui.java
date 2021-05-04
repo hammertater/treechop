@@ -1,7 +1,6 @@
 package ht.treechop.client.gui.options;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import ht.treechop.client.gui.widget.StickyWidget;
 import ht.treechop.client.gui.widget.ToggleWidget;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.widget.Widget;
@@ -10,16 +9,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class ToggleOptionRow extends OptionRow {
+public class ToggleGui extends NestedGui {
 
     private final Widget widget;
 
-    public ToggleOptionRow(Runnable onPress, Supplier<ToggleWidget.State> stateSupplier) {
+    public ToggleGui(Runnable onPress, Supplier<ToggleWidget.State> stateSupplier) {
         this.widget = new ToggleWidget(0, 0, onPress, stateSupplier);
-    }
-
-    @Override
-    public void resize(int width) {
     }
 
     @SuppressWarnings("NullableProblems")
@@ -29,9 +24,9 @@ public class ToggleOptionRow extends OptionRow {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int entryIdx, int top, int left, int width, int height, int mouseX, int mouseY, boolean someBoolean, float partialTicks) {
-        widget.x = left;
-        widget.y = top;
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        widget.x = getBox().getLeft();
+        widget.y = getBox().getTop();
         widget.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 

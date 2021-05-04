@@ -1,7 +1,6 @@
 package ht.treechop.client.gui.options;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import ht.treechop.client.gui.util.GUIUtil;
 import ht.treechop.client.gui.widget.TextWidget;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IGuiEventListener;
@@ -13,25 +12,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class LabeledOptionRow extends OptionRow {
+public class LabeledGui extends NestedGui {
 
     private static final int COLUMN_PADDING = 4;
 
     private final TextWidget label;
-    private final OptionRow options;
+    private final NestedGui gui;
     private int leftColumnWidth;
     private int rightcolumnWidth;
     private boolean rightAlignLabels = false;
 
-    public LabeledOptionRow(FontRenderer font, ITextComponent label, OptionRow options) {
+    public LabeledGui(FontRenderer font, ITextComponent label, NestedGui gui) {
         this.label = new TextWidget(0, 0, font, label);
-        this.options = options;
+        this.gui = gui;
         this.leftColumnWidth = getLeftColumnWidth();
         this.rightcolumnWidth = getRightColumnWidth();
     }
 
     public int getMinimumWidth() {
-        return getLeftColumnWidth() + options.getMinimumWidth();
+        return getLeftColumnWidth() + gui.getMinimumWidth();
     }
 
     public int getLeftColumnWidth() {
@@ -39,36 +38,27 @@ public class LabeledOptionRow extends OptionRow {
     }
 
     public int getRightColumnWidth() {
-        return options.getMinimumWidth() + COLUMN_PADDING;
+        return gui.getMinimumWidth() + COLUMN_PADDING;
     }
 
     @Override
     public List<? extends IGuiEventListener> getEventListeners() {
-        return Stream.of(Collections.singletonList(label), options.getEventListeners())
+        return Stream.of(Collections.singletonList(label), gui.getEventListeners())
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void resize(int width) {
-    }
-
-    @Override
-    public void render(MatrixStack matrixStack, int entryIdx, int top, int left, int width, int height, int mouseX, int mouseY, boolean someBoolean, float partialTicks) {
-        int center = left + leftColumnWidth;
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        int center = getBox().getCenterX() + (leftColumnWidth - rightcolumnWidth) / 2;
         this.label.x = center - COLUMN_PADDING + (rightAlignLabels ? 0 : -leftColumnWidth);
-        this.label.y = top + (height - 6) / 2;
+        this.label.y = getBox().getCenterY() - 3;
         this.label.render(matrixStack, mouseX, mouseY, partialTicks, rightAlignLabels);
-        this.options.render(
+        this.gui.setBox(center + COLUMN_PADDING, getBox().getTop(), rightcolumnWidth, getBox().getHeight());
+        this.gui.render(
                 matrixStack,
-                entryIdx,
-                top,
-                center + COLUMN_PADDING,
-                rightcolumnWidth,
-                height,
                 mouseX,
                 mouseY,
-                someBoolean,
                 partialTicks
         );
     }
@@ -76,6 +66,6 @@ public class LabeledOptionRow extends OptionRow {
     public void setColumnWidths(int biggestLeftColumnWidth, int biggestRightColumnWidth) {
         this.leftColumnWidth = biggestLeftColumnWidth;
         this.rightcolumnWidth = biggestRightColumnWidth;
-        options.resize(biggestRightColumnWidth);
+//        options.resize(biggestRightColumnWidth);
     }
 }

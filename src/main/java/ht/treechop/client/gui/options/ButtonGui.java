@@ -3,17 +3,16 @@ package ht.treechop.client.gui.options;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.widget.SpriteButtonWidget;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IGuiEventListener;
 
 import java.util.Collections;
 import java.util.List;
 
-public class ButtonOptionRow extends OptionRow {
+public class ButtonGui extends NestedGui {
 
     private final SpriteButtonWidget widget;
 
-    public ButtonOptionRow(Sprite sprite, Sprite highlightedSprite, Runnable onPress) {
+    public ButtonGui(Sprite sprite, Sprite highlightedSprite, Runnable onPress) {
         this.widget = new SpriteButtonWidget(0, 0, sprite, highlightedSprite, onPress);
     }
 
@@ -23,13 +22,9 @@ public class ButtonOptionRow extends OptionRow {
     }
 
     @Override
-    public void resize(int width) {
-    }
-
-    @Override
-    public void render(MatrixStack matrixStack, int entryIdx, int top, int left, int width, int height, int mouseX, int mouseY, boolean someBoolean, float partialTicks) {
-        this.widget.x = left + width / 2 - this.widget.getWidth() / 2;
-        this.widget.y = top + height / 2 - this.widget.getHeightRealms() / 2;
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        this.widget.x = getBox().getCenterX() - this.widget.getWidth() / 2;
+        this.widget.y = getBox().getCenterY() - this.widget.getHeightRealms() / 2;
         this.widget.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 

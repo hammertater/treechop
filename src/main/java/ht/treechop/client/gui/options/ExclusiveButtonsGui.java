@@ -13,15 +13,14 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class ExclusiveOptionRow extends OptionRow {
+public class ExclusiveButtonsGui extends NestedGui {
 
     private final List<Widget> widgets;
 
-    protected ExclusiveOptionRow(Collection<Widget> widgets) {
+    protected ExclusiveButtonsGui(Collection<Widget> widgets) {
         this.widgets = Lists.newArrayList(widgets);
     }
 
-    @Override
     public void resize(int width) {
         if (getMinimumWidth() < width) {
             int targetWidth = width / widgets.size();
@@ -47,11 +46,12 @@ public class ExclusiveOptionRow extends OptionRow {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int entryIdx, int top, int left, int width, int height, int mouseX, int mouseY, boolean someBoolean, float partialTicks) {
-        int x = left;
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        int x = getBox().getLeft();
+        int y = getBox().getTop();
         for (Widget widget : widgets) {
             widget.x = x;
-            widget.y = top;
+            widget.y = y;
             widget.render(matrixStack, mouseX, mouseY, partialTicks);
             x += widget.getWidth();
         }
@@ -70,11 +70,11 @@ public class ExclusiveOptionRow extends OptionRow {
             return this;
         }
 
-        public ExclusiveOptionRow build() {
+        public ExclusiveButtonsGui build() {
             List<Widget> widgets = options.stream()
                     .map(option -> new StickyWidget(0, 0, 0, 0, option.name, option.onPress, option.stateSupplier))
                     .collect(Collectors.toList());
-            return new ExclusiveOptionRow(widgets);
+            return new ExclusiveButtonsGui(widgets);
         }
 
         private static class Option {
