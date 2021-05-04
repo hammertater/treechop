@@ -1,4 +1,4 @@
-package ht.treechop.client.gui.options;
+package ht.treechop.client.gui.element;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import ht.treechop.client.gui.widget.TextWidget;
@@ -31,6 +31,10 @@ public class LabeledGui extends NestedGui {
 
     public int getMinimumWidth() {
         return getLeftColumnWidth() + gui.getMinimumWidth();
+    }
+
+    public int getMinimumHeight() {
+        return Math.max(label.getHeightRealms(), gui.getMinimumHeight());
     }
 
     public int getLeftColumnWidth() {
@@ -66,6 +70,6 @@ public class LabeledGui extends NestedGui {
     public void setColumnWidths(int biggestLeftColumnWidth, int biggestRightColumnWidth) {
         this.leftColumnWidth = biggestLeftColumnWidth;
         this.rightcolumnWidth = biggestRightColumnWidth;
-//        options.resize(biggestRightColumnWidth);
+//        element.resize(biggestRightColumnWidth);
     }
 }

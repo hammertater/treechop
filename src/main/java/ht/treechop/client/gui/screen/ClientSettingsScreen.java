@@ -3,12 +3,13 @@ package ht.treechop.client.gui.screen;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import ht.treechop.TreeChopMod;
 import ht.treechop.client.Client;
-import ht.treechop.client.gui.options.ExclusiveButtonsGui;
-import ht.treechop.client.gui.options.LabeledGui;
-import ht.treechop.client.gui.options.RowsGui;
-import ht.treechop.client.gui.options.NestedGui;
-import ht.treechop.client.gui.options.ButtonGui;
-import ht.treechop.client.gui.options.ToggleGui;
+import ht.treechop.client.gui.element.ButtonGui;
+import ht.treechop.client.gui.element.EmptyGui;
+import ht.treechop.client.gui.element.ExclusiveButtonsGui;
+import ht.treechop.client.gui.element.LabeledGui;
+import ht.treechop.client.gui.element.NestedGui;
+import ht.treechop.client.gui.element.RowsGui;
+import ht.treechop.client.gui.element.ToggleGui;
 import ht.treechop.client.gui.util.GUIUtil;
 import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.widget.StickyWidget;
@@ -24,20 +25,20 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 public class ClientSettingsScreen extends Screen {
 
-    private static final int ROW_HEIGHT = GUIUtil.BUTTON_HEIGHT + 1;
+    private static final int ROW_SEPARATION = 1;
     private static final int INSET_SIZE = 20;
     private static final boolean IS_PAUSE_SCREEN = true;
     private static final int SPACE_ABOVE_AND_BELOW_LIST = 20;
+    private static final int MIN_HEIGHT = (GUIUtil.BUTTON_HEIGHT + ROW_SEPARATION) * 4 - ROW_SEPARATION;
 
     protected RowsGui optionsList;
     private Button doneButton;
     private int optionsPage = 0;
-    private int numRows = 0;
     private boolean needToRebuild = false;
 
     public ClientSettingsScreen() {
@@ -51,7 +52,9 @@ public class ClientSettingsScreen extends Screen {
     }
 
     private void rebuild() {
-        Collection<NestedGui> optionRows = optionsPage == 0 ? makePageOne() : makePageTwo();
+        List<NestedGui> optionRows = optionsPage == 0 ? makePageOne() : makePageTwo();
+
+        addBufferRows(optionRows);
 
         optionRows.add(
                 new ButtonGui(
@@ -64,11 +67,8 @@ public class ClientSettingsScreen extends Screen {
                 )
         );
 
-        setNumRows(optionRows.size());
-
         this.optionsList = addListener(new RowsGui(
-                minecraft,
-                ROW_HEIGHT,
+                ROW_SEPARATION,
                 optionRows
         ));
 
@@ -83,7 +83,15 @@ public class ClientSettingsScreen extends Screen {
         ));
     }
 
-    private LinkedList<NestedGui> makePageOne() {
+    private void addBufferRows(List<NestedGui> rows) {
+        int missingHeight = MIN_HEIGHT - RowsGui.getHeightForRows(rows, ROW_SEPARATION) - ROW_SEPARATION * 2;
+        if (missingHeight > 0) {
+            rows.add(0, new EmptyGui(0, Math.floorDiv(missingHeight, 2)));
+            rows.add(new EmptyGui(0, (int) Math.ceil((float)missingHeight / 2)));
+        }
+    }
+
+    private List<NestedGui> makePageOne() {
         LinkedList<NestedGui> optionRows = new LinkedList<>();
 
         optionRows.add(
@@ -153,7 +161,7 @@ public class ClientSettingsScreen extends Screen {
                         makeToggleSettingRow(SettingsField.TREES_MUST_HAVE_LEAVES)
                 )
         );
-;
+
         if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.isCreative()) {
             optionRows.add(
                     new LabeledGui(font,
@@ -212,10 +220,6 @@ public class ClientSettingsScreen extends Screen {
         return optionRows;
     }
 
-    private void setNumRows(int numRows) {
-        this.numRows = numRows;
-    }
-
     private SneakBehavior getNextSneakBehavior() {
         return Client.getChopSettings().getSneakBehavior() == SneakBehavior.NONE ? SneakBehavior.INVERT_CHOPPING : SneakBehavior.NONE;
     }
@@ -241,6 +245,7 @@ public class ClientSettingsScreen extends Screen {
         );
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         if (needToRebuild) {
@@ -263,6 +268,7 @@ public class ClientSettingsScreen extends Screen {
         // TODO: check out ClientSettingsScreen.func_243293_a for draw reordering; might be important for tooltips
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public void renderBackground(MatrixStack matrixStack) {
         super.renderBackground(matrixStack);
@@ -295,7 +301,7 @@ public class ClientSettingsScreen extends Screen {
     }
 
     protected int getListHeight() {
-        return RowsGui.getHeightForRows(numRows, ROW_HEIGHT);
+        return optionsList.getHeight();
     }
 
     protected int getListBottom() {

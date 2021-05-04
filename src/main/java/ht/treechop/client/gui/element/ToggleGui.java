@@ -1,4 +1,4 @@
-package ht.treechop.client.gui.options;
+package ht.treechop.client.gui.element;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import ht.treechop.client.gui.widget.ToggleWidget;
@@ -31,8 +31,13 @@ public class ToggleGui extends NestedGui {
     }
 
     @Override
-    protected int getMinimumWidth() {
+    public int getMinimumWidth() {
         return widget.getWidth();
+    }
+
+    @Override
+    public int getMinimumHeight() {
+        return widget.getHeightRealms();
     }
 
 }

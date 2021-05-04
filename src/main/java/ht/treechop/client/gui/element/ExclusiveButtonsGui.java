@@ -1,4 +1,4 @@
-package ht.treechop.client.gui.options;
+package ht.treechop.client.gui.element;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -58,8 +58,13 @@ public class ExclusiveButtonsGui extends NestedGui {
     }
 
     @Override
-    protected int getMinimumWidth() {
+    public int getMinimumWidth() {
         return widgets.stream().map(Widget::getWidth).reduce(Integer::sum).orElse(0);
+    }
+
+    @Override
+    public int getMinimumHeight() {
+        return widgets.stream().map(Widget::getHeightRealms).reduce(Integer::max).orElse(0);
     }
 
     public static class Builder {

@@ -1,4 +1,4 @@
-package ht.treechop.client.gui.options;
+package ht.treechop.client.gui.element;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import ht.treechop.client.gui.util.IPositionalGui;
@@ -16,7 +16,9 @@ public abstract class NestedGui implements INestedGuiEventHandler, IPositionalGu
 
     public abstract void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks);
 
-    protected abstract int getMinimumWidth();
+    public abstract int getMinimumWidth();
+
+    public abstract int getMinimumHeight();
 
     public int getLeftColumnWidth() {
         return getMinimumWidth() / 2;
