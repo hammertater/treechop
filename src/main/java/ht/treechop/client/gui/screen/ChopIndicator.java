@@ -36,7 +36,7 @@ public class ChopIndicator extends AbstractGui {
             if (blockWouldBeChopped(blockPos)) {
                 int windowWidth = window.getScaledWidth();
                 int windowHeight = window.getScaledHeight();
-                Minecraft.getInstance().getTextureManager().bindTexture(Sprite.TEXTURE_PATH);
+                minecraft.getTextureManager().bindTexture(Sprite.TEXTURE_PATH);
 
                 int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset.get();
                 int indicatorCenterY = windowHeight / 2 + ConfigHandler.CLIENT.indicatorYOffset.get();
