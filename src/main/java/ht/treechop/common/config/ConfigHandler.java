@@ -199,6 +199,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
         public final ForgeConfigSpec.BooleanValue compatForProjectMMO;
         public final ForgeConfigSpec.BooleanValue compatForCarryOn;
+        public final ForgeConfigSpec.BooleanValue compatForDynamicTrees;
 
         public Common(ForgeConfigSpec.Builder builder) {
             builder.push("permissions");
@@ -324,6 +325,11 @@ public class ConfigHandler {
                             "Whether to prevent conflicts with Carry On when it is configured to allow picking up logs",
                             "See https://www.curseforge.com/minecraft/mc-mods/carry-on"))
                     .define("carryOn", true);
+            compatForDynamicTrees = builder
+                    .comment(String.join("\n",
+                            "Whether to prevent conflicts with DynamicTrees",
+                            "See https://www.curseforge.com/minecraft/mc-mods/dynamictrees"))
+                    .define("dynamicTrees", true);
             builder.pop();
             builder.pop();
         }

@@ -39,6 +39,13 @@ public class ChopEvent extends Event {
     }
 
     @Cancelable
+    public static class DetectTreeEvent extends ChopEvent {
+        public DetectTreeEvent(World world, PlayerEntity player, BlockPos choppedBlockPos, BlockState choppedBlockState) {
+            super(world, player, choppedBlockPos, choppedBlockState);
+        }
+    }
+
+    @Cancelable
     public static class StartChopEvent extends ChopEvent {
         private BlockEvent.BreakEvent breakEvent;
         private int numChops;

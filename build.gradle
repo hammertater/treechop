@@ -99,6 +99,7 @@ dependencies {
 
     compileOnly fg.deobf("curse.maven:carry-on:3206755" )
     compileOnly fg.deobf("curse.maven:project-mmo:3157194")
+    compileOnly fg.deobf("curse.maven:dynamictrees:3304858")
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
