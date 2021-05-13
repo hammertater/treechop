@@ -8,6 +8,8 @@ import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class ChopEvent extends Event {
 
     private final World world;
@@ -40,8 +42,18 @@ public class ChopEvent extends Event {
 
     @Cancelable
     public static class DetectTreeEvent extends ChopEvent {
-        public DetectTreeEvent(World world, PlayerEntity player, BlockPos choppedBlockPos, BlockState choppedBlockState) {
+        private final AtomicBoolean hasLeaves;
+        private final AtomicBoolean overrideHasLeaves;
+
+        public DetectTreeEvent(World world, PlayerEntity player, BlockPos choppedBlockPos, BlockState choppedBlockState, AtomicBoolean hasLeaves, AtomicBoolean overrideHasLeaves) {
             super(world, player, choppedBlockPos, choppedBlockState);
+            this.overrideHasLeaves = overrideHasLeaves;
+            this.hasLeaves = hasLeaves;
+        }
+
+        public void overrideTreeHasLeaves(boolean hasLeaves) {
+            this.hasLeaves.set(hasLeaves);
+            overrideHasLeaves.set(true);
         }
     }
 

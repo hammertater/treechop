@@ -22,7 +22,7 @@ public class DynamicTrees {
 
     private static class EventHandler {
         @SubscribeEvent
-        public static void onStartChop(ChopEvent.StartChopEvent event) {
+        public static void onDetectTree(ChopEvent.DetectTreeEvent event) {
             if (event.getChoppedBlockState().getBlock() instanceof BranchBlock) {
                 event.setCanceled(true);
             }

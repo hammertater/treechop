@@ -6,6 +6,7 @@ import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.event.ChopEvent;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
@@ -23,6 +24,7 @@ import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -179,17 +181,27 @@ public class ChopUtil {
         return hasLeaves.get() ? treeBlocks : Collections.emptySet();
     }
 
-    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, Predicate<BlockPos> logCondition, AtomicBoolean hasLeaves) {
+    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, Predicate<BlockPos> logCondition, AtomicBoolean inHasLeaves) {
         if (!logCondition.test(blockPos)) {
+            return Collections.emptySet();
+        }
+
+        AtomicBoolean overrideHasLeaves = new AtomicBoolean(false);
+        ChopEvent.DetectTreeEvent detectEvent = new ChopEvent.DetectTreeEvent(world, null, blockPos, world.getBlockState(blockPos), inHasLeaves, overrideHasLeaves);
+        boolean valueToOverrideHasLeaves = inHasLeaves.get();
+
+        boolean canceled = MinecraftForge.EVENT_BUS.post(detectEvent);
+        if (canceled) {
             return Collections.emptySet();
         }
 
         int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
 
+        AtomicBoolean trueHasLeaves = new AtomicBoolean(false);
         Set<BlockPos> supportedBlocks = getConnectedBlocks(
                 Collections.singletonList(blockPos),
                 somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)
-                        .peek(pos -> hasLeaves.compareAndSet(false, isBlockLeaves(world, pos)))
+                        .peek(pos -> trueHasLeaves.compareAndSet(false, isBlockLeaves(world, pos)))
                         .filter(logCondition),
                 maxNumTreeBlocks
         );
@@ -198,10 +210,16 @@ public class ChopUtil {
             TreeChopMod.LOGGER.warn(String.format("Max tree size reached: %d >= %d blocks (not including leaves)", supportedBlocks.size(), maxNumTreeBlocks));
         }
 
+        inHasLeaves.set(overrideHasLeaves.get() ? valueToOverrideHasLeaves : trueHasLeaves.get());
+
         return supportedBlocks;
     }
 
     private static ChopResult chopTree(World world, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
+        if (supportedBlocks.isEmpty()) {
+            return ChopResult.IGNORED;
+        }
+
         BlockState blockState = world.getBlockState(target);
         int currentNumChops = getNumChops(blockState);
         int numChopsToFell = numChopsToFell(supportedBlocks.size());
