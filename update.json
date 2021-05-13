@@ -15,6 +15,7 @@
     "1.12.2-recommended": "0.11.4"
   },
   "1.16.5": {
+    "0.14.1": "Fixed conflict with Dynamic Trees\nFixed conflict with Project MMO 1.16.5",
     "0.14.0": "Added on-screen chop indicator\nAdded in-game settings screen (press N to open)\nRequiring trees to have leaves is now the default setting\nIgnore leaves placed by players (this is configurable)\nAdded config option to change chopping items blacklist to a whitelist\nBetter compatibility with Tinker's Construct and other mods\nAdded configurable overrides list to change how items behave when chopping\nAdded configurable permissions for player settings\nAdded localization for all text\nAdded API for other mods to make use of TreeChop's chopping mechanics",
     "0.13.0": "Changed the algorithm for computing number of chops required to fell a tree\nAdded more configuration options for computing the number of chops required to fell a tree\nBetter compatibility with Carry On",
     "0.12.2": "Fixed mod conflict on respawn",
