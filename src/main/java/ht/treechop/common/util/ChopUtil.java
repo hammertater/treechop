@@ -408,7 +408,7 @@ public class ChopUtil {
     }
 
     public static boolean canChopWithTool(ItemStack tool) {
-        return !ConfigHandler.getChoppingToolBlacklistItems().contains(tool.getItem());
+        return ConfigHandler.canChopWithItem(tool.getItem());
     }
 
     public static int getNumChopsByTool(ItemStack tool) {

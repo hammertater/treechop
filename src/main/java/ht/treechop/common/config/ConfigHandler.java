@@ -45,9 +45,6 @@ public class ConfigHandler {
     public static boolean breakLeaves;
     public static boolean ignorePersistentLeaves;
     public static int maxBreakLeavesDistance;
-    public static boolean showChoppingIndicators;
-    public static int indicatorXOffset;
-    public static int indicatorYOffset;
     private static List<String> logBlockSynonyms;
     private static List<String> leavesBlockSynonyms;
 
@@ -58,6 +55,7 @@ public class ConfigHandler {
     public static float linearM;
     public static float linearB;
 
+    public static ListType blacklistOrWhitelist;
     private static List<String> choppingToolBlacklistNames;
 
     public static boolean choppingEnabled;
@@ -69,6 +67,12 @@ public class ConfigHandler {
     private static Set<Block> logBlocks = null;
     private static Set<Block> leavesBlocks = null;
     private static Set<Item> choppingToolBlacklistItems = null;
+
+    public static boolean showChoppingIndicators;
+    public static int indicatorXOffset;
+    public static int indicatorYOffset;
+    private static boolean showFellingOptions;
+    private static boolean showFeedbackMessages;
 
     private static Configuration config;
     private static Stack<String> categoryStack = new Stack<>();
@@ -117,6 +121,7 @@ public class ConfigHandler {
 
         if (TreeChopMod.proxy instanceof Client) {
             pushCategory("default-player-settings");
+            pushCategory("chopping");
             choppingEnabled = getBoolean(
                     "Default setting for whether or not the user wishes to chop (can be toggled in-game)",
                     "choppingEnabled",
@@ -137,7 +142,11 @@ public class ConfigHandler {
                     "Whether to enable chopping when in creative mode (even when false, sneaking can still enable chopping)",
                     "chopInCreativeMode",
                     true);
+            popCategory();
 
+            pushCategory("visuals");
+            // TODO: useProceduralChoppedModels
+            // TODO: removeBarkOnInteriorLogs
             pushCategory("chopping-indicator");
             showChoppingIndicators = getBoolean(
                     "Whether to show an on-screen icon indicating whether targeted blocks can be chopped",
@@ -156,10 +165,22 @@ public class ConfigHandler {
                     -256,
                     256);
             popCategory();
+            popCategory();
 
             if (Minecraft.getMinecraft().world != null) {
                 Client.updateChopSettings();
             }
+            popCategory();
+
+            pushCategory("settings-screen");
+            showFellingOptions = getBoolean(
+                    "Whether to show in-game options for enabling and disable felling",
+                    "showFellingOptions",
+                    false);
+            showFeedbackMessages = getBoolean(
+                    "Whether to show chat confirmations when using hotkeys to change chop settings",
+                    "showFeedbackMessages",
+                    true);
             popCategory();
         }
 
@@ -216,14 +237,21 @@ public class ConfigHandler {
 
         pushCategory("compatibility");
         pushCategory("general");
+
+        pushCategory("blacklist");
+        blacklistOrWhitelist = getEnum(
+                "Whether the listed items should be blacklisted or whitelisted",
+                "blacklistOrWhitelist",
+                ListType.BLACKLIST, ListType.class);
         choppingToolBlacklistNames = getStringList(
                 "Comma-separated list of items that should not chop when used to break a log\nOre dictionary names are also acceptable",
                 "choppingToolsBlacklist",
                 Lists.newArrayList("mekanism:atomic_disassembler"));
         popCategory();
-
-        pushCategory("specific");
         popCategory();
+
+//        pushCategory("specific");
+//        popCategory();
         popCategory();
 
         if (config.hasChanged()) {
@@ -375,6 +403,15 @@ public class ConfigHandler {
                     .forEach(choppingToolBlacklistItems::add);
         }
         return choppingToolBlacklistItems;
+    }
+
+    public static boolean canChopWithItem(Item item) {
+        boolean isListed = ConfigHandler.getChoppingToolBlacklistItems().contains(item);
+        if (blacklistOrWhitelist == ListType.WHITELIST) {
+            return isListed;
+        } else {
+            return !isListed;
+        }
     }
 
 }
