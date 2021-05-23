@@ -2,6 +2,7 @@ package ht.treechop.client;
 
 import ht.treechop.TreeChopMod;
 import ht.treechop.client.gui.screen.ChopIndicator;
+import ht.treechop.client.gui.screen.ClientSettingsScreen;
 import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.Common;
 import ht.treechop.common.config.ConfigHandler;
@@ -66,6 +67,15 @@ public class Client extends Common {
                     event.getPartialTicks(),
                     event.getResolution()
             );
+        }
+    }
+
+    public static void toggleSettingsOverlay() {
+        Minecraft minecraft = Minecraft.getMinecraft();
+        if (minecraft.currentScreen instanceof ClientSettingsScreen) {
+            minecraft.displayGuiScreen(null);
+        } else {
+            minecraft.displayGuiScreen(new ClientSettingsScreen());
         }
     }
 

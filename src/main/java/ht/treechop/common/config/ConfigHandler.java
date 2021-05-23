@@ -57,6 +57,7 @@ public class ConfigHandler {
 
     public static ListType blacklistOrWhitelist;
     private static List<String> choppingToolBlacklistNames;
+    // TODO: item overrides list
 
     public static boolean choppingEnabled;
     public static boolean fellingEnabled;
