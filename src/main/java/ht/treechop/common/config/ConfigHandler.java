@@ -46,8 +46,8 @@ public class ConfigHandler {
     public static boolean ignorePersistentLeaves;
     public static int maxBreakLeavesDistance;
     public static boolean showChoppingIndicators;
-    public static int indicatorXOffset = 16;
-    public static int indicatorYOffset = 0;
+    public static int indicatorXOffset;
+    public static int indicatorYOffset;
     private static List<String> logBlockSynonyms;
     private static List<String> leavesBlockSynonyms;
 
@@ -60,10 +60,11 @@ public class ConfigHandler {
 
     private static List<String> choppingToolBlacklistNames;
 
-    public static boolean choppingEnabled = true;
-    public static boolean fellingEnabled = true;
-    public static SneakBehavior sneakBehavior = SneakBehavior.INVERT_CHOPPING;
-    public static boolean onlyChopTreesWithLeaves = false;
+    public static boolean choppingEnabled;
+    public static boolean fellingEnabled;
+    public static SneakBehavior sneakBehavior;
+    public static boolean treesMustHaveLeaves;
+    public static boolean chopInCreativeMode;
 
     private static Set<Block> logBlocks = null;
     private static Set<Block> leavesBlocks = null;
@@ -128,9 +129,13 @@ public class ConfigHandler {
                     "Default setting for the effect that sneaking has on chopping (can be cycled in-game)",
                     "sneakBehavior",
                     SneakBehavior.INVERT_CHOPPING, SneakBehavior.class);
-            onlyChopTreesWithLeaves = getBoolean(
+            treesMustHaveLeaves = getBoolean(
                     "Whether to ignore trees without connected leaves",
-                    "onlyChopTreesWithLeaves",
+                    "treesMustHaveLeaves",
+                    true);
+            chopInCreativeMode = getBoolean(
+                    "Whether to enable chopping when in creative mode (even when false, sneaking can still enable chopping)",
+                    "chopInCreativeMode",
                     true);
 
             pushCategory("chopping-indicator");
@@ -147,7 +152,7 @@ public class ConfigHandler {
             indicatorYOffset = getInt(
                     "Vertical location of the indicator relative to the player's crosshairs; positive values move the indicator down",
                     "yOffset",
-                    16,
+                    0,
                     -256,
                     256);
             popCategory();
@@ -258,7 +263,8 @@ public class ConfigHandler {
         chopSettings.setChoppingEnabled(choppingEnabled);
         chopSettings.setFellingEnabled(fellingEnabled);
         chopSettings.setSneakBehavior(sneakBehavior);
-        chopSettings.setTreesMustHaveLeaves(onlyChopTreesWithLeaves);
+        chopSettings.setTreesMustHaveLeaves(treesMustHaveLeaves);
+        chopSettings.setChopInCreativeMode(chopInCreativeMode);
         return chopSettings;
     }
 

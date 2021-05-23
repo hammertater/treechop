@@ -36,7 +36,6 @@ public class TreeChopMod {
         proxy.preInit();
     }
 
-    @SuppressWarnings("ConstantConditions")
     public static void showText(String text) {
         Minecraft.getMinecraft().player.sendMessage(new TextComponentString(String.format("%s[%s] %s%s", TextFormatting.GRAY, TreeChopMod.MOD_NAME, TextFormatting.WHITE, text)));
     }
