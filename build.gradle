@@ -147,3 +147,6 @@ jar.finalizedBy('reobfJar')
 //        }
 //    }
 //}
+
+// Many thanks to https://forums.minecraftforge.net/topic/77064-solved-modding-with-intellij-the-asset-problem/
+sourceSets { main { output.resourcesDir = output.classesDir } }

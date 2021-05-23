@@ -1,6 +1,7 @@
 package ht.treechop.client;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.client.gui.screen.ChopIndicator;
 import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.Common;
 import ht.treechop.common.config.ConfigHandler;
@@ -10,6 +11,7 @@ import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.client.Minecraft;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -20,9 +22,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class Client extends Common {
 
     private static final ClientChopSettings chopSettings = new ClientChopSettings();
+    private static final ChopIndicator chopIndicator = new ChopIndicator();
     private static final Permissions serverPermissions = new Permissions();
 
     private static boolean pendingSync = false;
+
+    public static boolean isChoppingIndicatorEnabled() {
+        return ConfigHandler.showChoppingIndicators;
+    }
 
     /**
      * This is too early to send packets; as a hacky workaround, let's delay syncing until the next EntityJoinWorldEvent
@@ -50,6 +57,16 @@ public class Client extends Common {
     public void preInit() {
         super.preInit();
         KeyBindings.init();
+    }
+
+    @SubscribeEvent
+    public void renderOverlay(RenderGameOverlayEvent.Post event) {
+        if (event.getType() == RenderGameOverlayEvent.ElementType.CROSSHAIRS) {
+            chopIndicator.render(
+                    event.getPartialTicks(),
+                    event.getResolution()
+            );
+        }
     }
 
     public static void requestSetting(SettingsField field, Object value) {

@@ -45,6 +45,9 @@ public class ConfigHandler {
     public static boolean breakLeaves;
     public static boolean ignorePersistentLeaves;
     public static int maxBreakLeavesDistance;
+    public static boolean showChoppingIndicators;
+    public static int indicatorXOffset = 16;
+    public static int indicatorYOffset = 0;
     private static List<String> logBlockSynonyms;
     private static List<String> leavesBlockSynonyms;
 
@@ -129,6 +132,25 @@ public class ConfigHandler {
                     "Whether to ignore trees without connected leaves",
                     "onlyChopTreesWithLeaves",
                     true);
+
+            pushCategory("chopping-indicator");
+            showChoppingIndicators = getBoolean(
+                    "Whether to show an on-screen icon indicating whether targeted blocks can be chopped",
+                    "enabled",
+                    true);
+            indicatorXOffset = getInt(
+                    "Horizontal location of the indicator relative to the player's crosshairs; positive values move the indicator to the right",
+                    "xOffset",
+                    16,
+                    -256,
+                    256);
+            indicatorYOffset = getInt(
+                    "Vertical location of the indicator relative to the player's crosshairs; positive values move the indicator down",
+                    "yOffset",
+                    16,
+                    -256,
+                    256);
+            popCategory();
 
             if (Minecraft.getMinecraft().world != null) {
                 Client.updateChopSettings();
