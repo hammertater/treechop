@@ -63,7 +63,7 @@ public class ChopUtil {
     static public boolean isBlockLeaves(IBlockState blockState) {
         Block block = blockState.getBlock();
         if (ConfigHandler.getLeavesBlocks().contains(block) || isMushroomCap(blockState)) {
-            return !ConfigHandler.ignorePersistentLeaves || !blockState.getPropertyKeys().contains(BlockLeaves.DECAYABLE) || blockState.getValue(BlockLeaves.DECAYABLE);
+            return !ConfigHandler.COMMON.ignorePersistentLeaves.get() || !blockState.getPropertyKeys().contains(BlockLeaves.DECAYABLE) || blockState.getValue(BlockLeaves.DECAYABLE);
         } else {
             return false;
         }
@@ -120,7 +120,7 @@ public class ChopUtil {
         AtomicInteger iterationCounter = new AtomicInteger();
         Set<BlockPos> leaves = new HashSet<>();
 
-        int maxNumLeavesBlocks = ConfigHandler.maxNumLeavesBlocks;
+        int maxNumLeavesBlocks = ConfigHandler.COMMON.maxNumLeavesBlocks;
         getConnectedBlocks(
                 treeBlocks,
                 pos1 -> {
@@ -145,7 +145,7 @@ public class ChopUtil {
     private static boolean markLeavesToDestroyAndKeepLooking(World world, BlockPos pos, AtomicInteger iterationCounter, Set<BlockPos> leavesToDestroy) {
         IBlockState blockState = world.getBlockState(pos);
         if (isBlockLeaves(blockState)) {
-            if (iterationCounter.get() >= ConfigHandler.maxBreakLeavesDistance) {
+            if (iterationCounter.get() >= ConfigHandler.COMMON.maxBreakLeavesDistance) {
                 return false;
             }
 
@@ -156,7 +156,7 @@ public class ChopUtil {
     }
 
     public static int numChopsToFell(int numBlocks) {
-        return ConfigHandler.chopCountingAlgorithm.calculate(numBlocks);
+        return ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(numBlocks);
     }
 
     public static ChopResult getChopResult(World world, BlockPos blockPos, EntityPlayer agent, int numChops, boolean fellIfPossible, Predicate<BlockPos> logCondition) {
@@ -179,7 +179,7 @@ public class ChopUtil {
             return Collections.emptySet();
         }
 
-        int maxNumTreeBlocks = ConfigHandler.maxNumTreeBlocks;
+        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks;
         AtomicBoolean hasLeaves = new AtomicBoolean(!mustHaveLeaves);
 
         Set<BlockPos> supportedBlocks = getConnectedBlocks(

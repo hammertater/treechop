@@ -10,15 +10,15 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
     LINEAR(
             numBlocks -> {
                 double x = (double) numBlocks;
-                double m = ConfigHandler.linearM;
-                double b = ConfigHandler.linearB;
+                double m = ConfigHandler.COMMON.linearM;
+                double b = ConfigHandler.COMMON.linearB;
                 return m * x + b;
             }
     ),
     LOGARITHMIC(
             numBlocks -> {
                 double x = (double) numBlocks;
-                double a = ConfigHandler.logarithmicA;
+                double a = ConfigHandler.COMMON.logarithmicA;
                 return 1 + a * log(1 + (x - 1) / a);
             }
     );
@@ -33,9 +33,9 @@ public enum ChopCountingAlgorithm implements IStringSerializable {
         if (numBlocks == 1) {
             return 1;
         } else {
-            Rounder rounder = ConfigHandler.chopCountRounding;
+            Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
             int unboundedCount = Math.max(1, rounder.round(preciseCalculation.apply(numBlocks)));
-            return ConfigHandler.canRequireMoreChopsThanBlocks
+            return ConfigHandler.COMMON.canRequireMoreChopsThanBlocks.get()
                     ? unboundedCount
                     : Math.min(numBlocks, unboundedCount);
         }

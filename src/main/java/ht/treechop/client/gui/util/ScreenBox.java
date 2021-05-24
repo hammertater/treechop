@@ -22,6 +22,22 @@ public class ScreenBox {
         set(other.getLeft(), other.getTop(), other.getWidth(), other.getHeight());
     }
 
+    public void setLeft(int left) {
+        set(left, getTop(), getWidth(), getHeight());
+    }
+
+    public void setTop(int top) {
+        set(getLeft(), top, getWidth(), getHeight());
+    }
+
+    public void setWidth(int width) {
+        set(getLeft(), getTop(), width, getHeight());
+    }
+
+    public void setHeight(int height) {
+        set(getLeft(), getTop(), getWidth(), height);
+    }
+
     public int getLeft() {
         return left;
     }

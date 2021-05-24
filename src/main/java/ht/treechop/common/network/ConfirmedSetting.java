@@ -1,9 +1,12 @@
 package ht.treechop.common.network;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.Setting;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiIngame;
+import net.minecraft.client.gui.GuiOptions;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
 
@@ -34,11 +37,13 @@ public class ConfirmedSetting extends Setting {
                 if (Minecraft.getMinecraft().currentScreen == null) {
                     String fieldName = setting.getField().getFancyName();
                     String valueName = setting.getField().getValueName(setting.getValue());
-                    TreeChopMod.showText(String.format(
-                            "%s %s",
-                            fieldName,
-                            valueName
-                    ));
+                    if (ConfigHandler.CLIENT.showFeedbackMessages.get()) {
+                        TreeChopMod.showText(String.format(
+                                "%s %s",
+                                fieldName,
+                                valueName
+                        ));
+                    }
                 }
             }
         },
@@ -48,13 +53,15 @@ public class ConfirmedSetting extends Setting {
                 if (Minecraft.getMinecraft().currentScreen == null) {
                     String fieldName = setting.getField().getFancyName();
                     String valueName = setting.getField().getValueName(setting.getValue());
-                    TreeChopMod.showText(String.format(
-                            "%s %s %s(%s)",
-                            fieldName,
-                            valueName,
-                            TextFormatting.RED,
-                            I18n.format("treechop.setting.missing_permissions")
-                    ));
+                    if (ConfigHandler.CLIENT.showFeedbackMessages.get()) {
+                        TreeChopMod.showText(String.format(
+                                "%s %s %s(%s)",
+                                fieldName,
+                                valueName,
+                                TextFormatting.RED,
+                                I18n.format("treechop.setting.missing_permissions")
+                        ));
+                    }
                 }
             }
         },

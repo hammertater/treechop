@@ -37,12 +37,11 @@ public class Common {
         BlockPos pos = event.getPos();
 
         // Reuse some permission logic from PlayerInteractionManager.tryHarvestBlock
-        if (
-                !isBlockALog(blockState)
-                        || !ConfigHandler.enabled
-                        || !ChopUtil.canChopWithTool(tool)
-                        || !ChopUtil.playerWantsToChop(agent)
-                        || event.isCanceled()
+        if (!isBlockALog(blockState)
+                || !ConfigHandler.COMMON.enabled.get()
+                || !ChopUtil.canChopWithTool(tool)
+                || event.isCanceled()
+                || !ChopUtil.playerWantsToChop(agent)
         ) {
             return;
         }
@@ -63,7 +62,7 @@ public class Common {
         );
 
         if (chopResult != ChopResult.IGNORED) {
-            if (chopResult.apply(pos, agent, tool, ConfigHandler.breakLeaves)) {
+            if (chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get())) {
                 event.setCanceled(true);
 
                 if (!agent.isCreative()) {

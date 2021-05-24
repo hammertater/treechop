@@ -1,6 +1,8 @@
 package ht.treechop.client.gui.util;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
 public enum Sprite {
@@ -35,15 +37,16 @@ public enum Sprite {
         this.height = height;
     }
 
-//    public static void setRenderState(float alpha) {
-//        Minecraft minecraft = Minecraft.getMinecraft();
-//        minecraft.getTextureManager().bindTexture(Sprite.TEXTURE_PATH);
-//        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
-//
-//        GlStateManager.enableBlend();
-//        GlStateManager.defaultBlendFunc();
-//        RenderSystem.enableDepthTest();
-//    }
+    public static void setRenderState(float alpha) {
+        Minecraft minecraft = Minecraft.getMinecraft();
+        minecraft.getTextureManager().bindTexture(Sprite.TEXTURE_PATH);
+
+        GlStateManager.color(1.0F, 1.0F, 1.0F, alpha);
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        GlStateManager.enableDepth();
+    }
 
     public void blit(int x, int y) {
         blit(x, y, width, height);

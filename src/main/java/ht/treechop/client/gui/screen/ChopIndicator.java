@@ -7,14 +7,13 @@ import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 
-public class ChopIndicator extends GuiScreen {
+public class ChopIndicator {
 
     private static final double IMAGE_SCALE = 1.0;
 
@@ -36,8 +35,8 @@ public class ChopIndicator extends GuiScreen {
                 int windowHeight = resolution.getScaledHeight();
                 minecraft.getTextureManager().bindTexture(Sprite.TEXTURE_PATH);
 
-                int indicatorCenterX = windowWidth / 2 + ConfigHandler.indicatorXOffset;
-                int indicatorCenterY = windowHeight / 2 + ConfigHandler.indicatorYOffset;
+                int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset;
+                int indicatorCenterY = windowHeight / 2 + ConfigHandler.CLIENT.indicatorYOffset;
 
                 GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
                 GlStateManager.enableAlpha();

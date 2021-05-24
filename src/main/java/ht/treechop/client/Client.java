@@ -28,8 +28,12 @@ public class Client extends Common {
 
     private static boolean pendingSync = false;
 
+    public static void setChoppingIndicatorVisibility(boolean showChoppingIndicator) {
+        ConfigHandler.CLIENT.showChoppingIndicators.set(showChoppingIndicator);
+    }
+
     public static boolean isChoppingIndicatorEnabled() {
-        return ConfigHandler.showChoppingIndicators;
+        return ConfigHandler.CLIENT.showChoppingIndicators.get();
     }
 
     /**
@@ -50,7 +54,7 @@ public class Client extends Common {
 
     public static void updateChopSettings() {
         TreeChopMod.LOGGER.info("Sending chop settings sync request");
-        chopSettings.copyFrom(ConfigHandler.getChopSettings());
+        chopSettings.copyFrom(ConfigHandler.CLIENT.getChopSettings());
         PacketHandler.sendToServer(new ClientRequestSettingsPacket(chopSettings));
     }
 
@@ -73,7 +77,7 @@ public class Client extends Common {
     public static void toggleSettingsOverlay() {
         Minecraft minecraft = Minecraft.getMinecraft();
         if (minecraft.currentScreen instanceof ClientSettingsScreen) {
-            minecraft.displayGuiScreen(null);
+            ClientSettingsScreen.closeScreen();
         } else {
             minecraft.displayGuiScreen(new ClientSettingsScreen());
         }

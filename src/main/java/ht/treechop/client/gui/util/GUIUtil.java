@@ -9,7 +9,7 @@ public class GUIUtil {
     public static final int BUTTON_HEIGHT = 20;
 
     public static int getTextWidth(ITextComponent name) {
-        return getTextWidth(name.getFormattedText());
+        return getTextWidth(name.getUnformattedText());
     }
 
     public static int getTextWidth(String name) {

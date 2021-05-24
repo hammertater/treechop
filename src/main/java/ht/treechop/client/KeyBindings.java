@@ -33,7 +33,7 @@ public class KeyBindings {
 
     private static ActionableKeyBinding registerKeyBinding(String name, int defaultKey, Runnable callback) {
         ActionableKeyBinding keyBinding = new ActionableKeyBinding(
-                String.format("key.%s.%s", TreeChopMod.MOD_ID, name),
+                String.format("%s.key.%s", TreeChopMod.MOD_ID, name),
                 defaultKey,
                 callback
         );
@@ -51,12 +51,16 @@ public class KeyBindings {
 
     @SubscribeEvent
     public static void buttonPressed(InputEvent.KeyInputEvent event) {
-        if (event.isCanceled()
-                || Minecraft.getMinecraft().world == null
+        if (!event.isCanceled()) {
+            buttonPressed();
+        }
+    }
+
+    public static void buttonPressed() {
+        if (Minecraft.getMinecraft().world == null
                 || !Keyboard.getEventKeyState()
                 || Keyboard.isRepeatEvent()
-                || Keyboard.getEventKey() == Keyboard.KEY_NONE
-        ) {
+                || Keyboard.getEventKey() == Keyboard.KEY_NONE) {
             return;
         }
 
