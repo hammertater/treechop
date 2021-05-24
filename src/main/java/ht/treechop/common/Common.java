@@ -11,10 +11,12 @@ import ht.treechop.common.util.ChopUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.world.BlockEvent;
@@ -40,14 +42,28 @@ public class Common {
         if (!isBlockALog(blockState)
                 || !ConfigHandler.COMMON.enabled.get()
                 || !ChopUtil.canChopWithTool(tool)
-                || event.isCanceled()
                 || !ChopUtil.playerWantsToChop(agent)
+                || event.isCanceled()
+                || !(event.getWorld() instanceof WorldServer)
         ) {
             return;
         }
 
         World world = event.getWorld();
-        boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.StartChopEvent(event, world, agent, pos, blockState));
+
+        // TODO: handle overrides
+
+        ChopEvent.StartChopEvent startChopEvent = new ChopEvent.StartChopEvent(
+                event,
+                world,
+                agent,
+                pos,
+                blockState,
+                ChopUtil.getNumChopsByTool(tool, blockState),
+                ChopUtil.playerWantsToFell(agent)
+        );
+
+        boolean canceled = MinecraftForge.EVENT_BUS.post(startChopEvent);
         if (canceled) {
             return;
         }
@@ -56,8 +72,8 @@ public class Common {
                 world,
                 pos,
                 agent,
-                ChopUtil.getNumChopsByTool(tool),
-                ChopUtil.playerWantsToFell(agent),
+                startChopEvent.getNumChops(),
+                startChopEvent.getFelling(),
                 logPos -> isBlockALog(world, logPos)
         );
 

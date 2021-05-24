@@ -1,10 +1,12 @@
 package ht.treechop.common.util;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.api.IChoppableBlock;
+import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.block.IChoppable;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.event.ChopEvent;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.settings.ChopSettings;
@@ -12,14 +14,15 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockHugeMushroom;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +42,7 @@ import java.util.stream.Stream;
 public class ChopUtil {
 
     public static boolean isBlockChoppable(World world, BlockPos pos, IBlockState blockState) {
-        return (blockState.getBlock() instanceof IChoppable) ||
+        return (blockState.getBlock() instanceof IChoppableBlock) ||
                 (isBlockALog(blockState) && !(isBlockALog(world, pos.west()) && isBlockALog(world, pos.north()) && isBlockALog(world, pos.east()) && isBlockALog(world, pos.south())));
     }
 
@@ -49,7 +52,7 @@ public class ChopUtil {
 
     static public boolean isBlockALog(IBlockState blockState) {
         Block block = blockState.getBlock();
-        return block instanceof IChoppable || ConfigHandler.getLogBlocks().contains(block) || isMushroomStem(blockState);
+        return block instanceof IChoppableBlock || ConfigHandler.getLogBlocks().contains(block) || isMushroomStem(blockState);
     }
 
     static public boolean isBlockALog(World world, BlockPos pos) {
@@ -114,6 +117,7 @@ public class ChopUtil {
 
     public static boolean canChangeBlock(BlockPos blockPos, EntityPlayer agent, ItemStack tool) {
         return tool.isEmpty() || !tool.getItem().onBlockStartBreak(tool, blockPos, agent);
+        // TODO: handle overrides
     }
 
     public static List<BlockPos> getTreeLeaves(World world, Collection<BlockPos> treeBlocks) {
@@ -170,22 +174,33 @@ public class ChopUtil {
         return chopTree(world, blockPos, supportedBlocks, numChops);
     }
 
-    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, boolean mustHaveLeaves) {
-        return getTreeBlocks(world, blockPos, logPos -> isBlockALog(world, logPos), mustHaveLeaves);
+    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, Predicate<BlockPos> logCondition, boolean mustHaveLeaves) {
+        AtomicBoolean hasLeaves = new AtomicBoolean(!mustHaveLeaves);
+        Set<BlockPos> treeBlocks = getTreeBlocks(world, blockPos, logCondition, hasLeaves);
+        return hasLeaves.get() ? treeBlocks : Collections.emptySet();
     }
 
-    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, Predicate<BlockPos> logCondition, boolean mustHaveLeaves) {
+    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, Predicate<BlockPos> logCondition, AtomicBoolean inHasLeaves) {
         if (!logCondition.test(blockPos)) {
             return Collections.emptySet();
         }
 
-        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks;
-        AtomicBoolean hasLeaves = new AtomicBoolean(!mustHaveLeaves);
+        AtomicBoolean overrideHasLeaves = new AtomicBoolean(false);
+        ChopEvent.DetectTreeEvent detectEvent = new ChopEvent.DetectTreeEvent(world, null, blockPos, world.getBlockState(blockPos), inHasLeaves, overrideHasLeaves);
+        boolean valueToOverrideHasLeaves = inHasLeaves.get();
 
+        boolean canceled = MinecraftForge.EVENT_BUS.post(detectEvent);
+        if (canceled) {
+            return Collections.emptySet();
+        }
+
+        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks;
+
+        AtomicBoolean trueHasLeaves = new AtomicBoolean(false);
         Set<BlockPos> supportedBlocks = getConnectedBlocks(
                 Collections.singletonList(blockPos),
                 somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)
-                        .peek(pos -> hasLeaves.compareAndSet(false, isBlockLeaves(world, pos)))
+                        .peek(pos -> trueHasLeaves.compareAndSet(false, isBlockLeaves(world, pos)))
                         .filter(logCondition),
                 maxNumTreeBlocks
         );
@@ -194,10 +209,16 @@ public class ChopUtil {
             TreeChopMod.LOGGER.warn(String.format("Max tree size reached: %d >= %d blocks (not including leaves)", supportedBlocks.size(), maxNumTreeBlocks));
         }
 
-        return hasLeaves.get() ? supportedBlocks : Collections.emptySet();
+        inHasLeaves.set(overrideHasLeaves.get() ? valueToOverrideHasLeaves : trueHasLeaves.get());
+
+        return supportedBlocks;
     }
 
     private static ChopResult chopTree(World world, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
+        if (supportedBlocks.isEmpty()) {
+            return ChopResult.IGNORED;
+        }
+
         IBlockState blockState = world.getBlockState(target);
         int currentNumChops = getNumChops(blockState);
         int numChopsToFell = numChopsToFell(supportedBlocks.size());
@@ -215,7 +236,7 @@ public class ChopUtil {
 
             if (totalNumChops >= numChopsToFell) {
                 List<BlockPos> choppedLogsSortedByY = nearbyChoppableBlocks.stream()
-                        .filter(pos1 -> world.getBlockState(pos1).getBlock() instanceof IChoppable)
+                        .filter(pos1 -> world.getBlockState(pos1).getBlock() instanceof IChoppableBlock)
                         .sorted(Comparator.comparingInt(BlockPos::getY))
                         .collect(Collectors.toList());
 
@@ -228,6 +249,7 @@ public class ChopUtil {
                     }
                 }
             } else {
+                nearbyChoppableBlocks.remove(target);
                 return gatherChops(world, target, numChops, nearbyChoppableBlocks);
             }
         }
@@ -249,7 +271,7 @@ public class ChopUtil {
                     .filter(blockPos1 -> {
                         IBlockState blockState1 = world.getBlockState(blockPos1);
                         Block block1 = blockState1.getBlock();
-                        if (block1 instanceof IChoppable) {
+                        if (block1 instanceof IChoppableBlock) {
                             return getNumChops(blockState1) < getMaxNumChops(world, blockPos1, blockState1);
                         } else {
                             return blockPos1.getY() >= target.getY();
@@ -300,12 +322,12 @@ public class ChopUtil {
     public static IBlockState getBlockStateAfterChops(World world, BlockPos blockPos, int numChops, boolean destructive) {
         IBlockState blockState = world.getBlockState(blockPos);
         Block block = blockState.getBlock();
-        if (block instanceof IChoppable) {
-            return getBlockStateAfterChops((IChoppable) block, blockState, numChops, destructive);
+        if (block instanceof IChoppableBlock) {
+            return getBlockStateAfterChops((IChoppableBlock) block, blockState, numChops, destructive);
         } else {
             if (isBlockChoppable(world, blockPos, blockState)) {
                 ChoppedLogShape shape = ChoppedLogBlock.getPlacementShape(world, blockPos);
-                IChoppable choppedBlock = getChoppedBlock(blockState, shape);
+                IChoppableBlock choppedBlock = getChoppedBlock(blockState, shape);
                 if (choppedBlock instanceof Block) {
                     IBlockState defaultChoppedState = ((Block) choppedBlock).getDefaultState();
                     return getBlockStateAfterChops(
@@ -323,7 +345,7 @@ public class ChopUtil {
         }
     }
 
-    public static IBlockState getBlockStateAfterChops(IChoppable choppableBlock, IBlockState blockState, int numChops, boolean destructive) {
+    public static IBlockState getBlockStateAfterChops(IChoppableBlock choppableBlock, IBlockState blockState, int numChops, boolean destructive) {
         int currentNumChops = getNumChops(blockState);
         int maxNumChops = choppableBlock.getMaxNumChops();
         int newNumChops = currentNumChops + numChops;
@@ -339,11 +361,11 @@ public class ChopUtil {
 
     public static int getMaxNumChops(World world, BlockPos blockPos, IBlockState blockState) {
         Block block = blockState.getBlock();
-        if (block instanceof IChoppable) {
-            return ((IChoppable) block).getMaxNumChops();
+        if (block instanceof IChoppableBlock) {
+            return ((IChoppableBlock) block).getMaxNumChops();
         } else {
             if (isBlockChoppable(world, blockPos, world.getBlockState(blockPos))) {
-                IChoppable choppedBlock = getChoppedBlock(blockState, ChoppedLogShape.PILLAR);
+                IChoppableBlock choppedBlock = getChoppedBlock(blockState, ChoppedLogShape.PILLAR);
                 return (choppedBlock != null) ? choppedBlock.getMaxNumChops() : 0;
             } else {
                 return 0;
@@ -351,10 +373,10 @@ public class ChopUtil {
         }
     }
 
-    private static IChoppable getChoppedBlock(IBlockState blockState, ChoppedLogShape shape) {
+    public static IChoppableBlock getChoppedBlock(IBlockState blockState, ChoppedLogShape shape) {
         if (isBlockALog(blockState)) {
-            return (blockState.getBlock() instanceof IChoppable)
-                    ? (IChoppable) blockState.getBlock()
+            return (blockState.getBlock() instanceof IChoppableBlock)
+                    ? (IChoppableBlock) blockState.getBlock()
                     : ModBlocks.CHOPPED_LOGS.get(shape);
         } else {
             return null;
@@ -367,14 +389,14 @@ public class ChopUtil {
 
     public static int getNumChops(IBlockState blockState) {
         Block block = blockState.getBlock();
-        return block instanceof IChoppable ? ((IChoppable) block).getNumChops(blockState) : 0;
+        return block instanceof IChoppableBlock ? ((IChoppableBlock) block).getNumChops(blockState) : 0;
     }
 
     public static int getNumChops(World world, Set<BlockPos> positions) {
         return positions.stream()
                 .map(world::getBlockState)
-                .map(blockState1 -> blockState1.getBlock() instanceof IChoppable
-                        ? ((IChoppable) blockState1.getBlock()).getNumChops(blockState1)
+                .map(blockState1 -> blockState1.getBlock() instanceof IChoppableBlock
+                        ? ((IChoppableBlock) blockState1.getBlock()).getNumChops(blockState1)
                         : 0
                 )
                 .reduce(Integer::sum)
@@ -411,8 +433,14 @@ public class ChopUtil {
         return ConfigHandler.canChopWithItem(tool.getItem());
     }
 
-    public static int getNumChopsByTool(ItemStack tool) {
-        return 1;
+    public static int getNumChopsByTool(ItemStack tool, IBlockState blockState) {
+        Item toolItem = tool.getItem();
+
+        if (toolItem instanceof IChoppingItem) {
+            return ((IChoppingItem) toolItem).getNumChops(tool, blockState);
+        } else {
+            return 1;
+        }
     }
 
     public static boolean playerWantsToChop(EntityPlayer player) {
@@ -455,8 +483,18 @@ public class ChopUtil {
         }
     }
 
-    public static boolean isPartOfATree(WorldClient world, BlockPos pos, boolean mustHaveLeaves) {
-        Set<BlockPos> treeBlocks = getTreeBlocks(world, pos, mustHaveLeaves);
-        return (treeBlocks.size() > 1);
+    public static boolean isPartOfATree(World world, BlockPos pos, boolean mustHaveLeaves) {
+        AtomicBoolean hasLeaves = new AtomicBoolean(false);
+        Set<BlockPos> treeBlocks = getTreeBlocks(world, pos, blockPos -> isBlockALog(world, blockPos), hasLeaves);
+
+        if (treeBlocks.isEmpty()) {
+            return false;
+        } else {
+            if (mustHaveLeaves) {
+                return hasLeaves.get();
+            } else {
+                return treeBlocks.size() >= (hasLeaves.get() ? 1 : 2);
+            }
+        }
     }
 }

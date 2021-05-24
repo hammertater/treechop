@@ -5,20 +5,23 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChopEvent extends Event {
 
     private final World world;
     private final EntityPlayer player;
     private final BlockPos choppedBlockPos;
-    private final IBlockState choppedBlockState;
+    private final IBlockState choppedIBlockState;
 
-    public ChopEvent(World world, EntityPlayer player, BlockPos choppedBlockPos, IBlockState choppedBlockState) {
+    public ChopEvent(World world, EntityPlayer player, BlockPos choppedBlockPos, IBlockState choppedIBlockState) {
         this.world = world;
         this.player = player;
         this.choppedBlockPos = choppedBlockPos;
-        this.choppedBlockState = choppedBlockState;
+        this.choppedIBlockState = choppedIBlockState;
     }
 
     public World getWorld() {
@@ -33,32 +36,64 @@ public class ChopEvent extends Event {
         return choppedBlockPos;
     }
 
-    public IBlockState getChoppedBlockState() {
-        return choppedBlockState;
+    public IBlockState getChoppedIBlockState() {
+        return choppedIBlockState;
     }
 
+    @Cancelable
+    public static class DetectTreeEvent extends ChopEvent {
+        private final AtomicBoolean hasLeaves;
+        private final AtomicBoolean overrideHasLeaves;
+
+        public DetectTreeEvent(World world, EntityPlayer player, BlockPos choppedBlockPos, IBlockState choppedIBlockState, AtomicBoolean hasLeaves, AtomicBoolean overrideHasLeaves) {
+            super(world, player, choppedBlockPos, choppedIBlockState);
+            this.overrideHasLeaves = overrideHasLeaves;
+            this.hasLeaves = hasLeaves;
+        }
+
+        public void overrideTreeHasLeaves(boolean hasLeaves) {
+            this.hasLeaves.set(hasLeaves);
+            overrideHasLeaves.set(true);
+        }
+    }
+
+    @Cancelable
     public static class StartChopEvent extends ChopEvent {
         private BlockEvent.BreakEvent breakEvent;
+        private int numChops;
+        private boolean felling;
 
-        public StartChopEvent(BlockEvent.BreakEvent breakEvent, World world, EntityPlayer player, BlockPos choppedBlockPos, IBlockState choppedBlockState) {
-            super(world, player, choppedBlockPos, choppedBlockState);
+        public StartChopEvent(BlockEvent.BreakEvent breakEvent, World world, EntityPlayer player, BlockPos choppedBlockPos, IBlockState choppedIBlockState, int numChops, boolean felling) {
+            super(world, player, choppedBlockPos, choppedIBlockState);
             this.breakEvent = breakEvent;
+            this.numChops = numChops;
+            this.felling = felling;
         }
 
         public BlockEvent.BreakEvent getBreakEvent() {
             return breakEvent;
         }
-    }
 
-    public static class FinishChopEvent extends ChopEvent {
-        public FinishChopEvent(World world, EntityPlayer player, BlockPos choppedBlockPos, IBlockState choppedBlockState) {
-            super(world, player, choppedBlockPos, choppedBlockState);
+        public int getNumChops() {
+            return numChops;
+        }
+
+        public boolean getFelling() {
+            return felling;
+        }
+
+        public void setNumChops(int numChops) {
+            this.numChops = numChops;
+        }
+
+        public void setFelling(boolean felling) {
+            this.felling = felling;
         }
     }
 
-    public static class FellEvent extends ChopEvent {
-        public FellEvent(World world, EntityPlayer player, BlockPos choppedBlockPos, IBlockState choppedBlockState) {
-            super(world, player, choppedBlockPos, choppedBlockState);
+    public static class FinishChopEvent extends ChopEvent {
+        public FinishChopEvent(World world, EntityPlayer player, BlockPos choppedBlockPos, IBlockState choppedIBlockState) {
+            super(world, player, choppedBlockPos, choppedIBlockState);
         }
     }
 

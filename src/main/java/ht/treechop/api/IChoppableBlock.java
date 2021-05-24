@@ -1,8 +1,8 @@
-package ht.treechop.common.block;
+package ht.treechop.api;
 
 import net.minecraft.block.state.IBlockState;
 
-public interface IChoppable {
+public interface IChoppableBlock {
 
     IBlockState withChops(IBlockState blockState, int numChops);
 

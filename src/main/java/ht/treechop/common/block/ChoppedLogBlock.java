@@ -1,6 +1,7 @@
 package ht.treechop.common.block;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.api.IChoppableBlock;
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
 import net.minecraft.block.Block;
@@ -25,7 +26,7 @@ import java.util.stream.Stream;
 
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
 
-public class ChoppedLogBlock extends Block implements IChoppable {
+public class ChoppedLogBlock extends Block implements IChoppableBlock {
 
     private final ChoppedLogShape shape;
     private static final int MAX_NUM_CHOPS = 7;

@@ -232,22 +232,22 @@ public class ConfigHandler {
     }
 
     public static class CommonConfig {
-        public static BooleanHandle enabled;
+        public BooleanHandle enabled;
 
-        public static int maxNumTreeBlocks;
-        public static int maxNumLeavesBlocks;
-        public static BooleanHandle breakLeaves;
-        public static BooleanHandle ignorePersistentLeaves;
-        public static int maxBreakLeavesDistance;
+        public int maxNumTreeBlocks;
+        public int maxNumLeavesBlocks;
+        public BooleanHandle breakLeaves;
+        public BooleanHandle ignorePersistentLeaves;
+        public int maxBreakLeavesDistance;
         private static List<String> logBlockSynonyms;
         private static List<String> leavesBlockSynonyms;
 
-        public static EnumHandle<ChopCountingAlgorithm> chopCountingAlgorithm;
-        public static EnumHandle<Rounder> chopCountRounding;
-        public static BooleanHandle canRequireMoreChopsThanBlocks;
-        public static float logarithmicA;
-        public static float linearM;
-        public static float linearB;
+        public EnumHandle<ChopCountingAlgorithm> chopCountingAlgorithm;
+        public EnumHandle<Rounder> chopCountRounding;
+        public BooleanHandle canRequireMoreChopsThanBlocks;
+        public float logarithmicA;
+        public float linearM;
+        public float linearB;
 
         public static EnumHandle<ListType> blacklistOrWhitelist;
 
