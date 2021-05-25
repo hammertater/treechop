@@ -1,18 +1,18 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/treechop",
   "promos": {
-    "1.16.5-latest": "0.14.0",
-    "1.16.5-recommended": "0.14.0",
-    "1.16.4-latest": "0.14.0",
-    "1.16.4-recommended": "0.14.0",
-    "1.16.3-latest": "0.14.0",
-    "1.16.3-recommended": "0.14.0",
+    "1.16.5-latest": "0.14.1",
+    "1.16.5-recommended": "0.14.1",
+    "1.16.4-latest": "0.14.1",
+    "1.16.4-recommended": "0.14.1",
+    "1.16.3-latest": "0.14.1",
+    "1.16.3-recommended": "0.14.1",
     "1.16.1-latest": "0.13.0",
     "1.16.1-recommended": "0.13.0",
     "1.15.2-latest": "0.13.0",
     "1.15.2-recommended": "0.13.0",
-    "1.12.2-latest": "0.11.4",
-    "1.12.2-recommended": "0.11.4"
+    "1.12.2-latest": "0.14.1",
+    "1.12.2-recommended": "0.14.1"
   },
   "1.16.5": {
     "0.14.1": "Fixed conflict with Dynamic Trees\nFixed conflict with Project MMO 1.16.5",
