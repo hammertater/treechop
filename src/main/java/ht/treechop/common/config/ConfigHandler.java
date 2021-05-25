@@ -36,6 +36,7 @@ public class ConfigHandler {
 
     public static ITag<Block> blockTagForDetectingLogs;
     public static ITag<Block> blockTagForDetectingLeaves;
+    public final static ChopSettings fakePlayerChopSettings = new ChopSettings();
     private static Set<Item> itemsBlacklist = null;
     public static Map<Item, OverrideInfo> itemOverrides = null;
     public static int maxBreakLeavesDistance = 7;
@@ -44,6 +45,9 @@ public class ConfigHandler {
     public static void onReload() {
         maxBreakLeavesDistance = COMMON.maxBreakLeavesDistance.get();
         ignorePersistentLeaves = COMMON.ignorePersistentLeaves.get();
+        fakePlayerChopSettings.setChoppingEnabled(COMMON.fakePlayerChoppingEnabled.get());
+        fakePlayerChopSettings.setFellingEnabled(COMMON.fakePlayerFellingEnabled.get());
+        fakePlayerChopSettings.setTreesMustHaveLeaves(COMMON.fakePlayerTreesMustHaveLeaves.get());
 
         updateTags();
         updatePermissions();
@@ -200,6 +204,9 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue compatForProjectMMO;
         public final ForgeConfigSpec.BooleanValue compatForCarryOn;
         public final ForgeConfigSpec.BooleanValue compatForDynamicTrees;
+        public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
+        public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
+        public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
 
         public Common(ForgeConfigSpec.Builder builder) {
             builder.push("permissions");
@@ -312,6 +319,19 @@ public class ConfigHandler {
                                     "silentgear:saw?chops=3,override=always"),
                             always -> true);
             builder.pop();
+
+            builder.comment("The chop settings used by non-player entities, such as robots");
+            builder.push("fakePlayerChopSettings");
+            fakePlayerChoppingEnabled = builder
+                    .comment("Use with caution! May cause conflicts with some mods, e.g. https://github.com/hammertater/treechop/issues/71")
+                    .define("choppingEnabled", false);
+            fakePlayerFellingEnabled = builder
+                    .comment("Felling only matters if chopping is enabled; probably best to leave this on")
+                    .define("choppingEnabled", true);
+            fakePlayerTreesMustHaveLeaves = builder
+                    .define("treesMustHaveLeaves", true);
+            builder.pop();
+
             builder.pop();
 
             builder.push("specific");

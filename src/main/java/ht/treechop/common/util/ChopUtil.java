@@ -25,6 +25,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,6 +43,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ChopUtil {
+
+    private static ChopSettingsCapability FAKE_PLAYER_CHOP_SETTINGS;
 
     public static boolean isBlockChoppable(IWorld world, BlockPos pos, BlockState blockState) {
         return (blockState.getBlock() instanceof IChoppableBlock) ||
@@ -460,7 +463,8 @@ public class ChopUtil {
     }
 
     public static ChopSettings getPlayerChopSettings(PlayerEntity player) {
-        return ChopSettingsCapability.forPlayer(player).orElse(new ChopSettingsCapability());
+        LazyOptional<ChopSettings> playerSettings = ChopSettingsCapability.forPlayer(player).cast();
+        return playerSettings.orElse(ConfigHandler.fakePlayerChopSettings);
     }
 
     public static void doItemDamage(ItemStack itemStack, World world, BlockState blockState, BlockPos blockPos, PlayerEntity agent) {
