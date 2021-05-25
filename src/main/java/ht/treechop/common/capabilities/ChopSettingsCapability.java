@@ -10,6 +10,7 @@ import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nullable;
@@ -43,7 +44,7 @@ public class ChopSettingsCapability extends ChopSettings {
     @SuppressWarnings("ConstantConditions")
     public static LazyOptional<ChopSettingsCapability> forPlayer(PlayerEntity player) {
         LazyOptional<ChopSettingsCapability> lazyCapability = player.getCapability(CAPABILITY);
-        if (!lazyCapability.isPresent()) {
+        if (!lazyCapability.isPresent() && !(player instanceof FakePlayer)) {
             TreeChopMod.LOGGER.warn("Player " + player + " is missing chop settings");
         }
 
