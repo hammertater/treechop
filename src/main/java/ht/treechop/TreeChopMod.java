@@ -2,6 +2,7 @@ package ht.treechop;
 
 import ht.treechop.common.Common;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.event.CompatRegistrationEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -9,6 +10,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 
@@ -34,6 +36,11 @@ public class TreeChopMod {
 
         MinecraftForge.EVENT_BUS.register(proxy);
         proxy.preInit();
+    }
+
+    @EventHandler
+    public void postInit(FMLPostInitializationEvent event) {
+        MinecraftForge.EVENT_BUS.post(new CompatRegistrationEvent());
     }
 
     public static void showText(String text) {

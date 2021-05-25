@@ -250,6 +250,8 @@ public class ConfigHandler {
         public float linearB;
 
         public static EnumHandle<ListType> blacklistOrWhitelist;
+        public BooleanHandle preventChopRecursion;
+        public BooleanHandle preventChoppingOnRightClick;
 
         public void reload() {
             pushCategory("permissions");
@@ -323,6 +325,12 @@ public class ConfigHandler {
 
             pushCategory("compatibility");
             pushCategory("general");
+            preventChopRecursion = getBoolean(
+                    "Whether to prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks",
+                    "preventChopRecursion", true);
+            preventChoppingOnRightClick = getBoolean(
+                    "Whether to prevent chopping during right-click actions",
+                    "preventChoppingOnRightClick", false);
 
             pushCategory("blacklist");
             blacklistOrWhitelist = getEnum(
