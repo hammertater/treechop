@@ -327,7 +327,7 @@ public class ConfigHandler {
                     .define("choppingEnabled", false);
             fakePlayerFellingEnabled = builder
                     .comment("Felling only matters if chopping is enabled; probably best to leave this on")
-                    .define("choppingEnabled", true);
+                    .define("fellingEnabled", true);
             fakePlayerTreesMustHaveLeaves = builder
                     .define("treesMustHaveLeaves", true);
             builder.pop();
