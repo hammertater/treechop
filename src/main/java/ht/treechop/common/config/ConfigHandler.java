@@ -49,12 +49,10 @@ public class ConfigHandler {
         fakePlayerChopSettings.setFellingEnabled(COMMON.fakePlayerFellingEnabled.get());
         fakePlayerChopSettings.setTreesMustHaveLeaves(COMMON.fakePlayerTreesMustHaveLeaves.get());
 
-        updateTags();
-        updatePermissions();
-    }
+        itemsBlacklist = null;
+        itemOverrides = null;
 
-    public static void updateTags() {
-        updateTags(TagCollectionManager.getManager());
+        updatePermissions();
     }
 
     public static void updateTags(ITagCollectionSupplier tagManager) {
