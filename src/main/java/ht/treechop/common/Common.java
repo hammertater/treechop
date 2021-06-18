@@ -32,7 +32,6 @@ public class Common {
 
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
-        ConfigHandler.onReload();
         ChopSettingsCapability.register();
         PacketHandler.init();
     }
