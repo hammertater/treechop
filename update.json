@@ -1,12 +1,12 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/treechop",
   "promos": {
-    "1.16.5-latest": "0.14.2",
-    "1.16.5-recommended": "0.14.2",
-    "1.16.4-latest": "0.14.2",
-    "1.16.4-recommended": "0.14.2",
-    "1.16.3-latest": "0.14.2",
-    "1.16.3-recommended": "0.14.2",
+    "1.16.5-latest": "0.14.3",
+    "1.16.5-recommended": "0.14.3",
+    "1.16.4-latest": "0.14.3",
+    "1.16.4-recommended": "0.14.3",
+    "1.16.3-latest": "0.14.3",
+    "1.16.3-recommended": "0.14.3",
     "1.16.1-latest": "0.13.0",
     "1.16.1-recommended": "0.13.0",
     "1.15.2-latest": "0.13.0",
@@ -15,6 +15,7 @@
     "1.12.2-recommended": "0.14.1"
   },
   "1.16.5": {
+    "0.14.3": "Fixed tags-related conflict with various mods",
     "0.14.2": "Disabled chopping for non-player entities (e.g. modded machines) by default\nAdded configurable chop settings for non-player entities",
     "0.14.1": "Fixed conflict with Dynamic Trees\nFixed conflict with Project MMO 1.16.5",
     "0.14.0": "Added on-screen chop indicator\nAdded in-game settings screen (press N to open)\nRequiring trees to have leaves is now the default setting\nIgnore leaves placed by players (this is configurable)\nAdded config option to change chopping items blacklist to a whitelist\nBetter compatibility with Tinker's Construct and other mods\nAdded configurable overrides list to change how items behave when chopping\nAdded configurable permissions for player settings\nAdded localization for all text\nAdded API for other mods to make use of TreeChop's chopping mechanics",
