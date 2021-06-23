@@ -44,8 +44,6 @@ import java.util.stream.Stream;
 
 public class ChopUtil {
 
-    private static ChopSettingsCapability FAKE_PLAYER_CHOP_SETTINGS;
-
     public static boolean isBlockChoppable(IWorld world, BlockPos pos, BlockState blockState) {
         return (blockState.getBlock() instanceof IChoppableBlock) ||
                 (isBlockALog(blockState) && !(isBlockALog(world, pos.west()) && isBlockALog(world, pos.north()) && isBlockALog(world, pos.east()) && isBlockALog(world, pos.south())));
@@ -189,7 +187,7 @@ public class ChopUtil {
             return Collections.emptySet();
         }
 
-        AtomicBoolean overrideHasLeaves = new AtomicBoolean(false);
+        AtomicBoolean overrideHasLeaves = new AtomicBoolean(inHasLeaves.get());
         ChopEvent.DetectTreeEvent detectEvent = new ChopEvent.DetectTreeEvent(world, null, blockPos, world.getBlockState(blockPos), inHasLeaves, overrideHasLeaves);
         boolean valueToOverrideHasLeaves = inHasLeaves.get();
 
