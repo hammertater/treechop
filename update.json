@@ -1,12 +1,12 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/treechop",
   "promos": {
-    "1.16.5-latest": "0.14.3",
-    "1.16.5-recommended": "0.14.3",
-    "1.16.4-latest": "0.14.3",
-    "1.16.4-recommended": "0.14.3",
-    "1.16.3-latest": "0.14.3",
-    "1.16.3-recommended": "0.14.3",
+    "1.16.5-latest": "0.14.5",
+    "1.16.5-recommended": "0.14.5",
+    "1.16.4-latest": "0.14.5",
+    "1.16.4-recommended": "0.14.5",
+    "1.16.3-latest": "0.14.5",
+    "1.16.3-recommended": "0.14.5",
     "1.16.1-latest": "0.13.0",
     "1.16.1-recommended": "0.13.0",
     "1.15.2-latest": "0.13.0",
@@ -15,6 +15,8 @@
     "1.12.2-recommended": "0.14.1"
   },
   "1.16.5": {
+    "0.14.5": "Added Russian localization\nFixed missing loot table\nAllow requiring more than one chop per block when using the `linear` algorithm",
+    "0.14.4": "Fixed leafless trees not getting chopped when `treesMustHaveLeaves` is off",
     "0.14.3": "Fixed tags-related conflict with various mods",
     "0.14.2": "Disabled chopping for non-player entities (e.g. modded machines) by default\nAdded configurable chop settings for non-player entities",
     "0.14.1": "Fixed conflict with Dynamic Trees\nFixed conflict with Project MMO 1.16.5",
