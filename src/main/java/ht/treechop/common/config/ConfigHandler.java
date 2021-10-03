@@ -293,6 +293,7 @@ public class ConfigHandler {
                             "- Items in this list that have special support for TreeChop will not be blacklisted; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#blacklist"))
                     .defineList("items",
                             Arrays.asList(
+                                    "botania:terra_axe",
                                     "mekanism:atomic_disassembler",
                                     "@lumberjack",
                                     "practicaltools:iron_greataxe",
