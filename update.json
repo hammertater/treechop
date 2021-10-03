@@ -1,20 +1,21 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/treechop",
   "promos": {
-    "1.16.5-latest": "0.14.5",
-    "1.16.5-recommended": "0.14.5",
-    "1.16.4-latest": "0.14.5",
-    "1.16.4-recommended": "0.14.5",
-    "1.16.3-latest": "0.14.5",
-    "1.16.3-recommended": "0.14.5",
+    "1.16.5-latest": "0.14.6",
+    "1.16.5-recommended": "0.14.6",
+    "1.16.4-latest": "0.14.6",
+    "1.16.4-recommended": "0.14.6",
+    "1.16.3-latest": "0.14.6",
+    "1.16.3-recommended": "0.14.6",
     "1.16.1-latest": "0.13.0",
     "1.16.1-recommended": "0.13.0",
     "1.15.2-latest": "0.13.0",
     "1.15.2-recommended": "0.13.0",
     "1.12.2-latest": "0.14.1",
-    "1.12.2-recommended": "0.14.1"
+    "1.12.2-recommended": "0.14.6"
   },
   "1.16.5": {
+    "0.14.6": "Added Botania's Terra Truncator to the default tools blacklist",
     "0.14.5": "Added Russian localization\nFixed missing loot table\nAllow requiring more than one chop per block when using the `linear` algorithm",
     "0.14.4": "Fixed leafless trees not getting chopped when `treesMustHaveLeaves` is off",
     "0.14.3": "Fixed tags-related conflict with various mods",
@@ -39,6 +40,10 @@
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection"
   },
   "1.16.4": {
+    "0.14.6": "Added Botania's Terra Truncator to the default tools blacklist",
+    "0.14.5": "Added Russian localization\nFixed missing loot table\nAllow requiring more than one chop per block when using the `linear` algorithm",
+    "0.14.4": "Fixed leafless trees not getting chopped when `treesMustHaveLeaves` is off",
+    "0.14.3": "Fixed tags-related conflict with various mods",
     "0.14.2": "Disabled chopping for non-player entities (e.g. modded machines) by default\nAdded configurable chop settings for non-player entities",
     "0.14.1": "Fixed conflict with Dynamic Trees\nFixed conflict with Project MMO 1.16.5",
     "0.14.0": "Added on-screen chop indicator\nAdded in-game settings screen (press N to open)\nRequiring trees to have leaves is now the default setting\nIgnore leaves placed by players (this is configurable)\nAdded config option to change chopping items blacklist to a whitelist\nBetter compatibility with Tinker's Construct and other mods\nAdded configurable overrides list to change how items behave when chopping\nAdded configurable permissions for player settings\nAdded localization for all text\nAdded API for other mods to make use of TreeChop's chopping mechanics",
@@ -60,6 +65,10 @@
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection"
   },
   "1.16.3": {
+    "0.14.6": "Added Botania's Terra Truncator to the default tools blacklist",
+    "0.14.5": "Added Russian localization\nFixed missing loot table\nAllow requiring more than one chop per block when using the `linear` algorithm",
+    "0.14.4": "Fixed leafless trees not getting chopped when `treesMustHaveLeaves` is off",
+    "0.14.3": "Fixed tags-related conflict with various mods",
     "0.14.2": "Disabled chopping for non-player entities (e.g. modded machines) by default\nAdded configurable chop settings for non-player entities",
     "0.14.1": "Fixed conflict with Dynamic Trees\nFixed conflict with Project MMO 1.16.5",
     "0.14.0": "Added on-screen chop indicator\nAdded in-game settings screen (press N to open)\nRequiring trees to have leaves is now the default setting\nIgnore leaves placed by players (this is configurable)\nAdded config option to change chopping items blacklist to a whitelist\nBetter compatibility with Tinker's Construct and other mods\nAdded configurable overrides list to change how items behave when chopping\nAdded configurable permissions for player settings\nAdded localization for all text\nAdded API for other mods to make use of TreeChop's chopping mechanics",
@@ -117,6 +126,7 @@
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection"
   },
   "1.12.2": {
+    "0.14.6": "Added Russian localization\nAllow requiring more than one chop per block when using the `linear` algorithm\nFixed leafless trees not getting chopped when `treesMustHaveLeaves` is off\nDisabled chopping for non-player entities (e.g. modded machines) by default\nAdded configurable chop settings for non-player entities\nAdded compatibility with Project MMO",
     "0.14.1": "Added on-screen chop indicator\nAdded in-game settings screen (press N to open)\nRequiring trees to have leaves is now the default setting\nIgnore leaves placed by players (this is configurable)\nAdded config option to change chopping items blacklist to a whitelist\nAdded configurable permissions for player settings\nAdded localization for all text\nAdded API for other mods to make use of TreeChop's chopping mechanics\nChanged how TreeChop computes the number of chops required to fell a tree\nAdded more configuration options for computing the number of chops required to fell a tree\nAdded option to allow persistent leaves to be broken when felling\nAdded option to disable chopping in creative\nFixed issues with chopping interior logs on really big (3x3+) trees\nFixed chopping getting semi-permanently deactivated for specific players\nFixed sneak settings not getting saved\nOrganized configs",
     "0.11.4": "Fixed conflict with EnderCore blocks\nDon't let chopping get disabled on mod conflicts",
     "0.11.2": "Fixed non-standard keys causing unbound controls to trigger\nPrevent players from disabling felling when `canChooseNotToChop=true`\nShow players a message when trying to change chop behavior when `canChooseNotToChop=false`",
