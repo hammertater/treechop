@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 public class TreeChopMod {
     public static final String MOD_ID = "treechop";
     public static final String MOD_NAME = "HT's TreeChop";
-    public static final String VERSION = "0.14.1";
+    public static final String VERSION = "0.14.6";
 
     public static Logger LOGGER; // Pretend this is final
 
