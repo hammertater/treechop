@@ -178,7 +178,7 @@ public class ChopUtil {
             return Collections.emptySet();
         }
 
-        AtomicBoolean overrideHasLeaves = new AtomicBoolean(false);
+        AtomicBoolean overrideHasLeaves = new AtomicBoolean(inHasLeaves.get());
         ChopEvent.DetectTreeEvent detectEvent = new ChopEvent.DetectTreeEvent(world, null, blockPos, world.getBlockState(blockPos), inHasLeaves, overrideHasLeaves);
         boolean valueToOverrideHasLeaves = inHasLeaves.get();
 
