@@ -5,6 +5,7 @@ import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.event.ChopEvent;
 import ht.treechop.common.event.CompatRegistrationEvent;
 import ht.treechop.common.util.TickUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -31,7 +32,7 @@ public class NoChopRecursion {
         @SubscribeEvent
         public static void onChop(ChopEvent.StartChopEvent event) {
             EntityPlayer agent = event.getPlayer();
-            long time = event.getWorld().getWorldTime();
+            long time = event.getWorld().getTotalWorldTime();
             if (lastChopTickByPlayers.getOrDefault(agent, TickUtil.NEVER) == time) {
                 event.setCanceled(true);
             } else {
