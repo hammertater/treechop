@@ -19,7 +19,6 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly(Side.CLIENT)
 public class Client extends Common {
 
     private static final ClientChopSettings chopSettings = new ClientChopSettings();
