@@ -329,7 +329,7 @@ public class ConfigHandler {
             pushCategory("linear", "See https://github.com/hammertater/treechop/#linear");
             linearM = getFloat(
                     "The number of chops per block required to fell a tree; if chopsPerBlock = 0.5, it will take 50 chops to fell a 100 block tree",
-                    "chopsPerBlock", 1f, 0f, 1f);
+                    "chopsPerBlock", 1f, 0f, 7f);
             linearB = getFloat(
                     "The base number of chops required to fell a tree regardless of its size",
                     "baseNumChops", 0f, -10000f, 10000f);
