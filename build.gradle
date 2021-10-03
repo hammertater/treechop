@@ -94,7 +94,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
 
-//    compileOnly fg.deobf("curse.maven:MOD:FILE_ID" )
+    compileOnly fg.deobf("curse.maven:project-mmo:3199812")
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

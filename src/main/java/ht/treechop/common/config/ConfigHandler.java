@@ -262,6 +262,8 @@ public class ConfigHandler {
         public static EnumHandle<ListType> blacklistOrWhitelist;
         public BooleanHandle preventChopRecursion;
         public BooleanHandle preventChoppingOnRightClick;
+        public BooleanHandle compatForProjectMMO;
+
         public BooleanHandle fakePlayerChoppingEnabled;
         public BooleanHandle fakePlayerFellingEnabled;
         public BooleanHandle fakePlayerTreesMustHaveLeaves;
@@ -365,6 +367,14 @@ public class ConfigHandler {
                     "fellingEnabled", true);
             fakePlayerTreesMustHaveLeaves = getBoolean(
                     "treesMustHaveLeaves", true);
+            popCategory();
+
+            pushCategory("specific");
+            compatForProjectMMO = getBoolean(
+                    String.join("\n",
+                            "Whether to enable compatibility with ProjectMMO; for example, award XP for chopping",
+                            "See https://www.curseforge.com/minecraft/mc-mods/project-mmo"),
+                    "projectMMO", true);
             popCategory();
             popCategory();
 
