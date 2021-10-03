@@ -44,6 +44,8 @@ public class ConfigHandler {
     private static Set<Block> leavesBlocks = null;
     private static Set<Item> choppingToolBlacklistItems = null;
 
+    public final static ChopSettings fakePlayerChopSettings = new ChopSettings();
+
     private static Configuration config;
     private static Stack<String> categoryStack = new Stack<>();
     private static final List<Pair<Setting, Boolean>> rawPermissions = new LinkedList<>();
@@ -75,6 +77,10 @@ public class ConfigHandler {
         if (TreeChopMod.proxy instanceof Client) {
             CLIENT.reload();
         }
+
+        fakePlayerChopSettings.setChoppingEnabled(COMMON.fakePlayerChoppingEnabled.get());
+        fakePlayerChopSettings.setFellingEnabled(COMMON.fakePlayerFellingEnabled.get());
+        fakePlayerChopSettings.setTreesMustHaveLeaves(COMMON.fakePlayerTreesMustHaveLeaves.get());
 
         saveConfig();
     }
@@ -119,11 +125,15 @@ public class ConfigHandler {
                 .collect(Collectors.toList());
     }
 
+    private static BooleanHandle getBoolean(String key, boolean defaultValue) {
+        return getBoolean("", key, defaultValue);
+    }
+
     private static BooleanHandle getBoolean(String comment, String key, boolean defaultValue) {
         return new BooleanHandle(getCategory(), key, defaultValue, comment);
     }
 
-    private static boolean getBoolean(String key, boolean defaultValue) {
+    private static boolean getRawBoolean(String key, boolean defaultValue) {
         Property prop = config.get(getCategory(), key, defaultValue);
         prop.setLanguageKey(key);
         return prop.getBoolean(defaultValue);
@@ -252,6 +262,9 @@ public class ConfigHandler {
         public static EnumHandle<ListType> blacklistOrWhitelist;
         public BooleanHandle preventChopRecursion;
         public BooleanHandle preventChoppingOnRightClick;
+        public BooleanHandle fakePlayerChoppingEnabled;
+        public BooleanHandle fakePlayerFellingEnabled;
+        public BooleanHandle fakePlayerTreesMustHaveLeaves;
 
         public void reload() {
             pushCategory("permissions");
@@ -265,7 +278,7 @@ public class ConfigHandler {
                 pushCategory(fieldName);
                 for (Object value : field.getValues()) {
                     String valueName = getPrettyValueName(value);
-                    boolean permitted = getBoolean( "canBe" + valueName, true);
+                    boolean permitted = getRawBoolean( "canBe" + valueName, true);
                     rawPermissions.add(Pair.of(new Setting(field, value), permitted));
                 }
                 popCategory();
@@ -341,6 +354,17 @@ public class ConfigHandler {
                     "Comma-separated list of items that should not chop when used to break a log\nOre dictionary names are also acceptable",
                     "choppingToolsBlacklist",
                     Lists.newArrayList("mekanism:atomic_disassembler"));
+            popCategory();
+
+            pushCategory("fakePlayerChopSettings", "The chop settings used by non-player entities, such as robots");
+            fakePlayerChoppingEnabled = getBoolean(
+                    "Use with caution! May cause conflicts with some mods, e.g. https://github.com/hammertater/treechop/issues/71",
+                    "choppingEnabled", false);
+            fakePlayerFellingEnabled = getBoolean(
+                    "Felling only matters if chopping is enabled; probably best to leave this on",
+                    "fellingEnabled", true);
+            fakePlayerTreesMustHaveLeaves = getBoolean(
+                    "treesMustHaveLeaves", true);
             popCategory();
             popCategory();
 

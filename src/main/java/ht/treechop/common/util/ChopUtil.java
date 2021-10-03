@@ -24,14 +24,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -466,7 +459,8 @@ public class ChopUtil {
     }
 
     public static ChopSettings getPlayerChopSettings(EntityPlayer player) {
-        return ChopSettingsCapability.forPlayer(player).orElse(new ChopSettingsCapability());
+        Optional<ChopSettingsCapability> playerSettings = ChopSettingsCapability.forPlayer(player);
+        return playerSettings.isPresent() ? playerSettings.get() : ConfigHandler.fakePlayerChopSettings;
     }
 
     public static void doItemDamage(ItemStack itemStack, World world, IBlockState blockState, BlockPos blockPos, EntityPlayer agent) {
