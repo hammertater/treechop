@@ -267,7 +267,7 @@ public class ConfigHandler {
             builder.comment("See https://github.com/hammertater/treechop/#linear").push("linear");
             linearM = builder
                     .comment("The number of chops per block required to fell a tree; if chopsPerBlock = 0.5, it will take 50 chops to fell a 100 block tree")
-                    .defineInRange("chopsPerBlock", 7.0, 0.0, 1.0);
+                    .defineInRange("chopsPerBlock", 0.0, 0.0, 7.0);
             linearB = builder
                     .comment("The base number of chops required to fell a tree regardless of its size")
                     .defineInRange("baseNumChops", 0.0, -10000.0, 10000.0);
