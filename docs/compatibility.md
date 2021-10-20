@@ -59,5 +59,8 @@ An API is provided to allow mod developers to interface directly with TreeChop's
 ### Events
 
 TreeChop fires [ChopEvents](https://github.com/hammertater/treechop/blob/main/src/main/java/ht/treechop/common/event/ChopEvent.java) using Forge's events system. There are two sub-events:
+- `DetectTreeEvent` fires when deciding whether a block is part of a tree. It can be used to override leaves detection. Canceling this event will prevent tree detection.
 - `StartChopEvent` fires before chopping begins and can be used to change the number of chops. Canceling this event will prevent chopping.
 - `FinishChopEvent` fires when chopping has finished.
+
+Some examples using these events are found in https://github.com/hammertater/treechop/tree/main/src/main/java/ht/treechop/common/compat.
