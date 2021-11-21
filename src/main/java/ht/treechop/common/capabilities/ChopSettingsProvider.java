@@ -22,6 +22,7 @@ public class ChopSettingsProvider implements ICapabilitySerializable<NBTBase> {
     public ChopSettingsProvider() {
     }
 
+    @SuppressWarnings({"NullPointerException"})
     public ChopSettingsProvider(ChopSettings defaults) {
         chopSettings.copyFrom(defaults);
     }
