@@ -20,7 +20,6 @@ public class ChopSettingsProvider implements ICapabilitySerializable<NBTBase> {
     private final ChopSettingsCapability chopSettings = ChopSettingsCapability.CAPABILITY.getDefaultInstance();
 
     public ChopSettingsProvider() {
-        super();
     }
 
     public ChopSettingsProvider(ChopSettings defaults) {
