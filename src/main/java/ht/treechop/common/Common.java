@@ -11,13 +11,13 @@ import ht.treechop.common.util.ChopUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -96,7 +96,12 @@ public class Common {
 
         Entity entity = event.getObject();
         if (entity instanceof EntityPlayer) {
-            event.addCapability(loc, new ChopSettingsProvider());
+            if (entity instanceof FakePlayer) {
+                event.addCapability(loc, new ChopSettingsProvider(ConfigHandler.fakePlayerChopSettings));
+            } else {
+                event.addCapability(loc, new ChopSettingsProvider());
+            }
+
         }
     }
 

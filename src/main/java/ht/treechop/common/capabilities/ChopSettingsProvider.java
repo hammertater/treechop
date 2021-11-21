@@ -1,6 +1,7 @@
 package ht.treechop.common.capabilities;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.common.settings.ChopSettings;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -17,6 +18,14 @@ public class ChopSettingsProvider implements ICapabilitySerializable<NBTBase> {
 
     @SuppressWarnings({"ConstantConditions"})
     private final ChopSettingsCapability chopSettings = ChopSettingsCapability.CAPABILITY.getDefaultInstance();
+
+    public ChopSettingsProvider() {
+        super();
+    }
+
+    public ChopSettingsProvider(ChopSettings defaults) {
+        chopSettings.copyFrom(defaults);
+    }
 
     @SuppressWarnings("ConstantConditions")
     @Override
