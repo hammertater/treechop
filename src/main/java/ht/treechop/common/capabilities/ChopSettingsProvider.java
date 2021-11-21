@@ -22,7 +22,7 @@ public class ChopSettingsProvider implements ICapabilitySerializable<NBTBase> {
     public ChopSettingsProvider() {
     }
 
-    @SuppressWarnings({"NullPointerException"})
+    @SuppressWarnings({"ConstantConditions"})
     public ChopSettingsProvider(ChopSettings defaults) {
         chopSettings.copyFrom(defaults);
     }
@@ -33,7 +33,7 @@ public class ChopSettingsProvider implements ICapabilitySerializable<NBTBase> {
         return capability == ChopSettingsCapability.CAPABILITY;
     }
 
-    @SuppressWarnings({"NullableProblems", "ConstantConditions"})
+    @SuppressWarnings({"ConstantConditions"})
     @Override
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing side) {
         if (capability == ChopSettingsCapability.CAPABILITY) {
