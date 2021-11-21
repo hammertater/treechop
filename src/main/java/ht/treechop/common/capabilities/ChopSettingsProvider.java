@@ -1,6 +1,7 @@
 package ht.treechop.common.capabilities;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.common.settings.ChopSettings;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.util.Direction;
@@ -16,8 +17,21 @@ public class ChopSettingsProvider implements ICapabilitySerializable<INBT> {
     private static final String CHOP_SETTINGS_NBT = "chopSettings";
     private static final byte COMPOUND_NBT_ID = new CompoundNBT().getId();
 
+    private final LazyOptional<ChopSettingsCapability> chopSettings;
+
     @SuppressWarnings({"NullableProblems", "ConstantConditions"})
-    private final LazyOptional<ChopSettingsCapability> chopSettings = LazyOptional.of(ChopSettingsCapability.CAPABILITY::getDefaultInstance);
+    public ChopSettingsProvider() {
+        chopSettings = LazyOptional.of(ChopSettingsCapability.CAPABILITY::getDefaultInstance);
+    }
+
+    @SuppressWarnings({"ConstantConditions"})
+    public ChopSettingsProvider(ChopSettings defaults) {
+        chopSettings = LazyOptional.of(() -> {
+            ChopSettingsCapability settings = ChopSettingsCapability.CAPABILITY.getDefaultInstance();
+            settings.copyFrom(defaults);
+            return settings;
+        });
+    }
 
     @SuppressWarnings({"NullableProblems", "ConstantConditions"})
     @Override

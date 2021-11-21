@@ -18,6 +18,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.world.BlockEvent;
@@ -111,7 +112,9 @@ public class Common {
         final ResourceLocation loc = new ResourceLocation(TreeChopMod.MOD_ID + "chop_settings_capability");
 
         Entity entity = event.getObject();
-        if (entity instanceof PlayerEntity) {
+        if (entity instanceof FakePlayer) {
+            event.addCapability(loc, new ChopSettingsProvider(ConfigHandler.fakePlayerChopSettings));
+        } else {
             event.addCapability(loc, new ChopSettingsProvider());
         }
     }
