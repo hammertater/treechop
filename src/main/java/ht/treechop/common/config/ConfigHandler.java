@@ -2,40 +2,30 @@ package ht.treechop.common.config;
 
 import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.config.item.ItemIdentifier;
-import ht.treechop.common.settings.ChopSettings;
-import ht.treechop.common.settings.Permissions;
-import ht.treechop.common.settings.Setting;
-import ht.treechop.common.settings.SettingsField;
-import ht.treechop.common.settings.SneakBehavior;
+import ht.treechop.common.settings.*;
 import ht.treechop.server.Server;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITagCollection;
-import net.minecraft.tags.ITagCollectionSupplier;
-import net.minecraft.tags.TagCollectionManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.tags.TagContainer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ConfigHandler {
 
-    public static ITag<Block> blockTagForDetectingLogs;
-    public static ITag<Block> blockTagForDetectingLeaves;
+    public static Tag<Block> blockTagForDetectingLogs;
+    public static Tag<Block> blockTagForDetectingLeaves;
     public final static ChopSettings fakePlayerChopSettings = new ChopSettings();
     private static Set<Item> itemsBlacklist = null;
     public static Map<Item, OverrideInfo> itemOverrides = null;
@@ -55,9 +45,9 @@ public class ConfigHandler {
         updatePermissions();
     }
 
-    public static void updateTags(ITagCollectionSupplier tagManager) {
-        blockTagForDetectingLogs = tagManager.getBlockTags().get(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
-        blockTagForDetectingLeaves = tagManager.getBlockTags().get(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
+    public static void updateTags(TagContainer tagManager) {
+        blockTagForDetectingLogs = tagManager.getOrEmpty(ForgeRegistries.Keys.BLOCKS).getTag(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
+        blockTagForDetectingLeaves = tagManager.getOrEmpty(ForgeRegistries.Keys.BLOCKS).getTag(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
         itemsBlacklist = null;
         itemOverrides = null;
     }
@@ -73,13 +63,13 @@ public class ConfigHandler {
         Server.updatePermissions(permissions);
     }
 
-    private static Set<Item> getItemsFromConfigList(ITagCollection<Item> tags, List<? extends String> identifiers, Predicate<Item> filter) {
+    private static Set<Item> getItemsFromConfigList(TagCollection<Item> tags, List<? extends String> identifiers, Predicate<Item> filter) {
         Map<Item, Integer> qualifiedItems = getQualifiedItemsFromConfigList(tags, identifiers, filter, $ -> 0);
         return qualifiedItems.keySet();
     }
 
     private static <T> Map<Item, T> getQualifiedItemsFromConfigList(
-            ITagCollection<Item> tags,
+            TagCollection<Item> tags,
             List<? extends String> identifiers,
             Predicate<Item> filter,
             Function<ItemIdentifier, T> qualifierParser) {
@@ -106,7 +96,7 @@ public class ConfigHandler {
     private static Map<Item, OverrideInfo> getItemOverrides() {
         if (itemOverrides == null) {
             itemOverrides = getQualifiedItemsFromConfigList(
-                    TagCollectionManager.getManager().getItemTags(),
+                    ItemTags.getAllTags(),
                     COMMON.itemsToOverride.get(),
                     item -> !(item instanceof IChoppingItem),
                     id -> new OverrideInfo(getQualifierChops(id), getQualifierOverride(id))
@@ -160,7 +150,7 @@ public class ConfigHandler {
     public static boolean canChopWithItem(Item item) {
         if (itemsBlacklist == null) {
             itemsBlacklist = getItemsFromConfigList(
-                    TagCollectionManager.getManager().getItemTags(),
+                    ItemTags.getAllTags(),
                     COMMON.itemsToBlacklist.get(),
                     item1 -> !(item1 instanceof IChoppingItem));
         }

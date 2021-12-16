@@ -1,8 +1,8 @@
 package ht.treechop.common.util;
 
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import com.mojang.math.Vector3d;
+import com.mojang.math.Vector3f;
+import net.minecraft.world.phys.AABB;
 
 public class Box3 {
 
@@ -26,17 +26,17 @@ public class Box3 {
 
     public Box3(Vector3 first, Vector3 second) {
         this(
-                Math.min(first.getX(), second.getX()),
-                Math.min(first.getY(), second.getY()),
-                Math.min(first.getZ(), second.getZ()),
-                Math.max(first.getX(), second.getX()),
-                Math.max(first.getY(), second.getY()),
-                Math.max(first.getZ(), second.getZ())
+                Math.min(first.x(), second.x()),
+                Math.min(first.y(), second.y()),
+                Math.min(first.z(), second.z()),
+                Math.max(first.x(), second.x()),
+                Math.max(first.y(), second.y()),
+                Math.max(first.z(), second.z())
         );
     }
 
     public Box3(Vector3d first, Vector3d second) {
-        this(new Vector3(first), new Vector3(second));
+        this(new Vector3(first.x, first.y, first.z), new Vector3(first.x, first.y, first.z));
     }
 
     public Box3(Vector3f first, Vector3f second) {
@@ -67,8 +67,8 @@ public class Box3 {
         return z2;
     }
 
-    public AxisAlignedBB asAxisAlignedBB() {
-        return new AxisAlignedBB(
+    public AABB asAxisAlignedBB() {
+        return new AABB(
                 this.x1,
                 this.y1,
                 this.z1,

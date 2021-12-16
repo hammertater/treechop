@@ -4,16 +4,17 @@ import ht.treechop.client.Client;
 import ht.treechop.common.Common;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,8 +31,8 @@ public class TreeChopMod {
 
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        modBus.addListener((ModConfig.Loading e) -> ConfigHandler.onReload());
-        modBus.addListener((ModConfig.Reloading e) -> ConfigHandler.onReload());
+        modBus.addListener((ModConfigEvent.Loading e) -> ConfigHandler.onReload());
+        modBus.addListener((ModConfigEvent.Reloading e) -> ConfigHandler.onReload());
 
         modBus.addListener(Common::onCommonSetup);
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> Client::init);
@@ -47,7 +48,7 @@ public class TreeChopMod {
 
     @SuppressWarnings("ConstantConditions")
     public static void showText(String text) {
-        Minecraft.getInstance().player.sendMessage(new StringTextComponent(String.format("%s[%s] %s%s", TextFormatting.GRAY, TreeChopMod.MOD_NAME, TextFormatting.WHITE, text)), Util.DUMMY_UUID);
+        Minecraft.getInstance().player.sendMessage(new TextComponent(String.format("%s[%s] %s%s", ChatFormatting.GRAY, TreeChopMod.MOD_NAME, ChatFormatting.WHITE, text)), Util.NIL_UUID);
     }
 
 }

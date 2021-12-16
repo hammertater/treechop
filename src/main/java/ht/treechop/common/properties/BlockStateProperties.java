@@ -1,7 +1,7 @@
 package ht.treechop.common.properties;
 
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
 public class BlockStateProperties {
     public static final IntegerProperty CHOP_COUNT = IntegerProperty.create("chops", 1, 7);

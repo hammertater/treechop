@@ -8,22 +8,21 @@ import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.FaceShape;
 import ht.treechop.common.util.Vector3;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockModelShapes;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.block.BlockModelShaper;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
@@ -32,13 +31,7 @@ import net.minecraftforge.client.model.data.ModelProperty;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,23 +40,23 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
     public static ModelProperty<ChoppedLogShape> SHAPE = new ModelProperty<>();
     public static ModelProperty<Integer> CHOPS = new ModelProperty<>();
     public static ModelProperty<Set<Direction>> SOLID_SIDES = new ModelProperty<>();
-    private final IBakedModel staticModel;
+    private final BakedModel staticModel;
     private final ResourceLocation textureRL = new ResourceLocation("treechop:block/chopped_log");
     private final TextureAtlasSprite sprite;
     private final boolean removeBarkOnInteriorLogs;
 
-    public ChoppedLogBakedModel(IBakedModel staticModel, boolean removeBarkOnInteriorLogs) {
+    public ChoppedLogBakedModel(BakedModel staticModel, boolean removeBarkOnInteriorLogs) {
         this.staticModel = staticModel;
         this.removeBarkOnInteriorLogs = removeBarkOnInteriorLogs;
         this.sprite = Minecraft.getInstance().getModelManager()
-                .getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
+                .getAtlas(TextureAtlas.LOCATION_BLOCKS)
                 .getSprite(textureRL);
     }
 
     public static void overrideBlockStateModels(ModelBakeEvent event) {
-        for (BlockState blockState : ModBlocks.CHOPPED_LOG.get().getStateContainer().getValidStates()) {
-            ModelResourceLocation variantMRL = BlockModelShapes.getModelLocation(blockState);
-            IBakedModel existingModel = event.getModelRegistry().get(variantMRL);
+        for (BlockState blockState : ModBlocks.CHOPPED_LOG.get().getStateDefinition().getPossibleStates()) {
+            ModelResourceLocation variantMRL = BlockModelShaper.stateToModelLocation(blockState);
+            BakedModel existingModel = event.getModelRegistry().get(variantMRL);
             if (existingModel == null) {
                 TreeChopMod.LOGGER.warn("Did not find the expected vanilla baked model(s) for treechop:chopped_log in registry");
             } else if (existingModel instanceof ChoppedLogBakedModel) {
@@ -81,7 +74,7 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
     @Override
     @Nonnull
     public IModelData getModelData(
-            @Nonnull IBlockDisplayReader world,
+            @Nonnull BlockAndTintGetter level,
             @Nonnull BlockPos pos,
             @Nonnull BlockState state,
             @Nonnull IModelData tileData
@@ -96,21 +89,21 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
             );
         }
 
-        ChoppedLogShape shape = state.get(BlockStateProperties.CHOPPED_LOG_SHAPE);
+        ChoppedLogShape shape = state.getValue(BlockStateProperties.CHOPPED_LOG_SHAPE);
         Set<Direction> solidSides = removeBarkOnInteriorLogs
                 ? Arrays.stream(Direction.values())
                 .filter(direction -> direction.getAxis().isHorizontal() && !shape.isSideOpen(direction))
                 .filter(direction -> {
-                    BlockState blockState = world.getBlockState(pos.offset(direction));
+                    BlockState blockState = level.getBlockState(pos.relative(direction));
                     Block block = blockState.getBlock();
-                    return blockState.isSolid() && !(block instanceof ChoppedLogBlock);
+                    return blockState.isSolidRender(level, pos) && !(block instanceof ChoppedLogBlock);
                 })
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)))
                 : Collections.emptySet();
 
         ModelDataMap.Builder builder = new ModelDataMap.Builder();
-        builder.withInitial(SHAPE, state.get(BlockStateProperties.CHOPPED_LOG_SHAPE));
-        builder.withInitial(CHOPS, state.get(BlockStateProperties.CHOP_COUNT));
+        builder.withInitial(SHAPE, state.getValue(BlockStateProperties.CHOPPED_LOG_SHAPE));
+        builder.withInitial(CHOPS, state.getValue(BlockStateProperties.CHOP_COUNT));
         builder.withInitial(SOLID_SIDES, solidSides);
         return builder.build();
     }
@@ -130,14 +123,14 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
                 int chops = extraData.getData(CHOPS);
                 Set<Direction> solidSides = extraData.getData(SOLID_SIDES);
 
-                AxisAlignedBB box = shape.getBoundingBox(chops);
+                AABB box = shape.getBoundingBox(chops);
 
-                float downY = (float) box.getMin(Axis.Y);
-                float upY = (float) box.getMax(Axis.Y);
-                float northZ = (float) box.getMin(Axis.Z);
-                float southZ = (float) box.getMax(Axis.Z);
-                float westX = (float) box.getMin(Axis.X);
-                float eastX = (float) box.getMax(Axis.X);
+                float downY = (float) box.minY;
+                float upY = (float) box.maxY;
+                float northZ = (float) box.minZ;
+                float southZ = (float) box.maxZ;
+                float westX = (float) box.minX;
+                float eastX = (float) box.maxX;
 
                 Vector3 topNorthEast = new Vector3(eastX, upY, northZ);
                 Vector3 topNorthWest = new Vector3(westX, upY, northZ);
@@ -172,8 +165,8 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public boolean isAmbientOcclusion() {
-        return staticModel.isAmbientOcclusion();
+    public boolean useAmbientOcclusion() {
+        return staticModel.useAmbientOcclusion();
     }
 
     @Override
@@ -182,23 +175,22 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public boolean isSideLit() {
-        return staticModel.isSideLit();
+    public boolean usesBlockLight() {
+        return staticModel.usesBlockLight();
     }
 
     @Override
-    public boolean isBuiltInRenderer() {
-        return staticModel.isBuiltInRenderer();
+    public boolean isCustomRenderer() {
+        return staticModel.isCustomRenderer();
     }
 
     @Override
-    public @Nonnull TextureAtlasSprite getParticleTexture() {
-        return sprite;
+    public TextureAtlasSprite getParticleIcon() {
+        return staticModel.getParticleIcon();
     }
 
     @Override
-    public @Nonnull ItemOverrideList getOverrides() {
-        return staticModel.getOverrides();
+    public ItemOverrides getOverrides() {
+        return null;
     }
-
 }

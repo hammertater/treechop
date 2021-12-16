@@ -1,20 +1,26 @@
 package ht.treechop.client.gui.element;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.gui.util.IPositionalGui;
 import ht.treechop.client.gui.util.ScreenBox;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.INestedGuiEventHandler;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.events.ContainerEventHandler;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 
-public abstract class NestedGui implements INestedGuiEventHandler, IPositionalGui {
+public abstract class NestedGui extends AbstractWidget implements ContainerEventHandler, IPositionalGui {
 
-    private IGuiEventListener listener = null;
+    private GuiEventListener listener = null;
     private boolean dragging = false;
     private ScreenBox box;
 
-    public abstract void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks);
+    public NestedGui(int x, int y, int width, int height, Component message) {
+        super(x, y, width, height, message);
+    }
+
+    public abstract void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks);
 
     public abstract int getMinimumWidth();
 
@@ -42,12 +48,12 @@ public abstract class NestedGui implements INestedGuiEventHandler, IPositionalGu
     }
 
     @Override
-    public void setListener(@Nullable IGuiEventListener listener) {
+    public void setFocused(@Nullable GuiEventListener listener) {
         this.listener = listener;
     }
 
     @Nullable
-    public IGuiEventListener getListener() {
+    public GuiEventListener getFocused() {
         return this.listener;
     }
 

@@ -13,8 +13,8 @@ import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.InputEvent;
@@ -49,7 +49,7 @@ public class Client {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        RenderTypeLookup.setRenderLayer(ModBlocks.CHOPPED_LOG.get(), RenderType.getSolid());
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.CHOPPED_LOG.get(), RenderType.solid());
     }
 
     @SubscribeEvent
@@ -104,15 +104,15 @@ public class Client {
 
     public static void toggleSettingsOverlay() {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.currentScreen instanceof ClientSettingsScreen) {
-            minecraft.currentScreen.closeScreen();
+        if (minecraft.screen instanceof ClientSettingsScreen) {
+            minecraft.screen.onClose();
         } else {
-            minecraft.displayGuiScreen(new ClientSettingsScreen());
+            minecraft.setScreen(new ClientSettingsScreen());
         }
     }
 
     public static void renderOverlay(RenderGameOverlayEvent.Post event) {
-        if (event.getType() == RenderGameOverlayEvent.ElementType.CROSSHAIRS) {
+        if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
             chopIndicator.render(
                     event.getWindow(),
                     event.getMatrixStack(),

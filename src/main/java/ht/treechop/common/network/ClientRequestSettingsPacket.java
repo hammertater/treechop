@@ -6,10 +6,10 @@ import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.server.Server;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,13 +36,13 @@ public class ClientRequestSettingsPacket {
         this(chopSettings.getAll(), Event.FIRST_TIME_SYNC);
     }
 
-    public static void encode(ClientRequestSettingsPacket message, PacketBuffer buffer) {
+    public static void encode(ClientRequestSettingsPacket message, FriendlyByteBuf buffer) {
         message.event.encode(buffer);
         buffer.writeInt(message.settings.size());
         message.settings.forEach(setting -> setting.encode(buffer));
     }
 
-    public static ClientRequestSettingsPacket decode(PacketBuffer buffer) {
+    public static ClientRequestSettingsPacket decode(FriendlyByteBuf buffer) {
         Event event = Event.decode(buffer);
         int numSettings = buffer.readInt();
         List<Setting> settings = IntStream.range(0, numSettings)
@@ -61,11 +61,11 @@ public class ClientRequestSettingsPacket {
         }
     }
 
-    private static <T> void processSettingsRequest(ClientRequestSettingsPacket message, ServerPlayerEntity player) {
+    private static <T> void processSettingsRequest(ClientRequestSettingsPacket message, ServerPlayer player) {
         ChopSettingsCapability.forPlayer(player).ifPresent(capability -> processSettingsRequest(capability, message, player));
     }
 
-    private static void processSettingsRequest(ChopSettingsCapability capability, ClientRequestSettingsPacket message, ServerPlayerEntity player) {
+    private static void processSettingsRequest(ChopSettingsCapability capability, ClientRequestSettingsPacket message, ServerPlayer player) {
         List<Setting> settings = (message.event == Event.FIRST_TIME_SYNC && capability.isSynced())
                 ? capability.getAll()
                 : message.settings;
@@ -85,7 +85,7 @@ public class ClientRequestSettingsPacket {
         }
     }
 
-    private static ConfirmedSetting processSingleSettingRequest(Setting setting, ServerPlayerEntity player, ChopSettings chopSettings, Event requestEvent) {
+    private static ConfirmedSetting processSingleSettingRequest(Setting setting, ServerPlayer player, ChopSettings chopSettings, Event requestEvent) {
         ConfirmedSetting.Event confirmEvent;
         if (playerHasPermission(player, setting)) {
             chopSettings.set(setting);
@@ -104,11 +104,11 @@ public class ClientRequestSettingsPacket {
         return new ConfirmedSetting(new Setting(field, chopSettings.get(field)), confirmEvent);
     }
 
-    private static Setting getDefaultSetting(ServerPlayerEntity player, Setting setting) {
+    private static Setting getDefaultSetting(ServerPlayer player, Setting setting) {
         return Server.getDefaultPlayerSettings().getSetting(setting.getField());
     }
 
-    private static boolean playerHasPermission(PlayerEntity player, Setting setting) {
+    private static boolean playerHasPermission(Player player, Setting setting) {
         return Server.getPermissions().isPermitted(setting);
     }
 
@@ -119,12 +119,12 @@ public class ClientRequestSettingsPacket {
 
         private static final Event[] values = Event.values();
 
-        public static Event decode(PacketBuffer buffer) {
+        public static Event decode(FriendlyByteBuf buffer) {
             int ordinal = buffer.readByte() % values.length;
             return Event.values[ordinal];
         }
 
-        public void encode(PacketBuffer buffer) {
+        public void encode(FriendlyByteBuf buffer) {
             buffer.writeByte(ordinal());
         }
     }

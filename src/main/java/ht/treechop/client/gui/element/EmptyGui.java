@@ -1,7 +1,8 @@
 package ht.treechop.client.gui.element;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.gui.IGuiEventListener;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +13,7 @@ public class EmptyGui extends NestedGui {
     private int height;
 
     public EmptyGui(int width, int height) {
+        super(0, 0, width, height, null);
         this.width = width;
         this.height = height;
     }
@@ -34,14 +36,19 @@ public class EmptyGui extends NestedGui {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public List<? extends IGuiEventListener> getEventListeners() {
+    public List<? extends GuiEventListener> children() {
         return Collections.emptyList();
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
     }
 
     public void setColumnWidths(int biggestLeftColumnWidth, int biggestRightColumnWidth) {
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput p_169152_) {
+        // TODO
     }
 }

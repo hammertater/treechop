@@ -1,9 +1,9 @@
 package ht.treechop.common.config.item;
 
 import ht.treechop.TreeChopMod;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITagCollection;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.Collections;
@@ -16,9 +16,9 @@ public class SingleItemIdentifier extends ItemIdentifier {
     }
 
     @Override
-    public List<Item> resolve(ITagCollection<Item> tags, IForgeRegistry<Item> registry) {
+    public List<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
         String resourceString = getNamespace() + ":" + getLocalSpace();
-        ResourceLocation resource = ResourceLocation.tryCreate(resourceString);
+        ResourceLocation resource = ResourceLocation.tryParse(resourceString);
         if (resource != null) {
             Item item = registry.getValue(resource);
             if (item != null) {

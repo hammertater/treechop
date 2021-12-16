@@ -1,6 +1,6 @@
 package ht.treechop.common.settings.codec;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.Collections;
 import java.util.Set;
@@ -19,12 +19,12 @@ public class BooleanCodec extends AbstractSimpleCodec<Boolean> {
     }
 
     @Override
-    public Boolean decode(PacketBuffer buffer) {
+    public Boolean decode(FriendlyByteBuf buffer) {
         return buffer.readBoolean();
     }
 
     @Override
-    public void encode(PacketBuffer buffer, Object value) {
+    public void encode(FriendlyByteBuf buffer, Object value) {
         buffer.writeBoolean((Boolean)value);
     }
 

@@ -1,23 +1,25 @@
 package ht.treechop.common;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.api.ChopEvent;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.capabilities.ChopSettingsProvider;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.event.ChopEvent;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.util.ChopResult;
 import ht.treechop.common.util.ChopUtil;
 import ht.treechop.common.util.FauxPlayerInteractionManager;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.world.BlockEvent;
@@ -32,7 +34,6 @@ public class Common {
 
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
-        ChopSettingsCapability.register();
         PacketHandler.init();
     }
 
@@ -43,7 +44,7 @@ public class Common {
 
     @SubscribeEvent
     public static void onBreakEvent(BlockEvent.BreakEvent event) {
-        ItemStack tool = event.getPlayer().getHeldItemMainhand();
+        ItemStack tool = event.getPlayer().getMainHandItem();
         BlockState blockState = event.getState();
         BlockPos pos = event.getPos();
 
@@ -51,18 +52,15 @@ public class Common {
                 || !ConfigHandler.COMMON.enabled.get()
                 || !ChopUtil.canChopWithTool(tool)
                 || event.isCanceled()
-                || !(event.getWorld() instanceof ServerWorld)
-                || !(event.getPlayer() instanceof ServerPlayerEntity)
+                || !(event.getWorld() instanceof ServerLevel level)
+                || !(event.getPlayer() instanceof ServerPlayer agent)
         ) {
            return;
         }
 
-        ServerWorld world = (ServerWorld) event.getWorld();
-        ServerPlayerEntity agent = (ServerPlayerEntity) event.getPlayer();
-
         if (!ChopUtil.playerWantsToChop(agent)) {
             if (ConfigHandler.shouldOverrideItemBehavior(tool.getItem(), false)) {
-                FauxPlayerInteractionManager.harvestBlockSkippingOnBlockStartBreak(agent, world, blockState, pos, event.getExpToDrop());
+                FauxPlayerInteractionManager.harvestBlockSkippingOnBlockStartBreak(agent, level, blockState, pos, event.getExpToDrop());
                 event.setCanceled(true);
             }
 
@@ -71,7 +69,7 @@ public class Common {
 
         ChopEvent.StartChopEvent startChopEvent = new ChopEvent.StartChopEvent(
                 event,
-                world,
+                level,
                 agent,
                 pos,
                 blockState,
@@ -85,12 +83,12 @@ public class Common {
         }
 
         ChopResult chopResult = ChopUtil.getChopResult(
-                world,
+                level,
                 pos,
                 agent,
                 startChopEvent.getNumChops(),
                 startChopEvent.getFelling(),
-                logPos -> isBlockALog(world, logPos)
+                logPos -> isBlockALog(level, logPos)
         );
 
         if (chopResult != ChopResult.IGNORED) {
@@ -98,11 +96,11 @@ public class Common {
                 event.setCanceled(true);
 
                 if (!agent.isCreative()) {
-                    ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
+                    ChopUtil.doItemDamage(tool, level, blockState, pos, agent);
                 }
             }
 
-            MinecraftForge.EVENT_BUS.post(new ChopEvent.FinishChopEvent(world, agent, pos, blockState));
+            MinecraftForge.EVENT_BUS.post(new ChopEvent.FinishChopEvent(level, agent, pos, blockState));
         }
     }
 
@@ -111,9 +109,16 @@ public class Common {
         final ResourceLocation loc = new ResourceLocation(TreeChopMod.MOD_ID + "chop_settings_capability");
 
         Entity entity = event.getObject();
-        if (entity instanceof PlayerEntity) {
+        if (entity instanceof FakePlayer) {
+            event.addCapability(loc, new ChopSettingsProvider(ConfigHandler.fakePlayerChopSettings));
+        } else {
             event.addCapability(loc, new ChopSettingsProvider());
         }
+    }
+
+    @SubscribeEvent
+    public void registerCaps(RegisterCapabilitiesEvent event) {
+        event.register(ChopSettingsCapability.class);
     }
 
 }

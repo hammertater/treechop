@@ -1,8 +1,11 @@
 package ht.treechop.client.gui.element;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.gui.util.ScreenBox;
-import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +20,7 @@ public class RowsGui extends NestedGui {
     private ScreenBox box;
 
     public RowsGui(int rowSeparation, Collection<NestedGui> rows) {
+        super(0, 0, 0, 0, TextComponent.EMPTY);
         this.rowSeparation = rowSeparation;
         this.rows.addAll(rows);
 
@@ -35,11 +39,11 @@ public class RowsGui extends NestedGui {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public List<? extends IGuiEventListener> getEventListeners() {
+    public List<? extends GuiEventListener> children() {
         return rows;
     }
 
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         int rowLeft = getBox().getLeft();
         int rowTop = getBox().getTop();
         int rowWidth = getBox().getWidth();
@@ -47,7 +51,7 @@ public class RowsGui extends NestedGui {
         for (NestedGui row : rows) {
             int rowHeight = row.getMinimumHeight();
             row.setBox(rowLeft, rowTop, rowWidth, rowHeight);
-            row.render(matrixStack, mouseX, mouseY, partialTicks);
+            row.render(poseStack, mouseX, mouseY, partialTicks);
             rowTop += rowHeight + rowSeparation;
         }
     }
@@ -70,5 +74,10 @@ public class RowsGui extends NestedGui {
     @Override
     public void setBox(ScreenBox box) {
         this.box = box;
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput p_169152_) {
+        // TODO
     }
 }

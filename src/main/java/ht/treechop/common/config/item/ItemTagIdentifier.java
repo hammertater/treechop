@@ -1,9 +1,9 @@
 package ht.treechop.common.config.item;
 
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITagCollection;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.Collections;
@@ -16,12 +16,12 @@ public class ItemTagIdentifier extends ItemIdentifier {
     }
 
     @Override
-    public List<Item> resolve(ITagCollection<Item> tags, IForgeRegistry<Item> registry) {
-        ResourceLocation resource = ResourceLocation.tryCreate(getNamespace() + ":" + getLocalSpace());
+    public List<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
+        ResourceLocation resource = ResourceLocation.tryParse(getNamespace() + ":" + getLocalSpace());
         if (resource != null) {
-            ITag<Item> tag = tags.get(resource);
+            Tag<Item> tag = tags.getTag(resource);
             if (tag != null) {
-                return tag.getAllElements();
+                return tag.getValues();
             } else {
                 parsingError(String.format("item tag \"%s\" does not exist", getNamespace()));
             }

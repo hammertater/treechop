@@ -1,8 +1,8 @@
 package ht.treechop.common.config.item;
 
 import ht.treechop.TreeChopMod;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITagCollection;
+import net.minecraft.world.item.Item;
+import net.minecraft.tags.TagCollection;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.Arrays;
@@ -103,7 +103,7 @@ public abstract class ItemIdentifier {
         return String.format("%s:%s", getNamespace(), getLocalSpace());
     }
 
-    public abstract List<Item> resolve(ITagCollection<Item> tagSupplier, IForgeRegistry<Item> registry);
+    public abstract List<Item> resolve(TagCollection<Item> tagSupplier, IForgeRegistry<Item> registry);
 
     private static void parsingError(String idString, String message) {
         TreeChopMod.LOGGER.warn("Configuration error when parsing \"{}\": {}", idString, message);

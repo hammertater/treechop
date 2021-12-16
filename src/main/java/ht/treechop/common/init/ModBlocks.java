@@ -2,12 +2,11 @@ package ht.treechop.common.init;
 
 import ht.treechop.TreeChopMod;
 import ht.treechop.common.block.ChoppedLogBlock;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -18,10 +17,10 @@ public class ModBlocks {
     // Blocks
     public static final RegistryObject<Block> CHOPPED_LOG = BLOCKS.register("chopped_log",
             () -> new ChoppedLogBlock(
-                    AbstractBlock.Properties.create(
+                    Block.Properties.of(
                             Material.WOOD,
                             MaterialColor.WOOD)
-                            .hardnessAndResistance(2.0F)
+                            .strength(2.0F)
                             .sound(SoundType.WOOD)
             )
     );

@@ -1,6 +1,6 @@
 package ht.treechop.common.util;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -103,6 +103,6 @@ public class BlockNeighbors {
     }
 
     public Stream<BlockPos> asStream(BlockPos pos) {
-        return Arrays.stream(blocks).map(pos::add);
+        return Arrays.stream(blocks).map(pos::offset);
     }
 }

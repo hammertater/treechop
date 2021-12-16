@@ -1,40 +1,33 @@
 package ht.treechop.common.util;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.api.ChopEvent;
 import ht.treechop.api.IChoppableBlock;
 import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.event.ChopEvent;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.settings.ChopSettings;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -44,30 +37,30 @@ import java.util.stream.Stream;
 
 public class ChopUtil {
 
-    public static boolean isBlockChoppable(IWorld world, BlockPos pos, BlockState blockState) {
+    public static boolean isBlockChoppable(Level level, BlockPos pos, BlockState blockState) {
         return (blockState.getBlock() instanceof IChoppableBlock) ||
-                (isBlockALog(blockState) && !(isBlockALog(world, pos.west()) && isBlockALog(world, pos.north()) && isBlockALog(world, pos.east()) && isBlockALog(world, pos.south())));
+                (isBlockALog(blockState) && !(isBlockALog(level, pos.west()) && isBlockALog(level, pos.north()) && isBlockALog(level, pos.east()) && isBlockALog(level, pos.south())));
     }
 
-    public static boolean isBlockChoppable(IWorld world, BlockPos pos) {
-        return isBlockChoppable(world, pos, world.getBlockState(pos));
+    public static boolean isBlockChoppable(Level level, BlockPos pos) {
+        return isBlockChoppable(level, pos, level.getBlockState(pos));
     }
 
     public static boolean isBlockALog(BlockState blockState) {
-        return blockState.isIn(ConfigHandler.blockTagForDetectingLogs);
+        return ConfigHandler.blockTagForDetectingLogs.contains(blockState.getBlock());
     }
 
-    public static boolean isBlockALog(IWorld world, BlockPos pos) {
-        return isBlockALog(world.getBlockState(pos));
+    public static boolean isBlockALog(Level level, BlockPos pos) {
+        return isBlockALog(level.getBlockState(pos));
     }
 
-    public static boolean isBlockLeaves(IWorld world, BlockPos pos) {
-        return isBlockLeaves(world.getBlockState(pos));
+    public static boolean isBlockLeaves(Level level, BlockPos pos) {
+        return isBlockLeaves(level.getBlockState(pos));
     }
 
     public static boolean isBlockLeaves(BlockState blockState) {
-        if (blockState.getBlock().isIn(ConfigHandler.blockTagForDetectingLeaves)) {
-            return !ConfigHandler.ignorePersistentLeaves || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.get(LeavesBlock.PERSISTENT);
+        if (ConfigHandler.blockTagForDetectingLeaves.contains(blockState.getBlock())) {
+            return !ConfigHandler.ignorePersistentLeaves || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.getValue(LeavesBlock.PERSISTENT);
         } else {
             return false;
         }
@@ -100,13 +93,13 @@ public class ChopUtil {
         return getConnectedBlocks(startingPoints, searchOffsetsSupplier, maxNumBlocks, new AtomicInteger());
     }
 
-    public static boolean canChangeBlock(World world, BlockPos blockPos, PlayerEntity agent) {
-        return canChangeBlock(world, blockPos, agent, ItemStack.EMPTY);
+    public static boolean canChangeBlock(Level level, BlockPos blockPos, Player agent, GameType gameType) {
+        return canChangeBlock(level, blockPos, agent, gameType, ItemStack.EMPTY);
     }
 
     @SuppressWarnings("ConstantConditions")
-    public static boolean canChangeBlock(World world, BlockPos blockPos, PlayerEntity agent, ItemStack tool) {
-        if (!agent.blockActionRestricted(world, blockPos, agent.getServer().getGameType())) {
+    public static boolean canChangeBlock(Level level, BlockPos blockPos, Player agent, GameType gameType, ItemStack tool) {
+        if (!agent.blockActionRestricted(level, blockPos, gameType)) { // TODO: get the player's game mode
             if (tool.isEmpty()) {
                 return true;
             } else {
@@ -118,7 +111,7 @@ public class ChopUtil {
         }
     }
 
-    public static List<BlockPos> getTreeLeaves(World world, Collection<BlockPos> treeBlocks) {
+    public static List<BlockPos> getTreeLeaves(Level level, Collection<BlockPos> treeBlocks) {
         AtomicInteger iterationCounter = new AtomicInteger();
         Set<BlockPos> leaves = new HashSet<>();
 
@@ -126,12 +119,12 @@ public class ChopUtil {
         getConnectedBlocks(
                 treeBlocks,
                 pos1 -> {
-                    BlockState blockState = world.getBlockState(pos1);
+                    BlockState blockState = level.getBlockState(pos1);
                     return ((isBlockLeaves(blockState) && !(blockState.getBlock() instanceof LeavesBlock))
                                 ? BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS // Red mushroom caps can be connected diagonally downward
                                 : BlockNeighbors.ADJACENTS)
                         .asStream(pos1)
-                        .filter(pos2 -> markLeavesToDestroyAndKeepLooking(world, pos2, iterationCounter, leaves));
+                        .filter(pos2 -> markLeavesToDestroyAndKeepLooking(level, pos2, iterationCounter, leaves));
                 },
                 maxNumLeavesBlocks,
                 iterationCounter
@@ -144,11 +137,11 @@ public class ChopUtil {
         return new ArrayList<>(leaves);
     }
 
-    private static boolean markLeavesToDestroyAndKeepLooking(IWorld world, BlockPos pos, AtomicInteger iterationCounter, Set<BlockPos> leavesToDestroy) {
-        BlockState blockState = world.getBlockState(pos);
+    private static boolean markLeavesToDestroyAndKeepLooking(Level level, BlockPos pos, AtomicInteger iterationCounter, Set<BlockPos> leavesToDestroy) {
+        BlockState blockState = level.getBlockState(pos);
         if (isBlockLeaves(blockState)) {
             if (blockState.getBlock() instanceof LeavesBlock) {
-                if (iterationCounter.get() + 1 > blockState.get(LeavesBlock.DISTANCE)) {
+                if (iterationCounter.get() + 1 > blockState.getValue(LeavesBlock.DISTANCE)) {
                     return false;
                 }
             } else if (iterationCounter.get() >= ConfigHandler.maxBreakLeavesDistance) {
@@ -165,30 +158,30 @@ public class ChopUtil {
         return ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(numBlocks);
     }
 
-    public static ChopResult getChopResult(World world, BlockPos blockPos, PlayerEntity agent, int numChops, boolean fellIfPossible, Predicate<BlockPos> logCondition) {
+    public static ChopResult getChopResult(Level level, BlockPos blockPos, Player agent, int numChops, boolean fellIfPossible, Predicate<BlockPos> logCondition) {
         return fellIfPossible
-                ? getChopResult(world, blockPos, agent, numChops, logCondition)
-                : tryToChopWithoutFelling(world, blockPos, numChops);
+                ? getChopResult(level, blockPos, agent, numChops, logCondition)
+                : tryToChopWithoutFelling(level, blockPos, numChops);
     }
 
-    private static ChopResult getChopResult(World world, BlockPos blockPos, PlayerEntity agent, int numChops, Predicate<BlockPos> logCondition) {
-        Set<BlockPos> supportedBlocks = getTreeBlocks(world, blockPos, logCondition, getPlayerChopSettings(agent).getTreesMustHaveLeaves());
-        return chopTree(world, blockPos, supportedBlocks, numChops);
+    private static ChopResult getChopResult(Level level, BlockPos blockPos, Player agent, int numChops, Predicate<BlockPos> logCondition) {
+        Set<BlockPos> supportedBlocks = getTreeBlocks(level, blockPos, logCondition, getPlayerChopSettings(agent).getTreesMustHaveLeaves());
+        return chopTree(level, blockPos, supportedBlocks, numChops);
     }
 
-    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, Predicate<BlockPos> logCondition, boolean mustHaveLeaves) {
+    private static Set<BlockPos> getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition, boolean mustHaveLeaves) {
         AtomicBoolean hasLeaves = new AtomicBoolean(!mustHaveLeaves);
-        Set<BlockPos> treeBlocks = getTreeBlocks(world, blockPos, logCondition, hasLeaves);
+        Set<BlockPos> treeBlocks = getTreeBlocks(level, blockPos, logCondition, hasLeaves);
         return hasLeaves.get() ? treeBlocks : Collections.emptySet();
     }
 
-    private static Set<BlockPos> getTreeBlocks(World world, BlockPos blockPos, Predicate<BlockPos> logCondition, AtomicBoolean inHasLeaves) {
+    private static Set<BlockPos> getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition, AtomicBoolean inHasLeaves) {
         if (!logCondition.test(blockPos)) {
             return Collections.emptySet();
         }
 
         AtomicBoolean overrideHasLeaves = new AtomicBoolean(inHasLeaves.get());
-        ChopEvent.DetectTreeEvent detectEvent = new ChopEvent.DetectTreeEvent(world, null, blockPos, world.getBlockState(blockPos), inHasLeaves, overrideHasLeaves);
+        ChopEvent.DetectTreeEvent detectEvent = new ChopEvent.DetectTreeEvent(level, null, blockPos, level.getBlockState(blockPos), inHasLeaves, overrideHasLeaves);
         boolean valueToOverrideHasLeaves = inHasLeaves.get();
 
         boolean canceled = MinecraftForge.EVENT_BUS.post(detectEvent);
@@ -202,7 +195,7 @@ public class ChopUtil {
         Set<BlockPos> supportedBlocks = getConnectedBlocks(
                 Collections.singletonList(blockPos),
                 somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)
-                        .peek(pos -> trueHasLeaves.compareAndSet(false, isBlockLeaves(world, pos)))
+                        .peek(pos -> trueHasLeaves.compareAndSet(false, isBlockLeaves(level, pos)))
                         .filter(logCondition),
                 maxNumTreeBlocks
         );
@@ -216,12 +209,12 @@ public class ChopUtil {
         return supportedBlocks;
     }
 
-    private static ChopResult chopTree(World world, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
+    private static ChopResult chopTree(Level level, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
         if (supportedBlocks.isEmpty()) {
             return ChopResult.IGNORED;
         }
 
-        BlockState blockState = world.getBlockState(target);
+        BlockState blockState = level.getBlockState(target);
         int currentNumChops = getNumChops(blockState);
         int numChopsToFell = numChopsToFell(supportedBlocks.size());
 
@@ -230,21 +223,21 @@ public class ChopUtil {
             nearbyChoppableBlocks = ChopUtil.getConnectedBlocks(
                     Collections.singletonList(target),
                     pos -> BlockNeighbors.ADJACENTS_AND_DIAGONALS.asStream(pos)
-                            .filter(checkPos -> Math.abs(checkPos.getY() - target.getY()) < 4 && isBlockChoppable(world, checkPos)),
+                            .filter(checkPos -> Math.abs(checkPos.getY() - target.getY()) < 4 && isBlockChoppable(level, checkPos)),
                     64
             );
 
-            int totalNumChops = getNumChops(world, nearbyChoppableBlocks) + numChops;
+            int totalNumChops = getNumChops(level, nearbyChoppableBlocks) + numChops;
 
             if (totalNumChops >= numChopsToFell) {
                 List<BlockPos> choppedLogsSortedByY = nearbyChoppableBlocks.stream()
-                        .filter(pos1 -> world.getBlockState(pos1).getBlock() instanceof IChoppableBlock)
-                        .sorted(Comparator.comparingInt(Vector3i::getY))
+                        .filter(pos1 -> level.getBlockState(pos1).getBlock() instanceof IChoppableBlock)
+                        .sorted(Comparator.comparingInt(Vec3i::getY))
                         .collect(Collectors.toList());
 
                 // Consume nearby chopped blocks that contributed even if they're at a lower Y, but prefer higher ones
                 for (BlockPos pos : choppedLogsSortedByY) {
-                    int chops = getNumChops(world, pos);
+                    int chops = getNumChops(level, pos);
                     supportedBlocks.add(pos);
                     if (chops > numChopsToFell) {
                         break;
@@ -252,29 +245,29 @@ public class ChopUtil {
                 }
             } else {
                 nearbyChoppableBlocks.remove(target);
-                return gatherChops(world, target, numChops, nearbyChoppableBlocks);
+                return gatherChops(level, target, numChops, nearbyChoppableBlocks);
             }
         }
 
         supportedBlocks.remove(target);
-        return new ChopResult(world, Collections.singletonList(target), supportedBlocks);
+        return new ChopResult(level, Collections.singletonList(target), supportedBlocks);
     }
 
     /**
      * Adds chops to the targeted block without destroying it. Overflow chops spill to nearby blocks.
      * @param nearbyChoppableBlocks must not include {@code target}
      */
-    private static ChopResult gatherChops(World world, BlockPos target, int numChops, Set<BlockPos> nearbyChoppableBlocks) {
+    private static ChopResult gatherChops(Level level, BlockPos target, int numChops, Set<BlockPos> nearbyChoppableBlocks) {
         List<TreeBlock> choppedBlocks = new LinkedList<>();
-        int numChopsLeft = gatherChopAndGetNumChopsRemaining(world, target, numChops, choppedBlocks);
+        int numChopsLeft = gatherChopAndGetNumChopsRemaining(level, target, numChops, choppedBlocks);
 
         if (numChopsLeft > 0) {
             List<BlockPos> sortedChoppableBlocks = nearbyChoppableBlocks.stream()
                     .filter(blockPos1 -> {
-                        BlockState blockState1 = world.getBlockState(blockPos1);
+                        BlockState blockState1 = level.getBlockState(blockPos1);
                         Block block1 = blockState1.getBlock();
                         if (block1 instanceof IChoppableBlock) {
-                            return getNumChops(blockState1) < getMaxNumChops(world, blockPos1, blockState1);
+                            return getNumChops(blockState1) < getMaxNumChops(level, blockPos1, blockState1);
                         } else {
                             return blockPos1.getY() >= target.getY();
                         }
@@ -291,7 +284,7 @@ public class ChopUtil {
                         Collections.shuffle(candidates);
 
                         for (BlockPos nextTarget : candidates) {
-                            numChopsLeft = gatherChopAndGetNumChopsRemaining(world, nextTarget, numChopsLeft, choppedBlocks);
+                            numChopsLeft = gatherChopAndGetNumChopsRemaining(level, nextTarget, numChopsLeft, choppedBlocks);
                             if (numChopsLeft <= 0) {
                                 break;
                             }
@@ -310,28 +303,28 @@ public class ChopUtil {
         return new ChopResult(choppedBlocks);
     }
 
-    private static int gatherChopAndGetNumChopsRemaining(World world, BlockPos target, int numChops, List<TreeBlock> choppedBlocks) {
-        BlockState blockStateBeforeChopping = world.getBlockState(target);
-        BlockState blockStateAfterChopping = getBlockStateAfterChops(world, target, numChops, false);
+    private static int gatherChopAndGetNumChopsRemaining(Level level, BlockPos target, int numChops, List<TreeBlock> choppedBlocks) {
+        BlockState blockStateBeforeChopping = level.getBlockState(target);
+        BlockState blockStateAfterChopping = getBlockStateAfterChops(level, target, numChops, false);
 
         if (blockStateBeforeChopping != blockStateAfterChopping) {
-            choppedBlocks.add(new TreeBlock(world, target, blockStateAfterChopping, true));
+            choppedBlocks.add(new TreeBlock(level, target, blockStateAfterChopping, true));
         }
 
         return numChops - (getNumChops(blockStateAfterChopping) - getNumChops(blockStateBeforeChopping));
     }
 
-    public static BlockState getBlockStateAfterChops(World world, BlockPos blockPos, int numChops, boolean destructive) {
-        BlockState blockState = world.getBlockState(blockPos);
+    public static BlockState getBlockStateAfterChops(Level level, BlockPos blockPos, int numChops, boolean destructive) {
+        BlockState blockState = level.getBlockState(blockPos);
         Block block = blockState.getBlock();
         if (block instanceof IChoppableBlock) {
             return getBlockStateAfterChops((IChoppableBlock) block, blockState, numChops, destructive);
         } else {
-            if (isBlockChoppable(world, blockPos, blockState)) {
+            if (isBlockChoppable(level, blockPos, blockState)) {
                 IChoppableBlock choppedBlock = getChoppedBlock(blockState);
                 if (choppedBlock instanceof Block) {
-                    ChoppedLogShape shape = ChoppedLogBlock.getPlacementShape(world, blockPos);
-                    BlockState defaultChoppedState = ((Block) choppedBlock).getDefaultState().with(BlockStateProperties.CHOPPED_LOG_SHAPE, shape);
+                    ChoppedLogShape shape = ChoppedLogBlock.getPlacementShape(level, blockPos);
+                    BlockState defaultChoppedState = ((Block) choppedBlock).defaultBlockState().setValue(BlockStateProperties.CHOPPED_LOG_SHAPE, shape);
                     return getBlockStateAfterChops(
                             choppedBlock,
                             defaultChoppedState,
@@ -356,17 +349,17 @@ public class ChopUtil {
             return choppableBlock.withChops(blockState, newNumChops);
         } else {
             return (destructive)
-                    ? Blocks.AIR.getDefaultState()
+                    ? Blocks.AIR.defaultBlockState()
                     : choppableBlock.withChops(blockState, maxNumChops);
         }
     }
 
-    public static int getMaxNumChops(World world, BlockPos blockPos, BlockState blockState) {
+    public static int getMaxNumChops(Level level, BlockPos blockPos, BlockState blockState) {
         Block block = blockState.getBlock();
         if (block instanceof IChoppableBlock) {
             return ((IChoppableBlock) block).getMaxNumChops();
         } else {
-            if (isBlockChoppable(world, blockPos, world.getBlockState(blockPos))) {
+            if (isBlockChoppable(level, blockPos, level.getBlockState(blockPos))) {
                 IChoppableBlock choppedBlock = getChoppedBlock(blockState);
                 return (choppedBlock != null) ? choppedBlock.getMaxNumChops() : 0;
             } else {
@@ -383,8 +376,8 @@ public class ChopUtil {
         }
     }
 
-    public static int getNumChops(World world, BlockPos pos) {
-        return getNumChops(world.getBlockState(pos));
+    public static int getNumChops(Level level, BlockPos pos) {
+        return getNumChops(level.getBlockState(pos));
     }
 
     public static int getNumChops(BlockState blockState) {
@@ -392,9 +385,9 @@ public class ChopUtil {
         return block instanceof IChoppableBlock ? ((IChoppableBlock) block).getNumChops(blockState) : 0;
     }
 
-    public static int getNumChops(World world, Set<BlockPos> positions) {
+    public static int getNumChops(Level level, Set<BlockPos> positions) {
         return positions.stream()
-                .map(world::getBlockState)
+                .map(level::getBlockState)
                 .map(blockState1 -> blockState1.getBlock() instanceof IChoppableBlock
                         ? ((IChoppableBlock) blockState1.getBlock()).getNumChops(blockState1)
                         : 0
@@ -403,13 +396,13 @@ public class ChopUtil {
                 .orElse(0);
     }
 
-    private static ChopResult tryToChopWithoutFelling(World world, BlockPos blockPos, int numChops) {
-        return (isBlockChoppable(world, blockPos))
+    private static ChopResult tryToChopWithoutFelling(Level level, BlockPos blockPos, int numChops) {
+        return (isBlockChoppable(level, blockPos))
                 ? new ChopResult(
                         Collections.singletonList(new TreeBlock(
-                                world,
+                                level,
                                 blockPos,
-                                getBlockStateAfterChops(world, blockPos, numChops, true),
+                                getBlockStateAfterChops(level, blockPos, numChops, true),
                                 true
                         )),
                         false
@@ -418,7 +411,7 @@ public class ChopUtil {
     }
 
     public static int chopDistance(BlockPos a, BlockPos b) {
-        return a.manhattanDistance(b);
+        return a.distManhattan(b);
     }
 
     public static boolean canChopWithTool(ItemStack tool) {
@@ -438,12 +431,12 @@ public class ChopUtil {
         }
     }
 
-    public static boolean playerWantsToChop(PlayerEntity player) {
+    public static boolean playerWantsToChop(Player player) {
         ChopSettings chopSettings = getPlayerChopSettings(player);
         return playerWantsToChop(player, chopSettings);
     }
 
-    public static boolean playerWantsToChop(PlayerEntity player, ChopSettings chopSettings) {
+    public static boolean playerWantsToChop(Player player, ChopSettings chopSettings) {
         if (!player.isCreative() || chopSettings.getChopInCreativeMode()) {
             return chopSettings.getChoppingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
         } else {
@@ -451,37 +444,37 @@ public class ChopUtil {
         }
     }
 
-    public static boolean playerWantsToFell(PlayerEntity player) {
+    public static boolean playerWantsToFell(Player player) {
         ChopSettings chopSettings = getPlayerChopSettings(player);
         return playerWantsToFell(player, chopSettings);
     }
 
-    public static boolean playerWantsToFell(PlayerEntity player, ChopSettings chopSettings) {
+    public static boolean playerWantsToFell(Player player, ChopSettings chopSettings) {
         return chopSettings.getFellingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeFellBehavior(player);
     }
 
-    public static ChopSettings getPlayerChopSettings(PlayerEntity player) {
+    public static ChopSettings getPlayerChopSettings(Player player) {
         LazyOptional<ChopSettings> playerSettings = ChopSettingsCapability.forPlayer(player).cast();
         return playerSettings.orElse(ConfigHandler.fakePlayerChopSettings);
     }
 
-    public static void doItemDamage(ItemStack itemStack, World world, BlockState blockState, BlockPos blockPos, PlayerEntity agent) {
+    public static void doItemDamage(ItemStack itemStack, Level level, BlockState blockState, BlockPos blockPos, Player agent) {
         ItemStack mockItemStack = itemStack.copy();
-        itemStack.onBlockDestroyed(world, blockState, blockPos, agent);
+        itemStack.mineBlock(level, blockState, blockPos, agent);
         if (itemStack.isEmpty() && !mockItemStack.isEmpty()) {
-            net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(agent, mockItemStack, Hand.MAIN_HAND);
+            net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(agent, mockItemStack, InteractionHand.MAIN_HAND);
         }
     }
 
-    public static void dropExperience(World world, BlockPos blockPos, int amount) {
-        if (world instanceof ServerWorld) {
-            Blocks.AIR.dropXpOnBlockBreak((ServerWorld) world, blockPos, amount);
+    public static void dropExperience(Level level, BlockPos blockPos, int amount) {
+        if (level instanceof ServerLevel) {
+            Blocks.AIR.popExperience((ServerLevel) level, blockPos, amount);
         }
     }
 
-    public static boolean isPartOfATree(World world, BlockPos pos, boolean mustHaveLeaves) {
+    public static boolean isPartOfATree(Level level, BlockPos pos, boolean mustHaveLeaves) {
         AtomicBoolean hasLeaves = new AtomicBoolean(false);
-        Set<BlockPos> treeBlocks = getTreeBlocks(world, pos, blockPos -> isBlockALog(world, blockPos), hasLeaves);
+        Set<BlockPos> treeBlocks = getTreeBlocks(level, pos, blockPos -> isBlockALog(level, blockPos), hasLeaves);
 
         if (treeBlocks.isEmpty()) {
             return false;

@@ -3,22 +3,21 @@ package ht.treechop.common.capabilities;
 import ht.treechop.TreeChopMod;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.SneakBehavior;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class ChopSettingsCapability extends ChopSettings {
-    @CapabilityInject(ChopSettingsCapability.class)
-    public static final Capability<ChopSettingsCapability> CAPABILITY = null;
+public class ChopSettingsCapability extends ChopSettings implements INBTSerializable<CompoundTag> {
+
+    public static final Capability<ChopSettingsCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});;
+    public static final ChopSettings INSTANCE = new ChopSettingsCapability();
 
     private boolean isSynced = false;
 
@@ -33,16 +32,7 @@ public class ChopSettingsCapability extends ChopSettings {
         this.isSynced = true;
     }
 
-    public static void register() {
-        CapabilityManager.INSTANCE.register(
-                ChopSettingsCapability.class,
-                new ChopSettingsCapability.Storage(),
-                ChopSettingsCapability::new
-        );
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    public static LazyOptional<ChopSettingsCapability> forPlayer(PlayerEntity player) {
+    public static LazyOptional<ChopSettingsCapability> forPlayer(Player player) {
         LazyOptional<ChopSettingsCapability> lazyCapability = player.getCapability(CAPABILITY);
         if (!lazyCapability.isPresent() && !(player instanceof FakePlayer)) {
             TreeChopMod.LOGGER.warn("Player " + player + " is missing chop settings");
@@ -51,63 +41,59 @@ public class ChopSettingsCapability extends ChopSettings {
         return player.getCapability(CAPABILITY);
     }
 
-    public static class Storage implements Capability.IStorage<ChopSettingsCapability> {
+    private static final String CHOPPING_ENABLED_KEY = "choppingEnabled";
+    private static final String FELLING_ENABLED_KEY = "fellingEnabled";
+    private static final String SNEAK_BEHAVIOR_KEY = "sneakBehavior";
+    private static final String TREES_MUST_HAVE_LEAVES_KEY = "treesMustHaveLeaves";
+    private static final String CHOP_IN_CREATIVE_MODE_KEY = "chopInCreativeMode";
+    private static final String IS_SYNCED_KEY = "isSynced";
 
-        private static final String CHOPPING_ENABLED_KEY = "choppingEnabled";
-        private static final String FELLING_ENABLED_KEY = "fellingEnabled";
-        private static final String SNEAK_BEHAVIOR_KEY = "sneakBehavior";
-        private static final String TREES_MUST_HAVE_LEAVES_KEY = "treesMustHaveLeaves";
-        private static final String CHOP_IN_CREATIVE_MODE_KEY = "chopInCreativeMode";
-        private static final String IS_SYNCED_KEY = "isSynced";
+    @Override
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = new CompoundTag();
+        nbt.putBoolean(CHOPPING_ENABLED_KEY, getChoppingEnabled());
+        nbt.putBoolean(FELLING_ENABLED_KEY, getFellingEnabled());
+        nbt.putString(SNEAK_BEHAVIOR_KEY, getSneakBehavior().name());
+        nbt.putBoolean(TREES_MUST_HAVE_LEAVES_KEY, getTreesMustHaveLeaves());
+        nbt.putBoolean(CHOP_IN_CREATIVE_MODE_KEY, getChopInCreativeMode());
+        nbt.putBoolean(IS_SYNCED_KEY, isSynced());
+        return nbt;
+    }
 
-        @Nullable
-        @Override
-        public INBT writeNBT(Capability<ChopSettingsCapability> capability, ChopSettingsCapability instance, Direction side) {
-            CompoundNBT nbt = new CompoundNBT();
-            nbt.putBoolean(CHOPPING_ENABLED_KEY, instance.getChoppingEnabled());
-            nbt.putBoolean(FELLING_ENABLED_KEY, instance.getFellingEnabled());
-            nbt.putString(SNEAK_BEHAVIOR_KEY, instance.getSneakBehavior().name());
-            nbt.putBoolean(TREES_MUST_HAVE_LEAVES_KEY, instance.getTreesMustHaveLeaves());
-            nbt.putBoolean(CHOP_IN_CREATIVE_MODE_KEY, instance.getChopInCreativeMode());
-            nbt.putBoolean(IS_SYNCED_KEY, instance.isSynced());
-            return nbt;
-        }
-
-        @Override
-        public void readNBT(Capability<ChopSettingsCapability> capability, ChopSettingsCapability instance, Direction side, INBT nbt) {
-            if (nbt instanceof CompoundNBT) {
-                CompoundNBT compoundNbt = (CompoundNBT) nbt;
-                Optional<Boolean> choppingEnabled = getBoolean(compoundNbt, CHOPPING_ENABLED_KEY);
-                Optional<Boolean> fellingEnabled = getBoolean(compoundNbt, FELLING_ENABLED_KEY);
-                SneakBehavior sneakBehavior;
-                try {
-                    sneakBehavior = SneakBehavior.valueOf(compoundNbt.getString(SNEAK_BEHAVIOR_KEY));
-                } catch (IllegalArgumentException e) {
-                    TreeChopMod.LOGGER.warn(String.format("NBT contains bad sneak behavior value \"%s\"; using default value instead", compoundNbt.getString(SNEAK_BEHAVIOR_KEY)));
-                    sneakBehavior = SneakBehavior.INVERT_CHOPPING;
-                }
-                Optional<Boolean> onlyChopTreesWithLeaves = getBoolean(compoundNbt, TREES_MUST_HAVE_LEAVES_KEY);
-                Optional<Boolean> chopInCreativeMode = getBoolean(compoundNbt, CHOP_IN_CREATIVE_MODE_KEY);
-                Optional<Boolean> isSynced = getBoolean(compoundNbt, IS_SYNCED_KEY);
-
-                instance.setChoppingEnabled(choppingEnabled.orElse(instance.getChoppingEnabled()));
-                instance.setFellingEnabled(fellingEnabled.orElse(instance.getFellingEnabled()));
-                instance.setSneakBehavior(sneakBehavior);
-                instance.setTreesMustHaveLeaves(onlyChopTreesWithLeaves.orElse(instance.getTreesMustHaveLeaves()));
-                instance.setChopInCreativeMode(chopInCreativeMode.orElse(instance.getChopInCreativeMode()));
-
-                if (isSynced.orElse(false)) {
-                    instance.setSynced();
-                }
-            } else {
-                TreeChopMod.LOGGER.warn("Failed to read ChopSettingsCapability NBT");
+    @Override
+    public void deserializeNBT(CompoundTag tag) {
+        if (tag != null) {
+            Optional<Boolean> choppingEnabled = getBoolean(tag, CHOPPING_ENABLED_KEY);
+            Optional<Boolean> fellingEnabled = getBoolean(tag, FELLING_ENABLED_KEY);
+            SneakBehavior sneakBehavior;
+            try {
+                sneakBehavior = SneakBehavior.valueOf(tag.getString(SNEAK_BEHAVIOR_KEY));
+            } catch (IllegalArgumentException e) {
+                TreeChopMod.LOGGER.warn(String.format("NBT contains bad sneak behavior value \"%s\"; using default value instead", tag.getString(SNEAK_BEHAVIOR_KEY)));
+                sneakBehavior = SneakBehavior.INVERT_CHOPPING;
             }
-        }
+            Optional<Boolean> onlyChopTreesWithLeaves = getBoolean(tag, TREES_MUST_HAVE_LEAVES_KEY);
+            Optional<Boolean> chopInCreativeMode = getBoolean(tag, CHOP_IN_CREATIVE_MODE_KEY);
+            Optional<Boolean> isSynced = getBoolean(tag, IS_SYNCED_KEY);
 
-        private Optional<Boolean> getBoolean(CompoundNBT compoundNbt, String key) {
-            return (compoundNbt.contains(key))
-                    ? Optional.of(compoundNbt.getBoolean(key))
-                    : Optional.empty();
+            setChoppingEnabled(choppingEnabled.orElse(getChoppingEnabled()));
+            setFellingEnabled(fellingEnabled.orElse(getFellingEnabled()));
+            setSneakBehavior(sneakBehavior);
+            setTreesMustHaveLeaves(onlyChopTreesWithLeaves.orElse(getTreesMustHaveLeaves()));
+            setChopInCreativeMode(chopInCreativeMode.orElse(getChopInCreativeMode()));
+
+            if (isSynced.orElse(false)) {
+                setSynced();
+            }
+        } else {
+            TreeChopMod.LOGGER.warn("Failed to read ChopSettingsCapability NBT");
         }
     }
+
+    private Optional<Boolean> getBoolean(CompoundTag CompoundTag, String key) {
+        return (CompoundTag.contains(key))
+                ? Optional.of(CompoundTag.getBoolean(key))
+                : Optional.empty();
+    }
+
 }
