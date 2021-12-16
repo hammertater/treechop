@@ -9,6 +9,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 public abstract class NestedGui extends AbstractWidget implements ContainerEventHandler, IPositionalGui {
 
@@ -63,7 +64,57 @@ public abstract class NestedGui extends AbstractWidget implements ContainerEvent
     }
 
     @Override
+    public void setWidth(int width) {
+        ScreenBox box = getBox();
+        this.setBox(box.getLeft(), box.getTop(), width, box.getHeight());
+    }
+
+    @Override
+    public void setHeight(int height) {
+        ScreenBox box = getBox();
+        this.setBox(box.getLeft(), box.getTop(), box.getWidth(), height);
+    }
+
+    @Override
     public void setBox(ScreenBox box) {
         this.box = box;
+        width = box.getWidth();
+        height = box.getHeight();
+        x = box.getLeft();
+        y = box.getTop();
     }
+
+    public Optional<GuiEventListener> getChildAt(double x, double y) {
+        for(GuiEventListener guieventlistener : this.children()) {
+            if (guieventlistener.isMouseOver(x, y)) {
+                return Optional.of(guieventlistener);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean mouseClicked(double x, double y, int button) {
+        for(GuiEventListener guieventlistener : this.children()) {
+            if (guieventlistener.mouseClicked(x, y, button)) {
+                this.setFocused(guieventlistener);
+                if (button == 0) {
+                    this.setDragging(true);
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean mouseReleased(double x, double y, int button) {
+        this.setDragging(false);
+        return this.getChildAt(x, y).filter((child) -> child.mouseReleased(x, y, button)).isPresent();
+    }
+
+    public void expand(int width) {}
 }

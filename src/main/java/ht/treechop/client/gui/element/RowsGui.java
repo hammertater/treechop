@@ -10,6 +10,7 @@ import net.minecraft.network.chat.TextComponent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public class RowsGui extends NestedGui {
 
@@ -17,7 +18,6 @@ public class RowsGui extends NestedGui {
     private final int biggestLeftColumnWidth;
     private final int biggestRightColumnWidth;
     private final List<NestedGui> rows = new ArrayList<>();
-    private ScreenBox box;
 
     public RowsGui(int rowSeparation, Collection<NestedGui> rows) {
         super(0, 0, 0, 0, TextComponent.EMPTY);
@@ -64,16 +64,6 @@ public class RowsGui extends NestedGui {
     @Override
     public int getMinimumHeight() {
         return 0;
-    }
-
-    @Override
-    public ScreenBox getBox() {
-        return this.box;
-    }
-
-    @Override
-    public void setBox(ScreenBox box) {
-        this.box = box;
     }
 
     @Override

@@ -86,146 +86,146 @@ public class ClientSettingsScreen extends Screen {
 
     private List<NestedGui> makePageOne() {
         LinkedList<NestedGui> optionRows = new LinkedList<>();
-//
-//        optionRows.add(
-//                new LabeledGui(font,
-//                        new TranslatableComponent("treechop.gui.settings.label.chopping"),
-//                        makeToggleSettingRow(SettingsField.CHOPPING)
-//                )
-//        );
-//
-//        if (ConfigHandler.CLIENT.showFellingOptions.get()) {
-//            optionRows.add(
-//                    new LabeledGui(font,
-//                            new TranslatableComponent("treechop.gui.settings.label.felling"),
-//                            makeToggleSettingRow(SettingsField.FELLING)
-//                    )
-//            );
-//
-//            optionRows.add(
-//                    new LabeledGui(font,
-//                            new TranslatableComponent("treechop.gui.settings.label.sneaking_inverts"),
-//                            new ExclusiveButtonsGui.Builder()
-//                                    .add(
-//                                            new TranslatableComponent("treechop.gui.settings.button.chopping"),
-//                                            () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.INVERT_CHOPPING),
-//                                            () -> StickyWidget.State.of(
-//                                                    Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_CHOPPING,
-//                                                    isSettingPermitted(SettingsField.CHOPPING, !Client.getChopSettings().getChoppingEnabled())
-//                                                            && isSettingPermitted(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.INVERT_CHOPPING)
-//                                            )
-//                                    )
-//                                    .add(
-//                                            new TranslatableComponent("treechop.gui.settings.button.felling"),
-//                                            () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.INVERT_FELLING),
-//                                            () -> StickyWidget.State.of(
-//                                                    Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_FELLING,
-//                                                    isSettingPermitted(SettingsField.FELLING, !Client.getChopSettings().getFellingEnabled())
-//                                                            && isSettingPermitted(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.INVERT_FELLING)
-//                                            )
-//                                    )
-//                                    .add(
-//                                            new TranslatableComponent("treechop.gui.settings.button.nothing"),
-//                                            () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.NONE),
-//                                            () -> makeStickyWidgetState(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.NONE)
-//                                    )
-//                                    .build()
-//                    )
-//            );
-//        }
-//        else {
-//            optionRows.add(
-//                    new LabeledGui(font,
-//                            new TranslatableComponent("treechop.gui.settings.label.sneaking_inverts_chopping"),
-//                            new ToggleGui(
-//                                    () -> Client.getChopSettings().setSneakBehavior(getNextSneakBehavior()),
-//                                    () -> ToggleWidget.State.of(
-//                                            Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_CHOPPING,
-//                                            isSettingPermitted(SettingsField.SNEAK_BEHAVIOR, getNextSneakBehavior())
-//                                    )
-//                            )
-//                    )
-//            );
-//        }
-//
-//        optionRows.add(
-//                new LabeledGui(font,
-//                        new TranslatableComponent("treechop.gui.settings.label.only_chop_trees_with_leaves"),
-//                        makeToggleSettingRow(SettingsField.TREES_MUST_HAVE_LEAVES)
-//                )
-//        );
-//
-//        if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.isCreative()) {
-//            optionRows.add(
-//                    new LabeledGui(font,
-//                            new TranslatableComponent("treechop.gui.settings.label.chop_in_creative_mode"),
-//                            makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
-//                    )
-//            );
-//        }
-//
+
+        optionRows.add(
+                new LabeledGui(font,
+                        new TranslatableComponent("treechop.gui.settings.label.chopping"),
+                        makeToggleSettingRow(SettingsField.CHOPPING)
+                )
+        );
+
+        if (ConfigHandler.CLIENT.showFellingOptions.get()) {
+            optionRows.add(
+                    new LabeledGui(font,
+                            new TranslatableComponent("treechop.gui.settings.label.felling"),
+                            makeToggleSettingRow(SettingsField.FELLING)
+                    )
+            );
+
+            optionRows.add(
+                    new LabeledGui(font,
+                            new TranslatableComponent("treechop.gui.settings.label.sneaking_inverts"),
+                            new ExclusiveButtonsGui.Builder()
+                                    .add(
+                                            new TranslatableComponent("treechop.gui.settings.button.chopping"),
+                                            () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.INVERT_CHOPPING),
+                                            () -> StickyWidget.State.of(
+                                                    Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_CHOPPING,
+                                                    isSettingPermitted(SettingsField.CHOPPING, !Client.getChopSettings().getChoppingEnabled())
+                                                            && isSettingPermitted(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.INVERT_CHOPPING)
+                                            )
+                                    )
+                                    .add(
+                                            new TranslatableComponent("treechop.gui.settings.button.felling"),
+                                            () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.INVERT_FELLING),
+                                            () -> StickyWidget.State.of(
+                                                    Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_FELLING,
+                                                    isSettingPermitted(SettingsField.FELLING, !Client.getChopSettings().getFellingEnabled())
+                                                            && isSettingPermitted(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.INVERT_FELLING)
+                                            )
+                                    )
+                                    .add(
+                                            new TranslatableComponent("treechop.gui.settings.button.nothing"),
+                                            () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.NONE),
+                                            () -> makeStickyWidgetState(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.NONE)
+                                    )
+                                    .build()
+                    )
+            );
+        }
+        else {
+            optionRows.add(
+                    new LabeledGui(font,
+                            new TranslatableComponent("treechop.gui.settings.label.sneaking_inverts_chopping"),
+                            new ToggleGui(
+                                    () -> Client.getChopSettings().setSneakBehavior(getNextSneakBehavior()),
+                                    () -> ToggleWidget.State.of(
+                                            Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_CHOPPING,
+                                            isSettingPermitted(SettingsField.SNEAK_BEHAVIOR, getNextSneakBehavior())
+                                    )
+                            )
+                    )
+            );
+        }
+
+        optionRows.add(
+                new LabeledGui(font,
+                        new TranslatableComponent("treechop.gui.settings.label.only_chop_trees_with_leaves"),
+                        makeToggleSettingRow(SettingsField.TREES_MUST_HAVE_LEAVES)
+                )
+        );
+
+        if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.isCreative()) {
+            optionRows.add(
+                    new LabeledGui(font,
+                            new TranslatableComponent("treechop.gui.settings.label.chop_in_creative_mode"),
+                            makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
+                    )
+            );
+        }
+
         return optionRows;
     }
 
     private LinkedList<NestedGui> makePageTwo() {
         LinkedList<NestedGui> optionRows = new LinkedList<>();
-//
-//        optionRows.add(
-//                new LabeledGui(font,
-//                        new TranslatableComponent("treechop.gui.settings.label.chop_in_creative_mode"),
-//                        makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
-//                )
-//        );
-//
-//        optionRows.add(
-//                new LabeledGui(font,
-//                        new TranslatableComponent("treechop.gui.settings.label.chopping_indicator"),
-//                        new ToggleGui(
-//                                () -> Client.setChoppingIndicatorVisibility(!Client.isChoppingIndicatorEnabled()),
-//                                () -> ToggleWidget.State.of(Client.isChoppingIndicatorEnabled(), true)
-//                        )
-//                )
-//        );
-//
-//        optionRows.add(
-//                new LabeledGui(font,
-//                        new TranslatableComponent("treechop.gui.settings.label.feedback_messages"),
-//                        new ToggleGui(
-//                                () -> ConfigHandler.CLIENT.showFeedbackMessages.set(!ConfigHandler.CLIENT.showFeedbackMessages.get()),
-//                                () -> ToggleWidget.State.of(ConfigHandler.CLIENT.showFeedbackMessages.get(), true)
-//                        )
-//                )
-//        );
-//
-//        optionRows.add(
-//                new LabeledGui(font,
-//                        new TranslatableComponent("treechop.gui.settings.label.felling_options"),
-//                        new ToggleGui(
-//                                () -> ConfigHandler.CLIENT.showFellingOptions.set(!ConfigHandler.CLIENT.showFellingOptions.get()),
-//                                () -> ToggleWidget.State.of(
-//                                        ConfigHandler.CLIENT.showFellingOptions.get(),
-//                                        Client.getServerPermissions().isPermitted(new Setting(SettingsField.FELLING, false))
-//                                )
-//                        )
-//                )
-//        );
-//
+
+        optionRows.add(
+                new LabeledGui(font,
+                        new TranslatableComponent("treechop.gui.settings.label.chop_in_creative_mode"),
+                        makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
+                )
+        );
+
+        optionRows.add(
+                new LabeledGui(font,
+                        new TranslatableComponent("treechop.gui.settings.label.chopping_indicator"),
+                        new ToggleGui(
+                                () -> Client.setChoppingIndicatorVisibility(!Client.isChoppingIndicatorEnabled()),
+                                () -> ToggleWidget.State.of(Client.isChoppingIndicatorEnabled(), true)
+                        )
+                )
+        );
+
+        optionRows.add(
+                new LabeledGui(font,
+                        new TranslatableComponent("treechop.gui.settings.label.feedback_messages"),
+                        new ToggleGui(
+                                () -> ConfigHandler.CLIENT.showFeedbackMessages.set(!ConfigHandler.CLIENT.showFeedbackMessages.get()),
+                                () -> ToggleWidget.State.of(ConfigHandler.CLIENT.showFeedbackMessages.get(), true)
+                        )
+                )
+        );
+
+        optionRows.add(
+                new LabeledGui(font,
+                        new TranslatableComponent("treechop.gui.settings.label.felling_options"),
+                        new ToggleGui(
+                                () -> ConfigHandler.CLIENT.showFellingOptions.set(!ConfigHandler.CLIENT.showFellingOptions.get()),
+                                () -> ToggleWidget.State.of(
+                                        ConfigHandler.CLIENT.showFellingOptions.get(),
+                                        Client.getServerPermissions().isPermitted(new Setting(SettingsField.FELLING, false))
+                                )
+                        )
+                )
+        );
+
         return optionRows;
     }
-//
-//    private SneakBehavior getNextSneakBehavior() {
-//        return Client.getChopSettings().getSneakBehavior() == SneakBehavior.NONE ? SneakBehavior.INVERT_CHOPPING : SneakBehavior.NONE;
-//    }
-//
-//    private ToggleGui makeToggleSettingRow(SettingsField field) {
-//        return new ToggleGui(
-//                () -> Client.getChopSettings().set(field, !Client.getChopSettings().get(field, Boolean.class)),
-//                () -> ToggleWidget.State.of(
-//                        Client.getChopSettings().get(field, Boolean.class),
-//                        Client.getServerPermissions().isPermitted(new Setting(field, !Client.getChopSettings().get(field, Boolean.class)))
-//                )
-//        );
-//    }
+
+    private SneakBehavior getNextSneakBehavior() {
+        return Client.getChopSettings().getSneakBehavior() == SneakBehavior.NONE ? SneakBehavior.INVERT_CHOPPING : SneakBehavior.NONE;
+    }
+
+    private ToggleGui makeToggleSettingRow(SettingsField field) {
+        return new ToggleGui(
+                () -> Client.getChopSettings().set(field, !Client.getChopSettings().get(field, Boolean.class)),
+                () -> ToggleWidget.State.of(
+                        Client.getChopSettings().get(field, Boolean.class),
+                        Client.getServerPermissions().isPermitted(new Setting(field, !Client.getChopSettings().get(field, Boolean.class)))
+                )
+        );
+    }
 
     private boolean isSettingPermitted(SettingsField field, Object value) {
         return Client.getServerPermissions().isPermitted(new Setting(field, value));

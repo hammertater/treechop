@@ -3,6 +3,7 @@ package ht.treechop.client.gui.element;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,9 +14,10 @@ public class EmptyGui extends NestedGui {
     private int height;
 
     public EmptyGui(int width, int height) {
-        super(0, 0, width, height, null);
+        super(0, 0, width, height, TextComponent.EMPTY);
         this.width = width;
         this.height = height;
+        active = false;
     }
 
     public int getMinimumWidth() {
