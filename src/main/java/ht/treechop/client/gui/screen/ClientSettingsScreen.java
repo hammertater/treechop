@@ -14,12 +14,14 @@ import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class ClientSettingsScreen extends Screen {
 
@@ -258,6 +260,8 @@ public class ClientSettingsScreen extends Screen {
         drawCenteredString(poseStack, this.font, this.title, this.width / 2, getTitleTop(), 16777215);
         super.render(poseStack, mouseX, mouseY, partialTicks);
         // TODO: check out ClientSettingsScreen.func_243293_a for draw reordering; might be important for tooltips
+
+        GUIUtil.renderTooltip(poseStack);
     }
 
     @SuppressWarnings("NullableProblems")
