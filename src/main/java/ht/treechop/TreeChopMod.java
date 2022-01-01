@@ -38,6 +38,7 @@ public class TreeChopMod {
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> Client::init);
 
         ModBlocks.BLOCKS.register(modBus);
+        ModBlocks.ENTITIES.register(modBus);
 
         // TODO: Config screen should show server-side settings, not client-side
 //        ModLoadingContext.get().registerExtensionPoint(

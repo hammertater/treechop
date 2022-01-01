@@ -1,12 +1,19 @@
 package ht.treechop.common.block;
 
 import ht.treechop.api.IChoppableBlock;
+import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -14,11 +21,16 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
 import static ht.treechop.common.util.ChopUtil.isBlockLeaves;
 
-public class ChoppedLogBlock extends Block implements IChoppableBlock {
+public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlock {
 
     protected static final IntegerProperty CHOPS = BlockStateProperties.CHOP_COUNT;
     protected static final EnumProperty<ChoppedLogShape> SHAPE = BlockStateProperties.CHOPPED_LOG_SHAPE;
@@ -68,7 +80,7 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock {
     public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
         int chops = state.getValue(CHOPS);
         AABB box = state.getValue(SHAPE).getBoundingBox(chops);
-        VoxelShape voxelShape = Shapes.box(
+        return Shapes.box(
                 box.minX,
                 box.minY,
                 box.minZ,
@@ -76,7 +88,6 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock {
                 box.maxY,
                 box.maxZ
         );
-        return voxelShape;
     }
 
     @Override
@@ -102,5 +113,30 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock {
         return 7;
     }
 
+    @Override
+    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState blockState) {
+        return new Entity(pos, blockState);
+    }
+
+    public static class Entity extends BlockEntity {
+
+        public Entity(BlockPos pos, BlockState blockState) {
+            super(ModBlocks.CHOPPED_LOG_ENTITY.get(), pos, blockState);
+        }
+
+        @Override
+        public CompoundTag save(CompoundTag tag)
+        {
+            super.save(tag);
+            return tag;
+        }
+
+        @Override
+        public void load(CompoundTag tag)
+        {
+            super.load(tag);
+        }
+
+    }
 
 }
