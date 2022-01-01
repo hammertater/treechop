@@ -2,9 +2,9 @@
 //
 //import harmonised.pmmo.events.BlockBrokenHandler;
 //import ht.treechop.TreeChopMod;
-//import ht.treechop.common.config.ConfigHandler;
 //import ht.treechop.api.ChopEvent;
-//import net.minecraft.block.Blocks;
+//import ht.treechop.common.config.ConfigHandler;
+//import net.minecraft.world.level.block.Blocks;
 //import net.minecraftforge.common.MinecraftForge;
 //import net.minecraftforge.event.world.BlockEvent;
 //import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -28,7 +28,7 @@
 //            BlockBrokenHandler.handleBroken(new BlockEvent.BreakEvent(
 //                    event.getWorld(),
 //                    event.getChoppedBlockPos(),
-//                    Blocks.OAK_LOG.getDefaultState(), // TODO: use correct wood type
+//                    Blocks.OAK_LOG.defaultBlockState(), // TODO: use correct wood type
 //                    event.getPlayer()
 //            ));
 //        }
