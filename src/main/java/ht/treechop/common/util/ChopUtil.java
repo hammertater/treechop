@@ -1,15 +1,13 @@
 package ht.treechop.common.util;
 
+import com.ibm.icu.impl.Pair;
 import ht.treechop.TreeChopMod;
 import ht.treechop.api.ChopEvent;
 import ht.treechop.api.IChoppableBlock;
 import ht.treechop.api.IChoppingItem;
-import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
-import ht.treechop.common.properties.BlockStateProperties;
-import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.settings.ChopSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -215,7 +213,7 @@ public class ChopUtil {
         }
 
         BlockState blockState = level.getBlockState(target);
-        int currentNumChops = getNumChops(blockState);
+        int currentNumChops = getNumChops(level, target, blockState);
         int numChopsToFell = numChopsToFell(supportedBlocks.size());
 
         if (currentNumChops + numChops < numChopsToFell) {
@@ -249,8 +247,8 @@ public class ChopUtil {
             }
         }
 
-        supportedBlocks.remove(target);
-        return new ChopResult(level, Collections.singletonList(target), supportedBlocks);
+        Chop chop = new Chop(target, numChops);
+        return new ChopResult(level, Collections.singletonList(chop), supportedBlocks);
     }
 
     /**
@@ -258,18 +256,17 @@ public class ChopUtil {
      * @param nearbyChoppableBlocks must not include {@code target}
      */
     private static ChopResult gatherChops(Level level, BlockPos target, int numChops, Set<BlockPos> nearbyChoppableBlocks) {
-        List<TreeBlock> choppedBlocks = new LinkedList<>();
-        int numChopsLeft = gatherChopAndGetNumChopsRemaining(level, target, numChops, choppedBlocks);
+        List<Chop> chops = new Stack<>();
+        int numChopsLeft = gatherChopAndGetNumChopsRemaining(level, target, numChops, chops);
 
         if (numChopsLeft > 0) {
             List<BlockPos> sortedChoppableBlocks = nearbyChoppableBlocks.stream()
-                    .filter(blockPos1 -> {
-                        BlockState blockState1 = level.getBlockState(blockPos1);
-                        Block block1 = blockState1.getBlock();
-                        if (block1 instanceof IChoppableBlock) {
-                            return getNumChops(blockState1) < getMaxNumChops(level, blockPos1, blockState1);
+                    .filter(pos -> {
+                        BlockState blockState = level.getBlockState(pos);
+                        if (blockState.getBlock() instanceof IChoppableBlock) {
+                            return getNumChops(level, pos, blockState) < getMaxNumChops(level, pos, blockState);
                         } else {
-                            return blockPos1.getY() >= target.getY();
+                            return pos.getY() >= target.getY();
                         }
                     })
                     .sorted(Comparator.comparingInt(a -> chopDistance(target, a)))
@@ -284,7 +281,7 @@ public class ChopUtil {
                         Collections.shuffle(candidates);
 
                         for (BlockPos nextTarget : candidates) {
-                            numChopsLeft = gatherChopAndGetNumChopsRemaining(level, nextTarget, numChopsLeft, choppedBlocks);
+                            numChopsLeft = gatherChopAndGetNumChopsRemaining(level, nextTarget, numChopsLeft, chops);
                             if (numChopsLeft <= 0) {
                                 break;
                             }
@@ -300,96 +297,70 @@ public class ChopUtil {
             }
         }
 
-        return new ChopResult(choppedBlocks);
+        return new ChopResult(level, chops, Collections.emptyList());
     }
 
-    private static int gatherChopAndGetNumChopsRemaining(Level level, BlockPos target, int numChops, List<TreeBlock> choppedBlocks) {
-        BlockState blockStateBeforeChopping = level.getBlockState(target);
-        BlockState blockStateAfterChopping = getBlockStateAfterChops(level, target, numChops, false);
+    private static int gatherChopAndGetNumChopsRemaining(Level level, BlockPos targetPos, int numChops, List<Chop> choppedBlocks) {
+        BlockState blockStateBeforeChopping = level.getBlockState(targetPos);
+        int adjustedNumChops = adjustNumChops(level, targetPos, blockStateBeforeChopping, numChops, false);
 
-        if (blockStateBeforeChopping != blockStateAfterChopping) {
-            choppedBlocks.add(new TreeBlock(level, target, blockStateAfterChopping, true));
+        if (adjustedNumChops > 0) {
+            choppedBlocks.add(new Chop(targetPos, adjustedNumChops));
         }
 
-        return numChops - (getNumChops(blockStateAfterChopping) - getNumChops(blockStateBeforeChopping));
+        return numChops - adjustedNumChops;
     }
 
-    public static BlockState getBlockStateAfterChops(Level level, BlockPos blockPos, int numChops, boolean destructive) {
-        BlockState blockState = level.getBlockState(blockPos);
-        Block block = blockState.getBlock();
-        if (block instanceof IChoppableBlock) {
-            return getBlockStateAfterChops((IChoppableBlock) block, blockState, numChops, destructive);
-        } else {
-            if (isBlockChoppable(level, blockPos, blockState)) {
-                IChoppableBlock choppedBlock = getChoppedBlock(blockState);
-                if (choppedBlock instanceof Block) {
-                    ChoppedLogShape shape = ChoppedLogBlock.getPlacementShape(level, blockPos);
-                    BlockState defaultChoppedState = ((Block) choppedBlock).defaultBlockState().setValue(BlockStateProperties.CHOPPED_LOG_SHAPE, shape);
-                    return getBlockStateAfterChops(
-                            choppedBlock,
-                            defaultChoppedState,
-                            numChops - getNumChops(defaultChoppedState),
-                            destructive
-                    );
-                } else {
-                    throw new IllegalArgumentException(String.format("Block \"%s\" is not choppable", block.getRegistryName()));
-                }
+    public static int adjustNumChops(Level level, BlockPos blockPos, BlockState blockState, int numChops, boolean destructive) {
+        Block choppedBlock = getChoppedBlock(blockState);
+        if (choppedBlock instanceof IChoppableBlock choppableBlock) {
+            if (destructive) {
+                return numChops;
             } else {
-                return blockState;
+                int currentNumChops = (blockState.is(choppedBlock)) ? choppableBlock.getNumChops(level, blockPos, blockState) : 0;
+                int maxNondestructiveChops = choppableBlock.getMaxNumChops(level, blockPos, blockState) - currentNumChops;
+                return Math.min(maxNondestructiveChops, numChops);
             }
         }
-    }
-
-    public static BlockState getBlockStateAfterChops(IChoppableBlock choppableBlock, BlockState blockState, int numChops, boolean destructive) {
-        int currentNumChops = getNumChops(blockState);
-        int maxNumChops = choppableBlock.getMaxNumChops();
-        int newNumChops = currentNumChops + numChops;
-
-        if (newNumChops <= maxNumChops) {
-            return choppableBlock.withChops(blockState, newNumChops);
-        } else {
-            return (destructive)
-                    ? Blocks.AIR.defaultBlockState()
-                    : choppableBlock.withChops(blockState, maxNumChops);
-        }
+        return 0;
     }
 
     public static int getMaxNumChops(Level level, BlockPos blockPos, BlockState blockState) {
         Block block = blockState.getBlock();
         if (block instanceof IChoppableBlock) {
-            return ((IChoppableBlock) block).getMaxNumChops();
+            return ((IChoppableBlock) block).getMaxNumChops(level, blockPos, blockState);
         } else {
             if (isBlockChoppable(level, blockPos, level.getBlockState(blockPos))) {
-                IChoppableBlock choppedBlock = getChoppedBlock(blockState);
-                return (choppedBlock != null) ? choppedBlock.getMaxNumChops() : 0;
+                Block choppedBlock = getChoppedBlock(blockState);
+                return (choppedBlock instanceof IChoppableBlock choppableBlock) ? choppableBlock.getMaxNumChops(level, blockPos, blockState) : 0;
             } else {
                 return 0;
             }
         }
     }
 
-    public static IChoppableBlock getChoppedBlock(BlockState blockState) {
+    public static Block getChoppedBlock(BlockState blockState) {
         if (isBlockALog(blockState)) {
-            return (IChoppableBlock) (blockState.getBlock() instanceof IChoppableBlock ? blockState.getBlock() : ModBlocks.CHOPPED_LOG.get());
+            return blockState.getBlock() instanceof IChoppableBlock ? blockState.getBlock() : ModBlocks.CHOPPED_LOG.get();
         } else {
             return null;
         }
     }
 
     public static int getNumChops(Level level, BlockPos pos) {
-        return getNumChops(level.getBlockState(pos));
+        return getNumChops(level, pos, level.getBlockState(pos));
     }
 
-    public static int getNumChops(BlockState blockState) {
+    public static int getNumChops(Level level, BlockPos pos, BlockState blockState) {
         Block block = blockState.getBlock();
-        return block instanceof IChoppableBlock ? ((IChoppableBlock) block).getNumChops(blockState) : 0;
+        return block instanceof IChoppableBlock choppableBlock? choppableBlock.getNumChops(level, pos, blockState) : 0;
     }
 
     public static int getNumChops(Level level, Set<BlockPos> positions) {
         return positions.stream()
-                .map(level::getBlockState)
-                .map(blockState1 -> blockState1.getBlock() instanceof IChoppableBlock
-                        ? ((IChoppableBlock) blockState1.getBlock()).getNumChops(blockState1)
+                .map(pos -> Pair.of(pos, level.getBlockState(pos)))
+                .map(posAndblockState -> posAndblockState.second.getBlock() instanceof IChoppableBlock choppableBlock
+                        ? choppableBlock.getNumChops(level, posAndblockState.first, posAndblockState.second)
                         : 0
                 )
                 .reduce(Integer::sum)
@@ -398,15 +369,7 @@ public class ChopUtil {
 
     private static ChopResult tryToChopWithoutFelling(Level level, BlockPos blockPos, int numChops) {
         return (isBlockChoppable(level, blockPos))
-                ? new ChopResult(
-                        Collections.singletonList(new TreeBlock(
-                                level,
-                                blockPos,
-                                getBlockStateAfterChops(level, blockPos, numChops, true),
-                                true
-                        )),
-                        false
-                )
+                ? new ChopResult(level, Collections.singletonList(new Chop(blockPos, numChops)), Collections.emptyList())
                 : ChopResult.IGNORED;
     }
 
