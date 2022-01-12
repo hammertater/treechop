@@ -168,6 +168,8 @@ public class ConfigHandler {
 
         protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
 
+        public final ForgeConfigSpec.BooleanValue dropLootForChoppedBlocks;
+
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
         public final ForgeConfigSpec.BooleanValue breakLeaves;
@@ -211,6 +213,12 @@ public class ConfigHandler {
                 }
             }
 
+            builder.pop();
+
+            builder.push("general");
+            dropLootForChoppedBlocks = builder
+                    .comment("Whether to drop loot for blocks that have been chopped")
+                    .define("loseLootForChoppedBlocks", true);
             builder.pop();
 
             builder.push("treeDetection");

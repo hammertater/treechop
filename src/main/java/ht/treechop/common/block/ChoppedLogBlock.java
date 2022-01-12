@@ -1,6 +1,7 @@
 package ht.treechop.common.block;
 
 import ht.treechop.api.IChoppableBlock;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
@@ -150,7 +151,7 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
     }
 
     public void onRemove(BlockState blockState1, Level level, BlockPos pos, BlockState blockState2, boolean flag) {
-        if (!blockState1.is(blockState2.getBlock())) {
+        if (ConfigHandler.COMMON.dropLootForChoppedBlocks.get() && !blockState1.is(blockState2.getBlock())) {
             if (level.getBlockEntity(pos) instanceof Entity entity) {
                 entity.drops.forEach(stack -> Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack));
             }
