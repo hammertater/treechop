@@ -21,13 +21,13 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.data.IDynamicBakedModel;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.data.ModelDataMap;
-import net.minecraftforge.client.model.data.ModelProperty;
+import net.minecraftforge.client.model.data.*;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.lang3.tuple.Triple;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,20 +37,19 @@ import java.util.stream.Stream;
 
 public class ChoppedLogBakedModel implements IDynamicBakedModel {
 
-    public static ModelProperty<ChoppedLogShape> SHAPE = new ModelProperty<>();
-    public static ModelProperty<Integer> CHOPS = new ModelProperty<>();
     public static ModelProperty<Set<Direction>> SOLID_SIDES = new ModelProperty<>();
+    public static ModelProperty<BlockState> UNCHOPPED_BLOCK = new ModelProperty<>();
     private final BakedModel staticModel;
-    private final ResourceLocation textureRL = new ResourceLocation("treechop:block/chopped_log");
-    private final TextureAtlasSprite sprite;
+    private final ResourceLocation defaultTextureRL = new ResourceLocation("treechop:block/chopped_log");
+    private final TextureAtlasSprite defaultSprite;
     private final boolean removeBarkOnInteriorLogs;
 
     public ChoppedLogBakedModel(BakedModel staticModel, boolean removeBarkOnInteriorLogs) {
         this.staticModel = staticModel;
         this.removeBarkOnInteriorLogs = removeBarkOnInteriorLogs;
-        this.sprite = Minecraft.getInstance().getModelManager()
+        this.defaultSprite = Minecraft.getInstance().getModelManager()
                 .getAtlas(TextureAtlas.LOCATION_BLOCKS)
-                .getSprite(textureRL);
+                .getSprite(defaultTextureRL);
     }
 
     public static void overrideBlockStateModels(ModelBakeEvent event) {
@@ -101,10 +100,16 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)))
                 : Collections.emptySet();
 
+        BlockState unchoppedBlock;
+        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.Entity entity) {
+            unchoppedBlock = entity.getOriginalState();
+        } else {
+            unchoppedBlock = Blocks.OAK_LOG.defaultBlockState();
+        }
+
         ModelDataMap.Builder builder = new ModelDataMap.Builder();
-        builder.withInitial(SHAPE, state.getValue(BlockStateProperties.CHOPPED_LOG_SHAPE));
-        builder.withInitial(CHOPS, state.getValue(BlockStateProperties.CHOP_COUNT));
         builder.withInitial(SOLID_SIDES, solidSides);
+        builder.withInitial(UNCHOPPED_BLOCK, unchoppedBlock);
         return builder.build();
     }
 
@@ -117,51 +122,74 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
             @Nonnull Random rand,
             @Nonnull IModelData extraData
     ) {
-        if (extraData.hasProperty(SHAPE) && extraData.hasProperty(CHOPS)) {
-            if (side == null) {
-                ChoppedLogShape shape = extraData.getData(SHAPE);
-                int chops = extraData.getData(CHOPS);
-                Set<Direction> solidSides = extraData.getData(SOLID_SIDES);
+        if (side == null) {
+            BlockState unchoppedBlock = (extraData.hasProperty(UNCHOPPED_BLOCK))
+                    ? extraData.getData(UNCHOPPED_BLOCK)
+                    : Blocks.OAK_LOG.defaultBlockState();
 
-                AABB box = shape.getBoundingBox(chops);
+            ChoppedLogShape shape = state.getValue(BlockStateProperties.CHOPPED_LOG_SHAPE);
+            int chops = state.getValue(BlockStateProperties.CHOP_COUNT);
+            Set<Direction> solidSides = extraData.getData(SOLID_SIDES);
 
-                float downY = (float) box.minY;
-                float upY = (float) box.maxY;
-                float northZ = (float) box.minZ;
-                float southZ = (float) box.maxZ;
-                float westX = (float) box.minX;
-                float eastX = (float) box.maxX;
+            AABB box = shape.getBoundingBox(chops);
 
-                Vector3 topNorthEast = new Vector3(eastX, upY, northZ);
-                Vector3 topNorthWest = new Vector3(westX, upY, northZ);
-                Vector3 topSouthEast = new Vector3(eastX, upY, southZ);
-                Vector3 topSouthWest = new Vector3(westX, upY, southZ);
-                Vector3 bottomNorthEast = new Vector3(eastX, downY, northZ);
-                Vector3 bottomNorthWest = new Vector3(westX, downY, northZ);
-                Vector3 bottomSouthEast = new Vector3(eastX, downY, southZ);
-                Vector3 bottomSouthWest = new Vector3(westX, downY, southZ);
+            float downY = (float) box.minY;
+            float upY = (float) box.maxY;
+            float northZ = (float) box.minZ;
+            float southZ = (float) box.maxZ;
+            float westX = (float) box.minX;
+            float eastX = (float) box.maxX;
 
-                return Stream.concat(
-                        Stream.of(
-                            ModelUtil.makeQuad(textureRL, sprite, bottomSouthEast, bottomNorthWest, Direction.DOWN, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topSouthEast, topNorthWest, Direction.UP, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topNorthEast, bottomNorthWest, Direction.NORTH, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topSouthEast, bottomSouthWest, Direction.SOUTH, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topSouthWest, bottomNorthWest, Direction.WEST, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topSouthEast, bottomNorthEast, Direction.EAST, null)
-                        ),
-                        solidSides.stream().map(
-                                direction -> ModelUtil.makeQuad(textureRL, sprite, FaceShape.get(direction), direction.getOpposite(), null)
-                        )
-                ).filter(Objects::nonNull).collect(Collectors.toList());
-            }
-            else {
-                return Collections.emptyList();
-            }
+            Vector3 topNorthEast = new Vector3(eastX, upY, northZ);
+            Vector3 topNorthWest = new Vector3(westX, upY, northZ);
+            Vector3 topSouthEast = new Vector3(eastX, upY, southZ);
+            Vector3 topSouthWest = new Vector3(westX, upY, southZ);
+            Vector3 bottomNorthEast = new Vector3(eastX, downY, northZ);
+            Vector3 bottomNorthWest = new Vector3(westX, downY, northZ);
+            Vector3 bottomSouthEast = new Vector3(eastX, downY, southZ);
+            Vector3 bottomSouthWest = new Vector3(westX, downY, southZ);
+
+            //noinspection SuspiciousNameCombination
+            return Stream.concat(
+                    Stream.of(
+                            Triple.of(bottomSouthEast, bottomNorthWest, Direction.DOWN),
+                            Triple.of(topSouthEast, topNorthWest, Direction.UP),
+                            Triple.of(topNorthEast, bottomNorthWest, Direction.NORTH),
+                            Triple.of(topSouthEast, bottomSouthWest, Direction.SOUTH),
+                            Triple.of(topSouthWest, bottomNorthWest, Direction.WEST),
+                            Triple.of(topSouthEast, bottomNorthEast, Direction.EAST)
+                    ).map(
+                            triple -> ModelUtil.makeQuad(
+                                    getSpriteForBlockSide(unchoppedBlock, triple.getRight(), rand, extraData),
+                                    triple.getLeft(),
+                                    triple.getMiddle(),
+                                    triple.getRight(),
+                                    null
+                            )
+                    ),
+                    solidSides.stream().map(
+                            direction -> ModelUtil.makeQuad(
+                                    getSpriteForBlockSide(unchoppedBlock, direction.getOpposite(), rand, extraData),
+                                    FaceShape.get(direction),
+                                    direction.getOpposite(),
+                                    null
+                            )
+                    )
+            ).filter(Objects::nonNull).collect(Collectors.toList());
         }
         else {
             return Collections.emptyList();
         }
+    }
+
+    private TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, Random rand, IModelData extraData) {
+        ResourceLocation modelLocation = BlockModelShaper.stateToModelLocation(blockState);
+        return Minecraft.getInstance().getModelManager().getModel(modelLocation)
+                .getQuads(blockState, side, rand, EmptyModelData.INSTANCE).stream()
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(BakedQuad::getSprite)
+                .orElse(defaultSprite);
     }
 
     @Override

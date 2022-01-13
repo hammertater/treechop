@@ -8,21 +8,18 @@ import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.client.renderer.block.model.BlockFaceUV;
 import net.minecraft.client.renderer.block.model.FaceBakery;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.model.SimpleModelState;
 
 public class ModelUtil {
     public static BakedQuad makeQuad(
-            ResourceLocation textureRL,
             TextureAtlasSprite sprite,
             FaceShape faceShape,
             Direction orientation,
             Direction culling
     ) {
         return makeQuad(
-                textureRL,
                 sprite,
                 faceShape.getCorner1(),
                 faceShape.getCorner3(),
@@ -32,7 +29,6 @@ public class ModelUtil {
     }
 
     public static BakedQuad makeQuad(
-            ResourceLocation textureRL,
             TextureAtlasSprite sprite,
             Vector3 posFrom,
             Vector3 posTo,
@@ -40,7 +36,6 @@ public class ModelUtil {
             Direction culling
     ) {
         return makeQuad(
-                textureRL,
                 sprite,
                 posFrom,
                 posTo,
@@ -69,7 +64,6 @@ public class ModelUtil {
     }
 
     public static BakedQuad makeQuad(
-            ResourceLocation textureRL,
             TextureAtlasSprite sprite,
             Vector3 posFrom,
             Vector3 posTo,
@@ -81,7 +75,7 @@ public class ModelUtil {
         return new FaceBakery().bakeQuad(
                 posFrom.asVector3f(),
                 posTo.asVector3f(),
-                new BlockElementFace(culling, -1, textureRL.toString(), new BlockFaceUV(uvs, uvRotation)),
+                new BlockElementFace(culling, -1, "", new BlockFaceUV(uvs, uvRotation)),
                 sprite,
                 orientation,
                 SimpleModelState.IDENTITY,
