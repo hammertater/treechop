@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.ToolActions;
@@ -86,19 +87,28 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
         return true;
     }
 
-    @SuppressWarnings({"deprecation", "NullableProblems"})
+    @SuppressWarnings("deprecation")
+    @Nonnull
     @Override
-    public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        double scale = 1.0 / 16.0;
         int chops = state.getValue(CHOPS);
         AABB box = state.getValue(SHAPE).getBoundingBox(chops);
         return Shapes.box(
-                box.minX,
-                box.minY,
-                box.minZ,
-                box.maxX,
-                box.maxY,
-                box.maxZ
+                box.minX * scale,
+                box.minY * scale,
+                box.minZ * scale,
+                box.maxX * scale,
+                box.maxY * scale,
+                box.maxZ * scale
         );
+    }
+
+    @SuppressWarnings("deprecation")
+    @Nonnull
+    @Override
+    public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return state.getValue(SHAPE).getOcclusionShape();
     }
 
     @Override
