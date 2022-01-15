@@ -117,7 +117,7 @@ public class ConfigHandler {
                 case "never":
                     return OverrideType.NEVER;
                 default:
-                    id.parsingError(String.format("override qualifier value \"%s\" is not valid", override.get()));
+                    id.parsingError(String.format("override qualifier value \\\"%s\\\" is not valid (expected \\\"always\\\", \\\"chopping\\\", or \\\"never\\\"); defaulting to \\\"chopping\\\"", override.get()));
                     return OverrideType.WHEN_CHOPPING;
             }
         } else {

@@ -40,7 +40,7 @@ public abstract class ItemIdentifier {
             String searchSpace = Optional.ofNullable(matcher.group(1)).orElse("");
             String namespace = Optional.ofNullable(matcher.group(2)).orElse("");
             String localSpace = Optional.ofNullable(matcher.group(3)).orElse("");
-            List<IdentifierQualifier> qualifiers = parseQualifiers(string, Optional.ofNullable(matcher.group(4)).orElse(""));
+            List<IdentifierQualifier> qualifiers = parseQualifiers(Optional.ofNullable(matcher.group(4)).orElse(""));
 
             if (searchSpace.equals("#")) {
                 return new ItemTagIdentifier(either(namespace, DEFAULT_NAMESPACE), localSpace, qualifiers, string);
@@ -58,14 +58,13 @@ public abstract class ItemIdentifier {
         }
     }
 
-    private static List<IdentifierQualifier> parseQualifiers(String idString, String qualifiersString) {
+    private static List<IdentifierQualifier> parseQualifiers(String qualifiersString) {
         Matcher matcher = QUALIFIERS_PATTERN.matcher(qualifiersString);
         if (matcher.find()) {
             return Arrays.stream(matcher.group(1).split(","))
                     .map(ItemIdentifier::parseQualifier)
                     .collect(Collectors.toList());
         } else {
-            TreeChopMod.LOGGER.warn("Ignoring override for \"{}\"; doesn't match any known item identifiers", idString);
             return Collections.emptyList();
         }
     }

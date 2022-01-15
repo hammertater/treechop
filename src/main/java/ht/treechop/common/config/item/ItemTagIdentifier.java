@@ -22,11 +22,9 @@ public class ItemTagIdentifier extends ItemIdentifier {
             Tag<Item> tag = tags.getTag(resource);
             if (tag != null) {
                 return tag.getValues();
-            } else {
-                parsingError(String.format("item tag \"%s\" does not exist", getNamespace()));
             }
         } else {
-            parsingError(String.format("\"%s\" is not a valid item tag", getItemID()));
+            parsingError(String.format("\"%s\" is not a valid resource location", getItemID()));
         }
 
         return Collections.emptyList();

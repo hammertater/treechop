@@ -15,13 +15,9 @@ public class ItemNamespaceIdentifier extends ItemIdentifier {
 
     @Override
     public List<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
-        List<Item> items = registry.getValues().stream()
+        return registry.getValues().stream()
                 .filter(item -> item.getRegistryName() != null && item.getRegistryName().getNamespace().equals(getNamespace()))
                 .collect(Collectors.toList());
-        if (items.isEmpty()) {
-            parsingError(String.format("no items found in namespace \"%s\"", getNamespace()));
-        }
-        return items;
     }
 
 }
