@@ -1,5 +1,5 @@
 {
-  "treechop.block.chopped_log": "Chopped Log",
+  "block.treechop.chopped_log": "Chopped Log",
   "treechop.codec.bad_value": "SOMETHING WENT WRONG",
   "treechop.gui.big_off": "OFF",
   "treechop.gui.big_on": "ON",
