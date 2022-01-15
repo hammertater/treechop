@@ -26,6 +26,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -131,8 +133,6 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
         return new Entity(pos, blockState);
     }
 
-
-
     @Override
     public void chop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState, int numChops, boolean felling) {
         ChoppedLogShape shape = getPlacementShape(level, pos);
@@ -181,17 +181,16 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
         }
     }
 
-    public void onRemove(@Nonnull BlockState oldBlockState, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState newBlockState, boolean flag) {
-        if (!oldBlockState.is(newBlockState.getBlock()) && ConfigHandler.COMMON.dropLootForChoppedBlocks.get()) {
-            if (level.getBlockEntity(pos) instanceof Entity entity) {
-                entity.drops.forEach(stack -> Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack));
-            }
+    @SuppressWarnings("deprecation")
+    @Nonnull
+    @Override
+    public List<ItemStack> getDrops(@Nonnull BlockState blockState, LootContext.Builder context) {
+        if (context.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof Entity entity) {
+            return entity.drops;
+        } else {
+            return Collections.emptyList();
         }
-
-        super.onRemove(oldBlockState, level, pos, newBlockState, flag);
     }
-
-
 
     public static class Entity extends BlockEntity {
 
