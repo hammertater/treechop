@@ -18,54 +18,50 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.gui.OverlayRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.lwjgl.glfw.GLFW;
 
-@EventBusSubscriber(modid = TreeChopMod.MOD_ID, bus = EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Client {
 
     private static final ClientChopSettings chopSettings = new ClientChopSettings();
-    private static final ChopIndicator chopIndicator = new ChopIndicator();
     private static final Permissions serverPermissions = new Permissions();
 
-    public static void init() {
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+    @SubscribeEvent
+    public static void onClientSetup(FMLClientSetupEvent event) {
+        MinecraftForge.EVENT_BUS.register(EventHandler.class);
+        KeyBindings.init();
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.CHOPPED_LOG.get(), RenderType.solid());
+
         if (ConfigHandler.CLIENT.useProceduralChoppedModels.get()) {
+            IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
             modBus.addListener(ChoppedLogBakedModel::overrideBlockStateModels);
         }
 
         if (ConfigHandler.CLIENT.showChoppingIndicators.get()) {
-            MinecraftForge.EVENT_BUS.addListener(Client::renderOverlay);
+            OverlayRegistry.registerOverlayTop("treechop:chopping_indicator", ChopIndicator::render);
+        }
+    }
+
+    static class EventHandler {
+        @SubscribeEvent
+        public static void onConnect(ClientPlayerNetworkEvent.LoggedInEvent event) {
+            TreeChopMod.LOGGER.info("Sending chop settings sync request");
+            chopSettings.copyFrom(ConfigHandler.CLIENT.getChopSettings());
+            PacketHandler.sendToServer(new ClientRequestSettingsPacket(chopSettings));
         }
 
-        KeyBindings.init();
-    }
-
-    @SubscribeEvent
-    public static void onClientSetup(FMLClientSetupEvent event) {
-        ItemBlockRenderTypes.setRenderLayer(ModBlocks.CHOPPED_LOG.get(), RenderType.solid());
-    }
-
-    @SubscribeEvent
-    public static void onConnect(ClientPlayerNetworkEvent.LoggedInEvent event) {
-        TreeChopMod.LOGGER.info("Sending chop settings sync request");
-        chopSettings.copyFrom(ConfigHandler.CLIENT.getChopSettings());
-        PacketHandler.sendToServer(new ClientRequestSettingsPacket(chopSettings));
-    }
-
-    @SubscribeEvent
-    public static void onKeyInput(InputEvent.KeyInputEvent event) {
-        if (
-                !event.isCanceled()
-                && event.getKey() != GLFW.GLFW_KEY_UNKNOWN
-        ) {
-            KeyBindings.buttonPressed(event.getKey(), event.getAction());
+        @SubscribeEvent
+        public static void onKeyInput(InputEvent.KeyInputEvent event) {
+            if (!event.isCanceled() && event.getKey() != GLFW.GLFW_KEY_UNKNOWN) {
+                KeyBindings.buttonPressed(event.getKey(), event.getAction());
+            }
         }
     }
 
@@ -108,16 +104,6 @@ public class Client {
             minecraft.screen.onClose();
         } else {
             minecraft.setScreen(new ClientSettingsScreen());
-        }
-    }
-
-    public static void renderOverlay(RenderGameOverlayEvent.Post event) {
-        if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
-            chopIndicator.render(
-                    event.getWindow(),
-                    event.getMatrixStack(),
-                    event.getPartialTicks()
-            );
         }
     }
 

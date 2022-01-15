@@ -14,7 +14,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
@@ -32,7 +31,7 @@ import static net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 @EventBusSubscriber(modid = TreeChopMod.MOD_ID, bus = EventBusSubscriber.Bus.FORGE)
 public class Common {
 
-    @SubscribeEvent
+    // Don't @SubscribeEvent; FMLCommonSetupEvent fires on Bus.MOD
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         PacketHandler.init();
     }
