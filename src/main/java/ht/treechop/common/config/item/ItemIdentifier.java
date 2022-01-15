@@ -65,7 +65,7 @@ public abstract class ItemIdentifier {
                     .map(ItemIdentifier::parseQualifier)
                     .collect(Collectors.toList());
         } else {
-            parsingError(idString, String.format("qualifier string \\\"%s\\\" is malformed", idString));
+            TreeChopMod.LOGGER.warn("Ignoring override for \"{}\"; doesn't match any known item identifiers", idString);
             return Collections.emptyList();
         }
     }
