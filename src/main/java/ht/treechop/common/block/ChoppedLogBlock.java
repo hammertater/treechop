@@ -5,15 +5,17 @@ import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
-import ht.treechop.common.util.ChopResult;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -27,10 +29,13 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.common.ToolActions;
+import net.minecraftforge.common.util.FakePlayerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
+import javax.annotation.Nullable;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
@@ -116,6 +121,8 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
         return new Entity(pos, blockState);
     }
 
+
+
     @Override
     public void chop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState, int numChops, boolean felling) {
         ChoppedLogShape shape = getPlacementShape(level, pos);
@@ -139,9 +146,23 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
                         .setValue(CHOPS, newNumChops);
                 if (level.setBlock(pos, newBlockState, 3)) {
                     if (!blockState.is(this) && level.getBlockEntity(pos) instanceof Entity entity && level instanceof ServerLevel serverLevel) {
+                        BlockState strippedBlockState = blockState.getToolModifiedState(
+                                level,
+                                pos,
+                                FakePlayerFactory.getMinecraft(serverLevel),
+                                Items.DIAMOND_AXE.getDefaultInstance(),
+                                ToolActions.AXE_STRIP
+                        );
+
+                        if (strippedBlockState == blockState || strippedBlockState == null) {
+                            strippedBlockState = Blocks.STRIPPED_OAK_LOG.defaultBlockState();
+                        }
+
+                        entity.setOriginalState(blockState, strippedBlockState);
+
                         List<ItemStack> drops = Block.getDrops(blockState, serverLevel, pos, entity, player, tool);
-                        entity.setOriginalState(blockState);
                         entity.setDrops(drops);
+                        entity.setChanged();
                     }
                 }
             } else {
@@ -150,27 +171,31 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
         }
     }
 
-    public void onRemove(BlockState blockState1, Level level, BlockPos pos, BlockState blockState2, boolean flag) {
-        if (ConfigHandler.COMMON.dropLootForChoppedBlocks.get() && !blockState1.is(blockState2.getBlock())) {
+    public void onRemove(@Nonnull BlockState oldBlockState, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState newBlockState, boolean flag) {
+        if (!oldBlockState.is(newBlockState.getBlock()) && ConfigHandler.COMMON.dropLootForChoppedBlocks.get()) {
             if (level.getBlockEntity(pos) instanceof Entity entity) {
                 entity.drops.forEach(stack -> Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack));
             }
-
-            super.onRemove(blockState1, level, pos, blockState2, flag);
         }
+
+        super.onRemove(oldBlockState, level, pos, newBlockState, flag);
     }
+
+
 
     public static class Entity extends BlockEntity {
 
         private BlockState originalState = Blocks.OAK_LOG.defaultBlockState();
+        private BlockState strippedOriginalState = Blocks.STRIPPED_OAK_LOG.defaultBlockState();
         private List<ItemStack> drops = Collections.emptyList();
 
         public Entity(BlockPos pos, BlockState blockState) {
             super(ModBlocks.CHOPPED_LOG_ENTITY.get(), pos, blockState);
         }
 
-        public void setOriginalState(BlockState originalState) {
+        public void setOriginalState(BlockState originalState, BlockState strippedOriginalState) {
             this.originalState = originalState;
+            this.strippedOriginalState = strippedOriginalState;
         }
 
         public void setDrops(List<ItemStack> drops) {
@@ -185,11 +210,18 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
             return originalState;
         }
 
+        public BlockState getStrippedOriginalState() {
+            return strippedOriginalState;
+        }
+
         @Nonnull
         @Override
         public CompoundTag save(@Nonnull CompoundTag tag)
         {
             super.save(tag);
+
+            tag.putInt("OriginalState", Block.getId(getOriginalState()));
+            tag.putInt("StrippedOriginalState", Block.getId(getStrippedOriginalState()));
 
             ListTag list = new ListTag();
             drops.stream().map(stack -> stack.save(new CompoundTag()))
@@ -204,13 +236,43 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
         {
             super.load(tag);
 
+            int stateId = tag.getInt("OriginalState");
+            int strippedStateId = tag.getInt("StrippedOriginalState");
+            setOriginalState(
+                    stateId > 0 ? Block.stateById(stateId) : Blocks.OAK_LOG.defaultBlockState(),
+                    strippedStateId > 0 ? Block.stateById(strippedStateId) : Blocks.STRIPPED_OAK_LOG.defaultBlockState()
+            );
+
             ListTag list = tag.getList("Drops", 10);
 
-            drops = new ArrayList<>(list.size());
+            drops = new LinkedList<>();
             for(int i = 0; i < list.size(); ++i) {
                 CompoundTag item = list.getCompound(i);
-                drops.set(i, ItemStack.of(item));
+                drops.add(ItemStack.of(item));
             }
+        }
+
+        @Nullable
+        @Override
+        public ClientboundBlockEntityDataPacket getUpdatePacket() {
+            CompoundTag tag = new CompoundTag();
+            save(tag);
+            return new ClientboundBlockEntityDataPacket(this.worldPosition, 0, tag);
+        }
+
+        @Override
+        public CompoundTag getUpdateTag() {
+            return super.getUpdateTag();
+        }
+
+        @Override
+        public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
+            load(packet.getTag());
+        }
+
+        @Override
+        public void handleUpdateTag(CompoundTag tag) {
+            load(tag);
         }
     }
 }

@@ -19,6 +19,8 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -26,6 +28,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.data.*;
+import net.minecraftforge.common.ToolActions;
+import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -102,7 +106,7 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
 
         BlockState unchoppedBlock;
         if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.Entity entity) {
-            unchoppedBlock = entity.getOriginalState();
+            unchoppedBlock = entity.getStrippedOriginalState();
         } else {
             unchoppedBlock = Blocks.OAK_LOG.defaultBlockState();
         }
