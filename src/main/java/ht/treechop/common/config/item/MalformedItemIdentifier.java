@@ -6,6 +6,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class MalformedItemIdentifier extends ItemIdentifier {
 
@@ -15,8 +16,8 @@ public class MalformedItemIdentifier extends ItemIdentifier {
     }
 
     @Override
-    public List<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
-        return Collections.emptyList();
+    public Stream<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
+        return Stream.empty();
     }
 
 }

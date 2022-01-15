@@ -6,6 +6,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ItemNamespaceIdentifier extends ItemIdentifier {
 
@@ -14,10 +15,9 @@ public class ItemNamespaceIdentifier extends ItemIdentifier {
     }
 
     @Override
-    public List<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
+    public Stream<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
         return registry.getValues().stream()
-                .filter(item -> item.getRegistryName() != null && item.getRegistryName().getNamespace().equals(getNamespace()))
-                .collect(Collectors.toList());
+                .filter(item -> item.getRegistryName() != null && item.getRegistryName().getNamespace().equals(getNamespace()));
     }
 
 }

@@ -8,6 +8,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class ItemTagIdentifier extends ItemIdentifier {
 
@@ -16,18 +17,18 @@ public class ItemTagIdentifier extends ItemIdentifier {
     }
 
     @Override
-    public List<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
+    public Stream<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
         ResourceLocation resource = ResourceLocation.tryParse(getNamespace() + ":" + getLocalSpace());
         if (resource != null) {
             Tag<Item> tag = tags.getTag(resource);
             if (tag != null) {
-                return tag.getValues();
+                return tag.getValues().stream();
             }
         } else {
             parsingError(String.format("\"%s\" is not a valid resource location", getItemID()));
         }
 
-        return Collections.emptyList();
+        return Stream.empty();
     }
 
 }

@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class ItemIdentifier {
 
@@ -102,7 +103,7 @@ public abstract class ItemIdentifier {
         return String.format("%s:%s", getNamespace(), getLocalSpace());
     }
 
-    public abstract List<Item> resolve(TagCollection<Item> tagSupplier, IForgeRegistry<Item> registry);
+    public abstract Stream<Item> resolve(TagCollection<Item> tagSupplier, IForgeRegistry<Item> registry);
 
     private static void parsingError(String idString, String message) {
         TreeChopMod.LOGGER.warn("Configuration error when parsing \"{}\": {}", idString, message);

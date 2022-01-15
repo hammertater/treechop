@@ -4,6 +4,7 @@ import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.config.item.ItemIdentifier;
 import ht.treechop.common.settings.*;
 import ht.treechop.server.Server;
+import joptsimple.util.KeyValuePair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
@@ -19,8 +20,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ConfigHandler {
 
@@ -63,29 +64,17 @@ public class ConfigHandler {
         Server.updatePermissions(permissions);
     }
 
-    private static Set<Item> getItemsFromConfigList(TagCollection<Item> tags, List<? extends String> identifiers, Predicate<Item> filter) {
-        Map<Item, Integer> qualifiedItems = getQualifiedItemsFromConfigList(tags, identifiers, filter, $ -> 0);
-        return qualifiedItems.keySet();
+    private static Stream<Item> getItemsFromIdentifier(String stringId, TagCollection<Item> tags) {
+        ItemIdentifier id = ItemIdentifier.from(stringId);
+        return id.resolve(tags, ForgeRegistries.ITEMS);
     }
 
-    private static <T> Map<Item, T> getQualifiedItemsFromConfigList(
-            TagCollection<Item> tags,
-            List<? extends String> identifiers,
-            Predicate<Item> filter,
-            Function<ItemIdentifier, T> qualifierParser) {
-        return transformConfigList(identifiers, string -> {
-            ItemIdentifier id = ItemIdentifier.from(string);
-            List<Item> items = id.resolve(tags, ForgeRegistries.ITEMS);
-            T qualifier = qualifierParser.apply(id);
-            return items.stream().map(item -> Pair.of(item, qualifier)).collect(Collectors.toList());
-        }).stream()
-                .flatMap(Collection::stream)
-                .filter(itemQualifierPair -> itemQualifierPair.getLeft() != Items.AIR && itemQualifierPair.getRight() != null && filter.test(itemQualifierPair.getLeft()))
-                .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-    }
-
-    private static <T> List<T> transformConfigList(List<? extends String> identifiers, Function<String, T> transformer) {
-        return identifiers.stream().map(transformer).collect(Collectors.toList());
+    private static <T> Stream<QualifiedItem<T>> getQualifiedItemsFromIdentifier(String stringId, TagCollection<Item> tags, Function<ItemIdentifier, T> qualifierParser) {
+        ItemIdentifier id = ItemIdentifier.from(stringId);
+        T qualifier = qualifierParser.apply(id);
+        return id.resolve(tags, ForgeRegistries.ITEMS)
+                .map(item -> new QualifiedItem<>(item, qualifier))
+                .filter(qi -> qi.item != Items.AIR);
     }
 
     public static boolean shouldOverrideItemBehavior(Item item, boolean chopping) {
@@ -95,12 +84,10 @@ public class ConfigHandler {
 
     private static Map<Item, OverrideInfo> getItemOverrides() {
         if (itemOverrides == null) {
-            itemOverrides = getQualifiedItemsFromConfigList(
-                    ItemTags.getAllTags(),
-                    COMMON.itemsToOverride.get(),
-                    item -> !(item instanceof IChoppingItem),
-                    id -> new OverrideInfo(getQualifierChops(id), getQualifierOverride(id))
-            );
+            itemOverrides = COMMON.itemsToOverride.get().stream().flatMap(
+                    itemId -> getQualifiedItemsFromIdentifier(itemId, ItemTags.getAllTags(), id -> new OverrideInfo(getQualifierChops(id), getQualifierOverride(id))))
+                    .filter(qi -> qi.qualifier != null && !(qi.item instanceof IChoppingItem))
+                    .collect(Collectors.toMap(QualifiedItem::getItem, QualifiedItem::getQualifier));
         }
 
         return itemOverrides;
@@ -117,7 +104,7 @@ public class ConfigHandler {
                 case "never":
                     return OverrideType.NEVER;
                 default:
-                    id.parsingError(String.format("override qualifier value \\\"%s\\\" is not valid (expected \\\"always\\\", \\\"chopping\\\", or \\\"never\\\"); defaulting to \\\"chopping\\\"", override.get()));
+                    id.parsingError(String.format("override qualifier \\\"%s\\\" is not valid (expected \\\"always\\\", \\\"chopping\\\", or \\\"never\\\"); defaulting to \\\"chopping\\\"", override.get()));
                     return OverrideType.WHEN_CHOPPING;
             }
         } else {
@@ -149,10 +136,9 @@ public class ConfigHandler {
 
     public static boolean canChopWithItem(Item item) {
         if (itemsBlacklist == null) {
-            itemsBlacklist = getItemsFromConfigList(
-                    ItemTags.getAllTags(),
-                    COMMON.itemsToBlacklist.get(),
-                    item1 -> !(item1 instanceof IChoppingItem));
+            itemsBlacklist = COMMON.itemsToBlacklist.get().stream()
+                    .flatMap(id -> getItemsFromIdentifier(id, ItemTags.getAllTags()))
+                    .collect(Collectors.toSet());
         }
 
         if (COMMON.blacklistOrWhitelist.get() == ListType.BLACKLIST) {
