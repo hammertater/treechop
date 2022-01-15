@@ -270,9 +270,12 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
             return new ClientboundBlockEntityDataPacket(this.worldPosition, 0, tag);
         }
 
+        @Nonnull
         @Override
         public CompoundTag getUpdateTag() {
-            return super.getUpdateTag();
+            CompoundTag tag = new CompoundTag();
+            save(tag);
+            return tag;
         }
 
         @Override
