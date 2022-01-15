@@ -1,7 +1,6 @@
 package ht.treechop.common.block;
 
 import ht.treechop.api.IChoppableBlock;
-import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
@@ -12,7 +11,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -92,7 +90,7 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
     @SuppressWarnings("deprecation")
     @Nonnull
     @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
         double scale = 1.0 / 16.0;
         int chops = state.getValue(CHOPS);
         AABB box = state.getValue(SHAPE).getBoundingBox(chops);
@@ -109,7 +107,7 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
     @SuppressWarnings("deprecation")
     @Nonnull
     @Override
-    public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+    public VoxelShape getOcclusionShape(BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos) {
         return state.getValue(SHAPE).getOcclusionShape();
     }
 
@@ -209,10 +207,6 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
 
         public void setDrops(List<ItemStack> drops) {
             this.drops = drops;
-        }
-
-        public List<ItemStack> getDrops() {
-            return drops;
         }
 
         public BlockState getOriginalState() {
