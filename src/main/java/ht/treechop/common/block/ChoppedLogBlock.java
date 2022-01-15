@@ -11,11 +11,13 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
@@ -42,7 +44,7 @@ import java.util.List;
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
 import static ht.treechop.common.util.ChopUtil.isBlockLeaves;
 
-public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlock {
+public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, EntityBlock {
 
     protected static final IntegerProperty CHOPS = BlockStateProperties.CHOP_COUNT;
     protected static final EnumProperty<ChoppedLogShape> SHAPE = BlockStateProperties.CHOPPED_LOG_SHAPE;
@@ -56,6 +58,15 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
                         .setValue(CHOPS, 1)
                         .setValue(SHAPE, ChoppedLogShape.PILLAR_Y)
         );
+    }
+
+    @Override
+    public BlockState getImitatedBlockState(BlockGetter level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof Entity entity) {
+            return entity.getOriginalState();
+        } else {
+            return Blocks.OAK_LOG.defaultBlockState();
+        }
     }
 
     public static ChoppedLogShape getPlacementShape(Level level, BlockPos blockPos) {
@@ -190,14 +201,9 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public float getDestroyProgress(BlockState blockState, Player player, BlockGetter level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof Entity entity) {
-            return (float)Math.min(0.35, entity.getOriginalState().getDestroyProgress(player, level, pos));
-        } else {
-            return super.getDestroyProgress(blockState, player, level, pos);
-        }
+        return (float)Math.min(0.35, getImitatedBlockState(level, pos).getDestroyProgress(player, level, pos));
     }
 
     public static class Entity extends BlockEntity {
