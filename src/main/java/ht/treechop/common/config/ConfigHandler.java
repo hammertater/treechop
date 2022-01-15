@@ -275,7 +275,7 @@ public class ConfigHandler {
             builder.push("compatibility");
             builder.push("general");
             preventChoppingOnRightClick = builder
-                    .comment("Whether to prevent chopping during right-click actions; automatically enabled if compatibility.carryOn = true with Carry On versions prior to carryon-1.16.5-1.15.2.9")
+                    .comment("Whether to prevent chopping during right-click actions")
                     .define("preventChoppingOnRightClick", false);
             preventChopRecursion = builder
                     .comment("Whether to prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")

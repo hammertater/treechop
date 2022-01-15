@@ -1,6 +1,7 @@
 package ht.treechop.common.block;
 
 import ht.treechop.api.IChoppableBlock;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.properties.ModBlockStateProperties;
@@ -242,7 +243,7 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
     @Nonnull
     @Override
     public List<ItemStack> getDrops(@Nonnull BlockState blockState, LootContext.Builder context) {
-        if (context.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof Entity entity) {
+        if (ConfigHandler.COMMON.dropLootForChoppedBlocks.get() && context.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof Entity entity) {
             return entity.drops;
         } else {
             return Collections.emptyList();
