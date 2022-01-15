@@ -2,30 +2,36 @@ package ht.treechop.common.block;
 
 import ht.treechop.api.IChoppableBlock;
 import ht.treechop.common.init.ModBlocks;
-import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
+import ht.treechop.common.properties.ModBlockStateProperties;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
@@ -37,6 +43,7 @@ import net.minecraftforge.common.util.FakePlayerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,10 +51,11 @@ import java.util.List;
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
 import static ht.treechop.common.util.ChopUtil.isBlockLeaves;
 
-public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, EntityBlock {
+public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, EntityBlock, SimpleWaterloggedBlock {
 
-    protected static final IntegerProperty CHOPS = BlockStateProperties.CHOP_COUNT;
-    protected static final EnumProperty<ChoppedLogShape> SHAPE = BlockStateProperties.CHOPPED_LOG_SHAPE;
+    public static final IntegerProperty CHOPS = ModBlockStateProperties.CHOP_COUNT;
+    public static final EnumProperty<ChoppedLogShape> SHAPE = ModBlockStateProperties.CHOPPED_LOG_SHAPE;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public ChoppedLogBlock(Properties properties) {
         super(properties
@@ -57,6 +65,7 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
                 this.getStateDefinition().any()
                         .setValue(CHOPS, 1)
                         .setValue(SHAPE, ChoppedLogShape.PILLAR_Y)
+                        .setValue(WATERLOGGED, Boolean.FALSE)
         );
     }
 
@@ -124,7 +133,7 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(CHOPS, SHAPE);
+        builder.add(CHOPS, SHAPE, WATERLOGGED);
     }
 
     @Override
@@ -144,8 +153,6 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
 
     @Override
     public void chop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState, int numChops, boolean felling) {
-        ChoppedLogShape shape = getPlacementShape(level, pos);
-
         int currentNumChops = (blockState.is(this)) ? getNumChops(level, pos, blockState) : 0;
         int newNumChops = Math.min(currentNumChops + numChops, ChopUtil.getMaxNumChops(level, pos, blockState));
         int numAddedChops = newNumChops - currentNumChops;
@@ -159,10 +166,9 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
 
         if (!felling) {
             if (numAddedChops > 0) {
-                BlockState newBlockState = (blockState.is(this)
-                        ? blockState
-                        : defaultBlockState().setValue(BlockStateProperties.CHOPPED_LOG_SHAPE, shape))
+                BlockState newBlockState = (blockState.is(this) ? blockState : getPlacementState(level, pos))
                         .setValue(CHOPS, newNumChops);
+
                 if (level.setBlock(pos, newBlockState, 3)) {
                     if (!blockState.is(this) && level.getBlockEntity(pos) instanceof Entity entity && level instanceof ServerLevel serverLevel) {
                         BlockState strippedBlockState = blockState.getToolModifiedState(
@@ -188,6 +194,48 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
                 level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
             }
         }
+    }
+
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return getPlacementState(context.getLevel(), context.getClickedPos());
+    }
+
+    private BlockState getPlacementState(Level level, BlockPos pos) {
+        return defaultBlockState()
+                .setValue(SHAPE, getPlacementShape(level, pos))
+                .setValue(WATERLOGGED, shouldPlaceAsWaterlogged(level, pos));
+    }
+
+
+    private boolean shouldPlaceAsWaterlogged(Level level, BlockPos pos) {
+        final Direction[] waterSourceDirections = {
+                Direction.NORTH,
+                Direction.EAST,
+                Direction.SOUTH,
+                Direction.WEST,
+                Direction.UP
+        };
+
+        return Arrays.stream(waterSourceDirections)
+                .anyMatch(direction -> level.getFluidState(pos.offset(direction.getNormal())).isSource());
+    }
+
+    public FluidState getFluidState(BlockState blockState) {
+        return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
+    }
+
+    public BlockState updateShape(BlockState blockState, Direction side, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        if (blockState.getValue(WATERLOGGED)) {
+            level.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+
+        return super.updateShape(blockState, side, neighborState, level, pos, neighborPos);
+    }
+
+    public boolean propagatesSkylightDown(BlockState blockState, BlockGetter level, BlockPos pos) {
+        return !blockState.getValue(WATERLOGGED);
     }
 
     @SuppressWarnings("deprecation")

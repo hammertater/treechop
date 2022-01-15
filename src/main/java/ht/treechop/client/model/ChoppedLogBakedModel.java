@@ -4,7 +4,7 @@ import ht.treechop.TreeChopMod;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
-import ht.treechop.common.properties.BlockStateProperties;
+import ht.treechop.common.properties.ModBlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.FaceShape;
 import ht.treechop.common.util.Vector3;
@@ -19,8 +19,6 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -28,9 +26,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.data.*;
-import net.minecraftforge.common.ToolActions;
-import net.minecraftforge.common.util.FakePlayerFactory;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Triple;
 
 import javax.annotation.Nonnull;
@@ -82,17 +77,17 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
             @Nonnull BlockState state,
             @Nonnull IModelData tileData
     ) {
-        if (!state.hasProperty(BlockStateProperties.CHOPPED_LOG_SHAPE) || !state.hasProperty(BlockStateProperties.CHOP_COUNT)) {
+        if (!state.hasProperty(ModBlockStateProperties.CHOPPED_LOG_SHAPE) || !state.hasProperty(ModBlockStateProperties.CHOP_COUNT)) {
             throw new IllegalArgumentException(
                     String.format("Could not bake chopped log model; block state %s is missing \"%s\" or \"%s\"",
                             state.toString(),
-                            BlockStateProperties.CHOPPED_LOG_SHAPE.getName(),
-                            BlockStateProperties.CHOP_COUNT.getName()
+                            ModBlockStateProperties.CHOPPED_LOG_SHAPE.getName(),
+                            ModBlockStateProperties.CHOP_COUNT.getName()
                     )
             );
         }
 
-        ChoppedLogShape shape = state.getValue(BlockStateProperties.CHOPPED_LOG_SHAPE);
+        ChoppedLogShape shape = state.getValue(ModBlockStateProperties.CHOPPED_LOG_SHAPE);
         Set<Direction> solidSides = removeBarkOnInteriorLogs
                 ? Arrays.stream(Direction.values())
                 .filter(direction -> direction.getAxis().isHorizontal() && !shape.isSideOpen(direction))
@@ -131,8 +126,8 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
                     ? extraData.getData(UNCHOPPED_BLOCK)
                     : Blocks.OAK_LOG.defaultBlockState();
 
-            ChoppedLogShape shape = state.getValue(BlockStateProperties.CHOPPED_LOG_SHAPE);
-            int chops = state.getValue(BlockStateProperties.CHOP_COUNT);
+            ChoppedLogShape shape = state.getValue(ModBlockStateProperties.CHOPPED_LOG_SHAPE);
+            int chops = state.getValue(ModBlockStateProperties.CHOP_COUNT);
             Set<Direction> solidSides = extraData.getData(SOLID_SIDES);
 
             AABB box = shape.getBoundingBox(chops);
