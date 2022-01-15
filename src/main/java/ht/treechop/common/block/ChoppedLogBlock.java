@@ -190,6 +190,16 @@ public class ChoppedLogBlock extends Block implements IChoppableBlock, EntityBlo
         }
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
+    public float getDestroyProgress(BlockState blockState, Player player, BlockGetter level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof Entity entity) {
+            return (float)Math.min(0.35, entity.getOriginalState().getDestroyProgress(player, level, pos));
+        } else {
+            return super.getDestroyProgress(blockState, player, level, pos);
+        }
+    }
+
     public static class Entity extends BlockEntity {
 
         private BlockState originalState = Blocks.OAK_LOG.defaultBlockState();
