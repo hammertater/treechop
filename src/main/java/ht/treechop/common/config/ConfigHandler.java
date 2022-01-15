@@ -382,6 +382,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue indicatorYOffset;
         public final ForgeConfigSpec.BooleanValue showFellingOptions;
         public final ForgeConfigSpec.BooleanValue showFeedbackMessages;
+        public final ForgeConfigSpec.BooleanValue showTooltips;
 
 //        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
 
@@ -432,6 +433,9 @@ public class ConfigHandler {
             showFeedbackMessages = builder
                     .comment("Whether to show chat confirmations when using hotkeys to change chop settings")
                     .define("showFeedbackMessages", true);
+            showTooltips = builder
+                    .comment("Whether to show tooltips in the settings screen")
+                    .define("showTooltips", true);
             builder.pop();
 
 //            treesMustBeUniform = builder

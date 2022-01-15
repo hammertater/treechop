@@ -2,6 +2,7 @@ package ht.treechop.client.gui.element;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
+import ht.treechop.client.gui.util.GUIUtil;
 import ht.treechop.client.gui.widget.StickyWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -18,10 +19,12 @@ import java.util.stream.Collectors;
 public class ExclusiveButtonsGui extends NestedGui {
 
     private final List<AbstractWidget> widgets;
+    private final Supplier<Component> tooltipSupplier;
 
-    protected ExclusiveButtonsGui(Collection<AbstractWidget> widgets) {
+    protected ExclusiveButtonsGui(Collection<AbstractWidget> widgets, Supplier<Component> tooltipSupplier) {
         super(0, 0, 0, 0, TextComponent.EMPTY);
         this.widgets = Lists.newArrayList(widgets);
+        this.tooltipSupplier = tooltipSupplier;
     }
 
     public void expand(int width) {
@@ -52,11 +55,22 @@ public class ExclusiveButtonsGui extends NestedGui {
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         int x = getBox().getLeft();
         int y = getBox().getTop();
+
+        int maxX = x;
+        int maxY = y;
+
         for (AbstractWidget widget : widgets) {
-            widget.x = x;
+            widget.x = maxX;
             widget.y = y;
             widget.render(poseStack, mouseX, mouseY, partialTicks);
-            x += widget.getWidth();
+
+            maxX = Math.max(maxX, maxX + widget.getWidth());
+            maxY = Math.max(maxY, y + widget.getHeight());
+        }
+
+        isHovered = mouseX >= x && mouseY >= y && mouseX < maxX && mouseY < maxY;
+        if (isHovered()) {
+            GUIUtil.showTooltip(mouseX, mouseY, tooltipSupplier.get());
         }
     }
 
@@ -83,11 +97,11 @@ public class ExclusiveButtonsGui extends NestedGui {
             return this;
         }
 
-        public ExclusiveButtonsGui build() {
+        public ExclusiveButtonsGui build(Supplier<Component> tooltipSupplier) {
             List<AbstractWidget> widgets = options.stream()
                     .map(option -> new StickyWidget(0, 0, 0, 0, option.name, option.onPress, option.stateSupplier))
                     .collect(Collectors.toList());
-            return new ExclusiveButtonsGui(widgets);
+            return new ExclusiveButtonsGui(widgets, tooltipSupplier);
         }
 
         private static class Option {

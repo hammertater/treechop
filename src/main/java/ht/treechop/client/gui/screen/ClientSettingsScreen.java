@@ -9,19 +9,18 @@ import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.widget.StickyWidget;
 import ht.treechop.client.gui.widget.ToggleWidget;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 public class ClientSettingsScreen extends Screen {
 
@@ -92,7 +91,7 @@ public class ClientSettingsScreen extends Screen {
         optionRows.add(
                 new LabeledGui(font,
                         new TranslatableComponent("treechop.gui.settings.label.chopping"),
-                        makeToggleSettingRow(SettingsField.CHOPPING)
+                        makeToggleSettingRow(SettingsField.CHOPPING, "treechop.gui.settings.tooltip.chopping")
                 )
         );
 
@@ -100,7 +99,7 @@ public class ClientSettingsScreen extends Screen {
             optionRows.add(
                     new LabeledGui(font,
                             new TranslatableComponent("treechop.gui.settings.label.felling"),
-                            makeToggleSettingRow(SettingsField.FELLING)
+                            makeToggleSettingRow(SettingsField.FELLING, "treechop.gui.settings.tooltip.felling")
                     )
             );
 
@@ -131,7 +130,7 @@ public class ClientSettingsScreen extends Screen {
                                             () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.NONE),
                                             () -> makeStickyWidgetState(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.NONE)
                                     )
-                                    .build()
+                                    .build(this::getSneakCycleTooltip)
                     )
             );
         }
@@ -144,7 +143,8 @@ public class ClientSettingsScreen extends Screen {
                                     () -> ToggleWidget.State.of(
                                             Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_CHOPPING,
                                             isSettingPermitted(SettingsField.SNEAK_BEHAVIOR, getNextSneakBehavior())
-                                    )
+                                    ),
+                                    this::getSneakCycleTooltip
                             )
                     )
             );
@@ -153,7 +153,7 @@ public class ClientSettingsScreen extends Screen {
         optionRows.add(
                 new LabeledGui(font,
                         new TranslatableComponent("treechop.gui.settings.label.only_chop_trees_with_leaves"),
-                        makeToggleSettingRow(SettingsField.TREES_MUST_HAVE_LEAVES)
+                        makeToggleSettingRow(SettingsField.TREES_MUST_HAVE_LEAVES, "treechop.gui.settings.tooltip.only_chop_trees_with_leaves")
                 )
         );
 
@@ -161,7 +161,7 @@ public class ClientSettingsScreen extends Screen {
             optionRows.add(
                     new LabeledGui(font,
                             new TranslatableComponent("treechop.gui.settings.label.chop_in_creative_mode"),
-                            makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
+                            makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE, "treechop.gui.settings.tooltip.chop_in_creative_mode")
                     )
             );
         }
@@ -175,7 +175,7 @@ public class ClientSettingsScreen extends Screen {
         optionRows.add(
                 new LabeledGui(font,
                         new TranslatableComponent("treechop.gui.settings.label.chop_in_creative_mode"),
-                        makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE)
+                        makeToggleSettingRow(SettingsField.CHOP_IN_CREATIVE_MODE, "treechop.gui.settings.tooltip.chop_in_creative_mode")
                 )
         );
 
@@ -184,7 +184,9 @@ public class ClientSettingsScreen extends Screen {
                         new TranslatableComponent("treechop.gui.settings.label.chopping_indicator"),
                         new ToggleGui(
                                 () -> Client.setChoppingIndicatorVisibility(!Client.isChoppingIndicatorEnabled()),
-                                () -> ToggleWidget.State.of(Client.isChoppingIndicatorEnabled(), true)
+                                () -> ToggleWidget.State.of(Client.isChoppingIndicatorEnabled(), true),
+                                () -> new TranslatableComponent("treechop.gui.settings.tooltip.chopping_indicator"
+                                        + (Client.isChoppingIndicatorEnabled() ? ".on" : ".off"))
                         )
                 )
         );
@@ -194,7 +196,9 @@ public class ClientSettingsScreen extends Screen {
                         new TranslatableComponent("treechop.gui.settings.label.feedback_messages"),
                         new ToggleGui(
                                 () -> ConfigHandler.CLIENT.showFeedbackMessages.set(!ConfigHandler.CLIENT.showFeedbackMessages.get()),
-                                () -> ToggleWidget.State.of(ConfigHandler.CLIENT.showFeedbackMessages.get(), true)
+                                () -> ToggleWidget.State.of(ConfigHandler.CLIENT.showFeedbackMessages.get(), true),
+                                () -> new TranslatableComponent("treechop.gui.settings.tooltip.feedback_messages"
+                                        + (ConfigHandler.CLIENT.showFeedbackMessages.get() ? ".on" : ".off"))
                         )
                 )
         );
@@ -207,7 +211,23 @@ public class ClientSettingsScreen extends Screen {
                                 () -> ToggleWidget.State.of(
                                         ConfigHandler.CLIENT.showFellingOptions.get(),
                                         Client.getServerPermissions().isPermitted(new Setting(SettingsField.FELLING, false))
-                                )
+                                ),
+                                () -> new TranslatableComponent("treechop.gui.settings.tooltip.felling_options"
+                                        + (ConfigHandler.CLIENT.showFellingOptions.get() ? ".on" : ".off"))
+                        )
+                )
+        );
+
+        optionRows.add(
+                new LabeledGui(font,
+                        new TranslatableComponent("treechop.gui.settings.label.tooltips"),
+                        new ToggleGui(
+                                () -> ConfigHandler.CLIENT.showTooltips.set(!ConfigHandler.CLIENT.showTooltips.get()),
+                                () -> ToggleWidget.State.of(
+                                        ConfigHandler.CLIENT.showTooltips.get(),
+                                        true
+                                ),
+                                () -> new TranslatableComponent("treechop.gui.settings.tooltip.tooltips")
                         )
                 )
         );
@@ -215,17 +235,36 @@ public class ClientSettingsScreen extends Screen {
         return optionRows;
     }
 
+    private Component getSneakCycleTooltip() {
+        SettingsField field;
+        switch (Client.getChopSettings().getSneakBehavior()) {
+            case INVERT_CHOPPING -> field = SettingsField.CHOPPING;
+            case INVERT_FELLING -> field = SettingsField.FELLING;
+            default -> {
+                return new TranslatableComponent("treechop.gui.settings.tooltip.sneaking_does_nothing");
+            }
+        }
+
+        String enablesOrDisablesLangKey = Client.getChopSettings().get(field, Boolean.class)
+                ? "treechop.gui.settings.tooltip.sneaking_enables_x"
+                : "treechop.gui.settings.tooltip.sneaking_disables_x";
+
+        return new TranslatableComponent(enablesOrDisablesLangKey, field.getFancyName());
+    }
+
     private SneakBehavior getNextSneakBehavior() {
         return Client.getChopSettings().getSneakBehavior() == SneakBehavior.NONE ? SneakBehavior.INVERT_CHOPPING : SneakBehavior.NONE;
     }
 
-    private ToggleGui makeToggleSettingRow(SettingsField field) {
+    private ToggleGui makeToggleSettingRow(SettingsField field, String tooltipLangKey) {
         return new ToggleGui(
                 () -> Client.getChopSettings().set(field, !Client.getChopSettings().get(field, Boolean.class)),
                 () -> ToggleWidget.State.of(
                         Client.getChopSettings().get(field, Boolean.class),
                         Client.getServerPermissions().isPermitted(new Setting(field, !Client.getChopSettings().get(field, Boolean.class)))
-                )
+                ),
+                () -> new TranslatableComponent(tooltipLangKey +
+                        (Client.getChopSettings().get(field, Boolean.class) ? ".on" : ".off"))
         );
     }
 
@@ -261,7 +300,9 @@ public class ClientSettingsScreen extends Screen {
         super.render(poseStack, mouseX, mouseY, partialTicks);
         // TODO: check out ClientSettingsScreen.func_243293_a for draw reordering; might be important for tooltips
 
-        GUIUtil.renderTooltip(poseStack);
+        if (ConfigHandler.CLIENT.showTooltips.get()) {
+            GUIUtil.renderTooltip(poseStack);
+        }
     }
 
     @SuppressWarnings("NullableProblems")

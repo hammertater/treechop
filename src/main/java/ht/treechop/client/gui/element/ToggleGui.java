@@ -6,6 +6,7 @@ import ht.treechop.client.gui.widget.ToggleWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
 import java.util.Collections;
@@ -15,10 +16,12 @@ import java.util.function.Supplier;
 public class ToggleGui extends NestedGui {
 
     private final AbstractWidget widget;
+    private final Supplier<Component> tooltipSupplier;
 
-    public ToggleGui(Runnable onPress, Supplier<ToggleWidget.State> stateSupplier) {
+    public ToggleGui(Runnable onPress, Supplier<ToggleWidget.State> stateSupplier, Supplier<Component> componentSupplier) {
         super(0, 0, 0, 0, TextComponent.EMPTY);
         this.widget = new ToggleWidget(0, 0, onPress, stateSupplier);
+        this.tooltipSupplier = componentSupplier;
     }
 
     @Override
@@ -31,6 +34,10 @@ public class ToggleGui extends NestedGui {
         widget.x = getBox().getLeft();
         widget.y = getBox().getTop();
         widget.render(poseStack, mouseX, mouseY, partialTicks);
+
+        if (widget.isHovered()) {
+            GUIUtil.showTooltip(mouseX, mouseY, tooltipSupplier.get());
+        }
     }
 
     @Override
