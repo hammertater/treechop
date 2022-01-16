@@ -229,7 +229,7 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
 
     public BlockState updateShape(BlockState blockState, Direction side, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (blockState.getValue(WATERLOGGED)) {
-            level.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
 
         return super.updateShape(blockState, side, neighborState, level, pos, neighborPos);
@@ -323,9 +323,7 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
         @Nullable
         @Override
         public ClientboundBlockEntityDataPacket getUpdatePacket() {
-            CompoundTag tag = new CompoundTag();
-            save(tag);
-            return new ClientboundBlockEntityDataPacket(this.worldPosition, 0, tag);
+            return ClientboundBlockEntityDataPacket.create(this);
         }
 
         @Nonnull
@@ -338,7 +336,9 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
 
         @Override
         public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
-            load(packet.getTag());
+            if (packet.getTag() != null) {
+                load(packet.getTag());
+            }
         }
 
         @Override

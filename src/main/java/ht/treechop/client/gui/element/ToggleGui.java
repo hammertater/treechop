@@ -35,7 +35,7 @@ public class ToggleGui extends NestedGui {
         widget.y = getBox().getTop();
         widget.render(poseStack, mouseX, mouseY, partialTicks);
 
-        if (widget.isHovered()) {
+        if (widget.isHoveredOrFocused()) {
             GUIUtil.showTooltip(mouseX, mouseY, tooltipSupplier.get());
         }
     }

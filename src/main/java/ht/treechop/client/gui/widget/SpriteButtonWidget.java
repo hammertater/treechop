@@ -34,7 +34,7 @@ public class SpriteButtonWidget extends AbstractWidget {
     @Override
     public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         Sprite.setRenderState(this.alpha);
-        Sprite sprite = isHovered() ? highlightedSprite : this.sprite;
+        Sprite sprite = isHoveredOrFocused() ? highlightedSprite : this.sprite;
         sprite.blit(poseStack, x, y);
     }
 

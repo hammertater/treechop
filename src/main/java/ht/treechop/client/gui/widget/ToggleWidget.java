@@ -54,7 +54,7 @@ public class ToggleWidget extends AbstractWidget {
         ).collect(Collectors.toMap(Pair::getLeft, Pair::getRight)));
 
         State state = stateSupplier.get();
-        Sprite sprite = isHovered() ? spriteForHoveredState.get(state) : spriteForState.get(state);
+        Sprite sprite = isHoveredOrFocused() ? spriteForHoveredState.get(state) : spriteForState.get(state);
         sprite.blit(poseStack, x, y);
     }
 

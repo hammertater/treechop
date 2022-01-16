@@ -2,8 +2,6 @@ package ht.treechop.common.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -62,9 +60,10 @@ abstract public class BlockImitator extends Block {
         return getImitatedBlockState(level, pos).canHarvestBlock(level, pos, player);
     }
 
+
     @Override
-    public ItemStack getPickBlock(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
-        return getImitatedBlockState(level, pos).getPickBlock(target, level, pos, player);
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+        return getImitatedBlockState(level, pos).getCloneItemStack(target, level, pos, player);
     }
 
     @Override

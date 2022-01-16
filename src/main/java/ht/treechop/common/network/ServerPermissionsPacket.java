@@ -4,7 +4,7 @@ import ht.treechop.client.Client;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.Setting;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.List;
 import java.util.Set;

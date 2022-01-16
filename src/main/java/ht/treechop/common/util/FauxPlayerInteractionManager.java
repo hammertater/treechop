@@ -44,7 +44,7 @@ public class FauxPlayerInteractionManager {
 
     private static boolean removeBlock(ServerPlayer player, ServerLevel level, BlockPos pos, boolean canHarvest) {
         BlockState state = level.getBlockState(pos);
-        boolean removed = state.removedByPlayer(level, pos, player, canHarvest, level.getFluidState(pos));
+        boolean removed = state.onDestroyedByPlayer(level, pos, player, canHarvest, level.getFluidState(pos));
         if (removed)
             state.getBlock().destroy(level, pos, state);
         return removed;

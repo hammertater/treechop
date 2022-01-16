@@ -2,7 +2,7 @@ package ht.treechop.common.network;
 
 import ht.treechop.client.Client;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.List;
 import java.util.function.Supplier;

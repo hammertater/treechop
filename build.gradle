@@ -12,11 +12,11 @@ apply plugin: 'eclipse'
 
 archivesBaseName = "TreeChop-${mcversion}"
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
-    mappings channel: 'official', version: '1.17.1'
+    mappings channel: 'official', version: '1.18.1'
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
@@ -78,7 +78,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.17.1-37.0.78'
+    minecraft 'net.minecraftforge:forge:1.18.1-39.0.36'
 
 //    compileOnly fg.deobf("curse.maven:carry-on:3206755" )
 //    compileOnly fg.deobf("curse.maven:project-mmo:3157194")
@@ -98,12 +98,12 @@ test {
 jar {
     manifest {
         attributes([
-                "Specification-Title": "treechop",
-                "Specification-Vendor": "hammertater",
-                "Specification-Version": "1",
-                "Implementation-Title": project.name,
-                "Implementation-Version": "${version}",
-                "Implementation-Vendor" :"hammertater",
+                "Specification-Title"     : "treechop",
+                "Specification-Vendor"    : "hammertater",
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.jar.archiveVersion,
+                "Implementation-Vendor"   :"hammertater",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }

@@ -69,7 +69,7 @@ public class ExclusiveButtonsGui extends NestedGui {
         }
 
         isHovered = mouseX >= x && mouseY >= y && mouseX < maxX && mouseY < maxY;
-        if (isHovered()) {
+        if (isHoveredOrFocused()) {
             GUIUtil.showTooltip(mouseX, mouseY, tooltipSupplier.get());
         }
     }

@@ -41,7 +41,7 @@ public class StickyWidget extends AbstractWidget {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
 
         if (stateSupplier.get() != State.Locked) {
-            int i = this.getYImage(this.isHovered());
+            int i = this.getYImage(this.isHoveredOrFocused());
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.enableDepthTest();
