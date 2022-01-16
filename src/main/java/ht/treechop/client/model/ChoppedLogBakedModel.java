@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.data.*;
 import org.apache.commons.lang3.tuple.Triple;
@@ -37,7 +38,7 @@ import java.util.stream.Stream;
 public class ChoppedLogBakedModel implements IDynamicBakedModel {
 
     public static ModelProperty<Set<Direction>> SOLID_SIDES = new ModelProperty<>();
-    public static ModelProperty<BlockState> UNCHOPPED_BLOCK = new ModelProperty<>();
+    public static ModelProperty<BlockState> STRIPPED_BLOCK_STATE = new ModelProperty<>();
     private final BakedModel staticModel;
     private final ResourceLocation defaultTextureRL = new ResourceLocation("treechop:block/chopped_log");
     private final TextureAtlasSprite defaultSprite;
@@ -99,16 +100,16 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)))
                 : Collections.emptySet();
 
-        BlockState unchoppedBlock;
+        BlockState strippedState;
         if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.Entity entity) {
-            unchoppedBlock = entity.getStrippedOriginalState();
+            strippedState = entity.getStrippedOriginalState();
         } else {
-            unchoppedBlock = Blocks.OAK_LOG.defaultBlockState();
+            strippedState = Blocks.OAK_LOG.defaultBlockState();
         }
 
         ModelDataMap.Builder builder = new ModelDataMap.Builder();
         builder.withInitial(SOLID_SIDES, solidSides);
-        builder.withInitial(UNCHOPPED_BLOCK, unchoppedBlock);
+        builder.withInitial(STRIPPED_BLOCK_STATE, strippedState);
         return builder.build();
     }
 
@@ -122,15 +123,22 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
             @Nonnull IModelData extraData
     ) {
         if (side == null) {
-            BlockState unchoppedBlock = (extraData.hasProperty(UNCHOPPED_BLOCK))
-                    ? extraData.getData(UNCHOPPED_BLOCK)
-                    : Blocks.OAK_LOG.defaultBlockState();
+            BlockState strippedState = (extraData.hasProperty(STRIPPED_BLOCK_STATE))
+                    ? extraData.getData(STRIPPED_BLOCK_STATE)
+                    : Blocks.STRIPPED_OAK_LOG.defaultBlockState();
 
-            ChoppedLogShape shape = state.getValue(ModBlockStateProperties.CHOPPED_LOG_SHAPE);
-            int chops = state.getValue(ModBlockStateProperties.CHOP_COUNT);
-            Set<Direction> solidSides = extraData.getData(SOLID_SIDES);
+            Set<Direction> solidSides = (extraData.hasProperty(SOLID_SIDES))
+                    ? extraData.getData(SOLID_SIDES)
+                    : Collections.emptySet();
 
-            AABB box = shape.getBoundingBox(chops);
+            AABB box;
+            if (state != null) {
+                int chops = state.getValue(ModBlockStateProperties.CHOP_COUNT);
+                ChoppedLogShape shape = state.getValue(ModBlockStateProperties.CHOPPED_LOG_SHAPE);
+                box = shape.getBoundingBox(chops);
+            } else {
+                box = Shapes.box(0, 0, 0, 16, 16, 16).bounds();
+            }
 
             float downY = (float) box.minY;
             float upY = (float) box.maxY;
@@ -159,7 +167,7 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
                             Triple.of(topSouthEast, bottomNorthEast, Direction.EAST)
                     ).map(
                             triple -> ModelUtil.makeQuad(
-                                    getSpriteForBlockSide(unchoppedBlock, triple.getRight(), rand, extraData),
+                                    getSpriteForBlockSide(strippedState, triple.getRight(), rand, extraData),
                                     triple.getLeft(),
                                     triple.getMiddle(),
                                     triple.getRight(),
@@ -168,7 +176,7 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
                     ),
                     solidSides.stream().map(
                             direction -> ModelUtil.makeQuad(
-                                    getSpriteForBlockSide(unchoppedBlock, direction.getOpposite(), rand, extraData),
+                                    getSpriteForBlockSide(strippedState, direction.getOpposite(), rand, extraData),
                                     FaceShape.get(direction),
                                     direction.getOpposite(),
                                     null
