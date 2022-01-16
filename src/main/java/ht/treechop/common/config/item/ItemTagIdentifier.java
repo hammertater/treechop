@@ -6,7 +6,6 @@ import net.minecraft.tags.TagCollection;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -18,9 +17,9 @@ public class ItemTagIdentifier extends ItemIdentifier {
 
     @Override
     public Stream<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
-        ResourceLocation resource = ResourceLocation.tryParse(getNamespace() + ":" + getLocalSpace());
-        if (resource != null) {
-            Tag<Item> tag = tags.getTag(resource);
+        ResourceLocation tagId = ResourceLocation.tryParse(getNamespace() + ":" + getLocalSpace());
+        if (tagId != null) {
+            Tag<Item> tag = tags.getTag(tagId);
             if (tag != null) {
                 return tag.getValues().stream();
             }

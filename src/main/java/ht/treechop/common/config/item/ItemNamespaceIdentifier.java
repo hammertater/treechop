@@ -1,11 +1,10 @@
 package ht.treechop.common.config.item;
 
-import net.minecraft.world.item.Item;
 import net.minecraft.tags.TagCollection;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ItemNamespaceIdentifier extends ItemIdentifier {
