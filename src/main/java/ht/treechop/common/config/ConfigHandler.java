@@ -177,7 +177,7 @@ public class ConfigHandler {
 
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
-//        public final ForgeConfigSpec.BooleanValue compatForProjectMMO;
+        public final ForgeConfigSpec.BooleanValue compatForProjectMMO;
 //        public final ForgeConfigSpec.BooleanValue compatForCarryOn;
 //        public final ForgeConfigSpec.BooleanValue compatForDynamicTrees;
         public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
@@ -317,12 +317,12 @@ public class ConfigHandler {
 
             builder.pop();
 
-//            builder.push("specific");
-//            compatForProjectMMO = builder
-//                    .comment(String.join("\n",
-//                            "Whether to enable compatibility with ProjectMMO; for example, award XP for chopping",
-//                            "See https://www.curseforge.com/minecraft/mc-mods/project-mmo"))
-//                    .define("projectMMO", true);
+            builder.push("specific");
+            compatForProjectMMO = builder
+                    .comment(String.join("\n",
+                            "Whether to enable compatibility with ProjectMMO; for example, award XP for chopping",
+                            "See https://www.curseforge.com/minecraft/mc-mods/project-mmo"))
+                    .define("projectMMO", true);
 //            compatForCarryOn = builder
 //                    .comment(String.join("\n",
 //                            "Whether to prevent conflicts with Carry On when it is configured to allow picking up logs",
@@ -333,7 +333,7 @@ public class ConfigHandler {
 //                            "Whether to prevent conflicts with DynamicTrees",
 //                            "See https://www.curseforge.com/minecraft/mc-mods/dynamictrees"))
 //                    .define("dynamicTrees", true);
-//            builder.pop();
+            builder.pop();
             builder.pop();
         }
 
