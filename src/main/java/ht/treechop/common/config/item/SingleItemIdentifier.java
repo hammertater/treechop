@@ -17,11 +17,13 @@ public class SingleItemIdentifier extends ItemIdentifier {
     @Override
     public Stream<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
         String resourceString = getNamespace() + ":" + getLocalSpace();
-        ResourceLocation resource = ResourceLocation.tryParse(resourceString);
-        if (resource != null) {
-            Item item = registry.getValue(resource);
-            if (item != null) {
-                return Stream.of(item);
+        ResourceLocation itemId = ResourceLocation.tryParse(resourceString);
+        if (itemId != null) {
+            if (registry.containsKey(itemId)) {
+                Item item = registry.getValue(itemId); // Returns minecraft:air if itemId is not registered
+                if (item != null) {
+                    return Stream.of(item);
+                }
             }
         } else {
             parsingError(String.format("\"%s\" is not a valid resource location", getItemID()));
