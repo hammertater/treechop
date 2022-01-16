@@ -86,8 +86,8 @@ dependencies {
     compileOnly fg.deobf("curse.maven:pmmo-353935:3603540")
     runtimeOnly fg.deobf("curse.maven:pmmo-353935:3603540")
 
-//    compileOnly fg.deobf("curse.maven:carry-on:3601938" )
-//    runtimeOnly fg.deobf("curse.maven:carry-on:3601938" )
+    compileOnly fg.deobf("curse.maven:carry-on:3601938" )
+    runtimeOnly fg.deobf("curse.maven:carry-on:3601938" )
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
