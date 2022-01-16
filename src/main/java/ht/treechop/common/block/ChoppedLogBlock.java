@@ -220,7 +220,9 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
         };
 
         return Arrays.stream(waterSourceDirections)
-                .anyMatch(direction -> level.getFluidState(pos.offset(direction.getNormal())).isSource());
+                .filter(direction -> level.getFluidState(pos.offset(direction.getNormal())).isSource())
+                .limit(2)
+                .count() == 2;
     }
 
     public FluidState getFluidState(BlockState blockState) {
