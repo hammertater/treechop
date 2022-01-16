@@ -13,15 +13,20 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.client.gui.ForgeIngameGui;
+
+import javax.annotation.Nonnull;
 
 public class ChopIndicator extends GuiComponent {
 
     private static final double IMAGE_SCALE = 1.0;
 
-    private static BlockPos lastBlockPos = null;
+    private static final LastBlock lastBlock = new LastBlock();
     private static final ChopSettings lastChopSettings = new ChopSettings();
     private static boolean lastBlockWouldBeChopped = false;
 
@@ -53,10 +58,10 @@ public class ChopIndicator extends GuiComponent {
                         imageHeight
                 );
             }
-            lastBlockPos = blockPos;
+            lastBlock.set(minecraft.level, blockPos);
             lastChopSettings.copyFrom(Client.getChopSettings());
         } else {
-            lastBlockPos = null;
+            lastBlock.clear();
         }
     }
 
@@ -69,8 +74,7 @@ public class ChopIndicator extends GuiComponent {
                 ChopUtil.canChopWithTool(player.getMainHandItem()) &&
                 ChopUtil.playerWantsToChop(minecraft.player, Client.getChopSettings())
         ) {
-            if ((pos.equals(lastBlockPos) || !Client.getChopSettings().equals(lastChopSettings))
-            ) {
+            if (!lastBlock.equals(level, pos) || !Client.getChopSettings().equals(lastChopSettings)) {
                 if (ChopUtil.playerWantsToFell(player, Client.getChopSettings())) {
                     lastBlockWouldBeChopped = ChopUtil.isPartOfATree(
                             level, pos, Client.getChopSettings().getTreesMustHaveLeaves()
@@ -84,6 +88,35 @@ public class ChopIndicator extends GuiComponent {
         }
 
         return lastBlockWouldBeChopped;
+    }
+
+    private static class LastBlock {
+        private BlockPos pos;
+        private BlockState blockState;
+        private BlockGetter level;
+
+        public LastBlock() {
+            clear();
+        }
+
+        public boolean equals(BlockGetter level, BlockPos pos) {
+            return (this.pos == null && pos == null) || (this.level == level
+                    && this.pos != null
+                    && this.pos.equals(pos)
+                    && blockState.equals(level.getBlockState(pos))
+            );
+        }
+
+        public void set(@Nonnull BlockGetter level, @Nonnull BlockPos pos) {
+            this.level = level;
+            this.pos = pos;
+            blockState = level.getBlockState(pos);
+        }
+
+        public void clear() {
+            pos = null;
+            blockState = Blocks.AIR.defaultBlockState();
+        }
     }
 
 }
