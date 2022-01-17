@@ -1,8 +1,8 @@
 package ht.treechop.common.compat;
 
 import ht.treechop.TreeChopMod;
-import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.api.ChopEvent;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.util.TickUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;

@@ -6,8 +6,6 @@ import net.minecraft.core.Position;
 
 public class Vector3 implements Position {
 
-    public static final Vector3 ZERO = new Vector3(0, 0, 0);
-
     private final double x;
     private final double y;
     private final double z;

@@ -1,6 +1,5 @@
 package ht.treechop.common.util;
 
-import com.ibm.icu.impl.Pair;
 import ht.treechop.TreeChopMod;
 import ht.treechop.api.ChopEvent;
 import ht.treechop.api.IChoppableBlock;
@@ -24,6 +23,7 @@ import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -95,7 +95,6 @@ public class ChopUtil {
         return canChangeBlock(level, blockPos, agent, gameType, ItemStack.EMPTY);
     }
 
-    @SuppressWarnings("ConstantConditions")
     public static boolean canChangeBlock(Level level, BlockPos blockPos, Player agent, GameType gameType, ItemStack tool) {
         if (!agent.blockActionRestricted(level, blockPos, gameType)) { // TODO: get the player's game mode
             if (tool.isEmpty()) {
@@ -359,8 +358,8 @@ public class ChopUtil {
     public static int getNumChops(Level level, Set<BlockPos> positions) {
         return positions.stream()
                 .map(pos -> Pair.of(pos, level.getBlockState(pos)))
-                .map(posAndblockState -> posAndblockState.second.getBlock() instanceof IChoppableBlock choppableBlock
-                        ? choppableBlock.getNumChops(level, posAndblockState.first, posAndblockState.second)
+                .map(posAndblockState -> posAndblockState.getRight().getBlock() instanceof IChoppableBlock choppableBlock
+                        ? choppableBlock.getNumChops(level, posAndblockState.getLeft(), posAndblockState.getRight())
                         : 0
                 )
                 .reduce(Integer::sum)

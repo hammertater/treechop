@@ -9,7 +9,6 @@ import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.widget.StickyWidget;
 import ht.treechop.client.gui.widget.ToggleWidget;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;

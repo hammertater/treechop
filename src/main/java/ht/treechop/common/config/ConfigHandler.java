@@ -4,7 +4,6 @@ import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.config.item.ItemIdentifier;
 import ht.treechop.common.settings.*;
 import ht.treechop.server.Server;
-import joptsimple.util.KeyValuePair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;

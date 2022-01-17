@@ -1,8 +1,8 @@
 package ht.treechop.common.config.item;
 
 import ht.treechop.TreeChopMod;
-import net.minecraft.world.item.Item;
 import net.minecraft.tags.TagCollection;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.Arrays;

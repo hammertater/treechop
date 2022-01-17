@@ -1,6 +1,5 @@
 package ht.treechop.common.util;
 
-import com.google.common.collect.Lists;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -70,7 +69,7 @@ public class ChopResult {
                     ? ChopUtil.getTreeLeaves(level, logs).stream()
                     .filter(pos -> ChopUtil.canChangeBlock(level, pos, agent, agent.gameMode.getGameModeForPlayer()))
                     .collect(Collectors.toList())
-                    : Lists.newArrayList();
+                    : Collections.emptyList();
 
             logs.remove(targetPos);
             playBlockBreakEffects(level, logs, leaves);

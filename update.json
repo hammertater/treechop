@@ -17,7 +17,7 @@
     "1.12.2-recommended": "0.14.6"
   },
   "1.17.1": {
-    "0.15.1": "Fix inability to chop blocks with empty hands\nFix chop indicator flickering",
+    "0.15.1": "Fixed inability to chop blocks with empty hands\nFixed chop indicator flickering",
     "0.15.0": "Use stripped log textures for chopped logs\nChopped blocks inherit the properties (such as break speed) of the original block (mostly affects mushrooms)\nChopped blocks can overlap with water\nFixed items being dropped on first chop; they are now dropped when the chopped log block is destroyed\nAdded tooltips in settings screen\nRemoved excessive error messages"
   },
   "1.16.5": {
