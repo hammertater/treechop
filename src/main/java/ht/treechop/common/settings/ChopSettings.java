@@ -35,8 +35,7 @@ public class ChopSettings {
     public boolean equals(Object other) {
         if (other == this) {
             return true;
-        } else if (other instanceof ChopSettings) {
-            ChopSettings otherSettings = (ChopSettings) other;
+        } else if (other instanceof ChopSettings otherSettings) {
             return Arrays.stream(SettingsField.VALUES)
                     .allMatch(field -> this.get(field).equals(otherSettings.get(field)));
         } else {
