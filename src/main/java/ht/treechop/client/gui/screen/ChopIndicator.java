@@ -1,42 +1,53 @@
 package ht.treechop.client.gui.screen;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.Client;
 import ht.treechop.client.gui.util.Sprite;
+import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.util.ChopUtil;
-import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraftforge.client.gui.ForgeIngameGui;
 
-public class ChopIndicator extends AbstractGui {
+import javax.annotation.Nonnull;
+
+public class ChopIndicator extends GuiComponent {
 
     private static final double IMAGE_SCALE = 1.0;
 
-    private static BlockPos lastBlockPos = null;
+    private static final LastBlock lastBlock = new LastBlock();
     private static final ChopSettings lastChopSettings = new ChopSettings();
     private static boolean lastBlockWouldBeChopped = false;
+    private static boolean wantedToChopLastBlock = false;
 
-    public void render(MainWindow window, MatrixStack matrixStack, float partialTicks) {
+    public static void render(ForgeIngameGui gui, PoseStack poseStack, float partialTicks, int windowWidth, int windowHeight) {
         Minecraft minecraft = Minecraft.getInstance();
-        RayTraceResult mouseOver = minecraft.objectMouseOver;
+        HitResult mouseOver = minecraft.hitResult;
 
         if (Client.isChoppingIndicatorEnabled() &&
-                minecraft.currentScreen == null && mouseOver != null &&
-                mouseOver.getType() == RayTraceResult.Type.BLOCK &&
-                mouseOver instanceof BlockRayTraceResult
+                minecraft.level != null && minecraft.screen == null && mouseOver != null &&
+                mouseOver.getType() == HitResult.Type.BLOCK && mouseOver instanceof BlockHitResult
         ) {
-            BlockPos blockPos = ((BlockRayTraceResult) mouseOver).getPos();
+            BlockPos blockPos = ((BlockHitResult) mouseOver).getBlockPos();
             if (blockWouldBeChopped(blockPos)) {
-                int windowWidth = window.getScaledWidth();
-                int windowHeight = window.getScaledHeight();
-                minecraft.getTextureManager().bindTexture(Sprite.TEXTURE_PATH);
+                RenderSystem.blendFuncSeparate(
+                        GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR,
+                        GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR,
+                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
+                );
+                RenderSystem.setShaderTexture(0, Sprite.TEXTURE_PATH);
 
                 int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset.get();
                 int indicatorCenterY = windowHeight / 2 + ConfigHandler.CLIENT.indicatorYOffset.get();
@@ -45,44 +56,76 @@ public class ChopIndicator extends AbstractGui {
                 int imageWidth = (int) (sprite.width * IMAGE_SCALE);
                 int imageHeight = (int) (sprite.height * IMAGE_SCALE);
                 sprite.blit(
-                        matrixStack,
+                        poseStack,
                         indicatorCenterX - imageWidth / 2,
                         indicatorCenterY - imageHeight / 2,
                         imageWidth,
                         imageHeight
                 );
             }
-            lastBlockPos = blockPos;
+            lastBlock.set(minecraft.level, blockPos);
             lastChopSettings.copyFrom(Client.getChopSettings());
         } else {
-            lastBlockPos = null;
+            lastBlock.clear();
         }
     }
 
-    private boolean blockWouldBeChopped(BlockPos pos) {
+    private static boolean blockWouldBeChopped(BlockPos pos) {
         Minecraft minecraft = Minecraft.getInstance();
-        ClientPlayerEntity player = minecraft.player;
-        ClientWorld world = minecraft.world;
+        LocalPlayer player = minecraft.player;
+        ClientLevel level = minecraft.level;
+        ClientChopSettings chopSettings = Client.getChopSettings();
 
-        if (world != null & minecraft.player != null &&
-                ChopUtil.canChopWithTool(player.getHeldItemMainhand()) &&
-                ChopUtil.playerWantsToChop(minecraft.player, Client.getChopSettings())
-        ) {
-            if ((pos.equals(lastBlockPos) || !Client.getChopSettings().equals(lastChopSettings))
-            ) {
-                if (ChopUtil.playerWantsToFell(player, Client.getChopSettings())) {
+        if (player == null || level == null) {
+            return false;
+        }
+
+        boolean wantToChop = ChopUtil.canChopWithTool(player.getMainHandItem()) && ChopUtil.playerWantsToChop(minecraft.player, chopSettings);
+        if (wantToChop) {
+            if (!lastBlock.equals(level, pos) || !wantedToChopLastBlock) {
+                if (ChopUtil.playerWantsToFell(player, chopSettings)) {
                     lastBlockWouldBeChopped = ChopUtil.isPartOfATree(
-                            world, pos, Client.getChopSettings().getTreesMustHaveLeaves()
+                            level, pos, chopSettings.getTreesMustHaveLeaves()
                     );
                 } else {
-                    lastBlockWouldBeChopped = ChopUtil.isBlockALog(world, pos);
+                    lastBlockWouldBeChopped = ChopUtil.isBlockALog(level, pos);
                 }
             }
         } else {
             lastBlockWouldBeChopped = false;
         }
 
+        wantedToChopLastBlock = wantToChop;
         return lastBlockWouldBeChopped;
+    }
+
+    private static class LastBlock {
+        private BlockPos pos;
+        private BlockState blockState;
+        private BlockGetter level;
+
+        public LastBlock() {
+            clear();
+        }
+
+        public boolean equals(BlockGetter level, BlockPos pos) {
+            return (this.pos == null && pos == null) || (this.level == level
+                    && this.pos != null
+                    && this.pos.equals(pos)
+                    && blockState.equals(level.getBlockState(pos))
+            );
+        }
+
+        public void set(@Nonnull BlockGetter level, @Nonnull BlockPos pos) {
+            this.level = level;
+            this.pos = pos;
+            blockState = level.getBlockState(pos);
+        }
+
+        public void clear() {
+            pos = null;
+            blockState = Blocks.AIR.defaultBlockState();
+        }
     }
 
 }

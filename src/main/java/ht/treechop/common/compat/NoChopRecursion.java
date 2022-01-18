@@ -1,10 +1,10 @@
 package ht.treechop.common.compat;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.api.ChopEvent;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.event.ChopEvent;
 import ht.treechop.common.util.TickUtil;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -16,7 +16,7 @@ import java.util.Map;
 @EventBusSubscriber(modid = TreeChopMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class NoChopRecursion {
 
-    static private Map<PlayerEntity, Long> lastChopTickByPlayers = new HashMap<>();
+    static private Map<Player, Long> lastChopTickByPlayers = new HashMap<>();
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
@@ -28,7 +28,7 @@ public class NoChopRecursion {
     private static class EventHandler {
         @SubscribeEvent
         public static void onChop(ChopEvent.StartChopEvent event) {
-            PlayerEntity agent = event.getPlayer();
+            Player agent = event.getPlayer();
             long time = event.getWorld().getGameTime();
             if (lastChopTickByPlayers.getOrDefault(agent, TickUtil.NEVER) == time) {
                 event.setCanceled(true);

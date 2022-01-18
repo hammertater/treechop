@@ -1,10 +1,10 @@
 package ht.treechop.common.compat;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.api.ChopEvent;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.event.ChopEvent;
 import ht.treechop.common.util.TickUtil;
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.EventPriority;

@@ -1,10 +1,10 @@
 package ht.treechop.common.config;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
 import java.util.function.Function;
 
-public enum Rounder implements IStringSerializable {
+public enum Rounder implements StringRepresentable {
     DOWN(value -> (int) Math.floor(value)),
     NEAREST(value -> (int) Math.round(value)),
     UP(value -> (int) Math.ceil(value))
@@ -21,7 +21,7 @@ public enum Rounder implements IStringSerializable {
     }
 
     @Override
-    public String getString() {
+    public String getSerializedName() {
         return name();
     }
 }

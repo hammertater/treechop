@@ -1,9 +1,10 @@
-package ht.treechop.common.event;
+package ht.treechop.api;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
@@ -12,23 +13,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChopEvent extends Event {
 
-    private final World world;
-    private final PlayerEntity player;
+    private final Level level;
+    private final Player player;
     private final BlockPos choppedBlockPos;
     private final BlockState choppedBlockState;
 
-    public ChopEvent(World world, PlayerEntity player, BlockPos choppedBlockPos, BlockState choppedBlockState) {
-        this.world = world;
+    public ChopEvent(Level level, Player player, BlockPos choppedBlockPos, BlockState choppedBlockState) {
+        this.level = level;
         this.player = player;
         this.choppedBlockPos = choppedBlockPos;
         this.choppedBlockState = choppedBlockState;
     }
 
-    public World getWorld() {
-        return world;
+    public Level getWorld() {
+        return level;
     }
 
-    public PlayerEntity getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 
@@ -45,8 +46,8 @@ public class ChopEvent extends Event {
         private final AtomicBoolean hasLeaves;
         private final AtomicBoolean overrideHasLeaves;
 
-        public DetectTreeEvent(World world, PlayerEntity player, BlockPos choppedBlockPos, BlockState choppedBlockState, AtomicBoolean hasLeaves, AtomicBoolean overrideHasLeaves) {
-            super(world, player, choppedBlockPos, choppedBlockState);
+        public DetectTreeEvent(Level level, Player player, BlockPos choppedBlockPos, BlockState choppedBlockState, AtomicBoolean hasLeaves, AtomicBoolean overrideHasLeaves) {
+            super(level, player, choppedBlockPos, choppedBlockState);
             this.overrideHasLeaves = overrideHasLeaves;
             this.hasLeaves = hasLeaves;
         }
@@ -63,8 +64,8 @@ public class ChopEvent extends Event {
         private int numChops;
         private boolean felling;
 
-        public StartChopEvent(BlockEvent.BreakEvent breakEvent, World world, PlayerEntity player, BlockPos choppedBlockPos, BlockState choppedBlockState, int numChops, boolean felling) {
-            super(world, player, choppedBlockPos, choppedBlockState);
+        public StartChopEvent(BlockEvent.BreakEvent breakEvent, Level level, ServerPlayer player, BlockPos choppedBlockPos, BlockState choppedBlockState, int numChops, boolean felling) {
+            super(level, player, choppedBlockPos, choppedBlockState);
             this.breakEvent = breakEvent;
             this.numChops = numChops;
             this.felling = felling;
@@ -92,8 +93,8 @@ public class ChopEvent extends Event {
     }
 
     public static class FinishChopEvent extends ChopEvent {
-        public FinishChopEvent(World world, PlayerEntity player, BlockPos choppedBlockPos, BlockState choppedBlockState) {
-            super(world, player, choppedBlockPos, choppedBlockState);
+        public FinishChopEvent(Level level, Player player, BlockPos choppedBlockPos, BlockState choppedBlockState) {
+            super(level, player, choppedBlockPos, choppedBlockState);
         }
     }
 

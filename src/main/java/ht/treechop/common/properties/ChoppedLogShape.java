@@ -2,25 +2,20 @@ package ht.treechop.common.properties;
 
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.util.FaceShape;
-import net.minecraft.util.Direction;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.core.Direction;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ht.treechop.common.util.DirectionBitMasks.DOWN;
-import static ht.treechop.common.util.DirectionBitMasks.EAST;
-import static ht.treechop.common.util.DirectionBitMasks.NORTH;
-import static ht.treechop.common.util.DirectionBitMasks.SOUTH;
-import static ht.treechop.common.util.DirectionBitMasks.UP;
-import static ht.treechop.common.util.DirectionBitMasks.WEST;
+import static ht.treechop.common.util.DirectionBitMasks.*;
 
-public enum ChoppedLogShape implements IStringSerializable {
+public enum ChoppedLogShape implements StringRepresentable {
     PILLAR_Y("pillar", NORTH | SOUTH | EAST | WEST), // "pillar" instead of "pillar_y" for backwards compatibility
     CORNER_NWEU("corner_nweu", NORTH | EAST | WEST | UP),
     CORNER_NWED("corner_nwed", NORTH | EAST | WEST | DOWN),
@@ -80,7 +75,7 @@ public enum ChoppedLogShape implements IStringSerializable {
 
     private final String name;
     private final byte openSides;
-    private final Map<Integer, AxisAlignedBB> chopsBoxes;
+    private final Map<Integer, AABB> chopsBoxes;
 
     private static final ChoppedLogShape[] openSidesMap
             = new ChoppedLogShape[(NORTH | SOUTH | EAST | WEST | UP | DOWN) + 1];
@@ -110,12 +105,12 @@ public enum ChoppedLogShape implements IStringSerializable {
                         this::bakeBoundingBox
                 ));
 
-        // NOTE: this must be kept independent of dynamics (e.g. world, pos) since it is used to bake models
-        this.occlusionShape = VoxelShapes.or(
-                VoxelShapes.empty(),
+        // NOTE: this must be kept independent of dynamics (e.g. level, pos) since it is used to bake models
+        this.occlusionShape = Shapes.or(
+                Shapes.empty(),
                 Arrays.stream(Direction.values())
                         .filter(direction -> direction.getAxis().isHorizontal() && !isSideOpen(direction))
-                        .map(direction -> VoxelShapes.create(FaceShape.get(direction).getBox().asAxisAlignedBB()))
+                        .map(direction -> Shapes.create(FaceShape.get(direction).getBox().asAxisAlignedBB()))
                         .toArray(VoxelShape[]::new)
         );
         int x = 0;
@@ -131,11 +126,11 @@ public enum ChoppedLogShape implements IStringSerializable {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public String getString() {
+    public String getSerializedName() {
         return this.name;
     }
 
-    private AxisAlignedBB bakeBoundingBox(int chops) {
+    private AABB bakeBoundingBox(int chops) {
         boolean down = isSideOpen(Direction.DOWN);
         boolean up = isSideOpen(Direction.UP);
         boolean north = isSideOpen(Direction.NORTH);
@@ -150,7 +145,7 @@ public enum ChoppedLogShape implements IStringSerializable {
         float yRadius = (down || up) ? 8 - chops : 8;
         float zRadius = (north || south) ? 8 - chops : 8;
 
-        return new AxisAlignedBB(
+        return new AABB(
                 xCenter - xRadius,
                 yCenter - yRadius,
                 zCenter - zRadius,
@@ -160,7 +155,7 @@ public enum ChoppedLogShape implements IStringSerializable {
         );
     }
 
-    public AxisAlignedBB getBoundingBox(int chops) {
+    public AABB getBoundingBox(int chops) {
         return chopsBoxes.get(chops);
     }
 
@@ -171,6 +166,6 @@ public enum ChoppedLogShape implements IStringSerializable {
     public VoxelShape getOcclusionShape() {
         return (ConfigHandler.CLIENT.removeBarkOnInteriorLogs.get())
                 ? occlusionShape
-                : VoxelShapes.empty();
+                : Shapes.empty();
     }
 }

@@ -1,6 +1,6 @@
 package ht.treechop.common.util;
 
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 import java.util.EnumMap;
 
@@ -70,7 +70,7 @@ public enum FaceShape {
     FaceShape(Direction direction, Vector3 corner1, Vector3 corner2, Vector3 corner3, Vector3 corner4) {
         this.direction = direction;
 
-        Vector3 depthVector = new Vector3(direction.getXOffset(), direction.getYOffset(), direction.getZOffset())
+        Vector3 depthVector = new Vector3(direction.getStepX(), direction.getStepY(), direction.getStepZ())
                 .scale(-0.01);
         Vector3 pushedCorner1 = corner1.add(depthVector);
         this.faceBox = new Box3(pushedCorner1, corner3);

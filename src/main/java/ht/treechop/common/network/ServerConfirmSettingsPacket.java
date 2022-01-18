@@ -1,8 +1,8 @@
 package ht.treechop.common.network;
 
 import ht.treechop.client.Client;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -17,12 +17,12 @@ public class ServerConfirmSettingsPacket {
         this.settings = settings;
     }
 
-    public static void encode(ServerConfirmSettingsPacket message, PacketBuffer buffer) {
+    public static void encode(ServerConfirmSettingsPacket message, FriendlyByteBuf buffer) {
         buffer.writeInt(message.settings.size());
         message.settings.forEach(setting -> setting.encode(buffer));
     }
 
-    public static ServerConfirmSettingsPacket decode(PacketBuffer buffer) {
+    public static ServerConfirmSettingsPacket decode(FriendlyByteBuf buffer) {
         int numSettings = buffer.readInt();
         List<ConfirmedSetting> settings = IntStream.range(0, numSettings)
                 .mapToObj($ -> ConfirmedSetting.decode(buffer))

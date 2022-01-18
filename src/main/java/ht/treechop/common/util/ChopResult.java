@@ -1,16 +1,15 @@
 package ht.treechop.common.util;
 
-import com.google.common.collect.Lists;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.FakePlayerFactory;
 
 import java.util.Collection;
@@ -18,58 +17,44 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ChopResult {
-    public static final ChopResult IGNORED = new ChopResult(Lists.newArrayList(), false);
+    public static final ChopResult IGNORED = new ChopResult(null, Collections.emptyList(), Collections.emptyList());
 
-    private final List<TreeBlock> blocks;
+    private final Level level;
+    private final Collection<Chop> chops;
+    private final Collection<BlockPos> fells;
     private final boolean felling;
 
-    public static final int MAX_NUM_FELLING_EFFECTS = 32;
+    public static final int MAX_NUM_FELLING_EFFECTS = 32;;
 
-    public ChopResult(List<TreeBlock> blocks, boolean felling) {
-        this.blocks = blocks;
-        this.felling = felling;
-    }
-
-    public ChopResult(List<TreeBlock> blocks) {
-        this(blocks, false);
-    }
-
-    public ChopResult(World world, Collection<BlockPos> chopPositions, Collection<BlockPos> fellPositions) {
-        this(
-                Stream.of(chopPositions, fellPositions)
-                        .flatMap(Collection::stream)
-                        .map(pos -> new TreeBlock(world, pos, Blocks.AIR.getDefaultState()))
-                        .collect(Collectors.toList()),
-                true
-        );
+    public ChopResult(Level level, Collection<Chop> chops, Collection<BlockPos> fells) {
+        this.level = level;
+        this.chops = chops;
+        this.fells = fells;
+        this.felling = !fells.isEmpty();
     }
 
     /**
-     *  Applies the results of chopping to the world, spawning the appropriate drops.
+     *  Applies the results of chopping to the level, spawning the appropriate drops.
      * - Chopped blocks: harvest by agent, change to chopped state
      * - Felled blocks: harvest by no one, change to felled state
      * - Chopped and felled blocks: harvest by agent, change to felled state
-     * @return true if changes were able to be applied
+     * @return whether the block at targetPos needs to be preserved.
      */
-    public boolean apply(BlockPos targetPos, PlayerEntity agent, ItemStack tool, boolean breakLeaves) {
-        World world = agent.getEntityWorld();
+    public boolean apply(BlockPos targetPos, ServerPlayer agent, ItemStack tool, boolean breakLeaves) {
+        GameType gameType;
+        gameType = agent.gameMode.getGameModeForPlayer();
 
         AtomicBoolean somethingChanged = new AtomicBoolean(false);
-        List<TreeBlock> logs = blocks.stream()
-                .filter(treeBlock -> !somethingChanged.get() && ChopUtil.canChangeBlock(
-                        treeBlock.getWorld(),
-                        treeBlock.getPos(),
-                        agent,
-                        (treeBlock.wasChopped()) ? tool : ItemStack.EMPTY
-
-                ))
-                .peek(treeBlock -> {
-                    BlockState blockState = world.getBlockState(treeBlock.getPos());
-                    somethingChanged.compareAndSet(false, blockState.getBlock().isAir(blockState, world, treeBlock.getPos()));
+        List<BlockPos> logs = Stream.concat(chops.stream().map(Chop::getBlockPos), fells.stream())
+                .filter(pos -> !somethingChanged.get() && ChopUtil.canChangeBlock(level, pos, agent, gameType, tool))
+                .peek(pos -> {
+                    BlockState blockState = level.getBlockState(pos);
+                    somethingChanged.compareAndSet(false, blockState.isAir());
                 })
                 .collect(Collectors.toList());
 
@@ -77,92 +62,89 @@ public class ChopResult {
             return false;
         }
 
-        List<TreeBlock> leaves = (felling && breakLeaves)
-                ? ChopUtil.getTreeLeaves(
-                                world,
-                                logs.stream().map(TreeBlock::getPos).collect(Collectors.toList())
-                        )
-                        .stream()
-                        .filter(pos -> ChopUtil.canChangeBlock(world, pos, agent))
-                        .map(pos -> new TreeBlock(world, pos, Blocks.AIR.getDefaultState()))
-                        .collect(Collectors.toList())
-                : Lists.newArrayList();
+        chopBlocks(level, agent, tool, chops.stream());
 
-        int numLogsAndLeaves = logs.size() + leaves.size();
+        if (felling) {
+            List<BlockPos> leaves = breakLeaves
+                    ? ChopUtil.getTreeLeaves(level, logs).stream()
+                    .filter(pos -> ChopUtil.canChangeBlock(level, pos, agent, agent.gameMode.getGameModeForPlayer()))
+                    .collect(Collectors.toList())
+                    : Collections.emptyList();
 
-        if (!world.isRemote() && !agent.isCreative()) {
-            int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, tool);
-            int silkTouch = EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, tool);
+            logs.remove(targetPos);
+            playBlockBreakEffects(level, logs, leaves);
 
-            AtomicInteger xpAccumulator = new AtomicInteger(0);
+            fells.remove(targetPos);
+            fellBlocks(level, targetPos, agent, Stream.of(fells, leaves).flatMap(Collection::stream));
 
-            PlayerEntity fakePlayer = (world instanceof ServerWorld)
-                    ? FakePlayerFactory.getMinecraft((ServerWorld) world)
-                    : agent;
-
-            Stream.of(logs, leaves)
-                    .flatMap(Collection::stream)
-                    .forEach(treeBlock -> {
-                        if (treeBlock.wasChopped()) {
-                            harvestWorldBlock(agent, tool, xpAccumulator, fortune, silkTouch, treeBlock);
-                        } else {
-                            harvestWorldBlock(fakePlayer, ItemStack.EMPTY, xpAccumulator, 0, 0, treeBlock);
-                        }
-                    });
-
-            ChopUtil.dropExperience(world, targetPos, xpAccumulator.get());
+            return false;
         }
-
-        int numEffects = Math.min((int) Math.ceil(Math.sqrt(numLogsAndLeaves)), MAX_NUM_FELLING_EFFECTS) - 1;
-
-        Collections.shuffle(logs);
-        Collections.shuffle(leaves);
-        int numLeavesEffects = Math.max(0, (int) Math.ceil(numEffects * ((double) leaves.size() / (double) numLogsAndLeaves)));
-        int numLogsEffects = Math.max(0, numEffects - numLeavesEffects);
-
-        Stream.of(
-                logs.stream().limit(numLogsEffects),
-                leaves.stream().limit(numLeavesEffects)
-        )
-                .flatMap(a->a)
-                .forEach(
-                        treeBlock -> world.playEvent(
-                                2001,
-                                treeBlock.getPos(),
-                                Block.getStateId(world.getBlockState(treeBlock.getPos()))
-                        )
-                );
-
-        Stream.of(logs, leaves)
-                .flatMap(Collection::stream)
-                .forEach(
-                        treeBlock -> treeBlock.getWorld().setBlockState(
-                                treeBlock.getPos(),
-                                treeBlock.getState(),
-                                3
-                        )
-                );
 
         return true;
     }
 
+    private void chopBlocks(Level level, Player player, ItemStack tool, Stream<Chop> chops) {
+        chops.forEach(chop -> chop.apply(level, player, tool, felling));
+    }
+
+    private void fellBlocks(Level level, BlockPos targetPos, ServerPlayer agent, Stream<BlockPos> blocks) {
+        Player fakePlayer = (level instanceof ServerLevel)
+                ? FakePlayerFactory.getMinecraft((ServerLevel) level)
+                : agent;
+
+        AtomicInteger xpAccumulator = new AtomicInteger(0);
+        Consumer<BlockPos> blockBreaker;
+
+        if (level.isClientSide() || agent.isCreative()) {
+            BlockState air = Blocks.AIR.defaultBlockState();
+            blockBreaker = pos -> level.setBlock(pos, air, 3);
+        } else {
+            blockBreaker = pos -> harvestWorldBlock(fakePlayer, level, pos, ItemStack.EMPTY, xpAccumulator, 0, 0);
+        }
+
+        blocks.forEach(blockBreaker);
+        ChopUtil.dropExperience(level, targetPos, xpAccumulator.get());
+    }
+
+    private void playBlockBreakEffects(Level level, List<BlockPos> logs, List<BlockPos> leaves) {
+        int numLogsAndLeaves = logs.size() + leaves.size();
+        int numEffects = Math.min((int) Math.ceil(Math.sqrt(numLogsAndLeaves)), MAX_NUM_FELLING_EFFECTS) - 1;
+        int numLeavesEffects = Math.max(1, (int) Math.ceil(numEffects * ((double) leaves.size() / (double) numLogsAndLeaves)));
+        int numLogsEffects = Math.max(1, numEffects - numLeavesEffects);
+
+        Collections.shuffle(logs);
+        Collections.shuffle(leaves);
+
+        Stream.concat(
+                logs.stream().limit(numLogsEffects),
+                leaves.stream().limit(numLeavesEffects)
+        )
+                .forEach(pos -> level.levelEvent(2001, pos, Block.getId(level.getBlockState(pos))));
+    }
+
     private static void harvestWorldBlock(
-            PlayerEntity agent,
+            Player agent,
+            Level level,
+            BlockPos pos,
             ItemStack tool,
             AtomicInteger totalXp,
             int fortune,
-            int silkTouch,
-            TreeBlock treeBlock
+            int silkTouch
     ) {
-        World world = treeBlock.getWorld();
-        BlockPos pos = treeBlock.getPos();
-        BlockState blockState = world.getBlockState(pos);
-        blockState.getBlock().harvestBlock(
-                world, agent, pos, blockState, world.getTileEntity(pos), tool
-        );
-        totalXp.getAndAdd(
-                blockState.getExpDrop(world, pos, fortune, silkTouch)
-        );
+        BlockState blockState = level.getBlockState(pos);
+
+        // Do not call -- makes particle and sound effects
+        // blockState.removedByPlayer(level, pos, agent, true, level.getFluidState(pos));
+
+        if (level instanceof ServerLevel) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+            blockState.getBlock().destroy(level, pos, blockState);
+            Block.dropResources(blockState, level, pos, level.getBlockEntity(pos), agent, tool);
+            totalXp.getAndAdd(blockState.getExpDrop(level, pos, fortune, silkTouch));
+        }
     }
 
+    public boolean isFelling() {
+        return fells.size() > 0;
+    }
 }

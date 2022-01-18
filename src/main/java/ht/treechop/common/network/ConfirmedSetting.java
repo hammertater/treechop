@@ -3,10 +3,10 @@ package ht.treechop.common.network;
 import ht.treechop.TreeChopMod;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.Setting;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class ConfirmedSetting extends Setting {
 
@@ -18,12 +18,12 @@ public class ConfirmedSetting extends Setting {
     }
 
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         super.encode(buffer);
         event.encode(buffer);
     }
 
-    public static ConfirmedSetting decode(PacketBuffer buffer) {
+    public static ConfirmedSetting decode(FriendlyByteBuf buffer) {
         Setting setting = Setting.decode(buffer);
         Event event = Event.decode(buffer);
         return new ConfirmedSetting(setting, event);
@@ -33,7 +33,7 @@ public class ConfirmedSetting extends Setting {
         ACCEPT {
             @Override
             public void run(ConfirmedSetting setting) {
-                if (Minecraft.getInstance().currentScreen == null) {
+                if (Minecraft.getInstance().screen == null) {
                     String fieldName = setting.getField().getFancyName();
                     String valueName = setting.getField().getValueName(setting.getValue());
                     if (ConfigHandler.CLIENT.showFeedbackMessages.get()) {
@@ -49,7 +49,7 @@ public class ConfirmedSetting extends Setting {
         DENY {
             @Override
             public void run(ConfirmedSetting setting) {
-                if (Minecraft.getInstance().currentScreen == null) {
+                if (Minecraft.getInstance().screen == null) {
                     String fieldName = setting.getField().getFancyName();
                     String valueName = setting.getField().getValueName(setting.getValue());
                     if (ConfigHandler.CLIENT.showFeedbackMessages.get()) {
@@ -57,8 +57,8 @@ public class ConfirmedSetting extends Setting {
                                 "%s %s %s(%s)",
                                 fieldName,
                                 valueName,
-                                TextFormatting.RED,
-                                I18n.format("treechop.setting.missing_permissions")
+                                ChatFormatting.RED,
+                                I18n.get("treechop.setting.missing_permissions")
                         ));
                     }
                 }
@@ -72,12 +72,12 @@ public class ConfirmedSetting extends Setting {
 
         private static final Event[] values = Event.values();
 
-        public static Event decode(PacketBuffer buffer) {
+        public static Event decode(FriendlyByteBuf buffer) {
             int ordinal = buffer.readByte() % values.length;
             return Event.values[ordinal];
         }
 
-        public void encode(PacketBuffer buffer) {
+        public void encode(FriendlyByteBuf buffer) {
             buffer.writeByte(ordinal());
         }
     }

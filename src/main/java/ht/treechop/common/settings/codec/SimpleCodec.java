@@ -1,15 +1,15 @@
 package ht.treechop.common.settings.codec;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.Optional;
 import java.util.Set;
 
 public interface SimpleCodec<T> {
 
-    T decode(PacketBuffer buffer);
+    T decode(FriendlyByteBuf buffer);
 
-    void encode(PacketBuffer buffer, Object value);
+    void encode(FriendlyByteBuf buffer, Object value);
 
     String getLocalizationString(Object object);
 

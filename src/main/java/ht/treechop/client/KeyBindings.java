@@ -1,13 +1,13 @@
 package ht.treechop.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import ht.treechop.TreeChopMod;
 import ht.treechop.client.gui.screen.ClientSettingsScreen;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.LinkedList;
@@ -26,7 +26,7 @@ public class KeyBindings {
         registerKeyBinding("open_settings_overlay", getKey(GLFW.GLFW_KEY_N), Client::toggleSettingsOverlay);
     }
 
-    private static ActionableKeyBinding registerKeyBinding(String name, InputMappings.Input defaultKey, Runnable callback) {
+    private static ActionableKeyBinding registerKeyBinding(String name, InputConstants.Key defaultKey, Runnable callback) {
         ActionableKeyBinding keyBinding = new ActionableKeyBinding(
                 String.format("%s.key.%s", TreeChopMod.MOD_ID, name),
                 defaultKey,
@@ -40,27 +40,27 @@ public class KeyBindings {
         return keyBinding;
     }
 
-    static InputMappings.Input getKey(int key) {
-        return InputMappings.Type.KEYSYM.getOrMakeInput(key);
+    static InputConstants.Key getKey(int key) {
+        return InputConstants.getKey(key, 0);
     }
 
     public static void buttonPressed(int keyCode, int keyState) {
         for (ActionableKeyBinding keyBinding : allKeyBindings) {
-            if (keyCode == keyBinding.getKey().getKeyCode() && keyState == GLFW.GLFW_PRESS) {
+            if (keyCode == keyBinding.getKey().getValue() && keyState == GLFW.GLFW_PRESS) {
                 keyBinding.onPress();
                 return;
             }
         }
     }
 
-    protected static class ActionableKeyBinding extends KeyBinding {
+    protected static class ActionableKeyBinding extends KeyMapping {
 
         private final Runnable callback;
 
-        public ActionableKeyBinding(String resourceName, InputMappings.Input inputByCode, Runnable callback) {
+        public ActionableKeyBinding(String resourceName, InputConstants.Key inputByCode, Runnable callback) {
             super(resourceName, KeyConflictContext.GUI, inputByCode, CATEGORY);
             this.callback = () -> {
-                Screen screen = Minecraft.getInstance().currentScreen;
+                Screen screen = Minecraft.getInstance().screen;
                 if (screen == null || screen instanceof ClientSettingsScreen) {
                     callback.run();
                 }

@@ -6,7 +6,7 @@ import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -23,8 +23,8 @@ public class Server {
     @SubscribeEvent
     public static void onPlayerCloned(PlayerEvent.Clone event) {
         if (event.isWasDeath()) {
-            PlayerEntity oldPlayer = event.getOriginal();
-            PlayerEntity newPlayer = event.getPlayer();
+            Player oldPlayer = event.getOriginal();
+            Player newPlayer = event.getPlayer();
             LazyOptional<ChopSettingsCapability> lazyOldSettings = ChopSettingsCapability.forPlayer(oldPlayer);
             LazyOptional<ChopSettingsCapability> lazyNewSettings = ChopSettingsCapability.forPlayer(newPlayer);
 

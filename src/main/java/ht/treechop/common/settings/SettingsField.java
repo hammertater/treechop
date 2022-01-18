@@ -2,8 +2,8 @@ package ht.treechop.common.settings;
 
 import ht.treechop.common.settings.codec.Codecs;
 import ht.treechop.common.settings.codec.SimpleCodec;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,7 +35,7 @@ public enum SettingsField {
     }
 
     public String getFancyName() {
-        return I18n.format(langKey);
+        return I18n.get(langKey);
     }
 
     public Object getDefaultValue() {
@@ -43,25 +43,25 @@ public enum SettingsField {
     }
 
     // TODO: generify to bytestream
-    public void encode(PacketBuffer buffer, Object value) {
+    public void encode(FriendlyByteBuf buffer, Object value) {
         buffer.writeByte(ordinal());
         codec.encode(buffer, value);
     }
 
     // TODO: generify to bytestream
-    private Object decodeValue(PacketBuffer buffer) {
+    private Object decodeValue(FriendlyByteBuf buffer) {
         return codec.decode(buffer);
     }
 
     // TODO: generify to bytestream
-    public static Setting decode(PacketBuffer buffer) {
+    public static Setting decode(FriendlyByteBuf buffer) {
         SettingsField field = SettingsField.values()[buffer.readByte()];
         Object value = field.decodeValue(buffer);
         return new Setting(field, value);
     }
 
     public String getValueName(Object value) {
-        return I18n.format(codec.getLocalizationString(value));
+        return I18n.get(codec.getLocalizationString(value));
     }
 
     public Set<Object> getValues() {

@@ -1,11 +1,10 @@
 package ht.treechop.client.gui.widget;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.gui.util.Sprite;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.TextComponent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.EnumMap;
@@ -13,22 +12,22 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ToggleWidget extends Widget {
+public class ToggleWidget extends AbstractWidget {
 
     private final Supplier<State> stateSupplier;
     private final Runnable onPress;
 
     public ToggleWidget(int x, int y, Runnable onPress, Supplier<State> stateSupplier) {
-        super(x, y, Sprite.TOGGLE_BUTTON_OFF.width, Sprite.TOGGLE_BUTTON_OFF.height, new StringTextComponent(""));
+        super(x, y, Sprite.TOGGLE_BUTTON_OFF.width, Sprite.TOGGLE_BUTTON_OFF.height, new TextComponent(""));
         this.onPress = onPress;
         this.stateSupplier = stateSupplier;
     }
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         this.active = !stateSupplier.get().isLocked;
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+        super.render(poseStack, mouseX, mouseY, partialTicks);
     }
 
     public void onClick(double mouseX, double mouseY) {
@@ -37,7 +36,7 @@ public class ToggleWidget extends Widget {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         Sprite.setRenderState(this.alpha);
 
         final EnumMap<State, Sprite> spriteForState = new EnumMap<State, Sprite>(Stream.of(
@@ -55,8 +54,13 @@ public class ToggleWidget extends Widget {
         ).collect(Collectors.toMap(Pair::getLeft, Pair::getRight)));
 
         State state = stateSupplier.get();
-        Sprite sprite = isHovered() ? spriteForHoveredState.get(state) : spriteForState.get(state);
-        sprite.blit(matrixStack, x, y);
+        Sprite sprite = isHoveredOrFocused() ? spriteForHoveredState.get(state) : spriteForState.get(state);
+        sprite.blit(poseStack, x, y);
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput out) {
+        // TODO
     }
 
     public enum State {

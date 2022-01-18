@@ -2,40 +2,30 @@ package ht.treechop.common.config;
 
 import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.config.item.ItemIdentifier;
-import ht.treechop.common.settings.ChopSettings;
-import ht.treechop.common.settings.Permissions;
-import ht.treechop.common.settings.Setting;
-import ht.treechop.common.settings.SettingsField;
-import ht.treechop.common.settings.SneakBehavior;
+import ht.treechop.common.settings.*;
 import ht.treechop.server.Server;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITagCollection;
-import net.minecraft.tags.ITagCollectionSupplier;
-import net.minecraft.tags.TagCollectionManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.tags.TagContainer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ConfigHandler {
 
-    public static ITag<Block> blockTagForDetectingLogs;
-    public static ITag<Block> blockTagForDetectingLeaves;
+    public static Tag<Block> blockTagForDetectingLogs;
+    public static Tag<Block> blockTagForDetectingLeaves;
     public final static ChopSettings fakePlayerChopSettings = new ChopSettings();
     private static Set<Item> itemsBlacklist = null;
     public static Map<Item, OverrideInfo> itemOverrides = null;
@@ -55,9 +45,9 @@ public class ConfigHandler {
         updatePermissions();
     }
 
-    public static void updateTags(ITagCollectionSupplier tagManager) {
-        blockTagForDetectingLogs = tagManager.getBlockTags().get(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
-        blockTagForDetectingLeaves = tagManager.getBlockTags().get(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
+    public static void updateTags(TagContainer tagManager) {
+        blockTagForDetectingLogs = tagManager.getOrEmpty(ForgeRegistries.Keys.BLOCKS).getTag(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
+        blockTagForDetectingLeaves = tagManager.getOrEmpty(ForgeRegistries.Keys.BLOCKS).getTag(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
         itemsBlacklist = null;
         itemOverrides = null;
     }
@@ -73,29 +63,17 @@ public class ConfigHandler {
         Server.updatePermissions(permissions);
     }
 
-    private static Set<Item> getItemsFromConfigList(ITagCollection<Item> tags, List<? extends String> identifiers, Predicate<Item> filter) {
-        Map<Item, Integer> qualifiedItems = getQualifiedItemsFromConfigList(tags, identifiers, filter, $ -> 0);
-        return qualifiedItems.keySet();
+    private static Stream<Item> getItemsFromIdentifier(String stringId, TagCollection<Item> tags) {
+        ItemIdentifier id = ItemIdentifier.from(stringId);
+        return id.resolve(tags, ForgeRegistries.ITEMS);
     }
 
-    private static <T> Map<Item, T> getQualifiedItemsFromConfigList(
-            ITagCollection<Item> tags,
-            List<? extends String> identifiers,
-            Predicate<Item> filter,
-            Function<ItemIdentifier, T> qualifierParser) {
-        return transformConfigList(identifiers, string -> {
-            ItemIdentifier id = ItemIdentifier.from(string);
-            List<Item> items = id.resolve(tags, ForgeRegistries.ITEMS);
-            T qualifier = qualifierParser.apply(id);
-            return items.stream().map(item -> Pair.of(item, qualifier)).collect(Collectors.toList());
-        }).stream()
-                .flatMap(Collection::stream)
-                .filter(itemQualifierPair -> itemQualifierPair.getLeft() != Items.AIR && itemQualifierPair.getRight() != null && filter.test(itemQualifierPair.getLeft()))
-                .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-    }
-
-    private static <T> List<T> transformConfigList(List<? extends String> identifiers, Function<String, T> transformer) {
-        return identifiers.stream().map(transformer).collect(Collectors.toList());
+    private static <T> Stream<QualifiedItem<T>> getQualifiedItemsFromIdentifier(String stringId, TagCollection<Item> tags, Function<ItemIdentifier, T> qualifierParser) {
+        ItemIdentifier id = ItemIdentifier.from(stringId);
+        T qualifier = qualifierParser.apply(id);
+        return id.resolve(tags, ForgeRegistries.ITEMS)
+                .map(item -> new QualifiedItem<>(item, qualifier))
+                .filter(qi -> qi.item != Items.AIR);
     }
 
     public static boolean shouldOverrideItemBehavior(Item item, boolean chopping) {
@@ -105,12 +83,10 @@ public class ConfigHandler {
 
     private static Map<Item, OverrideInfo> getItemOverrides() {
         if (itemOverrides == null) {
-            itemOverrides = getQualifiedItemsFromConfigList(
-                    TagCollectionManager.getManager().getItemTags(),
-                    COMMON.itemsToOverride.get(),
-                    item -> !(item instanceof IChoppingItem),
-                    id -> new OverrideInfo(getQualifierChops(id), getQualifierOverride(id))
-            );
+            itemOverrides = COMMON.itemsToOverride.get().stream().flatMap(
+                    itemId -> getQualifiedItemsFromIdentifier(itemId, ItemTags.getAllTags(), id -> new OverrideInfo(getQualifierChops(id), getQualifierOverride(id))))
+                    .filter(qi -> qi.qualifier != null && !(qi.item instanceof IChoppingItem))
+                    .collect(Collectors.toMap(QualifiedItem::getItem, QualifiedItem::getQualifier));
         }
 
         return itemOverrides;
@@ -127,7 +103,7 @@ public class ConfigHandler {
                 case "never":
                     return OverrideType.NEVER;
                 default:
-                    id.parsingError(String.format("override qualifier value \"%s\" is not valid", override.get()));
+                    id.parsingError(String.format("override qualifier \\\"%s\\\" is not valid (expected \\\"always\\\", \\\"chopping\\\", or \\\"never\\\"); defaulting to \\\"chopping\\\"", override.get()));
                     return OverrideType.WHEN_CHOPPING;
             }
         } else {
@@ -159,10 +135,9 @@ public class ConfigHandler {
 
     public static boolean canChopWithItem(Item item) {
         if (itemsBlacklist == null) {
-            itemsBlacklist = getItemsFromConfigList(
-                    TagCollectionManager.getManager().getItemTags(),
-                    COMMON.itemsToBlacklist.get(),
-                    item1 -> !(item1 instanceof IChoppingItem));
+            itemsBlacklist = COMMON.itemsToBlacklist.get().stream()
+                    .flatMap(id -> getItemsFromIdentifier(id, ItemTags.getAllTags()))
+                    .collect(Collectors.toSet());
         }
 
         if (COMMON.blacklistOrWhitelist.get() == ListType.BLACKLIST) {
@@ -177,6 +152,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue enabled;
 
         protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
+
+        public final ForgeConfigSpec.BooleanValue dropLootForChoppedBlocks;
 
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
@@ -200,8 +177,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
         public final ForgeConfigSpec.BooleanValue compatForProjectMMO;
-        public final ForgeConfigSpec.BooleanValue compatForCarryOn;
-        public final ForgeConfigSpec.BooleanValue compatForDynamicTrees;
+//        public final ForgeConfigSpec.BooleanValue compatForDynamicTrees;
         public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
@@ -221,6 +197,12 @@ public class ConfigHandler {
                 }
             }
 
+            builder.pop();
+
+            builder.push("general");
+            dropLootForChoppedBlocks = builder
+                    .comment("Whether to drop loot for blocks that have been chopped")
+                    .define("loseLootForChoppedBlocks", true);
             builder.pop();
 
             builder.push("treeDetection");
@@ -277,7 +259,7 @@ public class ConfigHandler {
             builder.push("compatibility");
             builder.push("general");
             preventChoppingOnRightClick = builder
-                    .comment("Whether to prevent chopping during right-click actions; automatically enabled if compatibility.carryOn = true with Carry On versions prior to carryon-1.16.5-1.15.2.9")
+                    .comment("Whether to prevent chopping during right-click actions")
                     .define("preventChoppingOnRightClick", false);
             preventChopRecursion = builder
                     .comment("Whether to prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")
@@ -319,7 +301,7 @@ public class ConfigHandler {
                             always -> true);
             builder.pop();
 
-            builder.comment("The chop settings used by non-player entities, such as robots");
+            builder.comment("The chop settings used by non-player entities, such as robots and machine blocks");
             builder.push("fakePlayerChopSettings");
             fakePlayerChoppingEnabled = builder
                     .comment("Use with caution! May cause conflicts with some mods, e.g. https://github.com/hammertater/treechop/issues/71")
@@ -339,16 +321,11 @@ public class ConfigHandler {
                             "Whether to enable compatibility with ProjectMMO; for example, award XP for chopping",
                             "See https://www.curseforge.com/minecraft/mc-mods/project-mmo"))
                     .define("projectMMO", true);
-            compatForCarryOn = builder
-                    .comment(String.join("\n",
-                            "Whether to prevent conflicts with Carry On when it is configured to allow picking up logs",
-                            "See https://www.curseforge.com/minecraft/mc-mods/carry-on"))
-                    .define("carryOn", true);
-            compatForDynamicTrees = builder
-                    .comment(String.join("\n",
-                            "Whether to prevent conflicts with DynamicTrees",
-                            "See https://www.curseforge.com/minecraft/mc-mods/dynamictrees"))
-                    .define("dynamicTrees", true);
+//            compatForDynamicTrees = builder
+//                    .comment(String.join("\n",
+//                            "Whether to prevent conflicts with DynamicTrees",
+//                            "See https://www.curseforge.com/minecraft/mc-mods/dynamictrees"))
+//                    .define("dynamicTrees", true);
             builder.pop();
             builder.pop();
         }
@@ -384,6 +361,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue indicatorYOffset;
         public final ForgeConfigSpec.BooleanValue showFellingOptions;
         public final ForgeConfigSpec.BooleanValue showFeedbackMessages;
+        public final ForgeConfigSpec.BooleanValue showTooltips;
 
 //        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
 
@@ -434,6 +412,9 @@ public class ConfigHandler {
             showFeedbackMessages = builder
                     .comment("Whether to show chat confirmations when using hotkeys to change chop settings")
                     .define("showFeedbackMessages", true);
+            showTooltips = builder
+                    .comment("Whether to show tooltips in the settings screen")
+                    .define("showTooltips", true);
             builder.pop();
 
 //            treesMustBeUniform = builder

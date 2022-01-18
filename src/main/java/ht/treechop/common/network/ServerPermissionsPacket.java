@@ -3,8 +3,8 @@ package ht.treechop.common.network;
 import ht.treechop.client.Client;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.Setting;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.List;
 import java.util.Set;
@@ -20,13 +20,13 @@ public class ServerPermissionsPacket {
         this.permissions = permissions;
     }
 
-    public static void encode(ServerPermissionsPacket message, PacketBuffer buffer) {
+    public static void encode(ServerPermissionsPacket message, FriendlyByteBuf buffer) {
         Set<Setting> settings = message.permissions.getPermittedSettings();
         buffer.writeInt(settings.size());
         settings.forEach(setting -> setting.encode(buffer));
     }
 
-    public static ServerPermissionsPacket decode(PacketBuffer buffer) {
+    public static ServerPermissionsPacket decode(FriendlyByteBuf buffer) {
         int numSettings = buffer.readInt();
         List<Setting> settings = IntStream.range(0, numSettings)
                 .mapToObj($ -> Setting.decode(buffer))

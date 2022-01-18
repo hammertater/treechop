@@ -1,53 +1,52 @@
 package ht.treechop.common.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.CommandBlockBlock;
-import net.minecraft.block.JigsawBlock;
-import net.minecraft.block.StructureBlock;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.GameMasterBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.event.ForgeEventFactory;
 
 public class FauxPlayerInteractionManager {
 
-    public static void harvestBlockSkippingOnBlockStartBreak(ServerPlayerEntity player, ServerWorld world, BlockState blockState, BlockPos pos, int exp) {
-        TileEntity tileentity = world.getTileEntity(pos);
+    public static void harvestBlockSkippingOnBlockStartBreak(ServerPlayer player, ServerLevel level, BlockState blockState, BlockPos pos, int exp) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
         Block block = blockState.getBlock();
-        if ((block instanceof CommandBlockBlock || block instanceof StructureBlock || block instanceof JigsawBlock) && !player.canUseCommandBlock()) {
-            world.notifyBlockUpdate(pos, blockState, blockState, 3);
+        if (block instanceof GameMasterBlock && !player.canUseGameMasterBlocks()) {
+            level.sendBlockUpdated(pos, blockState, blockState, 3);
+        } else if (player.getMainHandItem().onBlockStartBreak(pos, player)) {
+        } else if (player.blockActionRestricted(level, pos, player.gameMode.getGameModeForPlayer())) {
         } else {
-            if (player.getServer() == null || !player.blockActionRestricted(world, pos, player.getServer().getGameType())) {
-                if (player.isCreative()) {
-                    removeBlock(player, world, pos, false);
-                } else {
-                    ItemStack itemstack = player.getHeldItemMainhand();
-                    ItemStack itemstack1 = itemstack.copy();
-                    boolean flag1 = blockState.canHarvestBlock(world, pos, player); // previously player.func_234569_d_(blockstate)
-                    itemstack.onBlockDestroyed(world, blockState, pos, player);
-                    if (itemstack.isEmpty() && !itemstack1.isEmpty())
-                        net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, itemstack1, Hand.MAIN_HAND);
-                    boolean flag = removeBlock(player, world, pos, flag1);
+            if (player.isCreative()) {
+                removeBlock(player, level, pos, false);
+            } else {
+                ItemStack itemstack = player.getMainHandItem();
+                ItemStack itemstack1 = itemstack.copy();
+                boolean canHarvest = blockState.canHarvestBlock(level, pos, player); // previously player.hasCorrectToolForDrops(blockstate)
+                itemstack.mineBlock(level, blockState, pos, player);
+                if (itemstack.isEmpty() && !itemstack1.isEmpty())
+                    ForgeEventFactory.onPlayerDestroyItem(player, itemstack1, InteractionHand.MAIN_HAND);
+                boolean blockWasRemoved = removeBlock(player, level, pos, canHarvest);
 
-                    if (flag && flag1) {
-                        block.harvestBlock(world, player, pos, blockState, tileentity, itemstack1);
-                    }
-
-                    if (flag && exp > 0)
-                        blockState.getBlock().dropXpOnBlockBreak(world, pos, exp);
+                if (blockWasRemoved && canHarvest) {
+                    block.playerDestroy(level, player, pos, blockState, blockEntity, itemstack1);
                 }
+
+                if (blockWasRemoved && exp > 0)
+                    blockState.getBlock().popExperience(level, pos, exp);
             }
         }
     }
 
-    private static boolean removeBlock(ServerPlayerEntity player, ServerWorld world, BlockPos pos, boolean canHarvest) {
-        BlockState state = world.getBlockState(pos);
-        boolean removed = state.removedByPlayer(world, pos, player, canHarvest, world.getFluidState(pos));
+    private static boolean removeBlock(ServerPlayer player, ServerLevel level, BlockPos pos, boolean canHarvest) {
+        BlockState state = level.getBlockState(pos);
+        boolean removed = state.onDestroyedByPlayer(level, pos, player, canHarvest, level.getFluidState(pos));
         if (removed)
-            state.getBlock().onPlayerDestroy(world, pos, state);
+            state.getBlock().destroy(level, pos, state);
         return removed;
     }
 

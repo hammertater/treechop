@@ -1,11 +1,11 @@
 package ht.treechop.common.network;
 
 import ht.treechop.TreeChopMod;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 // See https://github.com/Vazkii/Botania/blob/7e1d89a1d6deda7286744e3b7c55369b2cf5e533/src/main/java/vazkii/botania/common/network/PacketHandler.java
 public final class PacketHandler {
@@ -29,8 +29,8 @@ public final class PacketHandler {
         HANDLER.sendToServer(msg);
     }
 
-    public static void sendTo(ServerPlayerEntity playerMP, Object toSend) {
-        HANDLER.sendTo(toSend, playerMP.connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
+    public static void sendTo(ServerPlayer playerMP, Object toSend) {
+        HANDLER.sendTo(toSend, playerMP.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
     }
 
     private PacketHandler() {}

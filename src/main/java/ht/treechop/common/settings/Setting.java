@@ -1,6 +1,6 @@
 package ht.treechop.common.settings;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Setting {
@@ -34,11 +34,11 @@ public class Setting {
         }
     }
 
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         field.encode(buffer, value);
     }
 
-    public static Setting decode(PacketBuffer buffer) {
+    public static Setting decode(FriendlyByteBuf buffer) {
         return SettingsField.decode(buffer);
     }
 

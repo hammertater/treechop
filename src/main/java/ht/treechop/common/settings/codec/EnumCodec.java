@@ -1,6 +1,6 @@
 package ht.treechop.common.settings.codec;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,18 +23,18 @@ public class EnumCodec<T extends Enum<T>> extends AbstractSimpleCodec<T> {
     }
 
     @Override
-    public T decode(PacketBuffer buffer) {
+    public T decode(FriendlyByteBuf buffer) {
         try {
-            return Enum.valueOf(enumType, buffer.readString(64));
+            return Enum.valueOf(enumType, buffer.readUtf(64));
         } catch (IllegalArgumentException e) {
             return enumType.getEnumConstants()[0];
         }
     }
 
     @Override
-    public void encode(PacketBuffer buffer, Object object) {
+    public void encode(FriendlyByteBuf buffer, Object object) {
         // Use the name instead of the ordinal just to be extra safe
-        buffer.writeString(getValueOf(object).map(Enum::name).orElse(""));
+        buffer.writeUtf(getValueOf(object).map(Enum::name).orElse(""));
     }
 
     @Override

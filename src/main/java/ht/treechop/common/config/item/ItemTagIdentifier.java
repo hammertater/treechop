@@ -1,13 +1,13 @@
 package ht.treechop.common.config.item;
 
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITagCollection;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class ItemTagIdentifier extends ItemIdentifier {
 
@@ -16,20 +16,18 @@ public class ItemTagIdentifier extends ItemIdentifier {
     }
 
     @Override
-    public List<Item> resolve(ITagCollection<Item> tags, IForgeRegistry<Item> registry) {
-        ResourceLocation resource = ResourceLocation.tryCreate(getNamespace() + ":" + getLocalSpace());
-        if (resource != null) {
-            ITag<Item> tag = tags.get(resource);
+    public Stream<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
+        ResourceLocation tagId = ResourceLocation.tryParse(getNamespace() + ":" + getLocalSpace());
+        if (tagId != null) {
+            Tag<Item> tag = tags.getTag(tagId);
             if (tag != null) {
-                return tag.getAllElements();
-            } else {
-                parsingError(String.format("item tag \"%s\" does not exist", getNamespace()));
+                return tag.getValues().stream();
             }
         } else {
-            parsingError(String.format("\"%s\" is not a valid item tag", getItemID()));
+            parsingError(String.format("\"%s\" is not a valid resource location", getItemID()));
         }
 
-        return Collections.emptyList();
+        return Stream.empty();
     }
 
 }

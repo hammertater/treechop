@@ -1,16 +1,16 @@
 package ht.treechop.common.settings;
 
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.entity.Entity;
 
 import java.util.Arrays;
 import java.util.function.Predicate;
 
-public enum SneakBehavior implements IStringSerializable {
+public enum SneakBehavior implements StringRepresentable {
     NONE("treechop.sneak_behavior.none", agent -> false, agent -> false),
-    INVERT_CHOPPING("treechop.sneak_behavior.invert_chopping", Entity::isSneaking, agent -> false),
-    INVERT_FELLING("treechop.sneak_behavior.invert_felling", agent -> false, Entity::isSneaking)
+    INVERT_CHOPPING("treechop.sneak_behavior.invert_chopping", Entity::isShiftKeyDown, agent -> false),
+    INVERT_FELLING("treechop.sneak_behavior.invert_felling", agent -> false, Entity::isShiftKeyDown)
     ;
 
     public final static int maxNameLength = Arrays.stream(SneakBehavior.values()).map(SneakBehavior::name).map(String::length).max(Integer::compareTo).orElse(0);
@@ -34,7 +34,7 @@ public enum SneakBehavior implements IStringSerializable {
     }
 
     @Override
-    public String getString() {
+    public String getSerializedName() {
         return name();
     }
 
@@ -47,7 +47,7 @@ public enum SneakBehavior implements IStringSerializable {
     }
 
     public String getFancyText() {
-        return I18n.format(langKey);
+        return I18n.get(langKey);
     }
 
 }

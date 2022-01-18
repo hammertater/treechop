@@ -1,32 +1,32 @@
 package ht.treechop.client.gui.widget;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.gui.util.GUIUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
 
 import java.util.function.Supplier;
 
-public class StickyWidget extends Widget {
+public class StickyWidget extends AbstractWidget {
 
     private final Supplier<State> stateSupplier;
     private final Runnable onPress;
 
-    public StickyWidget(int x, int y, int width, int height, ITextComponent name, Runnable onPress, Supplier<State> stateSupplier) {
+    public StickyWidget(int x, int y, int width, int height, Component name, Runnable onPress, Supplier<State> stateSupplier) {
         super(x, y, Math.max(width, GUIUtil.getMinimumButtonWidth(name)), Math.max(height, GUIUtil.BUTTON_HEIGHT), name);
         this.onPress = onPress;
         this.stateSupplier = stateSupplier;
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         this.active = stateSupplier.get() == State.Up;
         this.height = Math.min(this.height, GUIUtil.BUTTON_HEIGHT);
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+        super.render(poseStack, mouseX, mouseY, partialTicks);
     }
 
     public void onClick(double mouseX, double mouseY) {
@@ -34,24 +34,29 @@ public class StickyWidget extends Widget {
     }
 
     @Override
-    public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
-        FontRenderer fontrenderer = minecraft.fontRenderer;
-        minecraft.getTextureManager().bindTexture(WIDGETS_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.alpha);
+        Font font = minecraft.font;
+        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
 
         if (stateSupplier.get() != State.Locked) {
-            int i = this.getYImage(this.isHovered());
+            int i = this.getYImage(this.isHoveredOrFocused());
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.enableDepthTest();
-            this.blit(matrixStack, this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
-            this.blit(matrixStack, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
-            this.renderBg(matrixStack, minecraft, mouseX, mouseY);
+            this.blit(poseStack, this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
+            this.blit(poseStack, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+            this.renderBg(poseStack, minecraft, mouseX, mouseY);
         }
 
         int j = getFGColor();
-        drawCenteredString(matrixStack, fontrenderer, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | MathHelper.ceil(this.alpha * 255.0F) << 24);
+        drawCenteredString(poseStack, font, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | (int)Math.ceil(this.alpha * 255.0F) << 24);
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput out) {
+        // TODO
     }
 
     public enum State {

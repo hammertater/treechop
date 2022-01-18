@@ -1,13 +1,12 @@
 package ht.treechop.common.config.item;
 
-import ht.treechop.TreeChopMod;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITagCollection;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class SingleItemIdentifier extends ItemIdentifier {
 
@@ -16,21 +15,21 @@ public class SingleItemIdentifier extends ItemIdentifier {
     }
 
     @Override
-    public List<Item> resolve(ITagCollection<Item> tags, IForgeRegistry<Item> registry) {
+    public Stream<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
         String resourceString = getNamespace() + ":" + getLocalSpace();
-        ResourceLocation resource = ResourceLocation.tryCreate(resourceString);
-        if (resource != null) {
-            Item item = registry.getValue(resource);
-            if (item != null) {
-                return Collections.singletonList(item);
-            } else {
-                TreeChopMod.LOGGER.warn("Configuration error when parsing {}: item {} does not exist", getString(), resourceString);
+        ResourceLocation itemId = ResourceLocation.tryParse(resourceString);
+        if (itemId != null) {
+            if (registry.containsKey(itemId)) {
+                Item item = registry.getValue(itemId); // Returns minecraft:air if itemId is not registered
+                if (item != null) {
+                    return Stream.of(item);
+                }
             }
         } else {
-            TreeChopMod.LOGGER.warn("Configuration error when parsing {}: {} is not a valid item ID", getString(), resourceString);
+            parsingError(String.format("\"%s\" is not a valid resource location", getItemID()));
         }
 
-        return Collections.emptyList();
+        return Stream.empty();
     }
 
 }

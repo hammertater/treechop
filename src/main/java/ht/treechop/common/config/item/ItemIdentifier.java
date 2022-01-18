@@ -1,8 +1,8 @@
 package ht.treechop.common.config.item;
 
 import ht.treechop.TreeChopMod;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITagCollection;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.Arrays;
@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class ItemIdentifier {
 
@@ -40,7 +41,7 @@ public abstract class ItemIdentifier {
             String searchSpace = Optional.ofNullable(matcher.group(1)).orElse("");
             String namespace = Optional.ofNullable(matcher.group(2)).orElse("");
             String localSpace = Optional.ofNullable(matcher.group(3)).orElse("");
-            List<IdentifierQualifier> qualifiers = parseQualifiers(string, Optional.ofNullable(matcher.group(4)).orElse(""));
+            List<IdentifierQualifier> qualifiers = parseQualifiers(Optional.ofNullable(matcher.group(4)).orElse(""));
 
             if (searchSpace.equals("#")) {
                 return new ItemTagIdentifier(either(namespace, DEFAULT_NAMESPACE), localSpace, qualifiers, string);
@@ -58,14 +59,13 @@ public abstract class ItemIdentifier {
         }
     }
 
-    private static List<IdentifierQualifier> parseQualifiers(String idString, String qualifiersString) {
+    private static List<IdentifierQualifier> parseQualifiers(String qualifiersString) {
         Matcher matcher = QUALIFIERS_PATTERN.matcher(qualifiersString);
         if (matcher.find()) {
             return Arrays.stream(matcher.group(1).split(","))
                     .map(ItemIdentifier::parseQualifier)
                     .collect(Collectors.toList());
         } else {
-            parsingError(idString, String.format("qualifier string \\\"%s\\\" is malformed", idString));
             return Collections.emptyList();
         }
     }
@@ -103,7 +103,7 @@ public abstract class ItemIdentifier {
         return String.format("%s:%s", getNamespace(), getLocalSpace());
     }
 
-    public abstract List<Item> resolve(ITagCollection<Item> tagSupplier, IForgeRegistry<Item> registry);
+    public abstract Stream<Item> resolve(TagCollection<Item> tagSupplier, IForgeRegistry<Item> registry);
 
     private static void parsingError(String idString, String message) {
         TreeChopMod.LOGGER.warn("Configuration error when parsing \"{}\": {}", idString, message);

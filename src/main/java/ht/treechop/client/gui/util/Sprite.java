@@ -1,10 +1,10 @@
 package ht.treechop.client.gui.util;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.resources.ResourceLocation;
 
 public enum Sprite {
     CHOP_INDICATOR(0, 0, 20, 20),
@@ -39,25 +39,25 @@ public enum Sprite {
     }
 
     public static void setRenderState(float alpha) {
-        Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bindTexture(Sprite.TEXTURE_PATH);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, Sprite.TEXTURE_PATH);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
     }
 
-    public void blit(MatrixStack matrixStack, int x, int y) {
-        blit(matrixStack, x, y, width, height);
+    public void blit(PoseStack poseStack, int x, int y) {
+        blit(poseStack, x, y, width, height);
     }
 
-    public void blit(MatrixStack matrixStack, int x, int y, double scale) {
-        blit(matrixStack, x, y, (int) (width * scale), (int) (height * scale));
+    public void blit(PoseStack poseStack, int x, int y, double scale) {
+        blit(poseStack, x, y, (int) (width * scale), (int) (height * scale));
     }
 
-    public void blit(MatrixStack matrixStack, int x, int y, int width, int height) {
-        AbstractGui.blit(matrixStack, x, y, width, height, u, v, this.width, this.height, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+    public void blit(PoseStack poseStack, int x, int y, int width, int height) {
+        GuiComponent.blit(poseStack, x, y, width, height, u, v, this.width, this.height, TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
 }
