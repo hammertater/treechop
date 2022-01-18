@@ -19,7 +19,8 @@
     "1.12.2-recommended": "0.14.6"
   },
   "1.18.1": {
-    "0.15.2": "Fix crashes when chopping for some users",
+    "0.15.3": "Fixed chop indicator not reappearing after sneaking",
+    "0.15.2": "Fixed crashes when chopping for some users",
     "0.15.1": "Fixed inability to chop blocks with empty hands\nFixed chop indicator flickering",
   "1.17.1": {
     "0.15.1": "Fixed inability to chop blocks with empty hands\nFixed chop indicator flickering",
