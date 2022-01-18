@@ -41,6 +41,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.util.FakePlayerFactory;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -284,9 +285,8 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
             return strippedOriginalState;
         }
 
-        @Nonnull
         @Override
-        public CompoundTag save(@Nonnull CompoundTag tag)
+        public void saveAdditional(@Nonnull CompoundTag tag)
         {
             super.save(tag);
 
@@ -297,8 +297,6 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
             drops.stream().map(stack -> stack.save(new CompoundTag()))
                     .forEach(list::add);
             tag.put("Drops", list);
-
-            return tag;
         }
 
         @Override
@@ -322,30 +320,16 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
             }
         }
 
-        @Nullable
-        @Override
-        public ClientboundBlockEntityDataPacket getUpdatePacket() {
-            return ClientboundBlockEntityDataPacket.create(this);
-        }
-
         @Nonnull
         @Override
         public CompoundTag getUpdateTag() {
-            CompoundTag tag = new CompoundTag();
-            save(tag);
-            return tag;
+            return saveWithoutMetadata();
         }
 
+        @Nullable
         @Override
-        public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
-            if (packet.getTag() != null) {
-                load(packet.getTag());
-            }
-        }
-
-        @Override
-        public void handleUpdateTag(CompoundTag tag) {
-            load(tag);
+        public ClientboundBlockEntityDataPacket getUpdatePacket() {
+            return ClientboundBlockEntityDataPacket.create(this); // calls getUpdateTag
         }
     }
 }
