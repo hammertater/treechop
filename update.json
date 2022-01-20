@@ -1,8 +1,8 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/treechop",
   "promos": {
-    "1.18.1-latest": "0.15.4",
-    "1.18.1-recommended": "0.15.4",
+    "1.18.1-latest": "0.15.5",
+    "1.18.1-recommended": "0.15.5",
     "1.17.1-latest": "0.15.1",
     "1.17.1-recommended": "0.15.1",
     "1.16.5-latest": "0.14.6",
@@ -19,6 +19,7 @@
     "1.12.2-recommended": "0.14.6"
   },
   "1.18.1": {
+    "0.15.5": "Fixed crash on Forge 39.0.45+",
     "0.15.4": "Fixed chopped log textures not persisting across save/load",
     "0.15.3": "Fixed chop indicator not reappearing after sneaking",
     "0.15.2": "Fixed crashes when chopping for some users",
