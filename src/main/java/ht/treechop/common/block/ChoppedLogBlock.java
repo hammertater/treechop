@@ -288,7 +288,7 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
         @Override
         public void saveAdditional(@Nonnull CompoundTag tag)
         {
-            super.save(tag);
+            super.saveAdditional(tag);
 
             tag.putInt("OriginalState", Block.getId(getOriginalState()));
             tag.putInt("StrippedOriginalState", Block.getId(getStrippedOriginalState()));

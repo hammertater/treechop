@@ -78,7 +78,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.1-39.0.36'
+    minecraft 'net.minecraftforge:forge:1.18.1-39.0.45'
 
 //    compileOnly fg.deobf("curse.maven:dynamictrees:3304858")
 
