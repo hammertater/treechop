@@ -50,6 +50,7 @@ public class Common {
         if (!isBlockALog(blockState)
                 || !ConfigHandler.COMMON.enabled.get()
                 || !ChopUtil.canChopWithTool(tool)
+                || blockState.canHarvestBlock(event.getWorld(), pos, event.getPlayer())
                 || event.isCanceled()
                 || !(event.getWorld() instanceof ServerWorld)
                 || !(event.getPlayer() instanceof ServerPlayerEntity)
