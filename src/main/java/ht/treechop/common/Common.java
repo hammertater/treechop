@@ -49,10 +49,11 @@ public class Common {
 
         if (!isBlockALog(blockState)
                 || !ConfigHandler.COMMON.enabled.get()
-                || !ChopUtil.canChopWithTool(tool)
                 || event.isCanceled()
                 || !(event.getWorld() instanceof ServerLevel level)
                 || !(event.getPlayer() instanceof ServerPlayer agent)
+                || !blockState.canHarvestBlock(level, pos, agent)
+                || !ChopUtil.canChopWithTool(tool)
         ) {
            return;
         }
