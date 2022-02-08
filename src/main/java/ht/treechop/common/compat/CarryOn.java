@@ -1,6 +1,7 @@
 package ht.treechop.common.compat;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.api.ChopEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
@@ -20,8 +21,11 @@ public class CarryOn {
 
     private static class EventHandler {
         @SubscribeEvent
-        public static void onStartChop(PickupHandler.PickUpBlockEvent event) {
-            event.setCanceled(true);
+        public static void onStartChop(ChopEvent.StartChopEvent event) {
+            if (event.getBreakEvent() instanceof PickupHandler.PickUpBlockEvent) {
+                event.setCanceled(true);
+                event.getBreakEvent().setCanceled(true);
+            }
         }
     }
 
