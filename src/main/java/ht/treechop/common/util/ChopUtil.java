@@ -36,8 +36,7 @@ import java.util.stream.Stream;
 public class ChopUtil {
 
     public static boolean isBlockChoppable(Level level, BlockPos pos, BlockState blockState) {
-        return (blockState.getBlock() instanceof IChoppableBlock) ||
-                (isBlockALog(blockState) && !(isBlockALog(level, pos.west()) && isBlockALog(level, pos.north()) && isBlockALog(level, pos.east()) && isBlockALog(level, pos.south())));
+        return (blockState.getBlock() instanceof IChoppableBlock) || (isBlockALog(blockState));
     }
 
     public static boolean isBlockChoppable(Level level, BlockPos pos) {
@@ -292,7 +291,6 @@ public class ChopUtil {
                         candidateStartIndex = i;
                     }
                 }
-
             }
         }
 
@@ -301,6 +299,11 @@ public class ChopUtil {
 
     private static int gatherChopAndGetNumChopsRemaining(Level level, BlockPos targetPos, int numChops, List<Chop> choppedBlocks) {
         BlockState blockStateBeforeChopping = level.getBlockState(targetPos);
+
+        if (!(blockStateBeforeChopping.getBlock() instanceof IChoppableBlock) && isBlockSurrounded(level, targetPos)) {
+            return numChops;
+        }
+
         int adjustedNumChops = adjustNumChops(level, targetPos, blockStateBeforeChopping, numChops, false);
 
         if (adjustedNumChops > 0) {
@@ -308,6 +311,11 @@ public class ChopUtil {
         }
 
         return numChops - adjustedNumChops;
+    }
+
+    private static boolean isBlockSurrounded(Level level, BlockPos pos) {
+        return Stream.of(pos.west(), pos.north(), pos.east(), pos.south())
+                .allMatch(neighborPos -> isBlockALog(level, neighborPos));
     }
 
     public static int adjustNumChops(Level level, BlockPos blockPos, BlockState blockState, int numChops, boolean destructive) {
