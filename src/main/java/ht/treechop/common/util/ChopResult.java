@@ -9,7 +9,9 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.common.util.FakePlayerFactory;
 
 import java.util.Collection;
@@ -137,10 +139,11 @@ public class ChopResult {
         // blockState.removedByPlayer(level, pos, agent, true, level.getFluidState(pos));
 
         if (level instanceof ServerLevel) {
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+            FluidState fluidStateOrAir = level.getFluidState(pos);
             blockState.getBlock().destroy(level, pos, blockState);
             Block.dropResources(blockState, level, pos, level.getBlockEntity(pos), agent, tool);
             totalXp.getAndAdd(blockState.getExpDrop(level, pos, fortune, silkTouch));
+            level.setBlock(pos, fluidStateOrAir.createLegacyBlock(), 3);
         }
     }
 
