@@ -19,7 +19,7 @@
     "1.12.2-recommended": "0.14.6"
   },
   "1.18.1": {
-    "0.15.6": "Fixed conflicts with CarryOn\nFix chopping issues on interior logs\nFix chopped logs sometimes not dropping loot\nFix texture issues when chopping stripped logs\nFix conflict with No Tree Punching",
+    "0.15.6": "Fixed conflicts with CarryOn\nFixed chopping issues on interior logs\nFixed chopped logs sometimes not dropping loot\nFixed texture issues when chopping stripped logs\nFixed conflict with No Tree Punching\nFixed rendering conflicts when chop indicator appears",
     "0.15.5": "Fixed crash on Forge 39.0.45+",
     "0.15.4": "Fixed chopped log textures not persisting across save/load",
     "0.15.3": "Fixed chop indicator not reappearing after sneaking",
