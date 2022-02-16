@@ -62,6 +62,8 @@ public class ChopIndicator extends GuiComponent {
                         imageWidth,
                         imageHeight
                 );
+
+                RenderSystem.defaultBlendFunc();
             }
             lastBlock.set(minecraft.level, blockPos);
             lastChopSettings.copyFrom(Client.getChopSettings());
