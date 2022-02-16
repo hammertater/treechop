@@ -10,12 +10,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -41,7 +42,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.util.FakePlayerFactory;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -101,7 +101,7 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
     }
 
     private static boolean isBlockOpen(Level level, BlockPos pos) {
-        return (level.isEmptyBlock(pos.below()) || isBlockLeaves(level, pos.below()));
+        return (level.isEmptyBlock(pos) || isBlockLeaves(level, pos));
     }
 
     @Override
@@ -181,8 +181,12 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
                                 ToolActions.AXE_STRIP
                         );
 
-                        if (strippedBlockState == blockState || strippedBlockState == null) {
-                            strippedBlockState = Blocks.STRIPPED_OAK_LOG.defaultBlockState();
+                        if (strippedBlockState == null) {
+                            if (AxeAccessor.isStrippedLog(blockState.getBlock())) {
+                                strippedBlockState = blockState;
+                            } else {
+                                strippedBlockState = Blocks.STRIPPED_OAK_LOG.defaultBlockState();
+                            }
                         }
 
                         entity.setOriginalState(blockState, strippedBlockState);
@@ -330,6 +334,16 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
         @Override
         public ClientboundBlockEntityDataPacket getUpdatePacket() {
             return ClientboundBlockEntityDataPacket.create(this); // calls getUpdateTag
+        }
+    }
+
+    private abstract static class AxeAccessor extends AxeItem {
+        public AxeAccessor(Tier p_40521_, float p_40522_, float p_40523_, Properties p_40524_) {
+            super(p_40521_, p_40522_, p_40523_, p_40524_);
+        }
+
+        public static boolean isStrippedLog(Block block) {
+            return STRIPPABLES.containsValue(block);
         }
     }
 }
