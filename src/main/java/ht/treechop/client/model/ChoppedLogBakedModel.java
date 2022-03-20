@@ -28,6 +28,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.data.*;
 import org.apache.commons.lang3.tuple.Triple;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -222,6 +223,16 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
     @Override
     public TextureAtlasSprite getParticleIcon() {
         return staticModel.getParticleIcon();
+    }
+
+    @Override
+    public TextureAtlasSprite getParticleIcon(@NotNull IModelData data) {
+        BlockState strippedState = data.getData(STRIPPED_BLOCK_STATE);
+        if (strippedState != null) {
+            return Minecraft.getInstance().getModelManager().getModel(BlockModelShaper.stateToModelLocation(strippedState)).getParticleIcon(data);
+        } else {
+            return getParticleIcon();
+        }
     }
 
     @Override
