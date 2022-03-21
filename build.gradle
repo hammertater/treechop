@@ -16,7 +16,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
-    mappings channel: 'official', version: '1.18.1'
+    mappings channel: 'official', version: "1.18.2"
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
@@ -75,22 +75,23 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    mavenCentral()
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.1-39.0.45'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.0.19'
 
 //    compileOnly fg.deobf("curse.maven:dynamictrees:3304858")
 
-    compileOnly fg.deobf("curse.maven:pmmo-353935:3603540")
+//    compileOnly fg.deobf("curse.maven:pmmo-353935:3603540")
 //    runtimeOnly fg.deobf("curse.maven:pmmo-353935:3603540")
 
-    compileOnly fg.deobf("curse.maven:carry-on:3601938" )
-//    runtimeOnly fg.deobf("curse.maven:carry-on:3601938" )
+    compileOnly fg.deobf("curse.maven:carry-on:3674344" )
+    runtimeOnly fg.deobf("curse.maven:carry-on:3674344" )
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 }
 
 test {

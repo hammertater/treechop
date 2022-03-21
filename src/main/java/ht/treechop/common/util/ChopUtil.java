@@ -44,7 +44,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockALog(BlockState blockState) {
-        return ConfigHandler.blockTagForDetectingLogs.contains(blockState.getBlock());
+        return blockState.is(ConfigHandler.blockTagForDetectingLogs);
     }
 
     public static boolean isBlockALog(Level level, BlockPos pos) {
@@ -56,7 +56,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockLeaves(BlockState blockState) {
-        if (ConfigHandler.blockTagForDetectingLeaves.contains(blockState.getBlock())) {
+        if (blockState.is(ConfigHandler.blockTagForDetectingLeaves)) {
             return !ConfigHandler.ignorePersistentLeaves || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.getValue(LeavesBlock.PERSISTENT);
         } else {
             return false;

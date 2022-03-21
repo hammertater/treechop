@@ -1,6 +1,5 @@
 package ht.treechop.common.config.item;
 
-import net.minecraft.tags.TagCollection;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -14,7 +13,7 @@ public class ItemNamespaceIdentifier extends ItemIdentifier {
     }
 
     @Override
-    public Stream<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
+    public Stream<Item> resolve(IForgeRegistry<Item> registry) {
         return registry.getValues().stream()
                 .filter(item -> item.getRegistryName() != null && item.getRegistryName().getNamespace().equals(getNamespace()));
     }

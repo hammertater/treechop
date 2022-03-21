@@ -1,7 +1,6 @@
 package ht.treechop.common.config.item;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagCollection;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -15,7 +14,7 @@ public class SingleItemIdentifier extends ItemIdentifier {
     }
 
     @Override
-    public Stream<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
+    public Stream<Item> resolve(IForgeRegistry<Item> registry) {
         String resourceString = getNamespace() + ":" + getLocalSpace();
         ResourceLocation itemId = ResourceLocation.tryParse(resourceString);
         if (itemId != null) {

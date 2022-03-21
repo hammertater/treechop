@@ -1,5 +1,6 @@
 package ht.treechop;
 
+import com.mojang.logging.LogUtils;
 import ht.treechop.common.Common;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
@@ -13,14 +14,13 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 @Mod(TreeChopMod.MOD_ID)
 public class TreeChopMod {
     public static final String MOD_ID = "treechop";
     public static final String MOD_NAME = "HT's TreeChop";
-    public static final Logger LOGGER = LogManager.getLogger(MOD_NAME);
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public TreeChopMod() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);

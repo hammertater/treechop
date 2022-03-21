@@ -5,10 +5,8 @@ import ht.treechop.common.config.item.ItemIdentifier;
 import ht.treechop.common.settings.*;
 import ht.treechop.server.Server;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagCollection;
-import net.minecraft.tags.TagContainer;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -24,8 +22,8 @@ import java.util.stream.Stream;
 
 public class ConfigHandler {
 
-    public static Tag<Block> blockTagForDetectingLogs;
-    public static Tag<Block> blockTagForDetectingLeaves;
+    public static TagKey<Block> blockTagForDetectingLogs;
+    public static TagKey<Block> blockTagForDetectingLeaves;
     public final static ChopSettings fakePlayerChopSettings = new ChopSettings();
     private static Set<Item> itemsBlacklist = null;
     public static Map<Item, OverrideInfo> itemOverrides = null;
@@ -38,6 +36,8 @@ public class ConfigHandler {
         fakePlayerChopSettings.setChoppingEnabled(COMMON.fakePlayerChoppingEnabled.get());
         fakePlayerChopSettings.setFellingEnabled(COMMON.fakePlayerFellingEnabled.get());
         fakePlayerChopSettings.setTreesMustHaveLeaves(COMMON.fakePlayerTreesMustHaveLeaves.get());
+        blockTagForDetectingLogs = BlockTags.create(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
+        blockTagForDetectingLeaves = BlockTags.create(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
 
         itemsBlacklist = null;
         itemOverrides = null;
@@ -45,9 +45,7 @@ public class ConfigHandler {
         updatePermissions();
     }
 
-    public static void updateTags(TagContainer tagManager) {
-        blockTagForDetectingLogs = tagManager.getOrEmpty(ForgeRegistries.Keys.BLOCKS).getTag(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
-        blockTagForDetectingLeaves = tagManager.getOrEmpty(ForgeRegistries.Keys.BLOCKS).getTag(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
+    public static void updateTags() {
         itemsBlacklist = null;
         itemOverrides = null;
     }
@@ -63,15 +61,15 @@ public class ConfigHandler {
         Server.updatePermissions(permissions);
     }
 
-    private static Stream<Item> getItemsFromIdentifier(String stringId, TagCollection<Item> tags) {
+    private static Stream<Item> getItemsFromIdentifier(String stringId) {
         ItemIdentifier id = ItemIdentifier.from(stringId);
-        return id.resolve(tags, ForgeRegistries.ITEMS);
+        return id.resolve(ForgeRegistries.ITEMS);
     }
 
-    private static <T> Stream<QualifiedItem<T>> getQualifiedItemsFromIdentifier(String stringId, TagCollection<Item> tags, Function<ItemIdentifier, T> qualifierParser) {
+    private static <T> Stream<QualifiedItem<T>> getQualifiedItemsFromIdentifier(String stringId, Function<ItemIdentifier, T> qualifierParser) {
         ItemIdentifier id = ItemIdentifier.from(stringId);
         T qualifier = qualifierParser.apply(id);
-        return id.resolve(tags, ForgeRegistries.ITEMS)
+        return id.resolve(ForgeRegistries.ITEMS)
                 .map(item -> new QualifiedItem<>(item, qualifier))
                 .filter(qi -> qi.item != Items.AIR);
     }
@@ -84,7 +82,7 @@ public class ConfigHandler {
     private static Map<Item, OverrideInfo> getItemOverrides() {
         if (itemOverrides == null) {
             itemOverrides = COMMON.itemsToOverride.get().stream().flatMap(
-                    itemId -> getQualifiedItemsFromIdentifier(itemId, ItemTags.getAllTags(), id -> new OverrideInfo(getQualifierChops(id), getQualifierOverride(id))))
+                    itemId -> getQualifiedItemsFromIdentifier(itemId, id -> new OverrideInfo(getQualifierChops(id), getQualifierOverride(id))))
                     .filter(qi -> qi.qualifier != null && !(qi.item instanceof IChoppingItem))
                     .collect(Collectors.toMap(QualifiedItem::getItem, QualifiedItem::getQualifier));
         }
@@ -136,7 +134,7 @@ public class ConfigHandler {
     public static boolean canChopWithItem(Item item) {
         if (itemsBlacklist == null) {
             itemsBlacklist = COMMON.itemsToBlacklist.get().stream()
-                    .flatMap(id -> getItemsFromIdentifier(id, ItemTags.getAllTags()))
+                    .flatMap(id -> getItemsFromIdentifier(id))
                     .collect(Collectors.toSet());
         }
 

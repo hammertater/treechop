@@ -38,7 +38,7 @@ public class Common {
 
     @SubscribeEvent
     public static void onTagsUpdated(TagsUpdatedEvent event) {
-        ConfigHandler.updateTags(event.getTagManager());
+        ConfigHandler.updateTags();
     }
 
     @SubscribeEvent

@@ -1,10 +1,11 @@
 package ht.treechop.common.config.item;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagCollection;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.tags.ITagManager;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -16,12 +17,14 @@ public class ItemTagIdentifier extends ItemIdentifier {
     }
 
     @Override
-    public Stream<Item> resolve(TagCollection<Item> tags, IForgeRegistry<Item> registry) {
+    public Stream<Item> resolve(IForgeRegistry<Item> registry) {
         ResourceLocation tagId = ResourceLocation.tryParse(getNamespace() + ":" + getLocalSpace());
         if (tagId != null) {
-            Tag<Item> tag = tags.getTag(tagId);
-            if (tag != null) {
-                return tag.getValues().stream();
+            ITagManager<Item> itemTags = ForgeRegistries.ITEMS.tags();
+            if (itemTags != null) {
+                return itemTags.getTag(ItemTags.create(tagId)).stream();
+            } else {
+                return Stream.empty();
             }
         } else {
             parsingError(String.format("\"%s\" is not a valid resource location", getItemID()));
