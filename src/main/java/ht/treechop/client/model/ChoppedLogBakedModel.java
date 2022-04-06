@@ -81,7 +81,7 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
         if (!state.hasProperty(ModBlockStateProperties.CHOPPED_LOG_SHAPE) || !state.hasProperty(ModBlockStateProperties.CHOP_COUNT)) {
             throw new IllegalArgumentException(
                     String.format("Could not bake chopped log model; block state %s is missing \"%s\" or \"%s\"",
-                            state.toString(),
+                            state,
                             ModBlockStateProperties.CHOPPED_LOG_SHAPE.getName(),
                             ModBlockStateProperties.CHOP_COUNT.getName()
                     )
@@ -100,16 +100,16 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)))
                 : Collections.emptySet();
 
-        BlockState strippedBlock;
+        BlockState strippedState;
         if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.Entity entity) {
-            strippedBlock = entity.getStrippedOriginalState();
+            strippedState = entity.getStrippedOriginalState();
         } else {
-            strippedBlock = Blocks.OAK_LOG.defaultBlockState();
+            strippedState = Blocks.OAK_LOG.defaultBlockState();
         }
 
         ModelDataMap.Builder builder = new ModelDataMap.Builder();
         builder.withInitial(SOLID_SIDES, solidSides);
-        builder.withInitial(STRIPPED_BLOCK_STATE, strippedBlock);
+        builder.withInitial(STRIPPED_BLOCK_STATE, strippedState);
         return builder.build();
     }
 
@@ -219,11 +219,23 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
         return staticModel.isCustomRenderer();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public TextureAtlasSprite getParticleIcon() {
         return staticModel.getParticleIcon();
     }
 
+    @Override
+    public TextureAtlasSprite getParticleIcon(IModelData data) {
+        BlockState strippedState = data.getData(STRIPPED_BLOCK_STATE);
+        if (strippedState != null) {
+            return Minecraft.getInstance().getModelManager().getModel(BlockModelShaper.stateToModelLocation(strippedState)).getParticleIcon(data);
+        } else {
+            return getParticleIcon();
+        }
+    }
+
+    @SuppressWarnings("NullableProblems")
     @Override
     public ItemOverrides getOverrides() {
         return null;

@@ -9,7 +9,6 @@ import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.widget.StickyWidget;
 import ht.treechop.client.gui.widget.ToggleWidget;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
@@ -27,8 +26,8 @@ public class ClientSettingsScreen extends Screen {
     private static final int ROW_SEPARATION = 1;
     private static final int INSET_SIZE = 20;
     private static final boolean IS_PAUSE_SCREEN = true;
-    private static final int SPACE_ABOVE_AND_BELOW_LIST = 20;
-    private static final int MIN_HEIGHT = (GUIUtil.BUTTON_HEIGHT + ROW_SEPARATION) * 4 - ROW_SEPARATION;
+    private static final int SPACE_ABOVE_AND_BELOW_LIST = 10;
+    private static final int MIN_HEIGHT = (GUIUtil.BUTTON_HEIGHT + ROW_SEPARATION) * 5 - ROW_SEPARATION;
 
     protected RowsGui optionsList;
     private Button doneButton;

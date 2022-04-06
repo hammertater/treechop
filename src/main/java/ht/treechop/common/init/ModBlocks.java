@@ -2,11 +2,8 @@ package ht.treechop.common.init;
 
 import ht.treechop.TreeChopMod;
 import ht.treechop.common.block.ChoppedLogBlock;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;

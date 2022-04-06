@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.Client;
 import ht.treechop.client.gui.util.Sprite;
+import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.util.ChopUtil;
@@ -29,18 +30,23 @@ public class ChopIndicator extends GuiComponent {
     private static final LastBlock lastBlock = new LastBlock();
     private static final ChopSettings lastChopSettings = new ChopSettings();
     private static boolean lastBlockWouldBeChopped = false;
+    private static boolean wantedToChopLastBlock = false;
 
     public static void render(ForgeIngameGui gui, PoseStack poseStack, float partialTicks, int windowWidth, int windowHeight) {
         Minecraft minecraft = Minecraft.getInstance();
         HitResult mouseOver = minecraft.hitResult;
 
         if (Client.isChoppingIndicatorEnabled() &&
-                minecraft.level != null && minecraft.screen == null
-                && mouseOver != null && mouseOver.getType() == HitResult.Type.BLOCK && mouseOver instanceof BlockHitResult
+                minecraft.level != null && minecraft.screen == null && mouseOver != null &&
+                mouseOver.getType() == HitResult.Type.BLOCK && mouseOver instanceof BlockHitResult
         ) {
             BlockPos blockPos = ((BlockHitResult) mouseOver).getBlockPos();
             if (blockWouldBeChopped(blockPos)) {
-                RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                RenderSystem.blendFuncSeparate(
+                        GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR,
+                        GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR,
+                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
+                );
                 RenderSystem.setShaderTexture(0, Sprite.TEXTURE_PATH);
 
                 int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset.get();
@@ -56,6 +62,8 @@ public class ChopIndicator extends GuiComponent {
                         imageWidth,
                         imageHeight
                 );
+
+                RenderSystem.defaultBlendFunc();
             }
             lastBlock.set(minecraft.level, blockPos);
             lastChopSettings.copyFrom(Client.getChopSettings());
@@ -68,15 +76,18 @@ public class ChopIndicator extends GuiComponent {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         ClientLevel level = minecraft.level;
+        ClientChopSettings chopSettings = Client.getChopSettings();
 
-        if (level != null & minecraft.player != null &&
-                ChopUtil.canChopWithTool(player.getMainHandItem()) &&
-                ChopUtil.playerWantsToChop(minecraft.player, Client.getChopSettings())
-        ) {
-            if (!lastBlock.equals(level, pos) || !Client.getChopSettings().equals(lastChopSettings)) {
-                if (ChopUtil.playerWantsToFell(player, Client.getChopSettings())) {
+        if (player == null || level == null) {
+            return false;
+        }
+
+        boolean wantToChop = ChopUtil.canChopWithTool(player.getMainHandItem()) && ChopUtil.playerWantsToChop(minecraft.player, chopSettings);
+        if (wantToChop) {
+            if (!lastBlock.equals(level, pos) || !wantedToChopLastBlock) {
+                if (ChopUtil.playerWantsToFell(player, chopSettings)) {
                     lastBlockWouldBeChopped = ChopUtil.isPartOfATree(
-                            level, pos, Client.getChopSettings().getTreesMustHaveLeaves()
+                            level, pos, chopSettings.getTreesMustHaveLeaves()
                     );
                 } else {
                     lastBlockWouldBeChopped = ChopUtil.isBlockALog(level, pos);
@@ -86,6 +97,7 @@ public class ChopIndicator extends GuiComponent {
             lastBlockWouldBeChopped = false;
         }
 
+        wantedToChopLastBlock = wantToChop;
         return lastBlockWouldBeChopped;
     }
 

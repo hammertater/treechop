@@ -1,6 +1,5 @@
 package ht.treechop.common.util;
 
-import com.ibm.icu.impl.Pair;
 import ht.treechop.TreeChopMod;
 import ht.treechop.api.ChopEvent;
 import ht.treechop.api.IChoppableBlock;
@@ -24,6 +23,7 @@ import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,8 +36,7 @@ import java.util.stream.Stream;
 public class ChopUtil {
 
     public static boolean isBlockChoppable(Level level, BlockPos pos, BlockState blockState) {
-        return (blockState.getBlock() instanceof IChoppableBlock) ||
-                (isBlockALog(blockState) && !(isBlockALog(level, pos.west()) && isBlockALog(level, pos.north()) && isBlockALog(level, pos.east()) && isBlockALog(level, pos.south())));
+        return (blockState.getBlock() instanceof IChoppableBlock) || (isBlockALog(blockState));
     }
 
     public static boolean isBlockChoppable(Level level, BlockPos pos) {
@@ -45,7 +44,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockALog(BlockState blockState) {
-        return ConfigHandler.blockTagForDetectingLogs.contains(blockState.getBlock());
+        return blockState.is(ConfigHandler.blockTagForDetectingLogs);
     }
 
     public static boolean isBlockALog(Level level, BlockPos pos) {
@@ -57,7 +56,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockLeaves(BlockState blockState) {
-        if (ConfigHandler.blockTagForDetectingLeaves.contains(blockState.getBlock())) {
+        if (blockState.is(ConfigHandler.blockTagForDetectingLeaves)) {
             return !ConfigHandler.ignorePersistentLeaves || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.getValue(LeavesBlock.PERSISTENT);
         } else {
             return false;
@@ -95,7 +94,6 @@ public class ChopUtil {
         return canChangeBlock(level, blockPos, agent, gameType, ItemStack.EMPTY);
     }
 
-    @SuppressWarnings("ConstantConditions")
     public static boolean canChangeBlock(Level level, BlockPos blockPos, Player agent, GameType gameType, ItemStack tool) {
         if (!agent.blockActionRestricted(level, blockPos, gameType)) { // TODO: get the player's game mode
             if (tool.isEmpty()) {
@@ -293,7 +291,6 @@ public class ChopUtil {
                         candidateStartIndex = i;
                     }
                 }
-
             }
         }
 
@@ -302,6 +299,11 @@ public class ChopUtil {
 
     private static int gatherChopAndGetNumChopsRemaining(Level level, BlockPos targetPos, int numChops, List<Chop> choppedBlocks) {
         BlockState blockStateBeforeChopping = level.getBlockState(targetPos);
+
+        if (!(blockStateBeforeChopping.getBlock() instanceof IChoppableBlock) && isBlockSurrounded(level, targetPos)) {
+            return numChops;
+        }
+
         int adjustedNumChops = adjustNumChops(level, targetPos, blockStateBeforeChopping, numChops, false);
 
         if (adjustedNumChops > 0) {
@@ -309,6 +311,11 @@ public class ChopUtil {
         }
 
         return numChops - adjustedNumChops;
+    }
+
+    private static boolean isBlockSurrounded(Level level, BlockPos pos) {
+        return Stream.of(pos.west(), pos.north(), pos.east(), pos.south())
+                .allMatch(neighborPos -> isBlockALog(level, neighborPos));
     }
 
     public static int adjustNumChops(Level level, BlockPos blockPos, BlockState blockState, int numChops, boolean destructive) {
@@ -359,8 +366,8 @@ public class ChopUtil {
     public static int getNumChops(Level level, Set<BlockPos> positions) {
         return positions.stream()
                 .map(pos -> Pair.of(pos, level.getBlockState(pos)))
-                .map(posAndblockState -> posAndblockState.second.getBlock() instanceof IChoppableBlock choppableBlock
-                        ? choppableBlock.getNumChops(level, posAndblockState.first, posAndblockState.second)
+                .map(posAndblockState -> posAndblockState.getRight().getBlock() instanceof IChoppableBlock choppableBlock
+                        ? choppableBlock.getNumChops(level, posAndblockState.getLeft(), posAndblockState.getRight())
                         : 0
                 )
                 .reduce(Integer::sum)

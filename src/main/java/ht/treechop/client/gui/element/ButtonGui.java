@@ -3,7 +3,6 @@ package ht.treechop.client.gui.element;
 import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.widget.SpriteButtonWidget;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.TextComponent;

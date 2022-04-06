@@ -1,6 +1,5 @@
 package ht.treechop.client.gui.element;
 
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.gui.util.GUIUtil;
 import ht.treechop.client.gui.widget.StickyWidget;
@@ -10,6 +9,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class ExclusiveButtonsGui extends NestedGui {
 
     protected ExclusiveButtonsGui(Collection<AbstractWidget> widgets, Supplier<Component> tooltipSupplier) {
         super(0, 0, 0, 0, TextComponent.EMPTY);
-        this.widgets = Lists.newArrayList(widgets);
+        this.widgets = new ArrayList<>(widgets);
         this.tooltipSupplier = tooltipSupplier;
     }
 
@@ -105,9 +105,9 @@ public class ExclusiveButtonsGui extends NestedGui {
         }
 
         private static class Option {
-            private Component name;
-            private Runnable onPress;
-            private Supplier<StickyWidget.State> stateSupplier;
+            private final Component name;
+            private final Runnable onPress;
+            private final Supplier<StickyWidget.State> stateSupplier;
 
             public Option(Component name, Runnable onPress, Supplier<StickyWidget.State> stateSupplier) {
                 this.name = name;

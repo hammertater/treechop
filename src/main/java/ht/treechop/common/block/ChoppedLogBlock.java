@@ -14,8 +14,10 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -100,7 +102,7 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
     }
 
     private static boolean isBlockOpen(Level level, BlockPos pos) {
-        return (level.isEmptyBlock(pos.below()) || isBlockLeaves(level, pos.below()));
+        return (level.isEmptyBlock(pos) || isBlockLeaves(level, pos));
     }
 
     @Override
@@ -180,8 +182,12 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
                                 ToolActions.AXE_STRIP
                         );
 
-                        if (strippedBlockState == blockState || strippedBlockState == null) {
-                            strippedBlockState = Blocks.STRIPPED_OAK_LOG.defaultBlockState();
+                        if (strippedBlockState == null) {
+                            if (AxeAccessor.isStrippedLog(blockState.getBlock())) {
+                                strippedBlockState = blockState;
+                            } else {
+                                strippedBlockState = Blocks.STRIPPED_OAK_LOG.defaultBlockState();
+                            }
                         }
 
                         entity.setOriginalState(blockState, strippedBlockState);
@@ -225,10 +231,12 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
                 .count() == 2;
     }
 
+    @SuppressWarnings({"NullableProblems", "deprecation"})
     public FluidState getFluidState(BlockState blockState) {
         return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
     }
 
+    @SuppressWarnings({"NullableProblems", "deprecation"})
     public BlockState updateShape(BlockState blockState, Direction side, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (blockState.getValue(WATERLOGGED)) {
             level.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
@@ -237,11 +245,12 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
         return super.updateShape(blockState, side, neighborState, level, pos, neighborPos);
     }
 
+    @SuppressWarnings("NullableProblems")
     public boolean propagatesSkylightDown(BlockState blockState, BlockGetter level, BlockPos pos) {
         return !blockState.getValue(WATERLOGGED);
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "NullableProblems"})
     @Nonnull
     @Override
     public List<ItemStack> getDrops(@Nonnull BlockState blockState, LootContext.Builder context) {
@@ -286,8 +295,7 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
 
         @Nonnull
         @Override
-        public CompoundTag save(@Nonnull CompoundTag tag)
-        {
+        public CompoundTag save(@Nonnull CompoundTag tag) {
             super.save(tag);
 
             tag.putInt("OriginalState", Block.getId(getOriginalState()));
@@ -302,8 +310,7 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
         }
 
         @Override
-        public void load(@Nonnull CompoundTag tag)
-        {
+        public void load(@Nonnull CompoundTag tag) {
             super.load(tag);
 
             int stateId = tag.getInt("OriginalState");
@@ -316,18 +323,10 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
             ListTag list = tag.getList("Drops", 10);
 
             drops = new LinkedList<>();
-            for(int i = 0; i < list.size(); ++i) {
+            for (int i = 0; i < list.size(); ++i) {
                 CompoundTag item = list.getCompound(i);
                 drops.add(ItemStack.of(item));
             }
-        }
-
-        @Nullable
-        @Override
-        public ClientboundBlockEntityDataPacket getUpdatePacket() {
-            CompoundTag tag = new CompoundTag();
-            save(tag);
-            return new ClientboundBlockEntityDataPacket(this.worldPosition, 0, tag);
         }
 
         @Nonnull
@@ -342,10 +341,18 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
         public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
             load(packet.getTag());
         }
+        public ClientboundBlockEntityDataPacket getUpdatePacket() {
+            return new ClientboundBlockEntityDataPacket(getBlockPos(), 0, getUpdateTag());
+        }
+    }
 
-        @Override
-        public void handleUpdateTag(CompoundTag tag) {
-            load(tag);
+    private abstract static class AxeAccessor extends AxeItem {
+        public AxeAccessor(Tier p_40521_, float p_40522_, float p_40523_, Properties p_40524_) {
+            super(p_40521_, p_40522_, p_40523_, p_40524_);
+        }
+
+        public static boolean isStrippedLog(Block block) {
+            return STRIPPABLES.containsValue(block);
         }
     }
 }

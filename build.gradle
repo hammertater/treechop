@@ -75,20 +75,21 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    mavenCentral()
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.17.1-37.0.78'
 
-//    compileOnly fg.deobf("curse.maven:carry-on:3206755" )
+//    compileOnly fg.deobf("curse.maven:carry-on:3579468")
 //    compileOnly fg.deobf("curse.maven:project-mmo:3157194")
 //    compileOnly fg.deobf("curse.maven:dynamictrees:3304858")
 //    compileOnly fg.deobf("curse.maven:pmmo-353935:3566329")
 //    runtimeOnly fg.deobf("curse.maven:pmmo-353935:3566329")
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 }
 
 test {
