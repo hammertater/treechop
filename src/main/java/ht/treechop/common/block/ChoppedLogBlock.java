@@ -243,7 +243,7 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
     }
 
     public boolean propagatesSkylightDown(BlockState blockState, BlockGetter level, BlockPos pos) {
-        return !blockState.getValue(WATERLOGGED);
+        return !blockState.getValue(WATERLOGGED) && getImitatedBlockState(level, pos).propagatesSkylightDown(level, pos);
     }
 
     @SuppressWarnings("deprecation")
