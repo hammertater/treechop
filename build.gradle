@@ -81,10 +81,8 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.18.2-40.0.19'
 
-//    compileOnly fg.deobf("curse.maven:dynamictrees:3304858")
-
-//    compileOnly fg.deobf("curse.maven:pmmo-353935:3603540")
-//    runtimeOnly fg.deobf("curse.maven:pmmo-353935:3603540")
+    compileOnly fg.deobf("curse.maven:pmmo-353935:3809102") // https://github.com/Harmonised7/project_mmo
+//    runtimeOnly fg.deobf("curse.maven:pmmo-353935:3809102")
 
     compileOnly fg.deobf("curse.maven:carry-on-274259:3674344")
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3674344")
