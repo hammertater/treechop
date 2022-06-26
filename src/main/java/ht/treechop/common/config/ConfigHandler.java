@@ -56,8 +56,8 @@ public class ConfigHandler {
     }
 
     public static void updateTags(ITagCollectionSupplier tagManager) {
-        blockTagForDetectingLogs = tagManager.getBlockTags().get(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
-        blockTagForDetectingLeaves = tagManager.getBlockTags().get(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
+        blockTagForDetectingLogs = tagManager.getBlocks().getTagOrEmpty(new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
+        blockTagForDetectingLeaves = tagManager.getBlocks().getTagOrEmpty(new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
         itemsBlacklist = null;
         itemOverrides = null;
     }
@@ -106,7 +106,7 @@ public class ConfigHandler {
     private static Map<Item, OverrideInfo> getItemOverrides() {
         if (itemOverrides == null) {
             itemOverrides = getQualifiedItemsFromConfigList(
-                    TagCollectionManager.getManager().getItemTags(),
+                    TagCollectionManager.getInstance().getItems(),
                     COMMON.itemsToOverride.get(),
                     item -> !(item instanceof IChoppingItem),
                     id -> new OverrideInfo(getQualifierChops(id), getQualifierOverride(id))
@@ -160,7 +160,7 @@ public class ConfigHandler {
     public static boolean canChopWithItem(Item item) {
         if (itemsBlacklist == null) {
             itemsBlacklist = getItemsFromConfigList(
-                    TagCollectionManager.getManager().getItemTags(),
+                    TagCollectionManager.getInstance().getItems(),
                     COMMON.itemsToBlacklist.get(),
                     item1 -> !(item1 instanceof IChoppingItem));
         }
@@ -177,6 +177,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue enabled;
 
         protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
+
+        public final ForgeConfigSpec.BooleanValue dropLootForChoppedBlocks;
 
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
@@ -221,6 +223,12 @@ public class ConfigHandler {
                 }
             }
 
+            builder.pop();
+
+            builder.push("general");
+            dropLootForChoppedBlocks = builder
+                    .comment("Whether to drop loot for blocks that have been chopped")
+                    .define("loseLootForChoppedBlocks", true);
             builder.pop();
 
             builder.push("treeDetection");

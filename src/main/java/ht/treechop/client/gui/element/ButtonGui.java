@@ -5,6 +5,7 @@ import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.widget.SpriteButtonWidget;
 import net.minecraft.client.gui.IGuiEventListener;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,14 +18,14 @@ public class ButtonGui extends NestedGui {
     }
 
     @Override
-    public List<? extends IGuiEventListener> getEventListeners() {
+    public List<? extends IGuiEventListener> children() {
         return Collections.singletonList(widget);
     }
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.widget.x = getBox().getCenterX() - this.widget.getWidth() / 2;
-        this.widget.y = getBox().getCenterY() - this.widget.getHeightRealms() / 2;
+        this.widget.y = getBox().getCenterY() - this.widget.getHeight() / 2;
         this.widget.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
@@ -35,7 +36,7 @@ public class ButtonGui extends NestedGui {
 
     @Override
     public int getMinimumHeight() {
-        return widget.getHeightRealms();
+        return widget.getHeight();
     }
 
 }

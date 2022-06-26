@@ -35,7 +35,7 @@ public enum SettingsField {
     }
 
     public String getFancyName() {
-        return I18n.format(langKey);
+        return I18n.get(langKey);
     }
 
     public Object getDefaultValue() {
@@ -61,7 +61,7 @@ public enum SettingsField {
     }
 
     public String getValueName(Object value) {
-        return I18n.format(codec.getLocalizationString(value));
+        return I18n.get(codec.getLocalizationString(value));
     }
 
     public Set<Object> getValues() {

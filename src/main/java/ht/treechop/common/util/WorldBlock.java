@@ -43,7 +43,7 @@ public class WorldBlock {
     }
 
     public static WorldBlock fromWorld(World world, BlockPos pos) {
-        return new WorldBlock(world, pos, world.getBlockState(pos), world.getTileEntity(pos));
+        return new WorldBlock(world, pos, world.getBlockState(pos), world.getBlockEntity(pos));
     }
 
     public static List<WorldBlock> fromWorld(World world, Collection<BlockPos> positions) {

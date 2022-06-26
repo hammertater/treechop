@@ -103,6 +103,6 @@ public class BlockNeighbors {
     }
 
     public Stream<BlockPos> asStream(BlockPos pos) {
-        return Arrays.stream(blocks).map(pos::add);
+        return Arrays.stream(blocks).map(pos::offset);
     }
 }

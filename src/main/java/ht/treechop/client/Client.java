@@ -49,7 +49,7 @@ public class Client {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        RenderTypeLookup.setRenderLayer(ModBlocks.CHOPPED_LOG.get(), RenderType.getSolid());
+        RenderTypeLookup.setRenderLayer(ModBlocks.CHOPPED_LOG.get(), RenderType.solid());
     }
 
     @SubscribeEvent
@@ -104,10 +104,10 @@ public class Client {
 
     public static void toggleSettingsOverlay() {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.currentScreen instanceof ClientSettingsScreen) {
-            minecraft.currentScreen.closeScreen();
+        if (minecraft.screen instanceof ClientSettingsScreen) {
+            minecraft.screen.onClose();
         } else {
-            minecraft.displayGuiScreen(new ClientSettingsScreen());
+            minecraft.setScreen(new ClientSettingsScreen());
         }
     }
 

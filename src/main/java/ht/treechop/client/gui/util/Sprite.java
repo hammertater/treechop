@@ -40,7 +40,7 @@ public enum Sprite {
 
     public static void setRenderState(float alpha) {
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bindTexture(Sprite.TEXTURE_PATH);
+        minecraft.getTextureManager().bind(Sprite.TEXTURE_PATH);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
 
         RenderSystem.enableBlend();

@@ -41,12 +41,12 @@ public class KeyBindings {
     }
 
     static InputMappings.Input getKey(int key) {
-        return InputMappings.Type.KEYSYM.getOrMakeInput(key);
+        return InputMappings.Type.KEYSYM.getOrCreate(key);
     }
 
     public static void buttonPressed(int keyCode, int keyState) {
         for (ActionableKeyBinding keyBinding : allKeyBindings) {
-            if (keyCode == keyBinding.getKey().getKeyCode() && keyState == GLFW.GLFW_PRESS) {
+            if (keyCode == keyBinding.getKey().getValue() && keyState == GLFW.GLFW_PRESS) {
                 keyBinding.onPress();
                 return;
             }
@@ -60,7 +60,7 @@ public class KeyBindings {
         public ActionableKeyBinding(String resourceName, InputMappings.Input inputByCode, Runnable callback) {
             super(resourceName, KeyConflictContext.GUI, inputByCode, CATEGORY);
             this.callback = () -> {
-                Screen screen = Minecraft.getInstance().currentScreen;
+                Screen screen = Minecraft.getInstance().screen;
                 if (screen == null || screen instanceof ClientSettingsScreen) {
                     callback.run();
                 }

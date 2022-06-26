@@ -17,11 +17,11 @@ public class ItemTagIdentifier extends ItemIdentifier {
 
     @Override
     public List<Item> resolve(ITagCollection<Item> tags, IForgeRegistry<Item> registry) {
-        ResourceLocation resource = ResourceLocation.tryCreate(getNamespace() + ":" + getLocalSpace());
+        ResourceLocation resource = ResourceLocation.tryParse(getNamespace() + ":" + getLocalSpace());
         if (resource != null) {
-            ITag<Item> tag = tags.get(resource);
+            ITag<Item> tag = tags.getTag(resource);
             if (tag != null) {
-                return tag.getAllElements();
+                return tag.getValues();
             } else {
                 parsingError(String.format("item tag \"%s\" does not exist", getNamespace()));
             }

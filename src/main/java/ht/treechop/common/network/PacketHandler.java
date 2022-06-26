@@ -30,7 +30,7 @@ public final class PacketHandler {
     }
 
     public static void sendTo(ServerPlayerEntity playerMP, Object toSend) {
-        HANDLER.sendTo(toSend, playerMP.connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
+        HANDLER.sendTo(toSend, playerMP.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
     }
 
     private PacketHandler() {}

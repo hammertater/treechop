@@ -34,7 +34,7 @@ public class LabeledGui extends NestedGui {
     }
 
     public int getMinimumHeight() {
-        return Math.max(label.getHeightRealms(), gui.getMinimumHeight());
+        return Math.max(label.getHeight(), gui.getMinimumHeight());
     }
 
     public int getLeftColumnWidth() {
@@ -46,8 +46,8 @@ public class LabeledGui extends NestedGui {
     }
 
     @Override
-    public List<? extends IGuiEventListener> getEventListeners() {
-        return Stream.of(Collections.singletonList(label), gui.getEventListeners())
+    public List<? extends IGuiEventListener> children() {
+        return Stream.of(Collections.singletonList(label), gui.children())
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }

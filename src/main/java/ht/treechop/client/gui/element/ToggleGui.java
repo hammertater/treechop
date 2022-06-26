@@ -19,7 +19,7 @@ public class ToggleGui extends NestedGui {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public List<? extends IGuiEventListener> getEventListeners() {
+    public List<? extends IGuiEventListener> children() {
         return Collections.singletonList(widget);
     }
 
@@ -37,7 +37,7 @@ public class ToggleGui extends NestedGui {
 
     @Override
     public int getMinimumHeight() {
-        return widget.getHeightRealms();
+        return widget.getHeight();
     }
 
 }

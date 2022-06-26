@@ -25,7 +25,7 @@ public class EnumCodec<T extends Enum<T>> extends AbstractSimpleCodec<T> {
     @Override
     public T decode(PacketBuffer buffer) {
         try {
-            return Enum.valueOf(enumType, buffer.readString(64));
+            return Enum.valueOf(enumType, buffer.readUtf(64));
         } catch (IllegalArgumentException e) {
             return enumType.getEnumConstants()[0];
         }
@@ -34,7 +34,7 @@ public class EnumCodec<T extends Enum<T>> extends AbstractSimpleCodec<T> {
     @Override
     public void encode(PacketBuffer buffer, Object object) {
         // Use the name instead of the ordinal just to be extra safe
-        buffer.writeString(getValueOf(object).map(Enum::name).orElse(""));
+        buffer.writeUtf(getValueOf(object).map(Enum::name).orElse(""));
     }
 
     @Override

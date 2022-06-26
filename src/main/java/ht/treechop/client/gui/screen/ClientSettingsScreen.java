@@ -67,7 +67,7 @@ public class ClientSettingsScreen extends Screen {
                 )
         );
 
-        this.optionsList = addListener(new RowsGui(
+        this.optionsList = addWidget(new RowsGui(
                 ROW_SEPARATION,
                 optionRows
         ));
@@ -78,8 +78,8 @@ public class ClientSettingsScreen extends Screen {
                 getDoneButtonTop(),
                 doneButtonWidth,
                 GUIUtil.BUTTON_HEIGHT,
-                ITextComponent.getTextComponentOrEmpty(I18n.format("gui.done")),
-                button -> closeScreen()
+                ITextComponent.nullToEmpty(I18n.get("gui.done")),
+                button -> onClose()
         ));
     }
 

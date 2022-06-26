@@ -11,12 +11,12 @@ public class TextWidget extends Widget {
     private FontRenderer font;
 
     public TextWidget(int x, int y, FontRenderer font, ITextComponent text) {
-        super(x, y, font.getStringWidth(text.getString()), GUIUtil.TEXT_LINE_HEIGHT, text);
+        super(x, y, font.width(text.getString()), GUIUtil.TEXT_LINE_HEIGHT, text);
         this.font = font;
     }
 
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks, boolean rightAligned) {
-        render(matrixStack, mouseX, mouseY, partialTicks, rightAligned ? -font.getStringWidth(getMessage().getString()) : 0);
+        render(matrixStack, mouseX, mouseY, partialTicks, rightAligned ? -font.width(getMessage().getString()) : 0);
     }
 
     @SuppressWarnings("NullableProblems")

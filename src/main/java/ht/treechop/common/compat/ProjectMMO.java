@@ -2,9 +2,12 @@ package ht.treechop.common.compat;
 
 import harmonised.pmmo.events.BlockBrokenHandler;
 import ht.treechop.TreeChopMod;
+import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.event.ChopEvent;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -25,10 +28,15 @@ public class ProjectMMO {
     private static class EventHandler {
         @SubscribeEvent
         public static void onFinishChop(ChopEvent.FinishChopEvent event) {
+            TileEntity entity = event.getWorld().getBlockEntity(event.getChoppedBlockPos());
+            BlockState xpBlock = (entity instanceof ChoppedLogBlock.Entity)
+                    ? ((ChoppedLogBlock.Entity) entity).getOriginalState()
+                    : event.getChoppedBlockState();
+
             BlockBrokenHandler.handleBroken(new BlockEvent.BreakEvent(
                     event.getWorld(),
                     event.getChoppedBlockPos(),
-                    Blocks.OAK_LOG.getDefaultState(), // TODO: use correct wood type
+                    xpBlock,
                     event.getPlayer()
             ));
         }

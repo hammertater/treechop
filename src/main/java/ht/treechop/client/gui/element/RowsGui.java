@@ -35,7 +35,7 @@ public class RowsGui extends NestedGui {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public List<? extends IGuiEventListener> getEventListeners() {
+    public List<? extends IGuiEventListener> children() {
         return rows;
     }
 

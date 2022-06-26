@@ -1,6 +1,7 @@
 package ht.treechop.common.capabilities;
 
 import ht.treechop.TreeChopMod;
+import ht.treechop.common.settings.ChopSettings;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.util.Direction;
@@ -13,41 +14,38 @@ import javax.annotation.Nullable;
 
 public class ChopSettingsProvider implements ICapabilitySerializable<INBT> {
 
-    private static final String CHOP_SETTINGS_NBT = "chopSettings";
-    private static final byte COMPOUND_NBT_ID = new CompoundNBT().getId();
+    private final ChopSettingsCapability chopSettings = new ChopSettingsCapability();
+    private final LazyOptional<ChopSettingsCapability> lazyChopSettings = LazyOptional.of(() -> chopSettings);
 
-    @SuppressWarnings({"NullableProblems", "ConstantConditions"})
-    private final LazyOptional<ChopSettingsCapability> chopSettings = LazyOptional.of(ChopSettingsCapability.CAPABILITY::getDefaultInstance);
+    public ChopSettingsProvider() {
+    }
 
-    @SuppressWarnings({"NullableProblems", "ConstantConditions"})
+    public ChopSettingsProvider(ChopSettings defaults) {
+        super();
+        chopSettings.copyFrom(defaults);
+    }
+
+    @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction side) {
-        return (ChopSettingsCapability.CAPABILITY == capability) ? chopSettings.cast() : LazyOptional.empty();
+        return (ChopSettingsCapability.CAPABILITY == capability) ? lazyChopSettings.cast() : LazyOptional.empty();
     }
 
-    private ChopSettingsCapability getChopSettings() {
-        return chopSettings.orElseThrow(() -> new IllegalArgumentException("LazyOptional must not be empty"));
+    private ChopSettingsCapability getLazyChopSettings() {
+        return lazyChopSettings.orElseThrow(() -> new IllegalArgumentException("LazyOptional must not be empty"));
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public INBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
-        INBT chopSettingsNbt = ChopSettingsCapability.CAPABILITY.writeNBT(getChopSettings(), null);
-        nbt.put(CHOP_SETTINGS_NBT, chopSettingsNbt);
-        return nbt;
+        return getLazyChopSettings().serializeNBT();
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void deserializeNBT(INBT nbt) {
-        if (nbt.getId() != COMPOUND_NBT_ID) {
-            TreeChopMod.LOGGER.warn("Unexpected NBT type: " + nbt);
-            return;
+        if (nbt instanceof CompoundNBT) {
+            getLazyChopSettings().deserializeNBT((CompoundNBT) nbt);
+        } else {
+            TreeChopMod.LOGGER.warn("Bad ChopSettings tag type: " + nbt);
         }
-        CompoundNBT compoundNbt = (CompoundNBT) nbt;
-        INBT chopSettingsNbt = compoundNbt.get(CHOP_SETTINGS_NBT);
-        ChopSettingsCapability.CAPABILITY.readNBT(getChopSettings(), null, chopSettingsNbt);
     }
-
 }

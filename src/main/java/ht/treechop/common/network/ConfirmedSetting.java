@@ -33,7 +33,7 @@ public class ConfirmedSetting extends Setting {
         ACCEPT {
             @Override
             public void run(ConfirmedSetting setting) {
-                if (Minecraft.getInstance().currentScreen == null) {
+                if (Minecraft.getInstance().screen == null) {
                     String fieldName = setting.getField().getFancyName();
                     String valueName = setting.getField().getValueName(setting.getValue());
                     if (ConfigHandler.CLIENT.showFeedbackMessages.get()) {
@@ -49,7 +49,7 @@ public class ConfirmedSetting extends Setting {
         DENY {
             @Override
             public void run(ConfirmedSetting setting) {
-                if (Minecraft.getInstance().currentScreen == null) {
+                if (Minecraft.getInstance().screen == null) {
                     String fieldName = setting.getField().getFancyName();
                     String valueName = setting.getField().getValueName(setting.getValue());
                     if (ConfigHandler.CLIENT.showFeedbackMessages.get()) {
@@ -58,7 +58,7 @@ public class ConfirmedSetting extends Setting {
                                 fieldName,
                                 valueName,
                                 TextFormatting.RED,
-                                I18n.format("treechop.setting.missing_permissions")
+                                I18n.get("treechop.setting.missing_permissions")
                         ));
                     }
                 }

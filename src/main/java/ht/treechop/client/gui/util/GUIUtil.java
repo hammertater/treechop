@@ -14,8 +14,8 @@ public class GUIUtil {
     }
 
     public static int getTextWidth(String name) {
-        FontRenderer font = Minecraft.getInstance().fontRenderer;
-        return font.getStringWidth(name);
+        FontRenderer font = Minecraft.getInstance().font;
+        return font.width(name);
     }
 
     public static int getMinimumButtonWidth(ITextComponent name) {

@@ -26,12 +26,12 @@ public class Box3 {
 
     public Box3(Vector3 first, Vector3 second) {
         this(
-                Math.min(first.getX(), second.getX()),
-                Math.min(first.getY(), second.getY()),
-                Math.min(first.getZ(), second.getZ()),
-                Math.max(first.getX(), second.getX()),
-                Math.max(first.getY(), second.getY()),
-                Math.max(first.getZ(), second.getZ())
+                Math.min(first.x(), second.x()),
+                Math.min(first.y(), second.y()),
+                Math.min(first.z(), second.z()),
+                Math.max(first.x(), second.x()),
+                Math.max(first.y(), second.y()),
+                Math.max(first.z(), second.z())
         );
     }
 

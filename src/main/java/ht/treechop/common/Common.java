@@ -11,13 +11,13 @@ import ht.treechop.common.util.ChopUtil;
 import ht.treechop.common.util.FauxPlayerInteractionManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.world.BlockEvent;
@@ -43,19 +43,19 @@ public class Common {
 
     @SubscribeEvent
     public static void onBreakEvent(BlockEvent.BreakEvent event) {
-        ItemStack tool = event.getPlayer().getHeldItemMainhand();
+        ItemStack tool = event.getPlayer().getMainHandItem();
         BlockState blockState = event.getState();
         BlockPos pos = event.getPos();
 
         if (!isBlockALog(blockState)
                 || !ConfigHandler.COMMON.enabled.get()
-                || !ChopUtil.canChopWithTool(tool)
-                || blockState.canHarvestBlock(event.getWorld(), pos, event.getPlayer())
                 || event.isCanceled()
                 || !(event.getWorld() instanceof ServerWorld)
                 || !(event.getPlayer() instanceof ServerPlayerEntity)
+                || !blockState.canHarvestBlock(event.getWorld(), pos, event.getPlayer())
+                || !ChopUtil.canChopWithTool(tool)
         ) {
-           return;
+            return;
         }
 
         ServerWorld world = (ServerWorld) event.getWorld();
@@ -112,7 +112,9 @@ public class Common {
         final ResourceLocation loc = new ResourceLocation(TreeChopMod.MOD_ID + "chop_settings_capability");
 
         Entity entity = event.getObject();
-        if (entity instanceof PlayerEntity) {
+        if (entity instanceof FakePlayer) {
+            event.addCapability(loc, new ChopSettingsProvider(ConfigHandler.fakePlayerChopSettings));
+        } else {
             event.addCapability(loc, new ChopSettingsProvider());
         }
     }

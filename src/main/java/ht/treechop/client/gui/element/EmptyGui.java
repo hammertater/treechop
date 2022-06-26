@@ -34,7 +34,7 @@ public class EmptyGui extends NestedGui {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public List<? extends IGuiEventListener> getEventListeners() {
+    public List<? extends IGuiEventListener> children() {
         return Collections.emptyList();
     }
 

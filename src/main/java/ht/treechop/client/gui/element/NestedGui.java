@@ -42,12 +42,12 @@ public abstract class NestedGui implements INestedGuiEventHandler, IPositionalGu
     }
 
     @Override
-    public void setListener(@Nullable IGuiEventListener listener) {
+    public void setFocused(@Nullable IGuiEventListener listener) {
         this.listener = listener;
     }
 
     @Nullable
-    public IGuiEventListener getListener() {
+    public IGuiEventListener getFocused() {
         return this.listener;
     }
 

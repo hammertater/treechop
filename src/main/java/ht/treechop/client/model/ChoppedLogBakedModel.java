@@ -4,12 +4,13 @@ import ht.treechop.TreeChopMod;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
-import ht.treechop.common.properties.BlockStateProperties;
 import ht.treechop.common.properties.ChoppedLogShape;
+import ht.treechop.common.properties.ModBlockStateProperties;
 import ht.treechop.common.util.FaceShape;
 import ht.treechop.common.util.Vector3;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.model.BakedQuad;
@@ -18,51 +19,42 @@ import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockDisplayReader;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.data.IDynamicBakedModel;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.data.ModelDataMap;
-import net.minecraftforge.client.model.data.ModelProperty;
+import net.minecraftforge.client.model.data.*;
+import org.apache.commons.lang3.tuple.Triple;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ChoppedLogBakedModel implements IDynamicBakedModel {
 
-    public static ModelProperty<ChoppedLogShape> SHAPE = new ModelProperty<>();
-    public static ModelProperty<Integer> CHOPS = new ModelProperty<>();
     public static ModelProperty<Set<Direction>> SOLID_SIDES = new ModelProperty<>();
+    public static ModelProperty<BlockState> STRIPPED_BLOCK_STATE = new ModelProperty<>();
     private final IBakedModel staticModel;
-    private final ResourceLocation textureRL = new ResourceLocation("treechop:block/chopped_log");
-    private final TextureAtlasSprite sprite;
+    private final ResourceLocation defaultTextureRL = new ResourceLocation("treechop:block/chopped_log");
+    private final TextureAtlasSprite defaultSprite;
     private final boolean removeBarkOnInteriorLogs;
 
     public ChoppedLogBakedModel(IBakedModel staticModel, boolean removeBarkOnInteriorLogs) {
         this.staticModel = staticModel;
         this.removeBarkOnInteriorLogs = removeBarkOnInteriorLogs;
-        this.sprite = Minecraft.getInstance().getModelManager()
-                .getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
-                .getSprite(textureRL);
+        this.defaultSprite = Minecraft.getInstance().getModelManager()
+                .getAtlas(AtlasTexture.LOCATION_BLOCKS)
+                .getSprite(defaultTextureRL);
     }
 
     public static void overrideBlockStateModels(ModelBakeEvent event) {
-        for (BlockState blockState : ModBlocks.CHOPPED_LOG.get().getStateContainer().getValidStates()) {
-            ModelResourceLocation variantMRL = BlockModelShapes.getModelLocation(blockState);
+        for (BlockState blockState : ModBlocks.CHOPPED_LOG.get().getStateDefinition().getPossibleStates()) {
+            ModelResourceLocation variantMRL = BlockModelShapes.stateToModelLocation(blockState);
             IBakedModel existingModel = event.getModelRegistry().get(variantMRL);
             if (existingModel == null) {
                 TreeChopMod.LOGGER.warn("Did not find the expected vanilla baked model(s) for treechop:chopped_log in registry");
@@ -81,37 +73,44 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
     @Override
     @Nonnull
     public IModelData getModelData(
-            @Nonnull IBlockDisplayReader world,
+            @Nonnull IBlockDisplayReader level,
             @Nonnull BlockPos pos,
             @Nonnull BlockState state,
             @Nonnull IModelData tileData
     ) {
-        if (!state.hasProperty(BlockStateProperties.CHOPPED_LOG_SHAPE) || !state.hasProperty(BlockStateProperties.CHOP_COUNT)) {
+        if (!state.hasProperty(ModBlockStateProperties.CHOPPED_LOG_SHAPE) || !state.hasProperty(ModBlockStateProperties.CHOP_COUNT)) {
             throw new IllegalArgumentException(
                     String.format("Could not bake chopped log model; block state %s is missing \"%s\" or \"%s\"",
                             state.toString(),
-                            BlockStateProperties.CHOPPED_LOG_SHAPE.getName(),
-                            BlockStateProperties.CHOP_COUNT.getName()
+                            ModBlockStateProperties.CHOPPED_LOG_SHAPE.getName(),
+                            ModBlockStateProperties.CHOP_COUNT.getName()
                     )
             );
         }
 
-        ChoppedLogShape shape = state.get(BlockStateProperties.CHOPPED_LOG_SHAPE);
+        ChoppedLogShape shape = state.getValue(ModBlockStateProperties.CHOPPED_LOG_SHAPE);
         Set<Direction> solidSides = removeBarkOnInteriorLogs
                 ? Arrays.stream(Direction.values())
                 .filter(direction -> direction.getAxis().isHorizontal() && !shape.isSideOpen(direction))
                 .filter(direction -> {
-                    BlockState blockState = world.getBlockState(pos.offset(direction));
+                    BlockState blockState = level.getBlockState(pos.relative(direction));
                     Block block = blockState.getBlock();
-                    return blockState.isSolid() && !(block instanceof ChoppedLogBlock);
+                    return blockState.isSolidRender(level, pos) && !(block instanceof ChoppedLogBlock);
                 })
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)))
                 : Collections.emptySet();
 
+        BlockState strippedState;
+        TileEntity entity = level.getBlockEntity(pos);
+        if (entity instanceof ChoppedLogBlock.Entity) {
+            strippedState = ((ChoppedLogBlock.Entity) entity).getStrippedOriginalState();
+        } else {
+            strippedState = Blocks.OAK_LOG.defaultBlockState();
+        }
+
         ModelDataMap.Builder builder = new ModelDataMap.Builder();
-        builder.withInitial(SHAPE, state.get(BlockStateProperties.CHOPPED_LOG_SHAPE));
-        builder.withInitial(CHOPS, state.get(BlockStateProperties.CHOP_COUNT));
         builder.withInitial(SOLID_SIDES, solidSides);
+        builder.withInitial(STRIPPED_BLOCK_STATE, strippedState);
         return builder.build();
     }
 
@@ -124,56 +123,86 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
             @Nonnull Random rand,
             @Nonnull IModelData extraData
     ) {
-        if (extraData.hasProperty(SHAPE) && extraData.hasProperty(CHOPS)) {
-            if (side == null) {
-                ChoppedLogShape shape = extraData.getData(SHAPE);
-                int chops = extraData.getData(CHOPS);
-                Set<Direction> solidSides = extraData.getData(SOLID_SIDES);
+        if (side == null) {
+            BlockState strippedState = (extraData.hasProperty(STRIPPED_BLOCK_STATE))
+                    ? extraData.getData(STRIPPED_BLOCK_STATE)
+                    : Blocks.STRIPPED_OAK_LOG.defaultBlockState();
 
-                AxisAlignedBB box = shape.getBoundingBox(chops);
+            Set<Direction> solidSides = (extraData.hasProperty(SOLID_SIDES))
+                    ? extraData.getData(SOLID_SIDES)
+                    : Collections.emptySet();
 
-                float downY = (float) box.getMin(Axis.Y);
-                float upY = (float) box.getMax(Axis.Y);
-                float northZ = (float) box.getMin(Axis.Z);
-                float southZ = (float) box.getMax(Axis.Z);
-                float westX = (float) box.getMin(Axis.X);
-                float eastX = (float) box.getMax(Axis.X);
-
-                Vector3 topNorthEast = new Vector3(eastX, upY, northZ);
-                Vector3 topNorthWest = new Vector3(westX, upY, northZ);
-                Vector3 topSouthEast = new Vector3(eastX, upY, southZ);
-                Vector3 topSouthWest = new Vector3(westX, upY, southZ);
-                Vector3 bottomNorthEast = new Vector3(eastX, downY, northZ);
-                Vector3 bottomNorthWest = new Vector3(westX, downY, northZ);
-                Vector3 bottomSouthEast = new Vector3(eastX, downY, southZ);
-                Vector3 bottomSouthWest = new Vector3(westX, downY, southZ);
-
-                return Stream.concat(
-                        Stream.of(
-                            ModelUtil.makeQuad(textureRL, sprite, bottomSouthEast, bottomNorthWest, Direction.DOWN, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topSouthEast, topNorthWest, Direction.UP, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topNorthEast, bottomNorthWest, Direction.NORTH, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topSouthEast, bottomSouthWest, Direction.SOUTH, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topSouthWest, bottomNorthWest, Direction.WEST, null),
-                            ModelUtil.makeQuad(textureRL, sprite, topSouthEast, bottomNorthEast, Direction.EAST, null)
-                        ),
-                        solidSides.stream().map(
-                                direction -> ModelUtil.makeQuad(textureRL, sprite, FaceShape.get(direction), direction.getOpposite(), null)
-                        )
-                ).filter(Objects::nonNull).collect(Collectors.toList());
+            AxisAlignedBB box;
+            if (state != null) {
+                int chops = state.getValue(ModBlockStateProperties.CHOP_COUNT);
+                ChoppedLogShape shape = state.getValue(ModBlockStateProperties.CHOPPED_LOG_SHAPE);
+                box = shape.getBoundingBox(chops);
+            } else {
+                box = new AxisAlignedBB(0, 0, 0, 16, 16, 16);
             }
-            else {
-                return Collections.emptyList();
-            }
+
+            float downY = (float) box.minY;
+            float upY = (float) box.maxY;
+            float northZ = (float) box.minZ;
+            float southZ = (float) box.maxZ;
+            float westX = (float) box.minX;
+            float eastX = (float) box.maxX;
+
+            Vector3 topNorthEast = new Vector3(eastX, upY, northZ);
+            Vector3 topNorthWest = new Vector3(westX, upY, northZ);
+            Vector3 topSouthEast = new Vector3(eastX, upY, southZ);
+            Vector3 topSouthWest = new Vector3(westX, upY, southZ);
+            Vector3 bottomNorthEast = new Vector3(eastX, downY, northZ);
+            Vector3 bottomNorthWest = new Vector3(westX, downY, northZ);
+            Vector3 bottomSouthEast = new Vector3(eastX, downY, southZ);
+            Vector3 bottomSouthWest = new Vector3(westX, downY, southZ);
+
+            //noinspection SuspiciousNameCombination
+            return Stream.concat(
+                    Stream.of(
+                            Triple.of(bottomSouthEast, bottomNorthWest, Direction.DOWN),
+                            Triple.of(topSouthEast, topNorthWest, Direction.UP),
+                            Triple.of(topNorthEast, bottomNorthWest, Direction.NORTH),
+                            Triple.of(topSouthEast, bottomSouthWest, Direction.SOUTH),
+                            Triple.of(topSouthWest, bottomNorthWest, Direction.WEST),
+                            Triple.of(topSouthEast, bottomNorthEast, Direction.EAST)
+                    ).map(
+                            triple -> ModelUtil.makeQuad(
+                                    getSpriteForBlockSide(strippedState, triple.getRight(), rand, extraData),
+                                    triple.getLeft(),
+                                    triple.getMiddle(),
+                                    triple.getRight(),
+                                    null
+                            )
+                    ),
+                    solidSides.stream().map(
+                            direction -> ModelUtil.makeQuad(
+                                    getSpriteForBlockSide(strippedState, direction.getOpposite(), rand, extraData),
+                                    FaceShape.get(direction),
+                                    direction.getOpposite(),
+                                    null
+                            )
+                    )
+            ).filter(Objects::nonNull).collect(Collectors.toList());
         }
         else {
             return Collections.emptyList();
         }
     }
 
+    private TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, Random rand, IModelData extraData) {
+        ResourceLocation modelLocation = BlockModelShapes.stateToModelLocation(blockState);
+        return Minecraft.getInstance().getModelManager().getModel(modelLocation)
+                .getQuads(blockState, side, rand, EmptyModelData.INSTANCE).stream()
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(BakedQuad::getSprite)
+                .orElse(defaultSprite);
+    }
+
     @Override
-    public boolean isAmbientOcclusion() {
-        return staticModel.isAmbientOcclusion();
+    public boolean useAmbientOcclusion() {
+        return staticModel.useAmbientOcclusion();
     }
 
     @Override
@@ -182,23 +211,32 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public boolean isSideLit() {
-        return staticModel.isSideLit();
+    public boolean usesBlockLight() {
+        return staticModel.usesBlockLight();
     }
 
     @Override
-    public boolean isBuiltInRenderer() {
-        return staticModel.isBuiltInRenderer();
+    public boolean isCustomRenderer() {
+        return staticModel.isCustomRenderer();
     }
 
     @Override
-    public @Nonnull TextureAtlasSprite getParticleTexture() {
-        return sprite;
+    public TextureAtlasSprite getParticleIcon() {
+        return staticModel.getParticleIcon();
     }
 
     @Override
-    public @Nonnull ItemOverrideList getOverrides() {
-        return staticModel.getOverrides();
+    public TextureAtlasSprite getParticleTexture(@Nonnull IModelData data) {
+        BlockState strippedState = data.getData(STRIPPED_BLOCK_STATE);
+        if (strippedState != null) {
+            return Minecraft.getInstance().getModelManager().getModel(BlockModelShapes.stateToModelLocation(strippedState)).getParticleTexture(data);
+        } else {
+            return getParticleIcon();
+        }
     }
 
+    @Override
+    public ItemOverrideList getOverrides() {
+        return null;
+    }
 }

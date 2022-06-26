@@ -18,7 +18,7 @@ public class SingleItemIdentifier extends ItemIdentifier {
     @Override
     public List<Item> resolve(ITagCollection<Item> tags, IForgeRegistry<Item> registry) {
         String resourceString = getNamespace() + ":" + getLocalSpace();
-        ResourceLocation resource = ResourceLocation.tryCreate(resourceString);
+        ResourceLocation resource = ResourceLocation.tryParse(resourceString);
         if (resource != null) {
             Item item = registry.getValue(resource);
             if (item != null) {

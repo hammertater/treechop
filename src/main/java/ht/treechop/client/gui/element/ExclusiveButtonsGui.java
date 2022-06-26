@@ -41,7 +41,7 @@ public class ExclusiveButtonsGui extends NestedGui {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public List<? extends IGuiEventListener> getEventListeners() {
+    public List<? extends IGuiEventListener> children() {
         return widgets;
     }
 
@@ -64,7 +64,7 @@ public class ExclusiveButtonsGui extends NestedGui {
 
     @Override
     public int getMinimumHeight() {
-        return widgets.stream().map(Widget::getHeightRealms).reduce(Integer::max).orElse(0);
+        return widgets.stream().map(Widget::getHeight).reduce(Integer::max).orElse(0);
     }
 
     public static class Builder {

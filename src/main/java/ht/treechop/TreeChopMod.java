@@ -37,6 +37,7 @@ public class TreeChopMod {
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> Client::init);
 
         ModBlocks.BLOCKS.register(modBus);
+        ModBlocks.ENTITIES.register(modBus);
 
         // TODO: Config screen should show server-side settings, not client-side
 //        ModLoadingContext.get().registerExtensionPoint(
@@ -47,7 +48,7 @@ public class TreeChopMod {
 
     @SuppressWarnings("ConstantConditions")
     public static void showText(String text) {
-        Minecraft.getInstance().player.sendMessage(new StringTextComponent(String.format("%s[%s] %s%s", TextFormatting.GRAY, TreeChopMod.MOD_NAME, TextFormatting.WHITE, text)), Util.DUMMY_UUID);
+        Minecraft.getInstance().player.sendMessage(new StringTextComponent(String.format("%s[%s] %s%s", TextFormatting.GRAY, TreeChopMod.MOD_NAME, TextFormatting.WHITE, text)), Util.NIL_UUID);
     }
 
 }

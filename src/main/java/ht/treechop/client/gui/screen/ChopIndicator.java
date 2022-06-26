@@ -25,18 +25,18 @@ public class ChopIndicator extends AbstractGui {
 
     public void render(MainWindow window, MatrixStack matrixStack, float partialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
-        RayTraceResult mouseOver = minecraft.objectMouseOver;
+        RayTraceResult mouseOver = minecraft.hitResult;
 
         if (Client.isChoppingIndicatorEnabled() &&
-                minecraft.currentScreen == null && mouseOver != null &&
+                minecraft.screen == null && mouseOver != null &&
                 mouseOver.getType() == RayTraceResult.Type.BLOCK &&
                 mouseOver instanceof BlockRayTraceResult
         ) {
-            BlockPos blockPos = ((BlockRayTraceResult) mouseOver).getPos();
+            BlockPos blockPos = ((BlockRayTraceResult) mouseOver).getBlockPos();
             if (blockWouldBeChopped(blockPos)) {
-                int windowWidth = window.getScaledWidth();
-                int windowHeight = window.getScaledHeight();
-                minecraft.getTextureManager().bindTexture(Sprite.TEXTURE_PATH);
+                int windowWidth = window.getGuiScaledWidth();
+                int windowHeight = window.getGuiScaledHeight();
+                minecraft.getTextureManager().bind(Sprite.TEXTURE_PATH);
 
                 int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset.get();
                 int indicatorCenterY = windowHeight / 2 + ConfigHandler.CLIENT.indicatorYOffset.get();
@@ -62,10 +62,10 @@ public class ChopIndicator extends AbstractGui {
     private boolean blockWouldBeChopped(BlockPos pos) {
         Minecraft minecraft = Minecraft.getInstance();
         ClientPlayerEntity player = minecraft.player;
-        ClientWorld world = minecraft.world;
+        ClientWorld world = minecraft.level;
 
         if (world != null & minecraft.player != null &&
-                ChopUtil.canChopWithTool(player.getHeldItemMainhand()) &&
+                ChopUtil.canChopWithTool(player.getMainHandItem()) &&
                 ChopUtil.playerWantsToChop(minecraft.player, Client.getChopSettings())
         ) {
             if ((pos.equals(lastBlockPos) || !Client.getChopSettings().equals(lastChopSettings))
