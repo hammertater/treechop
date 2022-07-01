@@ -12,12 +12,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -37,6 +39,8 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -173,13 +177,7 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
 
                 if (level.setBlock(pos, newBlockState, 3)) {
                     if (!blockState.is(this) && level.getBlockEntity(pos) instanceof Entity entity && level instanceof ServerLevel serverLevel) {
-                        BlockState strippedBlockState = blockState.getToolModifiedState(
-                                level,
-                                pos,
-                                FakePlayerFactory.getMinecraft(serverLevel),
-                                Items.DIAMOND_AXE.getDefaultInstance(),
-                                ToolActions.AXE_STRIP
-                        );
+                        BlockState strippedBlockState = blockState.getToolModifiedState(new UseOnContext(player, InteractionHand.MAIN_HAND, new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, true)), ToolActions.AXE_STRIP, true);
 
                         if (strippedBlockState == null) {
                             if (AxeAccessor.isStrippedLog(blockState.getBlock())) {
