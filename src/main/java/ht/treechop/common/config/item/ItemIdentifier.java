@@ -105,7 +105,7 @@ public abstract class ItemIdentifier {
     public abstract Stream<Item> resolve(IForgeRegistry<Item> registry);
 
     private static void parsingError(String idString, String message) {
-        TreeChopMod.LOGGER.warn("Configuration error when parsing \"{}\": {}", idString, message);
+        TreeChopMod.LOGGER.warn("Configuration issue: failed to parse \"{}\": {} (to silence this warning, find and delete \"{}\" in treechop-common.toml)", idString, message, idString);
     }
 
     public void parsingError(String message) {
