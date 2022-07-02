@@ -165,13 +165,17 @@ public class ChopUtil {
         return chopTree(level, blockPos, supportedBlocks, numChops);
     }
 
-    private static Set<BlockPos> getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition, boolean mustHaveLeaves) {
+    public static Set<BlockPos> getTreeBlocks(Level level, BlockPos blockPos, boolean mustHaveLeaves) {
+        return getTreeBlocks(level, blockPos, pos -> ChopUtil.isBlockALog(level, pos), mustHaveLeaves);
+    }
+
+    public static Set<BlockPos> getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition, boolean mustHaveLeaves) {
         AtomicBoolean hasLeaves = new AtomicBoolean(!mustHaveLeaves);
         Set<BlockPos> treeBlocks = getTreeBlocks(level, blockPos, logCondition, hasLeaves);
         return hasLeaves.get() ? treeBlocks : Collections.emptySet();
     }
 
-    private static Set<BlockPos> getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition, AtomicBoolean inHasLeaves) {
+    public static Set<BlockPos> getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition, AtomicBoolean inHasLeaves) {
         if (!logCondition.test(blockPos)) {
             return Collections.emptySet();
         }
