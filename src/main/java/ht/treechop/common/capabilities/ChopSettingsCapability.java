@@ -16,8 +16,7 @@ import java.util.Optional;
 
 public class ChopSettingsCapability extends ChopSettings implements INBTSerializable<CompoundTag> {
 
-    public static final Capability<ChopSettingsCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});;
-    public static final ChopSettings INSTANCE = new ChopSettingsCapability();
+    public static final Capability<ChopSettingsCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
 
     private boolean isSynced = false;
 
