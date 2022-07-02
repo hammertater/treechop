@@ -21,8 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @WailaPlugin(id = TreeChopMod.MOD_ID + ":waila_plugin")
-public enum Waila implements IWailaPlugin, IBlockComponentProvider {
-    INSTANCE;
+public class Waila implements IWailaPlugin, IBlockComponentProvider {
+    private static final Waila INSTANCE = new Waila();
 
     public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChopMod.MOD_ID, "show_tree_block_counts");
     public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChopMod.MOD_ID, "show_num_chops_remaining");
