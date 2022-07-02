@@ -273,6 +273,7 @@ public class ConfigHandler {
                             "- Items in this list that have special support for TreeChop will not be blacklisted; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#blacklist"))
                     .defineList("items",
                             Arrays.asList(
+                                    "#tconstruct:modifiable/harvest",
                                     "botania:terra_axe",
                                     "mekanism:atomic_disassembler",
                                     "@lumberjack",
@@ -294,7 +295,6 @@ public class ConfigHandler {
                             "- This might not work as expected for some items; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#caveats"))
                     .defineList("items",
                             Arrays.asList(
-                                    "#tconstruct:modifiable/harvest",
                                     "silentgear:saw?chops=3,override=always"),
                             always -> true);
             builder.pop();
