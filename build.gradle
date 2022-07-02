@@ -79,7 +79,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.2-40.0.19'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.1.51'
 
     compileOnly fg.deobf("curse.maven:pmmo-353935:3809102") // https://github.com/Harmonised7/project_mmo
 //    runtimeOnly fg.deobf("curse.maven:pmmo-353935:3809102")
