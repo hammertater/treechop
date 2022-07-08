@@ -47,5 +47,6 @@
   "treechop.setting.trees_must_have_leaves": "Only chopping trees with leaves",
   "treechop.sneak_behavior.invert_chopping": "INVERT CHOPPING",
   "treechop.sneak_behavior.invert_felling": "INVERT FELLING",
-  "treechop.sneak_behavior.none": "NONE"
+  "treechop.sneak_behavior.none": "NONE",
+  "treechop.waila.x_out_of_y_chops": "%d/%d chops"
 }
