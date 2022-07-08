@@ -85,11 +85,14 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.18.2-40.1.51'
 
     // compile against the API
-    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-4.11.0")
+//    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-4.11.0")
 
     // run against the full jar
 //    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-4.11.0")
 //    runtimeOnly fg.deobf("lol.bai:badpackets:forge-4.11.0")
+
+//    compileOnly fg.deobf("curse.maven:jade-324717:3845190")
+//    runtimeOnly fg.deobf("curse.maven:jade-324717:3845190")
 
     compileOnly fg.deobf("curse.maven:pmmo-353935:3809102") // https://github.com/Harmonised7/project_mmo
 //    runtimeOnly fg.deobf("curse.maven:pmmo-353935:3809102")
