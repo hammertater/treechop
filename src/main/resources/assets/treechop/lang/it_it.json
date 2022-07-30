@@ -47,5 +47,9 @@
   "treechop.setting.trees_must_have_leaves": "Taglia solo alberi con foglie",
   "treechop.sneak_behavior.invert_chopping": "INVERTI TAGLIO",
   "treechop.sneak_behavior.invert_felling": "INVERTI ABBATTIMENTO",
-  "treechop.sneak_behavior.none": "NESSUNO"
+  "treechop.sneak_behavior.none": "NESSUNO",
+  "treechop.waila.x_out_of_y_chops": "%d/%d chops",
+  "config.jade.plugin_treechop.plugin": "treechop",
+  "config.jade.plugin_treechop.show_num_chops_remaining": "show_num_chops_remaining",
+  "config.jade.plugin_treechop.show_tree_block_counts": "show_tree_block_counts"
 }
