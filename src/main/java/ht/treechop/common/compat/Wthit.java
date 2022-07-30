@@ -5,17 +5,17 @@ import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.util.ChopUtil;
 import mcp.mobius.waila.api.*;
-import mcp.mobius.waila.api.component.ItemComponent;
-import mcp.mobius.waila.api.component.PairComponent;
-import mcp.mobius.waila.api.component.WrappedComponent;
+import mcp.mobius.waila.api.component.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -50,24 +50,25 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
 
             Set<BlockPos> treeBlocks = ChopUtil.getTreeBlocks(level, accessor.getPosition(), Client.getChopSettings().getTreesMustHaveLeaves());
 
+            if (config.getBoolean(SHOW_NUM_CHOPS_REMAINING)) {
+                treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
+                tooltip.addLine(new WrappedComponent(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size()))));
+            }
+
             if (config.getBoolean(SHOW_TREE_BLOCKS)) {
+                LinkedList<ITooltipComponent> tiles = new LinkedList<>();
                 treeBlocks.stream()
                         .collect(Collectors.groupingBy((BlockPos pos) -> {
                             BlockState state = level.getBlockState(pos);
-                            numChops.getAndAdd(ChopUtil.getNumChops(level, pos, state));
                             return getLogState(level, pos, state).getBlock();
                         }, Collectors.counting()))
                         .forEach((block, count) -> {
-                            ITooltipComponent tooltipIcon = new ItemComponent(accessor.getBlock().asItem());
-                            ITooltipComponent tooltipCount = new WrappedComponent(Component.literal(count.toString()));
-                            tooltip.addLine(new PairComponent(tooltipIcon, tooltipCount));
+                            ItemStack stack = accessor.getBlock().asItem().getDefaultInstance();
+                            stack.setCount(count.intValue());
+                            tiles.add(new ItemComponent(stack));
                         });
-            } else {
-                treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
-            }
 
-            if (config.getBoolean(SHOW_NUM_CHOPS_REMAINING)) {
-                tooltip.addLine(new WrappedComponent(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size()))));
+                tiles.stream().reduce(PairComponent::new).ifPresent(tooltip::addLine);
             }
         }
     }

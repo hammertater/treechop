@@ -23,7 +23,7 @@
     "1.12.2-recommended": "0.14.6"
   },
   "1.19.1": {
-    "0.15.7": "Fixed particle textures"
+    "0.15.8": "Add Jade support\nAdd WTHIT support\nMinor bug fixes"
   },
   "1.18.1": {
     "0.15.7": "Fixed particle textures",
@@ -170,4 +170,4 @@
     "0.4": "Added configurability",
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection"
   }
-},
+}
