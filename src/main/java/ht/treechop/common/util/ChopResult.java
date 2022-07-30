@@ -1,5 +1,6 @@
 package ht.treechop.common.util;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -98,7 +99,7 @@ public class ChopResult {
 
         if (level.isClientSide() || agent.isCreative()) {
             BlockState air = Blocks.AIR.defaultBlockState();
-            blockBreaker = pos -> level.setBlock(pos, air, 3);
+            blockBreaker = pos -> level.setBlockAndUpdate(pos, air);
         } else {
             blockBreaker = pos -> harvestWorldBlock(fakePlayer, level, pos, ItemStack.EMPTY, xpAccumulator, 0, 0);
         }
@@ -141,8 +142,8 @@ public class ChopResult {
             FluidState fluidStateOrAir = level.getFluidState(pos);
             blockState.getBlock().destroy(level, pos, blockState);
             Block.dropResources(blockState, level, pos, level.getBlockEntity(pos), agent, tool);
-            totalXp.getAndAdd(blockState.getExpDrop(level, pos, fortune, silkTouch));
-            level.setBlock(pos, fluidStateOrAir.createLegacyBlock(), 3);
+            totalXp.getAndAdd(blockState.getExpDrop(level, level.getRandom(), pos, fortune, silkTouch));
+            level.setBlockAndUpdate(pos, fluidStateOrAir.createLegacyBlock());
         }
     }
 

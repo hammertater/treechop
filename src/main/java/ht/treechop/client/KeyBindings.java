@@ -6,12 +6,12 @@ import ht.treechop.client.gui.screen.ClientSettingsScreen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class KeyBindings {
 
@@ -19,21 +19,20 @@ public class KeyBindings {
 
     public static final List<ActionableKeyBinding> allKeyBindings = new LinkedList<>();
 
-    public static void init() {
-        registerKeyBinding("toggle_chopping", getKey(GLFW.GLFW_KEY_UNKNOWN), Client::toggleChopping);
-        registerKeyBinding("toggle_felling", getKey(GLFW.GLFW_KEY_UNKNOWN), Client::toggleFelling);
-        registerKeyBinding("cycle_sneak_behavior", getKey(GLFW.GLFW_KEY_UNKNOWN), Client::cycleSneakBehavior);
-        registerKeyBinding("open_settings_overlay", getKey(GLFW.GLFW_KEY_N), Client::toggleSettingsOverlay);
+    public static void registerKeyMappings(Consumer<KeyMapping> register) {
+        registerKeyBinding("toggle_chopping", getKey(GLFW.GLFW_KEY_UNKNOWN), Client::toggleChopping, register);
+        registerKeyBinding("toggle_felling", getKey(GLFW.GLFW_KEY_UNKNOWN), Client::toggleFelling, register);
+        registerKeyBinding("cycle_sneak_behavior", getKey(GLFW.GLFW_KEY_UNKNOWN), Client::cycleSneakBehavior, register);
+        registerKeyBinding("open_settings_overlay", getKey(GLFW.GLFW_KEY_N), Client::toggleSettingsOverlay, register);
     }
 
-    private static ActionableKeyBinding registerKeyBinding(String name, InputConstants.Key defaultKey, Runnable callback) {
+    private static ActionableKeyBinding registerKeyBinding(String name, InputConstants.Key defaultKey, Runnable callback, Consumer<KeyMapping> register) {
         ActionableKeyBinding keyBinding = new ActionableKeyBinding(
                 String.format("%s.key.%s", TreeChopMod.MOD_ID, name),
                 defaultKey,
                 callback
         );
-
-        ClientRegistry.registerKeyBinding(keyBinding);
+        register.accept(keyBinding);
 
         allKeyBindings.add(keyBinding);
 

@@ -1,32 +1,32 @@
-package ht.treechop.common.compat;
-
-import ht.treechop.TreeChopMod;
-import ht.treechop.api.ChopEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import tschipp.carryon.common.handler.PickupHandler;
-
-@EventBusSubscriber(modid = TreeChopMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
-public class CarryOn {
-
-    @SubscribeEvent
-    public static void commonSetup(FMLCommonSetupEvent event) {
-        if (ModList.get().isLoaded("carryon")) {
-            MinecraftForge.EVENT_BUS.register(EventHandler.class);
-        }
-    }
-
-    private static class EventHandler {
-        @SubscribeEvent
-        public static void onStartChop(ChopEvent.StartChopEvent event) {
-            if (event.getBreakEvent() instanceof PickupHandler.PickUpBlockEvent) {
-                event.setCanceled(true);
-                event.getBreakEvent().setCanceled(true);
-            }
-        }
-    }
-
-}
+//package ht.treechop.common.compat;
+//
+//import ht.treechop.TreeChopMod;
+//import ht.treechop.api.ChopEvent;
+//import net.minecraftforge.common.MinecraftForge;
+//import net.minecraftforge.eventbus.api.SubscribeEvent;
+//import net.minecraftforge.fml.ModList;
+//import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+//import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+//import tschipp.carryon.common.handler.PickupHandler;
+//
+//@EventBusSubscriber(modid = TreeChopMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+//public class CarryOn {
+//
+//    @SubscribeEvent
+//    public static void commonSetup(FMLCommonSetupEvent event) {
+//        if (ModList.get().isLoaded("carryon")) {
+//            MinecraftForge.EVENT_BUS.register(EventHandler.class);
+//        }
+//    }
+//
+//    private static class EventHandler {
+//        @SubscribeEvent
+//        public static void onStartChop(ChopEvent.StartChopEvent event) {
+//            if (event.getBreakEvent() instanceof PickupHandler.PickUpBlockEvent) {
+//                event.setCanceled(true);
+//                event.getBreakEvent().setCanceled(true);
+//            }
+//        }
+//    }
+//
+//}

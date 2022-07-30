@@ -1,6 +1,8 @@
 package ht.treechop.common.config.item;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.List;
@@ -15,7 +17,10 @@ public class ItemNamespaceIdentifier extends ItemIdentifier {
     @Override
     public Stream<Item> resolve(IForgeRegistry<Item> registry) {
         return registry.getValues().stream()
-                .filter(item -> item.getRegistryName() != null && item.getRegistryName().getNamespace().equals(getNamespace()));
+                .filter(item -> {
+                    ResourceLocation loc = ForgeRegistries.ITEMS.getKey(item);
+                    return loc != null && loc.getNamespace().equals(getNamespace());
+                });
     }
 
 }

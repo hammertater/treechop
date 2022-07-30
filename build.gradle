@@ -1,16 +1,8 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath "org.spongepowered:mixingradle:0.7.+"
-    }
+plugins {
+    id 'eclipse'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '5.1.+'
 }
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: "org.spongepowered.mixin"
 
 archivesBaseName = "TreeChop-${mcversion}"
 
@@ -18,7 +10,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
-    mappings channel: 'official', version: "1.18.2"
+    mappings channel: 'official', version: "${mcversion}"
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
@@ -28,6 +20,7 @@ minecraft {
 
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+            property 'forge.enabledGameTestNamespaces', 'treechop'
 
             mods {
                 treechop {
@@ -41,6 +34,7 @@ minecraft {
 
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+            property 'forge.enabledGameTestNamespaces', 'treechop'
 
             mods {
                 treechop {
@@ -82,23 +76,23 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.2-40.1.51'
+    minecraft "net.minecraftforge:forge:${mcversion}-${forgeversion}"
 
     // compile against the API
-//    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-4.11.0")
+    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-5.9.0")
+//
+//    // run against the full jar
+//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-5.9.0")
+//    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.2.0")
 
-    // run against the full jar
-//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-4.11.0")
-//    runtimeOnly fg.deobf("lol.bai:badpackets:forge-4.11.0")
+    compileOnly fg.deobf("curse.maven:jade-324717:3903693")
+    runtimeOnly fg.deobf("curse.maven:jade-324717:3903693")
 
-//    compileOnly fg.deobf("curse.maven:jade-324717:3845190")
-//    runtimeOnly fg.deobf("curse.maven:jade-324717:3845190")
+//    compileOnly fg.deobf("curse.maven:pmmo-353935:353935") // https://github.com/Harmonised7/project_mmo
+//    runtimeOnly fg.deobf("curse.maven:pmmo-353935:353935")
 
-    compileOnly fg.deobf("curse.maven:pmmo-353935:3809102") // https://github.com/Harmonised7/project_mmo
-//    runtimeOnly fg.deobf("curse.maven:pmmo-353935:3809102")
-
-    compileOnly fg.deobf("curse.maven:carry-on-274259:3674344")
-//    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3674344")
+//    compileOnly fg.deobf("curse.maven:carry-on-274259:3828228")
+//    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3828228")
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'

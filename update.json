@@ -1,6 +1,8 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/treechop",
   "promos": {
+    "1.19.1-latest": "0.15.8",
+    "1.19.1-recommended": "0.15.8",
     "1.18.2-latest": "0.15.7",
     "1.18.2-recommended": "0.15.7",
     "1.18.1-latest": "0.15.7",
@@ -19,6 +21,9 @@
     "1.15.2-recommended": "0.13.0",
     "1.12.2-latest": "0.14.6",
     "1.12.2-recommended": "0.14.6"
+  },
+  "1.19.1": {
+    "0.15.7": "Fixed particle textures"
   },
   "1.18.1": {
     "0.15.7": "Fixed particle textures",
@@ -165,4 +170,4 @@
     "0.4": "Added configurability",
     "0.3": "Added limit to number of sounds played when a tree is felled\nImproved chop overflow block selection"
   }
-}
+},

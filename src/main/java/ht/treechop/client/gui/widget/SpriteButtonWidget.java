@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.gui.util.Sprite;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 public class SpriteButtonWidget extends AbstractWidget {
 
@@ -13,7 +13,7 @@ public class SpriteButtonWidget extends AbstractWidget {
     private final Sprite highlightedSprite;
 
     public SpriteButtonWidget(int x, int y, Sprite sprite, Sprite highlightedSprite, Runnable onPress) {
-        super(x, y, Math.max(sprite.width, highlightedSprite.width), Math.max(sprite.height, highlightedSprite.height), new TextComponent(""));
+        super(x, y, Math.max(sprite.width, highlightedSprite.width), Math.max(sprite.height, highlightedSprite.height), Component.empty());
         this.onPress = onPress;
         this.sprite = sprite;
         this.highlightedSprite = highlightedSprite;

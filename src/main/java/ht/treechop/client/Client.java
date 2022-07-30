@@ -6,19 +6,17 @@ import ht.treechop.client.gui.screen.ClientSettingsScreen;
 import ht.treechop.client.model.ChoppedLogBakedModel;
 import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.network.ClientRequestSettingsPacket;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.gui.OverlayRegistry;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -36,29 +34,33 @@ public class Client {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(EventHandler.class);
-        KeyBindings.init();
-        ItemBlockRenderTypes.setRenderLayer(ModBlocks.CHOPPED_LOG.get(), RenderType.solid());
 
         if (ConfigHandler.CLIENT.useProceduralChoppedModels.get()) {
             IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
             modBus.addListener(ChoppedLogBakedModel::overrideBlockStateModels);
         }
+    }
 
-        if (ConfigHandler.CLIENT.showChoppingIndicators.get()) {
-            OverlayRegistry.registerOverlayTop("treechop:chopping_indicator", ChopIndicator::render);
-        }
+    @SubscribeEvent
+    public static void onRegisterOverlays(RegisterGuiOverlaysEvent event) {
+        event.registerAboveAll("chopping_indicator", ChopIndicator::render);
+    }
+
+    @SubscribeEvent
+    public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        KeyBindings.registerKeyMappings(event::register);
     }
 
     static class EventHandler {
         @SubscribeEvent
-        public static void onConnect(ClientPlayerNetworkEvent.LoggedInEvent event) {
+        public static void onConnect(ClientPlayerNetworkEvent.LoggingIn event) {
             TreeChopMod.LOGGER.info("Sending chop settings sync request");
             chopSettings.copyFrom(ConfigHandler.CLIENT.getChopSettings());
             PacketHandler.sendToServer(new ClientRequestSettingsPacket(chopSettings));
         }
 
         @SubscribeEvent
-        public static void onKeyInput(InputEvent.KeyInputEvent event) {
+        public static void onKeyInput(InputEvent.Key event) {
             if (!event.isCanceled() && event.getKey() != GLFW.GLFW_KEY_UNKNOWN) {
                 KeyBindings.buttonPressed(event.getKey(), event.getAction());
             }

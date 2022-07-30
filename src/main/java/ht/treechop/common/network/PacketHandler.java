@@ -23,6 +23,7 @@ public final class PacketHandler {
         HANDLER.registerMessage(id++, ClientRequestSettingsPacket.class, ClientRequestSettingsPacket::encode, ClientRequestSettingsPacket::decode, ClientRequestSettingsPacket::handle);
         HANDLER.registerMessage(id++, ServerConfirmSettingsPacket.class, ServerConfirmSettingsPacket::encode, ServerConfirmSettingsPacket::decode, ServerConfirmSettingsPacket::handle);
         HANDLER.registerMessage(id++, ServerPermissionsPacket.class, ServerPermissionsPacket::encode, ServerPermissionsPacket::decode, ServerPermissionsPacket::handle);
+        HANDLER.registerMessage(id++, ServerChoppedLogPreparedUpdate.class, ServerChoppedLogPreparedUpdate::encode, ServerChoppedLogPreparedUpdate::decode, ServerChoppedLogPreparedUpdate::handle);
     }
 
     public static void sendToServer(Object msg) {

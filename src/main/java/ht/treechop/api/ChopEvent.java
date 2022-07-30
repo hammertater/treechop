@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -25,7 +25,7 @@ public class ChopEvent extends Event {
         this.choppedBlockState = choppedBlockState;
     }
 
-    public Level getWorld() {
+    public Level getLevel() {
         return level;
     }
 

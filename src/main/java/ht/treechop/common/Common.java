@@ -21,7 +21,7 @@ import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -50,7 +50,7 @@ public class Common {
         if (!isBlockALog(blockState)
                 || !ConfigHandler.COMMON.enabled.get()
                 || event.isCanceled()
-                || !(event.getWorld() instanceof ServerLevel level)
+                || !(event.getLevel() instanceof ServerLevel level)
                 || !(event.getPlayer() instanceof ServerPlayer agent)
                 || !blockState.canHarvestBlock(level, pos, agent)
                 || !ChopUtil.canChopWithTool(tool)

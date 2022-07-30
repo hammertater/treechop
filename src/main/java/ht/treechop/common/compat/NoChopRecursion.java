@@ -29,7 +29,7 @@ public class NoChopRecursion {
         @SubscribeEvent
         public static void onChop(ChopEvent.StartChopEvent event) {
             Player agent = event.getPlayer();
-            long time = event.getWorld().getGameTime();
+            long time = event.getLevel().getGameTime();
             if (lastChopTickByPlayers.getOrDefault(agent, TickUtil.NEVER) == time) {
                 event.setCanceled(true);
             } else {

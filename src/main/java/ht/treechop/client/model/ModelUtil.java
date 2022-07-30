@@ -8,6 +8,8 @@ import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.client.renderer.block.model.BlockFaceUV;
 import net.minecraft.client.renderer.block.model.FaceBakery;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.core.Direction;
 import net.minecraftforge.client.model.SimpleModelState;
 
@@ -77,7 +79,7 @@ public class ModelUtil {
                 new BlockElementFace(culling, -1, "", new BlockFaceUV(uvs, uvRotation)),
                 sprite,
                 orientation,
-                SimpleModelState.IDENTITY,
+                BlockModelRotation.X0_Y0,
                 null,
                 true,
                 null

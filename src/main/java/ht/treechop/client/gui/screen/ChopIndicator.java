@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.client.gui.ForgeIngameGui;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
 
 import javax.annotation.Nonnull;
 
@@ -32,9 +32,13 @@ public class ChopIndicator extends GuiComponent {
     private static boolean lastBlockWouldBeChopped = false;
     private static boolean wantedToChopLastBlock = false;
 
-    public static void render(ForgeIngameGui gui, PoseStack poseStack, float partialTicks, int windowWidth, int windowHeight) {
+    public static void render(ForgeGui gui, PoseStack poseStack, float partialTicks, int windowWidth, int windowHeight) {
         Minecraft minecraft = Minecraft.getInstance();
         HitResult mouseOver = minecraft.hitResult;
+
+        if (!ConfigHandler.CLIENT.showChoppingIndicators.get()) {
+            return;
+        }
 
         if (Client.isChoppingIndicatorEnabled() &&
                 minecraft.level != null && minecraft.screen == null && mouseOver != null &&
