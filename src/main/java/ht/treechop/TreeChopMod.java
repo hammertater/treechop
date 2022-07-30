@@ -36,12 +36,6 @@ public class TreeChopMod {
 
         ModBlocks.BLOCKS.register(modBus);
         ModBlocks.ENTITIES.register(modBus);
-
-        // TODO: Config screen should show server-side settings, not client-side
-//        ModLoadingContext.get().registerExtensionPoint(
-//                ExtensionPoint.CONFIGGUIFACTORY,
-//                () -> ConfigScreen::new
-//        );
     }
 
     @SuppressWarnings("ConstantConditions")
