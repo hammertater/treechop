@@ -164,7 +164,7 @@ public enum ChoppedLogShape implements StringRepresentable {
     }
 
     public VoxelShape getOcclusionShape() {
-        return (ConfigHandler.CLIENT.removeBarkOnInteriorLogs.get())
+        return (ConfigHandler.removeBarkOnInteriorLogs)
                 ? occlusionShape
                 : Shapes.empty();
     }

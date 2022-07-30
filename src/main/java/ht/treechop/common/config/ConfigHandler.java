@@ -29,6 +29,7 @@ public class ConfigHandler {
     public static Map<Item, OverrideInfo> itemOverrides = null;
     public static int maxBreakLeavesDistance = 7;
     public static boolean ignorePersistentLeaves = true;
+    public static boolean removeBarkOnInteriorLogs = false;
 
     public static void onReload() {
         maxBreakLeavesDistance = COMMON.maxBreakLeavesDistance.get();
@@ -41,6 +42,12 @@ public class ConfigHandler {
 
         itemsBlacklist = null;
         itemOverrides = null;
+
+        try {
+            removeBarkOnInteriorLogs = CLIENT.removeBarkOnInteriorLogs.get();
+        } catch (IllegalStateException e) {
+            // this config isn't available on server, and that's just fine
+        }
 
         updatePermissions();
     }
