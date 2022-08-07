@@ -31,4 +31,14 @@ public abstract class ConfigHandler {
     public abstract Rounder getChopCountRounding();
 
     public abstract boolean canRequireMoreChopsThanBlocks();
+
+    public abstract int getMaxNumLeavesBlocks();
+
+    public abstract boolean shouldOverrideItemBehavior(Item item, boolean b);
+
+    public abstract TagKey<Block> getBlockTagForDetectingLogs();
+
+    public abstract TagKey<Block> getBlockTagForDetectingLeaves();
+
+    public abstract boolean getIgnorePersistentLeaves();
 }

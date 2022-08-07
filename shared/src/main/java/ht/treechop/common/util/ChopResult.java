@@ -3,6 +3,7 @@ package ht.treechop.common.util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
@@ -11,7 +12,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.common.util.FakePlayerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -88,19 +88,15 @@ public class ChopResult {
         chops.forEach(chop -> chop.apply(level, player, tool, felling));
     }
 
-    private void fellBlocks(Level level, BlockPos targetPos, ServerPlayer agent, Stream<BlockPos> blocks) {
-        Player fakePlayer = (level instanceof ServerLevel)
-                ? FakePlayerFactory.getMinecraft((ServerLevel) level)
-                : agent;
-
+    private void fellBlocks(Level level, BlockPos targetPos, Entity agent, Stream<BlockPos> blocks) {
         AtomicInteger xpAccumulator = new AtomicInteger(0);
         Consumer<BlockPos> blockBreaker;
 
-        if (level.isClientSide() || agent.isCreative()) {
+        if (level.isClientSide() || (agent instanceof ServerPlayer player && player.isCreative())) {
             BlockState air = Blocks.AIR.defaultBlockState();
             blockBreaker = pos -> level.setBlockAndUpdate(pos, air);
         } else {
-            blockBreaker = pos -> harvestWorldBlock(fakePlayer, level, pos, ItemStack.EMPTY, xpAccumulator, 0, 0);
+            blockBreaker = pos -> harvestWorldBlock(null, level, pos, ItemStack.EMPTY);
         }
 
         blocks.forEach(blockBreaker);
@@ -124,13 +120,10 @@ public class ChopResult {
     }
 
     private static void harvestWorldBlock(
-            Player agent,
+            Entity agent,
             Level level,
             BlockPos pos,
-            ItemStack tool,
-            AtomicInteger totalXp,
-            int fortune,
-            int silkTouch
+            ItemStack tool
     ) {
         BlockState blockState = level.getBlockState(pos);
 
@@ -140,8 +133,7 @@ public class ChopResult {
         if (level instanceof ServerLevel) {
             FluidState fluidStateOrAir = level.getFluidState(pos);
             blockState.getBlock().destroy(level, pos, blockState);
-            Block.dropResources(blockState, level, pos, level.getBlockEntity(pos), agent, tool);
-            totalXp.getAndAdd(blockState.getExpDrop(level, level.getRandom(), pos, fortune, silkTouch));
+            Block.dropResources(blockState, level, pos, level.getBlockEntity(pos), agent, tool); // Should drop XP
             level.setBlockAndUpdate(pos, fluidStateOrAir.createLegacyBlock());
         }
     }

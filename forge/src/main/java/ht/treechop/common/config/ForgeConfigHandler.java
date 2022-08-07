@@ -78,11 +78,6 @@ public class ForgeConfigHandler extends ConfigHandler {
                 .filter(qi -> qi.item != Items.AIR);
     }
 
-    public static boolean shouldOverrideItemBehavior(Item item, boolean chopping) {
-        OverrideInfo info = getItemOverrides().get(item);
-        return (info != null && info.shouldOverride(chopping));
-    }
-
     private static Map<Item, OverrideInfo> getItemOverrides() {
         if (itemOverrides == null) {
             itemOverrides = COMMON.itemsToOverride.get().stream().flatMap(
@@ -172,6 +167,32 @@ public class ForgeConfigHandler extends ConfigHandler {
     @Override
     public boolean canRequireMoreChopsThanBlocks() {
         return COMMON.canRequireMoreChopsThanBlocks.get();
+    }
+
+    @Override
+    public int getMaxNumLeavesBlocks() {
+        return COMMON.maxNumLeavesBlocks.get();
+    }
+
+    @Override
+    public boolean shouldOverrideItemBehavior(Item item, boolean chopping) {
+        OverrideInfo info = getItemOverrides().get(item);
+        return (info != null && info.shouldOverride(chopping));
+    }
+
+    @Override
+    public TagKey<Block> getBlockTagForDetectingLogs() {
+        return blockTagForDetectingLogs;
+    }
+
+    @Override
+    public TagKey<Block> getBlockTagForDetectingLeaves() {
+        return blockTagForDetectingLeaves;
+    }
+
+    @Override
+    public boolean getIgnorePersistentLeaves() {
+        return ignorePersistentLeaves;
     }
 
     public static class Common {

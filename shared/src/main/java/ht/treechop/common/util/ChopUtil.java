@@ -5,6 +5,7 @@ import ht.treechop.api.ChopEvent;
 import ht.treechop.api.IChoppableBlock;
 import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.config.ForgeConfigHandler;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.settings.ChopSettings;
@@ -44,7 +45,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockALog(BlockState blockState) {
-        return blockState.is(ForgeConfigHandler.blockTagForDetectingLogs);
+        return blockState.is(ConfigHandler.get().getBlockTagForDetectingLogs());
     }
 
     public static boolean isBlockALog(Level level, BlockPos pos) {
@@ -56,8 +57,8 @@ public class ChopUtil {
     }
 
     public static boolean isBlockLeaves(BlockState blockState) {
-        if (blockState.is(ForgeConfigHandler.blockTagForDetectingLeaves)) {
-            return !ForgeConfigHandler.ignorePersistentLeaves || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.getValue(LeavesBlock.PERSISTENT);
+        if (blockState.is(ConfigHandler.get().getBlockTagForDetectingLeaves())) {
+            return !ConfigHandler.get().getIgnorePersistentLeaves() || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.getValue(LeavesBlock.PERSISTENT);
         } else {
             return false;
         }
@@ -99,7 +100,7 @@ public class ChopUtil {
             if (tool.isEmpty()) {
                 return true;
             } else {
-                return ForgeConfigHandler.shouldOverrideItemBehavior(tool.getItem(), true) || !tool.getItem().onBlockStartBreak(tool, blockPos, agent);
+                return ConfigHandler.get().shouldOverrideItemBehavior(tool.getItem(), true) || !tool.getItem().onBlockStartBreak(tool, blockPos, agent);
             }
         }
         else {
@@ -111,7 +112,7 @@ public class ChopUtil {
         AtomicInteger iterationCounter = new AtomicInteger();
         Set<BlockPos> leaves = new HashSet<>();
 
-        int maxNumLeavesBlocks = ForgeConfigHandler.COMMON.maxNumLeavesBlocks.get();
+        int maxNumLeavesBlocks = ConfigHandler.get().getMaxNumLeavesBlocks();
         getConnectedBlocks(
                 treeBlocks,
                 pos1 -> {

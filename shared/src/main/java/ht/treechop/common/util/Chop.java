@@ -8,7 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class Chop {
     private final BlockPos blockPos;
@@ -33,7 +32,7 @@ public class Chop {
         if (block instanceof IChoppableBlock choppableBlock) {
             choppableBlock.chop(player, tool, level, blockPos, blockState, numChops, felling);
         } else {
-            TreeChop.LOGGER.warn("Failed to chop block in level {} at position {} for player {}: {} does not implement IChoppableBlock", level.dimension(), blockPos, player.getName(), ForgeRegistries.BLOCKS.getKey(block));
+            TreeChop.LOGGER.warn("Failed to chop block in level {} at position {} for player {}: {} does not implement IChoppableBlock", level.dimension(), blockPos, player.getName(), block.getDescriptionId());
         }
     }
 }
