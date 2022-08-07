@@ -1,6 +1,6 @@
 package ht.treechop.server;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Permissions;
@@ -14,7 +14,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 import java.util.Arrays;
 
-@EventBusSubscriber(modid = TreeChopMod.MOD_ID)
+@EventBusSubscriber(modid = TreeChop.MOD_ID)
 public class Server {
 
     private static final Permissions permissions = new Permissions();

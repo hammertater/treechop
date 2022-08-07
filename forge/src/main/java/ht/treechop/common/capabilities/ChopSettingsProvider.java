@@ -1,6 +1,6 @@
 package ht.treechop.common.capabilities;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.common.settings.ChopSettings;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -45,7 +45,7 @@ public class ChopSettingsProvider implements ICapabilitySerializable<Tag> {
         if (nbt instanceof CompoundTag) {
             getLazyChopSettings().deserializeNBT((CompoundTag) nbt);
         } else {
-            TreeChopMod.LOGGER.warn("Bad ChopSettings tag type: " + nbt);
+            TreeChop.LOGGER.warn("Bad ChopSettings tag type: " + nbt);
         }
     }
 }

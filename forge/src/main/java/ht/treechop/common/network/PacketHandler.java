@@ -1,6 +1,6 @@
 package ht.treechop.common.network;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
@@ -11,7 +11,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 public final class PacketHandler {
     private static final String PROTOCOL = "7";
     public static final SimpleChannel HANDLER = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation(TreeChopMod.MOD_ID + "-channel"),
+            new ResourceLocation(TreeChop.MOD_ID + "-channel"),
             () -> PROTOCOL,
             PROTOCOL::equals,
             PROTOCOL::equals

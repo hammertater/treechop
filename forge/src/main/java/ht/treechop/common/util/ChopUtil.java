@@ -1,11 +1,11 @@
 package ht.treechop.common.util;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.api.ChopEvent;
 import ht.treechop.api.IChoppableBlock;
 import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
-import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.ForgeConfigHandler;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.settings.ChopSettings;
 import net.minecraft.core.BlockPos;
@@ -44,7 +44,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockALog(BlockState blockState) {
-        return blockState.is(ConfigHandler.blockTagForDetectingLogs);
+        return blockState.is(ForgeConfigHandler.blockTagForDetectingLogs);
     }
 
     public static boolean isBlockALog(Level level, BlockPos pos) {
@@ -56,8 +56,8 @@ public class ChopUtil {
     }
 
     public static boolean isBlockLeaves(BlockState blockState) {
-        if (blockState.is(ConfigHandler.blockTagForDetectingLeaves)) {
-            return !ConfigHandler.ignorePersistentLeaves || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.getValue(LeavesBlock.PERSISTENT);
+        if (blockState.is(ForgeConfigHandler.blockTagForDetectingLeaves)) {
+            return !ForgeConfigHandler.ignorePersistentLeaves || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.getValue(LeavesBlock.PERSISTENT);
         } else {
             return false;
         }
@@ -99,7 +99,7 @@ public class ChopUtil {
             if (tool.isEmpty()) {
                 return true;
             } else {
-                return ConfigHandler.shouldOverrideItemBehavior(tool.getItem(), true) || !tool.getItem().onBlockStartBreak(tool, blockPos, agent);
+                return ForgeConfigHandler.shouldOverrideItemBehavior(tool.getItem(), true) || !tool.getItem().onBlockStartBreak(tool, blockPos, agent);
             }
         }
         else {
@@ -111,7 +111,7 @@ public class ChopUtil {
         AtomicInteger iterationCounter = new AtomicInteger();
         Set<BlockPos> leaves = new HashSet<>();
 
-        int maxNumLeavesBlocks = ConfigHandler.COMMON.maxNumLeavesBlocks.get();
+        int maxNumLeavesBlocks = ForgeConfigHandler.COMMON.maxNumLeavesBlocks.get();
         getConnectedBlocks(
                 treeBlocks,
                 pos1 -> {
@@ -127,7 +127,7 @@ public class ChopUtil {
         );
 
         if (leaves.size() >= maxNumLeavesBlocks) {
-            TreeChopMod.LOGGER.warn(String.format("Max number of leaves reached: %d >= %d blocks", leaves.size(), maxNumLeavesBlocks));
+            TreeChop.LOGGER.warn(String.format("Max number of leaves reached: %d >= %d blocks", leaves.size(), maxNumLeavesBlocks));
         }
 
         return new ArrayList<>(leaves);
@@ -140,7 +140,7 @@ public class ChopUtil {
                 if (iterationCounter.get() + 1 > blockState.getValue(LeavesBlock.DISTANCE)) {
                     return false;
                 }
-            } else if (iterationCounter.get() >= ConfigHandler.maxBreakLeavesDistance) {
+            } else if (iterationCounter.get() >= ForgeConfigHandler.maxBreakLeavesDistance) {
                 return false;
             }
 
@@ -151,7 +151,7 @@ public class ChopUtil {
     }
 
     public static int numChopsToFell(int numBlocks) {
-        return ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(numBlocks);
+        return ForgeConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(numBlocks);
     }
 
     public static ChopResult getChopResult(Level level, BlockPos blockPos, Player agent, int numChops, boolean fellIfPossible, Predicate<BlockPos> logCondition) {
@@ -189,7 +189,7 @@ public class ChopUtil {
             return Collections.emptySet();
         }
 
-        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
+        int maxNumTreeBlocks = ForgeConfigHandler.COMMON.maxNumTreeBlocks.get();
 
         AtomicBoolean trueHasLeaves = new AtomicBoolean(false);
         Set<BlockPos> supportedBlocks = getConnectedBlocks(
@@ -201,7 +201,7 @@ public class ChopUtil {
         );
 
         if (supportedBlocks.size() >= maxNumTreeBlocks) {
-            TreeChopMod.LOGGER.warn(String.format("Max tree size reached: %d >= %d blocks (not including leaves)", supportedBlocks.size(), maxNumTreeBlocks));
+            TreeChop.LOGGER.warn(String.format("Max tree size reached: %d >= %d blocks (not including leaves)", supportedBlocks.size(), maxNumTreeBlocks));
         }
 
         inHasLeaves.set(overrideHasLeaves.get() ? valueToOverrideHasLeaves : trueHasLeaves.get());
@@ -389,13 +389,13 @@ public class ChopUtil {
     }
 
     public static boolean canChopWithTool(ItemStack tool) {
-        return ConfigHandler.canChopWithItem(tool.getItem());
+        return ForgeConfigHandler.canChopWithItem(tool.getItem());
     }
 
     public static int getNumChopsByTool(ItemStack tool, BlockState blockState) {
         Item toolItem = tool.getItem();
 
-        Integer overrideChops = ConfigHandler.getNumChopsOverride(tool.getItem());
+        Integer overrideChops = ForgeConfigHandler.getNumChopsOverride(tool.getItem());
         if (overrideChops != null) {
             return overrideChops;
         } else if (toolItem instanceof IChoppingItem) {
@@ -429,7 +429,7 @@ public class ChopUtil {
 
     public static ChopSettings getPlayerChopSettings(Player player) {
         LazyOptional<ChopSettings> playerSettings = ChopSettingsCapability.forPlayer(player).cast();
-        return playerSettings.orElse(ConfigHandler.fakePlayerChopSettings);
+        return playerSettings.orElse(ForgeConfigHandler.fakePlayerChopSettings);
     }
 
     public static void doItemDamage(ItemStack itemStack, Level level, BlockState blockState, BlockPos blockPos, Player agent) {

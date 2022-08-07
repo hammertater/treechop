@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.Client;
 import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.settings.ClientChopSettings;
-import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.ForgeConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.client.Minecraft;
@@ -36,7 +36,7 @@ public class ChopIndicator extends GuiComponent {
         Minecraft minecraft = Minecraft.getInstance();
         HitResult mouseOver = minecraft.hitResult;
 
-        if (!ConfigHandler.CLIENT.showChoppingIndicators.get()) {
+        if (!ForgeConfigHandler.CLIENT.showChoppingIndicators.get()) {
             return;
         }
 
@@ -53,8 +53,8 @@ public class ChopIndicator extends GuiComponent {
                 );
                 RenderSystem.setShaderTexture(0, Sprite.TEXTURE_PATH);
 
-                int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset.get();
-                int indicatorCenterY = windowHeight / 2 + ConfigHandler.CLIENT.indicatorYOffset.get();
+                int indicatorCenterX = windowWidth / 2 + ForgeConfigHandler.CLIENT.indicatorXOffset.get();
+                int indicatorCenterY = windowHeight / 2 + ForgeConfigHandler.CLIENT.indicatorYOffset.get();
 
                 Sprite sprite = ChopUtil.playerWantsToFell(minecraft.player, Client.getChopSettings()) ? Sprite.CHOP_INDICATOR : Sprite.NO_FELL_INDICATOR;
                 int imageWidth = (int) (sprite.width * IMAGE_SCALE);

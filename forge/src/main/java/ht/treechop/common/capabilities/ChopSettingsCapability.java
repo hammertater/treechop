@@ -1,6 +1,6 @@
 package ht.treechop.common.capabilities;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.nbt.CompoundTag;
@@ -34,7 +34,7 @@ public class ChopSettingsCapability extends ChopSettings implements INBTSerializ
     public static LazyOptional<ChopSettingsCapability> forPlayer(Player player) {
         LazyOptional<ChopSettingsCapability> lazyCapability = player.getCapability(CAPABILITY);
         if (!lazyCapability.isPresent() && !(player instanceof FakePlayer)) {
-            TreeChopMod.LOGGER.warn("Player " + player + " is missing chop settings");
+            TreeChop.LOGGER.warn("Player " + player + " is missing chop settings");
         }
 
         return player.getCapability(CAPABILITY);
@@ -68,7 +68,7 @@ public class ChopSettingsCapability extends ChopSettings implements INBTSerializ
             try {
                 sneakBehavior = SneakBehavior.valueOf(tag.getString(SNEAK_BEHAVIOR_KEY));
             } catch (IllegalArgumentException e) {
-                TreeChopMod.LOGGER.warn(String.format("NBT contains bad sneak behavior value \"%s\"; using default value instead", tag.getString(SNEAK_BEHAVIOR_KEY)));
+                TreeChop.LOGGER.warn(String.format("NBT contains bad sneak behavior value \"%s\"; using default value instead", tag.getString(SNEAK_BEHAVIOR_KEY)));
                 sneakBehavior = SneakBehavior.INVERT_CHOPPING;
             }
             Optional<Boolean> onlyChopTreesWithLeaves = getBoolean(tag, TREES_MUST_HAVE_LEAVES_KEY);
@@ -85,7 +85,7 @@ public class ChopSettingsCapability extends ChopSettings implements INBTSerializ
                 setSynced();
             }
         } else {
-            TreeChopMod.LOGGER.warn("Failed to read ChopSettingsCapability NBT");
+            TreeChop.LOGGER.warn("Failed to read ChopSettingsCapability NBT");
         }
     }
 

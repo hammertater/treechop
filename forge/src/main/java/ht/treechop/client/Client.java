@@ -1,11 +1,11 @@
 package ht.treechop.client;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.client.gui.screen.ChopIndicator;
 import ht.treechop.client.gui.screen.ClientSettingsScreen;
 import ht.treechop.client.model.ChoppedLogBakedModel;
 import ht.treechop.client.settings.ClientChopSettings;
-import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.ForgeConfigHandler;
 import ht.treechop.common.network.ClientRequestSettingsPacket;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.settings.Permissions;
@@ -35,7 +35,7 @@ public class Client {
     public static void onClientSetup(FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(EventHandler.class);
 
-        if (ConfigHandler.CLIENT.useProceduralChoppedModels.get()) {
+        if (ForgeConfigHandler.CLIENT.useProceduralChoppedModels.get()) {
             IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
             modBus.addListener(ChoppedLogBakedModel::overrideBlockStateModels);
         }
@@ -54,8 +54,8 @@ public class Client {
     static class EventHandler {
         @SubscribeEvent
         public static void onConnect(ClientPlayerNetworkEvent.LoggingIn event) {
-            TreeChopMod.LOGGER.info("Sending chop settings sync request");
-            chopSettings.copyFrom(ConfigHandler.CLIENT.getChopSettings());
+            TreeChop.LOGGER.info("Sending chop settings sync request");
+            chopSettings.copyFrom(ForgeConfigHandler.CLIENT.getChopSettings());
             PacketHandler.sendToServer(new ClientRequestSettingsPacket(chopSettings));
         }
 
@@ -82,7 +82,7 @@ public class Client {
     }
 
     public static void cycleSneakBehavior() {
-        SneakBehavior newValue = ConfigHandler.CLIENT.showFellingOptions.get()
+        SneakBehavior newValue = ForgeConfigHandler.CLIENT.showFellingOptions.get()
                 ? chopSettings.getSneakBehavior().cycle()
                 : (chopSettings.getSneakBehavior() == SneakBehavior.NONE ? SneakBehavior.INVERT_CHOPPING : SneakBehavior.NONE);
         chopSettings.set(SettingsField.SNEAK_BEHAVIOR, newValue);
@@ -93,11 +93,11 @@ public class Client {
     }
 
     public static void setChoppingIndicatorVisibility(boolean showChoppingIndicator) {
-        ConfigHandler.CLIENT.showChoppingIndicators.set(showChoppingIndicator);
+        ForgeConfigHandler.CLIENT.showChoppingIndicators.set(showChoppingIndicator);
     }
 
     public static boolean isChoppingIndicatorEnabled() {
-        return ConfigHandler.CLIENT.showChoppingIndicators.get();
+        return ForgeConfigHandler.CLIENT.showChoppingIndicators.get();
     }
 
     public static void toggleSettingsOverlay() {

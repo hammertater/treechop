@@ -1,8 +1,8 @@
 package ht.treechop.client.model;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.ForgeConfigHandler;
 import ht.treechop.common.init.ModBlocks;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.properties.ModBlockStateProperties;
@@ -63,13 +63,13 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
             ModelResourceLocation variantMRL = BlockModelShaper.stateToModelLocation(blockState);
             BakedModel existingModel = event.getModelManager().getModel(variantMRL);
             if (existingModel == null) {
-                TreeChopMod.LOGGER.warn("Did not find the expected vanilla baked model(s) for treechop:chopped_log in registry");
+                TreeChop.LOGGER.warn("Did not find the expected vanilla baked model(s) for treechop:chopped_log in registry");
             } else if (existingModel instanceof ChoppedLogBakedModel) {
-                TreeChopMod.LOGGER.warn("Tried to replace ChoppedLogBakedModel twice");
+                TreeChop.LOGGER.warn("Tried to replace ChoppedLogBakedModel twice");
             } else {
                 ChoppedLogBakedModel customModel = new ChoppedLogBakedModel(
                         existingModel,
-                        ConfigHandler.CLIENT.removeBarkOnInteriorLogs.get()
+                        ForgeConfigHandler.CLIENT.removeBarkOnInteriorLogs.get()
                 );
                 event.getModels().put(variantMRL, customModel);
             }

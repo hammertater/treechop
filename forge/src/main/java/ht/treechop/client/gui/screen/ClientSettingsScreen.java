@@ -1,14 +1,14 @@
 package ht.treechop.client.gui.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.client.Client;
 import ht.treechop.client.gui.element.*;
 import ht.treechop.client.gui.util.GUIUtil;
 import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.widget.StickyWidget;
 import ht.treechop.client.gui.widget.ToggleWidget;
-import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.ForgeConfigHandler;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
@@ -34,7 +34,7 @@ public class ClientSettingsScreen extends Screen {
     private boolean needToRebuild = false;
 
     public ClientSettingsScreen() {
-        super(Component.translatable("treechop.gui.settings.title", TreeChopMod.MOD_NAME));
+        super(Component.translatable("treechop.gui.settings.title", TreeChop.MOD_NAME));
     }
 
     @Override
@@ -93,7 +93,7 @@ public class ClientSettingsScreen extends Screen {
                 )
         );
 
-        if (ConfigHandler.CLIENT.showFellingOptions.get()) {
+        if (ForgeConfigHandler.CLIENT.showFellingOptions.get()) {
             optionRows.add(
                     new LabeledGui(font,
                             Component.translatable("treechop.gui.settings.label.felling"),
@@ -193,10 +193,10 @@ public class ClientSettingsScreen extends Screen {
                 new LabeledGui(font,
                         Component.translatable("treechop.gui.settings.label.feedback_messages"),
                         new ToggleGui(
-                                () -> ConfigHandler.CLIENT.showFeedbackMessages.set(!ConfigHandler.CLIENT.showFeedbackMessages.get()),
-                                () -> ToggleWidget.State.of(ConfigHandler.CLIENT.showFeedbackMessages.get(), true),
+                                () -> ForgeConfigHandler.CLIENT.showFeedbackMessages.set(!ForgeConfigHandler.CLIENT.showFeedbackMessages.get()),
+                                () -> ToggleWidget.State.of(ForgeConfigHandler.CLIENT.showFeedbackMessages.get(), true),
                                 () -> Component.translatable("treechop.gui.settings.tooltip.feedback_messages"
-                                        + (ConfigHandler.CLIENT.showFeedbackMessages.get() ? ".on" : ".off"))
+                                        + (ForgeConfigHandler.CLIENT.showFeedbackMessages.get() ? ".on" : ".off"))
                         )
                 )
         );
@@ -205,13 +205,13 @@ public class ClientSettingsScreen extends Screen {
                 new LabeledGui(font,
                         Component.translatable("treechop.gui.settings.label.felling_options"),
                         new ToggleGui(
-                                () -> ConfigHandler.CLIENT.showFellingOptions.set(!ConfigHandler.CLIENT.showFellingOptions.get()),
+                                () -> ForgeConfigHandler.CLIENT.showFellingOptions.set(!ForgeConfigHandler.CLIENT.showFellingOptions.get()),
                                 () -> ToggleWidget.State.of(
-                                        ConfigHandler.CLIENT.showFellingOptions.get(),
+                                        ForgeConfigHandler.CLIENT.showFellingOptions.get(),
                                         Client.getServerPermissions().isPermitted(new Setting(SettingsField.FELLING, false))
                                 ),
                                 () -> Component.translatable("treechop.gui.settings.tooltip.felling_options"
-                                        + (ConfigHandler.CLIENT.showFellingOptions.get() ? ".on" : ".off"))
+                                        + (ForgeConfigHandler.CLIENT.showFellingOptions.get() ? ".on" : ".off"))
                         )
                 )
         );
@@ -220,9 +220,9 @@ public class ClientSettingsScreen extends Screen {
                 new LabeledGui(font,
                         Component.translatable("treechop.gui.settings.label.tooltips"),
                         new ToggleGui(
-                                () -> ConfigHandler.CLIENT.showTooltips.set(!ConfigHandler.CLIENT.showTooltips.get()),
+                                () -> ForgeConfigHandler.CLIENT.showTooltips.set(!ForgeConfigHandler.CLIENT.showTooltips.get()),
                                 () -> ToggleWidget.State.of(
-                                        ConfigHandler.CLIENT.showTooltips.get(),
+                                        ForgeConfigHandler.CLIENT.showTooltips.get(),
                                         true
                                 ),
                                 () -> Component.translatable("treechop.gui.settings.tooltip.tooltips")
@@ -298,7 +298,7 @@ public class ClientSettingsScreen extends Screen {
         super.render(poseStack, mouseX, mouseY, partialTicks);
         // TODO: check out ClientSettingsScreen.func_243293_a for draw reordering; might be important for tooltips
 
-        if (ConfigHandler.CLIENT.showTooltips.get()) {
+        if (ForgeConfigHandler.CLIENT.showTooltips.get()) {
             GUIUtil.renderTooltip(poseStack);
         }
     }

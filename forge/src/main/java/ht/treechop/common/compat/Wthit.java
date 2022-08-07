@@ -1,6 +1,6 @@
 package ht.treechop.common.compat;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.util.ChopUtil;
@@ -20,12 +20,12 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-@WailaPlugin(id = TreeChopMod.MOD_ID + ":waila_plugin")
+@WailaPlugin(id = TreeChop.MOD_ID + ":waila_plugin")
 public class Wthit implements IWailaPlugin, IBlockComponentProvider {
     private static final Wthit INSTANCE = new Wthit();
 
-    public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChopMod.MOD_ID, "show_tree_block_counts");
-    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChopMod.MOD_ID, "show_num_chops_remaining");
+    public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
+    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
 
     @Override
     public void register(IRegistrar registrar) {

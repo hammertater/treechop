@@ -1,6 +1,6 @@
 package ht.treechop.common.settings;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
@@ -70,7 +70,7 @@ public class ChopSettings {
         if (field.getDefaultValue().getClass().isInstance(value)) {
             fieldValues.put(field, value);
         } else {
-            TreeChopMod.LOGGER.warn(String.format("Refusing to set setting %s to illegal value %s (%s)", field, value, value.getClass()));
+            TreeChop.LOGGER.warn(String.format("Refusing to set setting %s to illegal value %s (%s)", field, value, value.getClass()));
         }
     }
 

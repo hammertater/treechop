@@ -1,6 +1,7 @@
 package ht.treechop.common.config;
 
 import net.minecraft.util.StringRepresentable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
@@ -10,15 +11,15 @@ public enum ChopCountingAlgorithm implements StringRepresentable {
     LINEAR(
             numBlocks -> {
                 double x = (double) numBlocks;
-                double m = ConfigHandler.COMMON.linearM.get();
-                double b = ConfigHandler.COMMON.linearB.get();
+                double m = ConfigHandler.get().getLinearM();
+                double b = ConfigHandler.get().getLinearB();
                 return m * x + b;
             }
     ),
     LOGARITHMIC(
             numBlocks -> {
                 double x = (double) numBlocks;
-                double a = ConfigHandler.COMMON.logarithmicA.get();
+                double a = ConfigHandler.get().getLogarithmicA();
                 return 1 + a * log(1 + (x - 1) / a);
             }
     );
@@ -33,16 +34,16 @@ public enum ChopCountingAlgorithm implements StringRepresentable {
         if (numBlocks == 1) {
             return 1;
         } else {
-            Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
+            Rounder rounder = ConfigHandler.get().getChopCountRounding();
             int unboundedCount = Math.max(1, rounder.round(preciseCalculation.apply(numBlocks)));
-            return ConfigHandler.COMMON.canRequireMoreChopsThanBlocks.get()
+            return ConfigHandler.get().canRequireMoreChopsThanBlocks()
                     ? unboundedCount
                     : Math.min(numBlocks, unboundedCount);
         }
     }
 
     @Override
-    public String getSerializedName() {
+    public @NotNull String getSerializedName() {
         return name();
     }
 }

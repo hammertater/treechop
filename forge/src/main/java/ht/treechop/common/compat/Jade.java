@@ -1,6 +1,6 @@
 package ht.treechop.common.compat;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.util.ChopUtil;
@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
 @WailaPlugin //(TreeChopMod.MOD_ID + ":waila_plugin")
 public class Jade implements IWailaPlugin, IBlockComponentProvider {
 
-    private static final ResourceLocation UID = ResourceLocation.tryBuild(TreeChopMod.MOD_ID, "plugin");
+    private static final ResourceLocation UID = ResourceLocation.tryBuild(TreeChop.MOD_ID, "plugin");
 
-    public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChopMod.MOD_ID, "show_tree_block_counts");
-    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChopMod.MOD_ID, "show_num_chops_remaining");
+    public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
+    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
 
     @Override
     public void registerClient(IWailaClientRegistration registrar) {

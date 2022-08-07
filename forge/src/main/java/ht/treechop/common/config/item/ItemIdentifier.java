@@ -1,6 +1,6 @@
 package ht.treechop.common.config.item;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -105,7 +105,7 @@ public abstract class ItemIdentifier {
     public abstract Stream<Item> resolve(IForgeRegistry<Item> registry);
 
     private static void parsingError(String idString, String message) {
-        TreeChopMod.LOGGER.warn("Configuration issue: failed to parse \"{}\": {} (to silence this warning, find and delete \"{}\" in treechop-common.toml)", idString, message, idString);
+        TreeChop.LOGGER.warn("Configuration issue: failed to parse \"{}\": {} (to silence this warning, find and delete \"{}\" in treechop-common.toml)", idString, message, idString);
     }
 
     public void parsingError(String message) {

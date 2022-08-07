@@ -1,8 +1,8 @@
 package ht.treechop.common.compat;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.api.ChopEvent;
-import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.ForgeConfigHandler;
 import ht.treechop.common.util.TickUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.common.MinecraftForge;
@@ -15,7 +15,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-@EventBusSubscriber(modid = TreeChopMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = TreeChop.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class NoChopOnRightClick {
 
     private static final Map<Entity, Long> lastRightClickTickByPlayers = new HashMap<>();
@@ -23,7 +23,7 @@ public class NoChopOnRightClick {
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
-        if (ConfigHandler.COMMON.preventChoppingOnRightClick.get()) {
+        if (ForgeConfigHandler.COMMON.preventChoppingOnRightClick.get()) {
             enable();
         }
     }

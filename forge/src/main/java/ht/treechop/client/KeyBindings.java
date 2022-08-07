@@ -1,7 +1,7 @@
 package ht.treechop.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.client.gui.screen.ClientSettingsScreen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -28,7 +28,7 @@ public class KeyBindings {
 
     private static ActionableKeyBinding registerKeyBinding(String name, InputConstants.Key defaultKey, Runnable callback, Consumer<KeyMapping> register) {
         ActionableKeyBinding keyBinding = new ActionableKeyBinding(
-                String.format("%s.key.%s", TreeChopMod.MOD_ID, name),
+                String.format("%s.key.%s", TreeChop.MOD_ID, name),
                 defaultKey,
                 callback
         );

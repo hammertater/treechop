@@ -1,8 +1,8 @@
 package ht.treechop.common.compat;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.api.ChopEvent;
-import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.ForgeConfigHandler;
 import ht.treechop.common.util.TickUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
@@ -13,14 +13,14 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-@EventBusSubscriber(modid = TreeChopMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = TreeChop.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class NoChopRecursion {
 
     static private Map<Player, Long> lastChopTickByPlayers = new HashMap<>();
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
-        if (ConfigHandler.COMMON.preventChopRecursion.get()) {
+        if (ForgeConfigHandler.COMMON.preventChopRecursion.get()) {
             MinecraftForge.EVENT_BUS.register(NoChopRecursion.EventHandler.class);
         }
     }

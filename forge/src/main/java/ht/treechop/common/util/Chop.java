@@ -1,6 +1,6 @@
 package ht.treechop.common.util;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.api.IChoppableBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -33,7 +33,7 @@ public class Chop {
         if (block instanceof IChoppableBlock choppableBlock) {
             choppableBlock.chop(player, tool, level, blockPos, blockState, numChops, felling);
         } else {
-            TreeChopMod.LOGGER.warn("Failed to chop block in level {} at position {} for player {}: {} does not implement IChoppableBlock", level.dimension(), blockPos, player.getName(), ForgeRegistries.BLOCKS.getKey(block));
+            TreeChop.LOGGER.warn("Failed to chop block in level {} at position {} for player {}: {} does not implement IChoppableBlock", level.dimension(), blockPos, player.getName(), ForgeRegistries.BLOCKS.getKey(block));
         }
     }
 }

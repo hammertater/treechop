@@ -20,16 +20,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ConfigHandler {
+public class ForgeConfigHandler extends ConfigHandler {
 
-    public static TagKey<Block> blockTagForDetectingLogs;
-    public static TagKey<Block> blockTagForDetectingLeaves;
-    public final static ChopSettings fakePlayerChopSettings = new ChopSettings();
+    static {
+        handler = new ForgeConfigHandler();
+    }
+
     private static Set<Item> itemsBlacklist = null;
-    public static Map<Item, OverrideInfo> itemOverrides = null;
-    public static int maxBreakLeavesDistance = 7;
-    public static boolean ignorePersistentLeaves = true;
-    public static boolean removeBarkOnInteriorLogs = false;
 
     public static void onReload() {
         maxBreakLeavesDistance = COMMON.maxBreakLeavesDistance.get();
@@ -150,6 +147,31 @@ public class ConfigHandler {
         } else {
             return itemsBlacklist.contains(item);
         }
+    }
+
+    @Override
+    public double getLinearM() {
+        return COMMON.linearM.get();
+    }
+
+    @Override
+    public double getLinearB() {
+        return COMMON.linearB.get();
+    }
+
+    @Override
+    public double getLogarithmicA() {
+        return COMMON.logarithmicA.get();
+    }
+
+    @Override
+    public Rounder getChopCountRounding() {
+        return COMMON.chopCountRounding.get();
+    }
+
+    @Override
+    public boolean canRequireMoreChopsThanBlocks() {
+        return COMMON.canRequireMoreChopsThanBlocks.get();
     }
 
     public static class Common {
@@ -429,11 +451,11 @@ public class ConfigHandler {
 
         public ChopSettings getChopSettings() {
             ChopSettings chopSettings = new ChopSettings();
-            chopSettings.setChoppingEnabled(ConfigHandler.CLIENT.choppingEnabled.get());
-            chopSettings.setFellingEnabled(ConfigHandler.CLIENT.fellingEnabled.get());
-            chopSettings.setSneakBehavior(ConfigHandler.CLIENT.sneakBehavior.get());
-            chopSettings.setTreesMustHaveLeaves(ConfigHandler.CLIENT.treesMustHaveLeaves.get());
-            chopSettings.setChopInCreativeMode(ConfigHandler.CLIENT.chopInCreativeMode.get());
+            chopSettings.setChoppingEnabled(ForgeConfigHandler.CLIENT.choppingEnabled.get());
+            chopSettings.setFellingEnabled(ForgeConfigHandler.CLIENT.fellingEnabled.get());
+            chopSettings.setSneakBehavior(ForgeConfigHandler.CLIENT.sneakBehavior.get());
+            chopSettings.setTreesMustHaveLeaves(ForgeConfigHandler.CLIENT.treesMustHaveLeaves.get());
+            chopSettings.setChopInCreativeMode(ForgeConfigHandler.CLIENT.chopInCreativeMode.get());
             return chopSettings;
         }
     }

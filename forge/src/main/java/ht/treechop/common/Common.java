@@ -1,10 +1,10 @@
 package ht.treechop.common;
 
-import ht.treechop.TreeChopMod;
+import ht.treechop.TreeChop;
 import ht.treechop.api.ChopEvent;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.capabilities.ChopSettingsProvider;
-import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.ForgeConfigHandler;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.util.ChopResult;
 import ht.treechop.common.util.ChopUtil;
@@ -28,7 +28,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
 import static net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
-@EventBusSubscriber(modid = TreeChopMod.MOD_ID, bus = EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = TreeChop.MOD_ID, bus = EventBusSubscriber.Bus.FORGE)
 public class Common {
 
     // Don't @SubscribeEvent; FMLCommonSetupEvent fires on Bus.MOD
@@ -38,7 +38,7 @@ public class Common {
 
     @SubscribeEvent
     public static void onTagsUpdated(TagsUpdatedEvent event) {
-        ConfigHandler.updateTags();
+        ForgeConfigHandler.updateTags();
     }
 
     @SubscribeEvent
@@ -48,7 +48,7 @@ public class Common {
         BlockPos pos = event.getPos();
 
         if (!isBlockALog(blockState)
-                || !ConfigHandler.COMMON.enabled.get()
+                || !ForgeConfigHandler.COMMON.enabled.get()
                 || event.isCanceled()
                 || !(event.getLevel() instanceof ServerLevel level)
                 || !(event.getPlayer() instanceof ServerPlayer agent)
@@ -59,7 +59,7 @@ public class Common {
         }
 
         if (!ChopUtil.playerWantsToChop(agent)) {
-            if (ConfigHandler.shouldOverrideItemBehavior(tool.getItem(), false)) {
+            if (ForgeConfigHandler.shouldOverrideItemBehavior(tool.getItem(), false)) {
                 FauxPlayerInteractionManager.harvestBlockSkippingOnBlockStartBreak(agent, level, blockState, pos, event.getExpToDrop());
                 event.setCanceled(true);
             }
@@ -92,7 +92,7 @@ public class Common {
         );
 
         if (chopResult != ChopResult.IGNORED) {
-            if (chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get())) {
+            if (chopResult.apply(pos, agent, tool, ForgeConfigHandler.COMMON.breakLeaves.get())) {
                 event.setCanceled(true);
 
                 if (!agent.isCreative()) {
@@ -106,11 +106,11 @@ public class Common {
 
     @SubscribeEvent
     public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-        final ResourceLocation loc = new ResourceLocation(TreeChopMod.MOD_ID + "chop_settings_capability");
+        final ResourceLocation loc = new ResourceLocation(TreeChop.MOD_ID + "chop_settings_capability");
 
         Entity entity = event.getObject();
         if (entity instanceof FakePlayer) {
-            event.addCapability(loc, new ChopSettingsProvider(ConfigHandler.fakePlayerChopSettings));
+            event.addCapability(loc, new ChopSettingsProvider(ForgeConfigHandler.fakePlayerChopSettings));
         } else {
             event.addCapability(loc, new ChopSettingsProvider());
         }
