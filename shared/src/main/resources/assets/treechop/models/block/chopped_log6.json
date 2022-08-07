@@ -1,0 +1,17 @@
+{
+  "parent": "treechop:block/chopped_log1",
+  "elements": [
+    {
+      "from": [ 6, 0, 6 ],
+      "to": [ 10, 16, 10 ],
+      "faces": {
+        "down":  { "texture": "#end", "cullface": "down" },
+        "up":    { "texture": "#end", "cullface": "up" },
+        "north": { "texture": "#inside" },
+        "south": { "texture": "#inside" },
+        "west":  { "texture": "#inside" },
+        "east":  { "texture": "#inside" }
+      }
+    }
+  ]
+}
