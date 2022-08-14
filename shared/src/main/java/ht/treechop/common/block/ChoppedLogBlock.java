@@ -180,11 +180,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                         List<ItemStack> drops = Block.getDrops(blockState, serverLevel, pos, entity, player, tool);
                         entity.setDrops(drops);
                         entity.setChanged();
-
-                        PacketHandler.HANDLER.send(
-                                PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(pos)),
-                                new ServerChoppedLogPreparedUpdate(pos, entity.getUpdateTag())
-                        );
                     }
                 }
             } else {
