@@ -206,7 +206,9 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
 
     @Override
     public boolean useAmbientOcclusion() {
-        return staticModel.useAmbientOcclusion();
+        // TODO: figure out how to use this properly
+        //return staticModel.useAmbientOcclusion();
+        return false;
     }
 
     @Override
