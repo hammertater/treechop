@@ -6,7 +6,6 @@ import ht.treechop.client.gui.screen.ClientSettingsScreen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraftforge.client.settings.KeyConflictContext;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.LinkedList;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class KeyBindings {
-
     public static final String CATEGORY = "HT's TreeChop";
 
     public static final List<ActionableKeyBinding> allKeyBindings = new LinkedList<>();
@@ -43,21 +41,12 @@ public class KeyBindings {
         return InputConstants.getKey(key, 0);
     }
 
-    public static void buttonPressed(int keyCode, int keyState) {
-        for (ActionableKeyBinding keyBinding : allKeyBindings) {
-            if (keyCode == keyBinding.getKey().getValue() && keyState == GLFW.GLFW_PRESS) {
-                keyBinding.onPress();
-                return;
-            }
-        }
-    }
-
     protected static class ActionableKeyBinding extends KeyMapping {
 
         private final Runnable callback;
 
         public ActionableKeyBinding(String resourceName, InputConstants.Key inputByCode, Runnable callback) {
-            super(resourceName, KeyConflictContext.GUI, inputByCode, CATEGORY);
+            super(resourceName, InputConstants.Type.KEYSYM, inputByCode.getValue(), CATEGORY);
             this.callback = () -> {
                 Screen screen = Minecraft.getInstance().screen;
                 if (screen == null || screen instanceof ClientSettingsScreen) {

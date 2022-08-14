@@ -1,7 +1,7 @@
 package ht.treechop.common.compat;
 
 import ht.treechop.TreeChop;
-import ht.treechop.client.Client;
+import ht.treechop.client.ForgeClient;
 import ht.treechop.common.block.ForgeChoppedLogBlock;
 import ht.treechop.common.util.ChopUtil;
 import mcp.mobius.waila.api.*;
@@ -16,7 +16,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -48,7 +47,7 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
             Level level = accessor.getWorld();
             AtomicInteger numChops = new AtomicInteger(0);
 
-            ChopUtil.detectTree(level, accessor.getPosition(), Client.getChopSettings().getTreesMustHaveLeaves()).getLogBlocks().ifPresent(
+            ChopUtil.detectTree(level, accessor.getPosition(), ForgeClient.getChopSettings().getTreesMustHaveLeaves()).getLogBlocks().ifPresent(
                     treeBlocks -> {
 
                         if (config.getBoolean(SHOW_NUM_CHOPS_REMAINING)) {

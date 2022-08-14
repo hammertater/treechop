@@ -3,6 +3,7 @@ package ht.treechop.common.platform;
 import ht.treechop.api.ChopData;
 import ht.treechop.api.TreeData;
 import ht.treechop.common.settings.ChopSettings;
+import ht.treechop.common.settings.SettingsField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,4 +34,6 @@ public interface Platform {
     Block getChoppedLogBlock();
 
     BlockEntityType<?> getChoppedLogBlockEntity();
+
+    void sendClientSettingsRequest(SettingsField field, Object value);
 }

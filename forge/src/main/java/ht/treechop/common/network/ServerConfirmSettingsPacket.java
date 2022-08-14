@@ -1,11 +1,10 @@
 package ht.treechop.common.network;
 
-import ht.treechop.client.Client;
+import ht.treechop.client.ForgeClient;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -31,15 +30,12 @@ public class ServerConfirmSettingsPacket {
         return new ServerConfirmSettingsPacket(settings);
     }
 
-    public static void handle(ServerConfirmSettingsPacket message, Supplier<NetworkEvent.Context> context) {
-        if (!context.get().getDirection().getReceptionSide().isServer()) {
-            context.get().enqueueWork(() -> message.settings.forEach(ServerConfirmSettingsPacket::processSingleSetting));
-            context.get().setPacketHandled(true);
-        }
+    public static void handle(ServerConfirmSettingsPacket message, ServerPlayer sender) {
+        message.settings.forEach(ServerConfirmSettingsPacket::processSingleSetting);
     }
 
     private static void processSingleSetting(ConfirmedSetting setting) {
-        Client.getChopSettings().accept(setting.getField(), setting.getValue());
+        ForgeClient.getChopSettings().accept(setting.getField(), setting.getValue());
         setting.event.run(setting);
     }
 

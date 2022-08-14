@@ -1,7 +1,7 @@
 package ht.treechop.common.compat;
 
 import ht.treechop.TreeChop;
-import ht.treechop.client.Client;
+import ht.treechop.client.ForgeClient;
 import ht.treechop.common.block.ForgeChoppedLogBlock;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.core.BlockPos;
@@ -17,9 +17,7 @@ import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.IElement;
 import snownee.jade.impl.ui.ItemStackElement;
 
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -51,13 +49,13 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        if (ChopUtil.playerWantsToChop(accessor.getPlayer(), Client.getChopSettings())
+        if (ChopUtil.playerWantsToChop(accessor.getPlayer(), ForgeClient.getChopSettings())
                 && ChopUtil.isBlockChoppable(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState())
                 && (config.get(SHOW_TREE_BLOCKS) || config.get(SHOW_NUM_CHOPS_REMAINING))) {
             Level level = accessor.getLevel();
             AtomicInteger numChops = new AtomicInteger(0);
 
-            ChopUtil.detectTree(level, accessor.getPosition(), Client.getChopSettings().getTreesMustHaveLeaves()).getLogBlocks().ifPresent(
+            ChopUtil.detectTree(level, accessor.getPosition(), ForgeClient.getChopSettings().getTreesMustHaveLeaves()).getLogBlocks().ifPresent(
                     treeBlocks -> {
                         if (config.get(SHOW_NUM_CHOPS_REMAINING)) {
                             treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));

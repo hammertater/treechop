@@ -4,13 +4,12 @@ import ht.treechop.common.block.ForgeChoppedLogBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.network.NetworkEvent;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class ServerChoppedLogPreparedUpdate {
     private final CompoundTag updateTag;
@@ -39,11 +38,8 @@ public class ServerChoppedLogPreparedUpdate {
         return new ServerChoppedLogPreparedUpdate(pos, updateTag);
     }
 
-    public static void handle(ServerChoppedLogPreparedUpdate message, Supplier<NetworkEvent.Context> context) {
-        if (!context.get().getDirection().getReceptionSide().isServer()) {
-            pendingUpdates.put(message.pos, message.updateTag);
-        }
-        context.get().setPacketHandled(true);
+    public static void handle(ServerChoppedLogPreparedUpdate message, ServerPlayer sender) {
+        pendingUpdates.put(message.pos, message.updateTag);
     }
 
     public static void update(Level level, BlockPos pos) {

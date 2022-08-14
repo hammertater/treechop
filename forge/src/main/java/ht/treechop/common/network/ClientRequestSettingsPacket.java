@@ -9,12 +9,9 @@ import ht.treechop.server.Server;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -52,13 +49,8 @@ public class ClientRequestSettingsPacket {
         return new ClientRequestSettingsPacket(settings, event);
     }
 
-    public static void handle(ClientRequestSettingsPacket message, Supplier<NetworkEvent.Context> context) {
-        if (context.get().getDirection().getReceptionSide().isServer()) {
-            context.get().enqueueWork(
-                    () -> processSettingsRequest(message, Objects.requireNonNull(context.get().getSender()))
-            );
-            context.get().setPacketHandled(true);
-        }
+    public static void handle(ClientRequestSettingsPacket message, ServerPlayer sender) {
+        processSettingsRequest(message, sender);
     }
 
     private static <T> void processSettingsRequest(ClientRequestSettingsPacket message, ServerPlayer player) {

@@ -4,11 +4,10 @@ import ht.treechop.client.Client;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.Setting;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -35,11 +34,8 @@ public class ServerPermissionsPacket {
         return new ServerPermissionsPacket(new Permissions(settings));
     }
 
-    public static void handle(ServerPermissionsPacket message, Supplier<NetworkEvent.Context> context) {
-        if (!context.get().getDirection().getReceptionSide().isServer()) {
-            context.get().enqueueWork(() -> Client.updatePermissions(message.permissions));
-            context.get().setPacketHandled(true);
-        }
+    public static void handle(ServerPermissionsPacket message, ServerPlayer sender) {
+        Client.updatePermissions(message.permissions);
     }
 
 }

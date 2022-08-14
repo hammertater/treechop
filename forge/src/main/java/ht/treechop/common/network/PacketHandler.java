@@ -3,9 +3,15 @@ package ht.treechop.common.network;
 import ht.treechop.TreeChop;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
+
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 // See https://github.com/Vazkii/Botania/blob/7e1d89a1d6deda7286744e3b7c55369b2cf5e533/src/main/java/vazkii/botania/common/network/PacketHandler.java
 public final class PacketHandler {
@@ -20,10 +26,14 @@ public final class PacketHandler {
     @SuppressWarnings("UnusedAssignment")
     public static void init() {
         int id = 0;
-        HANDLER.registerMessage(id++, ClientRequestSettingsPacket.class, ClientRequestSettingsPacket::encode, ClientRequestSettingsPacket::decode, ClientRequestSettingsPacket::handle);
-        HANDLER.registerMessage(id++, ServerConfirmSettingsPacket.class, ServerConfirmSettingsPacket::encode, ServerConfirmSettingsPacket::decode, ServerConfirmSettingsPacket::handle);
-        HANDLER.registerMessage(id++, ServerPermissionsPacket.class, ServerPermissionsPacket::encode, ServerPermissionsPacket::decode, ServerPermissionsPacket::handle);
-        HANDLER.registerMessage(id++, ServerChoppedLogPreparedUpdate.class, ServerChoppedLogPreparedUpdate::encode, ServerChoppedLogPreparedUpdate::decode, ServerChoppedLogPreparedUpdate::handle);
+
+        // Client-to-server messages
+        HANDLER.registerMessage(id++, ClientRequestSettingsPacket.class, ClientRequestSettingsPacket::encode, ClientRequestSettingsPacket::decode, PacketProcessor.toServer(ClientRequestSettingsPacket::handle));
+
+        // Server-to-client messages
+        HANDLER.registerMessage(id++, ServerConfirmSettingsPacket.class, ServerConfirmSettingsPacket::encode, ServerConfirmSettingsPacket::decode, PacketProcessor.toClient(ServerConfirmSettingsPacket::handle));
+        HANDLER.registerMessage(id++, ServerPermissionsPacket.class, ServerPermissionsPacket::encode, ServerPermissionsPacket::decode, PacketProcessor.toClient(ServerPermissionsPacket::handle));
+        HANDLER.registerMessage(id++, ServerChoppedLogPreparedUpdate.class, ServerChoppedLogPreparedUpdate::encode, ServerChoppedLogPreparedUpdate::decode, PacketProcessor.toClient(ServerChoppedLogPreparedUpdate::handle));
     }
 
     public static void sendToServer(Object msg) {
@@ -31,8 +41,27 @@ public final class PacketHandler {
     }
 
     public static void sendTo(ServerPlayer playerMP, Object toSend) {
-        HANDLER.sendTo(toSend, playerMP.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+         HANDLER.sendTo(toSend, playerMP.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
     }
 
     private PacketHandler() {}
+
+    record PacketProcessor<T> (BiConsumer<T, ServerPlayer> handler, LogicalSide receiverSide) implements BiConsumer<T, Supplier<NetworkEvent.Context>> {
+        public static <T> PacketProcessor<T> toServer(BiConsumer<T, ServerPlayer> handler) {
+            return new PacketProcessor<>(handler, LogicalSide.SERVER);
+        }
+
+        public static <T> PacketProcessor<T> toClient(BiConsumer<T, ServerPlayer> handler) {
+            return new PacketProcessor<>(handler, LogicalSide.CLIENT);
+        }
+
+        @Override
+        public void accept(T message, Supplier<NetworkEvent.Context> context) {
+            if (context.get().getDirection().getReceptionSide() == receiverSide) {
+                context.get().enqueueWork(() -> handler.accept(message, context.get().getSender()));
+            }
+            context.get().setPacketHandled(true);
+
+        }
+    }
 }

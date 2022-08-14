@@ -70,12 +70,6 @@ public abstract class NestedGui extends AbstractWidget implements ContainerEvent
     }
 
     @Override
-    public void setHeight(int height) {
-        ScreenBox box = getBox();
-        this.setBox(box.getLeft(), box.getTop(), box.getWidth(), height);
-    }
-
-    @Override
     public void setBox(ScreenBox box) {
         this.box = box;
         width = box.getWidth();

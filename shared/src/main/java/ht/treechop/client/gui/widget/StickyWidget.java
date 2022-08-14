@@ -33,6 +33,11 @@ public class StickyWidget extends AbstractWidget {
         onPress.run();
     }
 
+    // Taken from Forge's AbstractWidget
+    public int getFGColor() {
+        return this.active ? 16777215 : 10526880; // White : Light Grey
+    }
+
     @Override
     public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         Minecraft minecraft = Minecraft.getInstance();

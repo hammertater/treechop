@@ -4,9 +4,12 @@ import ht.treechop.api.ChopData;
 import ht.treechop.api.ChopEvent;
 import ht.treechop.api.TreeData;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
+import ht.treechop.common.network.ClientRequestSettingsPacket;
+import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.common.registry.ForgeModBlocks;
 import ht.treechop.common.settings.ChopSettings;
+import ht.treechop.common.settings.SettingsField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -85,5 +88,10 @@ public class ForgePlatform implements Platform {
     @Override
     public BlockEntityType<?> getChoppedLogBlockEntity() {
         return ForgeModBlocks.CHOPPED_LOG_ENTITY.get();
+    }
+
+    @Override
+    public void sendClientSettingsRequest(SettingsField field, Object value) {
+        PacketHandler.sendToServer(new ClientRequestSettingsPacket(field, value));
     }
 }
