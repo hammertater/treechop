@@ -7,8 +7,10 @@ import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.properties.ModBlockStateProperties;
 import ht.treechop.common.registry.ForgeModBlocks;
+import ht.treechop.common.util.AxeAccessor;
 import ht.treechop.common.util.FaceShape;
 import ht.treechop.common.util.Vector3;
+import mcp.mobius.waila.api.IEntityAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockModelShaper;
@@ -107,10 +109,13 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)))
                 : Collections.emptySet();
 
-        BlockState strippedState;
+        BlockState strippedState = null;
         if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
-            strippedState = entity.getStrippedOriginalState();
-        } else {
+            BlockState originalState = entity.getOriginalState();
+            strippedState = (AxeAccessor.isStripped(originalState.getBlock())) ? originalState : AxeAccessor.getStripped(originalState);
+        }
+
+        if (strippedState == null) {
             strippedState = Blocks.OAK_LOG.defaultBlockState();
         }
 

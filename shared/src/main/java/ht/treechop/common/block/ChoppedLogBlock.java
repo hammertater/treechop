@@ -100,11 +100,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         return (level.isEmptyBlock(pos) || isBlockLeaves(level, pos));
     }
 
-    @Override
-    public boolean hasDynamicShape() {
-        return true;
-    }
-
     @SuppressWarnings("deprecation")
     @Nonnull
     @Override
@@ -122,11 +117,9 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         );
     }
 
-    @SuppressWarnings("deprecation")
-    @Nonnull
     @Override
-    public VoxelShape getOcclusionShape(BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos) {
-        return state.getValue(SHAPE).getOcclusionShape();
+    public boolean useShapeForLightOcclusion(BlockState blockState) {
+        return true;
     }
 
     @Override
@@ -175,7 +168,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                             }
                         }
 
-                        entity.setOriginalState(blockState, strippedBlockState);
+                        entity.setOriginalState(blockState);
 
                         List<ItemStack> drops = Block.getDrops(blockState, serverLevel, pos, entity, player, tool);
                         entity.setDrops(drops);
@@ -250,16 +243,14 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     public static abstract class MyEntity extends BlockEntity {
 
         protected BlockState originalState = Blocks.OAK_LOG.defaultBlockState();
-        protected BlockState strippedOriginalState = Blocks.STRIPPED_OAK_LOG.defaultBlockState();
         protected List<ItemStack> drops = Collections.emptyList();
 
         public MyEntity(BlockPos pos, BlockState blockState) {
             super(TreeChop.platform.getChoppedLogBlockEntity(), pos, blockState);
         }
 
-        public void setOriginalState(BlockState originalState, BlockState strippedOriginalState) {
+        public void setOriginalState(BlockState originalState) {
             this.originalState = originalState;
-            this.strippedOriginalState = strippedOriginalState;
         }
 
         public void setDrops(List<ItemStack> drops) {
@@ -270,17 +261,12 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             return originalState;
         }
 
-        public BlockState getStrippedOriginalState() {
-            return strippedOriginalState;
-        }
-
         @Override
         public void saveAdditional(@Nonnull CompoundTag tag)
         {
             super.saveAdditional(tag);
 
             tag.putInt("OriginalState", Block.getId(getOriginalState()));
-            tag.putInt("StrippedOriginalState", Block.getId(getStrippedOriginalState()));
 
             ListTag list = new ListTag();
             drops.stream().map(stack -> stack.save(new CompoundTag()))
@@ -294,11 +280,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             super.load(tag);
 
             int stateId = tag.getInt("OriginalState");
-            int strippedStateId = tag.getInt("StrippedOriginalState");
-            setOriginalState(
-                    stateId > 0 ? Block.stateById(stateId) : Blocks.OAK_LOG.defaultBlockState(),
-                    strippedStateId > 0 ? Block.stateById(strippedStateId) : Blocks.STRIPPED_OAK_LOG.defaultBlockState()
-            );
+            setOriginalState(stateId > 0 ? Block.stateById(stateId) : Blocks.OAK_LOG.defaultBlockState());
 
             ListTag list = tag.getList("Drops", 10);
 
