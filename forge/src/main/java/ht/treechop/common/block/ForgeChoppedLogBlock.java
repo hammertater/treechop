@@ -1,7 +1,11 @@
 package ht.treechop.common.block;
 
+import ht.treechop.common.network.ServerChoppedLogPreparedUpdate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -10,24 +14,31 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.LinkedList;
 
-abstract public class BlockImitator extends Block {
+public class ForgeChoppedLogBlock extends ChoppedLogBlock {
 
-    public BlockImitator(Properties properties) {
+    public ForgeChoppedLogBlock(Properties properties) {
         super(properties);
     }
 
-    abstract public BlockState getImitatedBlockState(BlockGetter level, BlockPos pos);
+    @Override
+    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState blockState) {
+        MyEntity entity = new MyEntity(pos, blockState);
+        return entity;
+    }
 
-    @SuppressWarnings("deprecation")
     @Override
     public float getDestroyProgress(BlockState blockState, Player player, BlockGetter level, BlockPos pos) {
-        return getImitatedBlockState(level, pos).getDestroyProgress(player, level, pos);
+        return (float)Math.min(0.35, getImitatedBlockState(level, pos).getDestroyProgress(player, level, pos));
     }
 
     @Override
@@ -67,11 +78,6 @@ abstract public class BlockImitator extends Block {
     }
 
     @Override
-    public SoundType getSoundType(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
-        return getImitatedBlockState(level, pos).getSoundType(level, pos, entity);
-    }
-
-    @Override
     public int getFlammability(BlockState state, BlockGetter level, BlockPos pos, Direction face) {
         return getImitatedBlockState(level, pos).getFlammability(level, pos, face);
     }
@@ -92,8 +98,26 @@ abstract public class BlockImitator extends Block {
     }
 
     @Override
+    public SoundType getSoundType(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
+        return getImitatedBlockState(level, pos).getSoundType(level, pos, entity);
+    }
+
+    @Override
     public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) {
         return getImitatedBlockState(level, pos).canEntityDestroy(level, pos, entity);
     }
 
+    public static class MyEntity extends ChoppedLogBlock.MyEntity {
+        public MyEntity(BlockPos pos, BlockState blockState) {
+            super(pos, blockState);
+        }
+
+        @Override
+        public void onLoad() {
+            super.onLoad();
+            if (level != null && level.isClientSide()) {
+                ServerChoppedLogPreparedUpdate.update(level, worldPosition);
+            }
+        }
+    }
 }

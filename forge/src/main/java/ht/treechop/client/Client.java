@@ -5,7 +5,7 @@ import ht.treechop.client.gui.screen.ChopIndicator;
 import ht.treechop.client.gui.screen.ClientSettingsScreen;
 import ht.treechop.client.model.ChoppedLogBakedModel;
 import ht.treechop.client.settings.ClientChopSettings;
-import ht.treechop.common.config.ForgeConfigHandler;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ClientRequestSettingsPacket;
 import ht.treechop.common.network.PacketHandler;
 import ht.treechop.common.settings.Permissions;
@@ -35,7 +35,7 @@ public class Client {
     public static void onClientSetup(FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(EventHandler.class);
 
-        if (ForgeConfigHandler.CLIENT.useProceduralChoppedModels.get()) {
+        if (ConfigHandler.CLIENT.useProceduralChoppedModels.get()) {
             IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
             modBus.addListener(ChoppedLogBakedModel::overrideBlockStateModels);
         }
@@ -55,7 +55,7 @@ public class Client {
         @SubscribeEvent
         public static void onConnect(ClientPlayerNetworkEvent.LoggingIn event) {
             TreeChop.LOGGER.info("Sending chop settings sync request");
-            chopSettings.copyFrom(ForgeConfigHandler.CLIENT.getChopSettings());
+            chopSettings.copyFrom(ConfigHandler.CLIENT.getChopSettings());
             PacketHandler.sendToServer(new ClientRequestSettingsPacket(chopSettings));
         }
 
@@ -82,7 +82,7 @@ public class Client {
     }
 
     public static void cycleSneakBehavior() {
-        SneakBehavior newValue = ForgeConfigHandler.CLIENT.showFellingOptions.get()
+        SneakBehavior newValue = ConfigHandler.CLIENT.showFellingOptions.get()
                 ? chopSettings.getSneakBehavior().cycle()
                 : (chopSettings.getSneakBehavior() == SneakBehavior.NONE ? SneakBehavior.INVERT_CHOPPING : SneakBehavior.NONE);
         chopSettings.set(SettingsField.SNEAK_BEHAVIOR, newValue);
@@ -93,11 +93,11 @@ public class Client {
     }
 
     public static void setChoppingIndicatorVisibility(boolean showChoppingIndicator) {
-        ForgeConfigHandler.CLIENT.showChoppingIndicators.set(showChoppingIndicator);
+        ConfigHandler.CLIENT.showChoppingIndicators.set(showChoppingIndicator);
     }
 
     public static boolean isChoppingIndicatorEnabled() {
-        return ForgeConfigHandler.CLIENT.showChoppingIndicators.get();
+        return ConfigHandler.CLIENT.showChoppingIndicators.get();
     }
 
     public static void toggleSettingsOverlay() {

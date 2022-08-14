@@ -2,7 +2,7 @@ package ht.treechop.common.compat;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.ChopEvent;
-import ht.treechop.common.config.ForgeConfigHandler;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.util.TickUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.common.MinecraftForge;
@@ -23,7 +23,7 @@ public class NoChopOnRightClick {
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
-        if (ForgeConfigHandler.COMMON.preventChoppingOnRightClick.get()) {
+        if (ConfigHandler.COMMON.preventChoppingOnRightClick.get()) {
             enable();
         }
     }

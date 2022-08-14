@@ -2,7 +2,7 @@ package ht.treechop.common.compat;
 
 import ht.treechop.TreeChop;
 import ht.treechop.client.Client;
-import ht.treechop.common.block.ChoppedLogBlock;
+import ht.treechop.common.block.ForgeChoppedLogBlock;
 import ht.treechop.common.util.ChopUtil;
 import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.component.*;
@@ -32,7 +32,7 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
         registrar.addConfig(SHOW_TREE_BLOCKS, false);
         registrar.addConfig(SHOW_NUM_CHOPS_REMAINING, true);
         registrar.addComponent(INSTANCE, TooltipPosition.BODY, Block.class);
-        registrar.addOverride(INSTANCE, ChoppedLogBlock.class);
+        registrar.addOverride(INSTANCE, ForgeChoppedLogBlock.class);
     }
 
     @Override
@@ -48,33 +48,35 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
             Level level = accessor.getWorld();
             AtomicInteger numChops = new AtomicInteger(0);
 
-            Set<BlockPos> treeBlocks = ChopUtil.getTreeBlocks(level, accessor.getPosition(), Client.getChopSettings().getTreesMustHaveLeaves());
+            ChopUtil.detectTree(level, accessor.getPosition(), Client.getChopSettings().getTreesMustHaveLeaves()).getLogBlocks().ifPresent(
+                    treeBlocks -> {
 
-            if (config.getBoolean(SHOW_NUM_CHOPS_REMAINING)) {
-                treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
-                tooltip.addLine(new WrappedComponent(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size()))));
-            }
+                        if (config.getBoolean(SHOW_NUM_CHOPS_REMAINING)) {
+                            treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
+                            tooltip.addLine(new WrappedComponent(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size()))));
+                        }
 
-            if (config.getBoolean(SHOW_TREE_BLOCKS)) {
-                LinkedList<ITooltipComponent> tiles = new LinkedList<>();
-                treeBlocks.stream()
-                        .collect(Collectors.groupingBy((BlockPos pos) -> {
-                            BlockState state = level.getBlockState(pos);
-                            return getLogState(level, pos, state).getBlock();
-                        }, Collectors.counting()))
-                        .forEach((block, count) -> {
-                            ItemStack stack = accessor.getBlock().asItem().getDefaultInstance();
-                            stack.setCount(count.intValue());
-                            tiles.add(new ItemComponent(stack));
-                        });
+                        if (config.getBoolean(SHOW_TREE_BLOCKS)) {
+                            LinkedList<ITooltipComponent> tiles = new LinkedList<>();
+                            treeBlocks.stream()
+                                    .collect(Collectors.groupingBy((BlockPos pos) -> {
+                                        BlockState state = level.getBlockState(pos);
+                                        return getLogState(level, pos, state).getBlock();
+                                    }, Collectors.counting()))
+                                    .forEach((block, count) -> {
+                                        ItemStack stack = accessor.getBlock().asItem().getDefaultInstance();
+                                        stack.setCount(count.intValue());
+                                        tiles.add(new ItemComponent(stack));
+                                    });
 
-                tiles.stream().reduce(PairComponent::new).ifPresent(tooltip::addLine);
-            }
+                            tiles.stream().reduce(PairComponent::new).ifPresent(tooltip::addLine);
+                        }
+                    });
         }
     }
 
     private BlockState getLogState(Level level, BlockPos pos, BlockState state) {
-        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.Entity entity) {
+        if (level.getBlockEntity(pos) instanceof ForgeChoppedLogBlock.MyEntity entity) {
             return entity.getOriginalState();
         } else {
             return state;

@@ -2,8 +2,9 @@ package ht.treechop.client.model;
 
 import ht.treechop.TreeChop;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.config.ForgeConfigHandler;
-import ht.treechop.common.init.ModBlocks;
+import ht.treechop.common.block.ForgeChoppedLogBlock;
+import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.registry.ForgeModBlocks;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.properties.ModBlockStateProperties;
 import ht.treechop.common.util.FaceShape;
@@ -59,7 +60,7 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
     }
 
     public static void overrideBlockStateModels(ModelEvent.BakingCompleted event) {
-        for (BlockState blockState : ModBlocks.CHOPPED_LOG.get().getStateDefinition().getPossibleStates()) {
+        for (BlockState blockState : ForgeModBlocks.CHOPPED_LOG.get().getStateDefinition().getPossibleStates()) {
             ModelResourceLocation variantMRL = BlockModelShaper.stateToModelLocation(blockState);
             BakedModel existingModel = event.getModelManager().getModel(variantMRL);
             if (existingModel == null) {
@@ -69,7 +70,7 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
             } else {
                 ChoppedLogBakedModel customModel = new ChoppedLogBakedModel(
                         existingModel,
-                        ForgeConfigHandler.CLIENT.removeBarkOnInteriorLogs.get()
+                        ConfigHandler.CLIENT.removeBarkOnInteriorLogs.get()
                 );
                 event.getModels().put(variantMRL, customModel);
             }
@@ -101,13 +102,13 @@ public class ChoppedLogBakedModel implements IDynamicBakedModel {
                 .filter(direction -> {
                     BlockState blockState = level.getBlockState(pos.relative(direction));
                     Block block = blockState.getBlock();
-                    return blockState.isSolidRender(level, pos) && !(block instanceof ChoppedLogBlock);
+                    return blockState.isSolidRender(level, pos) && !(block instanceof ForgeChoppedLogBlock);
                 })
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)))
                 : Collections.emptySet();
 
         BlockState strippedState;
-        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.Entity entity) {
+        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
             strippedState = entity.getStrippedOriginalState();
         } else {
             strippedState = Blocks.OAK_LOG.defaultBlockState();

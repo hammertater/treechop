@@ -2,7 +2,6 @@ package ht.treechop.common.config.item;
 
 import ht.treechop.TreeChop;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -102,7 +101,7 @@ public abstract class ItemIdentifier {
         return String.format("%s:%s", getNamespace(), getLocalSpace());
     }
 
-    public abstract Stream<Item> resolve(IForgeRegistry<Item> registry);
+    public abstract Stream<Item> resolve();
 
     private static void parsingError(String idString, String message) {
         TreeChop.LOGGER.warn("Configuration issue: failed to parse \"{}\": {} (to silence this warning, find and delete \"{}\" in treechop-common.toml)", idString, message, idString);

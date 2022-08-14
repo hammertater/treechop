@@ -1,7 +1,7 @@
-package ht.treechop.common.init;
+package ht.treechop.common.registry;
 
 import ht.treechop.TreeChop;
-import ht.treechop.common.block.ChoppedLogBlock;
+import ht.treechop.common.block.ForgeChoppedLogBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -11,14 +11,14 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-public class ModBlocks {
+public class ForgeModBlocks {
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, TreeChop.MOD_ID);
     public static final DeferredRegister<BlockEntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, TreeChop.MOD_ID);
 
     // Blocks
     public static final RegistryObject<Block> CHOPPED_LOG = BLOCKS.register("chopped_log",
-            () -> new ChoppedLogBlock(
+            () -> new ForgeChoppedLogBlock(
                     Block.Properties.of(
                             Material.WOOD,
                             MaterialColor.WOOD)
@@ -28,7 +28,7 @@ public class ModBlocks {
     );
 
     // Block entities
-    public static final RegistryObject<BlockEntityType<ChoppedLogBlock.Entity>> CHOPPED_LOG_ENTITY = ENTITIES.register("chopped_log",
-            () -> BlockEntityType.Builder.of(ChoppedLogBlock.Entity::new, ModBlocks.CHOPPED_LOG.get()).build(null)
+    public static final RegistryObject<BlockEntityType<ForgeChoppedLogBlock.MyEntity>> CHOPPED_LOG_ENTITY = ENTITIES.register("chopped_log",
+            () -> BlockEntityType.Builder.of(ForgeChoppedLogBlock.MyEntity::new, CHOPPED_LOG.get()).build(null)
     );
 }

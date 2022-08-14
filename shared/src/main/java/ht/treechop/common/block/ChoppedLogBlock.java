@@ -1,12 +1,11 @@
 package ht.treechop.common.block;
 
+import ht.treechop.TreeChop;
 import ht.treechop.api.IChoppableBlock;
-import ht.treechop.common.config.ForgeConfigHandler;
-import ht.treechop.common.init.ModBlocks;
-import ht.treechop.common.network.PacketHandler;
-import ht.treechop.common.network.ServerChoppedLogPreparedUpdate;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.properties.ModBlockStateProperties;
+import ht.treechop.common.util.AxeAccessor;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,14 +13,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -30,6 +24,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -41,14 +36,9 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.ToolActions;
-import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -60,15 +50,13 @@ import java.util.List;
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
 import static ht.treechop.common.util.ChopUtil.isBlockLeaves;
 
-public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, EntityBlock, SimpleWaterloggedBlock {
+public abstract class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, EntityBlock, SimpleWaterloggedBlock {
 
     public static final IntegerProperty CHOPS = ModBlockStateProperties.CHOP_COUNT;
     public static final EnumProperty<ChoppedLogShape> SHAPE = ModBlockStateProperties.CHOPPED_LOG_SHAPE;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    private final Lazy<ItemStack> strippingTool = Items.IRON_AXE::getDefaultInstance;
 
-
-    public ChoppedLogBlock(Properties properties) {
+    public ChoppedLogBlock(BlockBehaviour.Properties properties) {
         super(properties
                 .dynamicShape()
                 .isViewBlocking((BlockState blockState, BlockGetter level, BlockPos pos) -> false));
@@ -78,15 +66,6 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
                         .setValue(SHAPE, ChoppedLogShape.PILLAR_Y)
                         .setValue(WATERLOGGED, Boolean.FALSE)
         );
-    }
-
-    @Override
-    public BlockState getImitatedBlockState(BlockGetter level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof Entity entity) {
-            return entity.getOriginalState();
-        } else {
-            return Blocks.OAK_LOG.defaultBlockState();
-        }
     }
 
     public static ChoppedLogShape getPlacementShape(Level level, BlockPos blockPos) {
@@ -99,14 +78,22 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
 
         byte openSides = (byte) (
                 (isBlockOpen(level, blockPos.below()) ? DOWN : 0)
-                | (!isBlockALog(level, blockPos.above()) ? UP : 0)
-                | (!isBlockALog(level, blockPos.north()) ? NORTH : 0)
-                | (!isBlockALog(level, blockPos.south()) ? SOUTH : 0)
-                | (!isBlockALog(level, blockPos.west()) ? WEST : 0)
-                | (!isBlockALog(level, blockPos.east()) ? EAST : 0)
+                        | (!isBlockALog(level, blockPos.above()) ? UP : 0)
+                        | (!isBlockALog(level, blockPos.north()) ? NORTH : 0)
+                        | (!isBlockALog(level, blockPos.south()) ? SOUTH : 0)
+                        | (!isBlockALog(level, blockPos.west()) ? WEST : 0)
+                        | (!isBlockALog(level, blockPos.east()) ? EAST : 0)
         );
 
         return ChoppedLogShape.forOpenSides(openSides);
+    }
+
+    public BlockState getImitatedBlockState(BlockGetter level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof MyEntity entity) {
+            return entity.getOriginalState();
+        } else {
+            return Blocks.OAK_LOG.defaultBlockState();
+        }
     }
 
     private static boolean isBlockOpen(Level level, BlockPos pos) {
@@ -158,11 +145,6 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
     }
 
     @Override
-    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState blockState) {
-        return new Entity(pos, blockState);
-    }
-
-    @Override
     public void chop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState, int numChops, boolean felling) {
         int currentNumChops = (blockState.is(this)) ? getNumChops(level, pos, blockState) : 0;
         int newNumChops = Math.min(currentNumChops + numChops, ChopUtil.getMaxNumChops(level, pos, blockState));
@@ -181,14 +163,15 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
                         .setValue(CHOPS, newNumChops);
 
                 if (level.setBlockAndUpdate(pos, newBlockState)) {
-                    if (!blockState.is(this) && level.getBlockEntity(pos) instanceof Entity entity && level instanceof ServerLevel serverLevel) {
-                        BlockState strippedBlockState = blockState.getToolModifiedState(new UseOnContext(level, player, InteractionHand.MAIN_HAND, strippingTool.get(), new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, true)), ToolActions.AXE_STRIP, true);
+                    if (!blockState.is(this) && level.getBlockEntity(pos) instanceof MyEntity entity && level instanceof ServerLevel serverLevel) {
+                        BlockState strippedBlockState = AxeAccessor.getStripped(blockState);
 
                         if (strippedBlockState == null) {
-                            if (AxeAccessor.isStrippedLog(blockState.getBlock())) {
+                            if (AxeAccessor.isStripped(blockState.getBlock())) {
                                 strippedBlockState = blockState;
                             } else {
-                                strippedBlockState = Blocks.STRIPPED_OAK_LOG.defaultBlockState();
+                                strippedBlockState = ConfigHandler.inferredStrippedStates.get()
+                                        .getOrDefault(blockState.getBlock(), blockState.getBlock().defaultBlockState());
                             }
                         }
 
@@ -205,7 +188,7 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
                     }
                 }
             } else {
-                level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+                level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
             }
         }
     }
@@ -221,7 +204,6 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
                 .setValue(SHAPE, getPlacementShape(level, pos))
                 .setValue(WATERLOGGED, shouldPlaceAsWaterlogged(level, pos));
     }
-
 
     private boolean shouldPlaceAsWaterlogged(Level level, BlockPos pos) {
         final Direction[] waterSourceDirections = {
@@ -251,14 +233,14 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
     }
 
     public boolean propagatesSkylightDown(BlockState blockState, BlockGetter level, BlockPos pos) {
-        return !blockState.getValue(WATERLOGGED) && getImitatedBlockState(level, pos).propagatesSkylightDown(level, pos);
+        return !blockState.getValue(WATERLOGGED) && super.propagatesSkylightDown(blockState, level, pos);
     }
 
     @SuppressWarnings("deprecation")
     @Nonnull
     @Override
     public List<ItemStack> getDrops(@Nonnull BlockState blockState, LootContext.Builder context) {
-        if (ForgeConfigHandler.COMMON.dropLootForChoppedBlocks.get() && context.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof Entity entity) {
+        if (ConfigHandler.COMMON.dropLootForChoppedBlocks.get() && context.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof MyEntity entity) {
             return entity.drops;
         } else {
             return Collections.emptyList();
@@ -270,22 +252,14 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
         return (float)Math.min(0.35, getImitatedBlockState(level, pos).getDestroyProgress(player, level, pos));
     }
 
-    public static class Entity extends BlockEntity {
+    public static abstract class MyEntity extends BlockEntity {
 
-        private BlockState originalState = Blocks.OAK_LOG.defaultBlockState();
-        private BlockState strippedOriginalState = Blocks.STRIPPED_OAK_LOG.defaultBlockState();
-        private List<ItemStack> drops = Collections.emptyList();
+        protected BlockState originalState = Blocks.OAK_LOG.defaultBlockState();
+        protected BlockState strippedOriginalState = Blocks.STRIPPED_OAK_LOG.defaultBlockState();
+        protected List<ItemStack> drops = Collections.emptyList();
 
-        public Entity(BlockPos pos, BlockState blockState) {
-            super(ModBlocks.CHOPPED_LOG_ENTITY.get(), pos, blockState);
-        }
-
-        @Override
-        public void onLoad() {
-            super.onLoad();
-            if (level.isClientSide()) {
-                ServerChoppedLogPreparedUpdate.update(level, worldPosition);
-            }
+        public MyEntity(BlockPos pos, BlockState blockState) {
+            super(TreeChop.platform.getChoppedLogBlockEntity(), pos, blockState);
         }
 
         public void setOriginalState(BlockState originalState, BlockState strippedOriginalState) {
@@ -353,13 +327,4 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, E
         }
     }
 
-    private abstract static class AxeAccessor extends AxeItem {
-        public AxeAccessor(Tier p_40521_, float p_40522_, float p_40523_, Properties p_40524_) {
-            super(p_40521_, p_40522_, p_40523_, p_40524_);
-        }
-
-        public static boolean isStrippedLog(Block block) {
-            return STRIPPABLES.containsValue(block);
-        }
-    }
 }

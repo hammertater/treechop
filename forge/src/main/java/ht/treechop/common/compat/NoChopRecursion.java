@@ -2,7 +2,7 @@ package ht.treechop.common.compat;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.ChopEvent;
-import ht.treechop.common.config.ForgeConfigHandler;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.util.TickUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
@@ -20,7 +20,7 @@ public class NoChopRecursion {
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
-        if (ForgeConfigHandler.COMMON.preventChopRecursion.get()) {
+        if (ConfigHandler.COMMON.preventChopRecursion.get()) {
             MinecraftForge.EVENT_BUS.register(NoChopRecursion.EventHandler.class);
         }
     }

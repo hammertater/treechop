@@ -1,6 +1,6 @@
 package ht.treechop.common.network;
 
-import ht.treechop.common.block.ChoppedLogBlock;
+import ht.treechop.common.block.ForgeChoppedLogBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -48,7 +48,7 @@ public class ServerChoppedLogPreparedUpdate {
 
     public static void update(Level level, BlockPos pos) {
         CompoundTag updateTag = pendingUpdates.get(pos);
-        if (level != null && updateTag != null && level.getBlockEntity(pos) instanceof ChoppedLogBlock.Entity entity) {
+        if (level != null && updateTag != null && level.getBlockEntity(pos) instanceof ForgeChoppedLogBlock.MyEntity entity) {
             entity.handleUpdateTag(updateTag);
             level.setBlocksDirty(pos, Blocks.AIR.defaultBlockState(), level.getBlockState(pos));
         }

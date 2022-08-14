@@ -1,7 +1,7 @@
 package ht.treechop.common.network;
 
 import ht.treechop.TreeChop;
-import ht.treechop.common.config.ForgeConfigHandler;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.Setting;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -36,7 +36,7 @@ public class ConfirmedSetting extends Setting {
                 if (Minecraft.getInstance().screen == null) {
                     String fieldName = setting.getField().getFancyName();
                     String valueName = setting.getField().getValueName(setting.getValue());
-                    if (ForgeConfigHandler.CLIENT.showFeedbackMessages.get()) {
+                    if (ConfigHandler.CLIENT.showFeedbackMessages.get()) {
                         TreeChop.showText(String.format(
                                 "%s %s",
                                 fieldName,
@@ -52,7 +52,7 @@ public class ConfirmedSetting extends Setting {
                 if (Minecraft.getInstance().screen == null) {
                     String fieldName = setting.getField().getFancyName();
                     String valueName = setting.getField().getValueName(setting.getValue());
-                    if (ForgeConfigHandler.CLIENT.showFeedbackMessages.get()) {
+                    if (ConfigHandler.CLIENT.showFeedbackMessages.get()) {
                         TreeChop.showText(String.format(
                                 "%s %s %s(%s)",
                                 fieldName,

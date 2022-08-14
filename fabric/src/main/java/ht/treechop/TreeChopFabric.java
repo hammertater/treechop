@@ -2,6 +2,7 @@ package ht.treechop;
 
 import ht.treechop.common.Common;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 
 public class TreeChopFabric extends TreeChop implements ModInitializer {

@@ -11,15 +11,15 @@ public enum ChopCountingAlgorithm implements StringRepresentable {
     LINEAR(
             numBlocks -> {
                 double x = (double) numBlocks;
-                double m = ConfigHandler.get().getLinearM();
-                double b = ConfigHandler.get().getLinearB();
+                double m = ConfigHandler.COMMON.linearM.get();
+                double b = ConfigHandler.COMMON.linearB.get();
                 return m * x + b;
             }
     ),
     LOGARITHMIC(
             numBlocks -> {
                 double x = (double) numBlocks;
-                double a = ConfigHandler.get().getLogarithmicA();
+                double a = ConfigHandler.COMMON.logarithmicA.get();
                 return 1 + a * log(1 + (x - 1) / a);
             }
     );
@@ -34,9 +34,9 @@ public enum ChopCountingAlgorithm implements StringRepresentable {
         if (numBlocks == 1) {
             return 1;
         } else {
-            Rounder rounder = ConfigHandler.get().getChopCountRounding();
+            Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
             int unboundedCount = Math.max(1, rounder.round(preciseCalculation.apply(numBlocks)));
-            return ConfigHandler.get().canRequireMoreChopsThanBlocks()
+            return ConfigHandler.COMMON.canRequireMoreChopsThanBlocks.get()
                     ? unboundedCount
                     : Math.min(numBlocks, unboundedCount);
         }
