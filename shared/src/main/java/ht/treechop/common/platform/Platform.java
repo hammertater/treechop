@@ -19,8 +19,6 @@ import java.util.Optional;
 
 public interface Platform {
 
-    void onDestroyItem(Player agent, ItemStack mockItemStack, InteractionHand mainHand);
-
     boolean onStartBlockBreak(Player player, ItemStack tool, BlockPos blockPos);
 
     Optional<ChopSettings> getPlayerChopSettings(Player player);
@@ -29,11 +27,13 @@ public interface Platform {
 
     boolean startChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData);
 
-    boolean finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData);
+    void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData);
 
     Block getChoppedLogBlock();
 
     BlockEntityType<?> getChoppedLogBlockEntity();
 
     void sendClientSettingsRequest(SettingsField field, Object value);
+
+    boolean doItemDamage(ItemStack tool, ServerLevel level, BlockState blockState, BlockPos pos, ServerPlayer agent);
 }

@@ -10,7 +10,6 @@ import ht.treechop.common.registry.ForgeModBlocks;
 import ht.treechop.common.util.AxeAccessor;
 import ht.treechop.common.util.FaceShape;
 import ht.treechop.common.util.Vector3;
-import mcp.mobius.waila.api.IEntityAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockModelShaper;

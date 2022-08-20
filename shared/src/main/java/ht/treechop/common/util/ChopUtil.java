@@ -470,7 +470,7 @@ public class ChopUtil {
         if (chopResult != ChopResult.IGNORED) {
             if (chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get())) {
                 if (!agent.isCreative()) {
-                    ChopUtil.doItemDamage(tool, level, blockState, pos, agent);
+                    TreeChop.platform.doItemDamage(tool, level, blockState, pos, agent);
                 }
                 TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData);
                 return true;

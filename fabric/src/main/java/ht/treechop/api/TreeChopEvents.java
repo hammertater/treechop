@@ -3,21 +3,18 @@ package ht.treechop.api;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class TreeChopEvents {
     private TreeChopEvents() { }
 
     public static final Event<BeforeChop> BEFORE_CHOP = EventFactory.createArrayBacked(BeforeChop.class,
             (listeners) -> (world, player, pos, state, chopData) -> {
-                for (BeforeChop event : listeners) {
-                    boolean result = event.beforeChop(world, player, pos, state, chopData);
-
-                    if (!result) {
+                for (BeforeChop listener : listeners) {
+                    if (!listener.beforeChop(world, player, pos, state, chopData)) {
                         return false;
                     }
                 }
@@ -35,10 +32,13 @@ public final class TreeChopEvents {
     );
 
     public static final Event<DetectTree> DETECT_TREE = EventFactory.createArrayBacked(DetectTree.class,
-            (listeners) -> (world, player, pos, state, hasLeaves, overrideHasLeaves) -> {
-                for (DetectTree event : listeners) {
-                    event.onDetectTree(world, player, pos, state, hasLeaves, overrideHasLeaves);
+            (listeners) -> (world, player, pos, state, overrideHasLeaves) -> {
+                for (DetectTree listener : listeners) {
+                    if (!listener.onDetectTree(world, player, pos, state, overrideHasLeaves)) {
+                        return false;
+                    }
                 }
+                return true;
             }
     );
 
@@ -63,6 +63,6 @@ public final class TreeChopEvents {
 
     @FunctionalInterface
     public interface DetectTree {
-        void onDetectTree(Level world, Player player, BlockPos pos, BlockState state, AtomicBoolean hasLeaves, AtomicBoolean overrideHasLeaves);
+        boolean onDetectTree(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, boolean overrideLeaves);
     }
 }

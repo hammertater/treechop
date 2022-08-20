@@ -1,5 +1,6 @@
 package ht.treechop.common;
 
+import ht.treechop.TreeChop;
 import ht.treechop.api.ChopData;
 import ht.treechop.api.ChopEvent;
 import ht.treechop.api.TreeData;
@@ -26,11 +27,6 @@ import net.minecraftforge.event.ForgeEventFactory;
 import java.util.Optional;
 
 public class ForgePlatform implements Platform {
-
-    @Override
-    public void onDestroyItem(Player agent, ItemStack itemStack, InteractionHand mainHand) {
-        ForgeEventFactory.onPlayerDestroyItem(agent, itemStack, mainHand);
-    }
 
     @Override
     public boolean onStartBlockBreak(Player player, ItemStack tool, BlockPos blockPos) {
@@ -67,17 +63,13 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public boolean finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData) {
-        ChopEvent.StartChopEvent startChopEvent = new ChopEvent.StartChopEvent(
+    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData) {
+        MinecraftForge.EVENT_BUS.post(new ChopEvent.FinishChopEvent(
                 level,
                 agent,
                 pos,
-                blockState,
-                chopData
-        );
-
-        boolean canceled = MinecraftForge.EVENT_BUS.post(startChopEvent);
-        return !canceled;
+                blockState
+        ));
     }
 
     @Override
@@ -93,5 +85,17 @@ public class ForgePlatform implements Platform {
     @Override
     public void sendClientSettingsRequest(SettingsField field, Object value) {
         PacketHandler.sendToServer(new ClientRequestSettingsPacket(field, value));
+    }
+
+    @Override
+    public boolean doItemDamage(ItemStack stack, ServerLevel level, BlockState blockState, BlockPos pos, ServerPlayer agent) {
+        ItemStack mockItemStack = stack.copy();
+        stack.mineBlock(level, blockState, pos, agent);
+        if (stack.isEmpty() && !mockItemStack.isEmpty()) {
+            ForgeEventFactory.onPlayerDestroyItem(agent, stack, InteractionHand.MAIN_HAND);
+            return true;
+        } else {
+            return false;
+        }
     }
 }
