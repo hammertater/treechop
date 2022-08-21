@@ -4,7 +4,6 @@ import ht.treechop.TreeChop;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.properties.ChoppedLogShape;
-import ht.treechop.common.properties.ModBlockStateProperties;
 import ht.treechop.common.util.FaceShape;
 import ht.treechop.common.util.Vector3;
 import net.minecraft.client.Minecraft;
@@ -18,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.tuple.Triple;
@@ -28,30 +28,6 @@ import java.util.stream.Stream;
 
 public abstract class ChoppedLogBakedModel {
     protected final ResourceLocation defaultTextureRL = new ResourceLocation(TreeChop.MOD_ID, "block/chopped_log");
-
-    public Set<Direction> getSolidSides(BlockGetter level, BlockPos pos, BlockState state) {
-        if (!state.hasProperty(ModBlockStateProperties.CHOPPED_LOG_SHAPE) || !state.hasProperty(ModBlockStateProperties.CHOP_COUNT)) {
-            throw new IllegalArgumentException(
-                    String.format("Could not bake chopped log model; block state %s is missing \"%s\" or \"%s\"",
-                            state,
-                            ModBlockStateProperties.CHOPPED_LOG_SHAPE.getName(),
-                            ModBlockStateProperties.CHOP_COUNT.getName()
-                    )
-            );
-        }
-
-        ChoppedLogShape shape = state.getValue(ModBlockStateProperties.CHOPPED_LOG_SHAPE);
-        return ConfigHandler.removeBarkOnInteriorLogs.get()
-                ? Arrays.stream(Direction.values())
-                .filter(direction -> direction.getAxis().isHorizontal() && !shape.isSideOpen(direction))
-                .filter(direction -> {
-                    BlockState blockState = level.getBlockState(pos.relative(direction));
-                    Block block = blockState.getBlock();
-                    return blockState.isSolidRender(level, pos) && !(block instanceof ChoppedLogBlock);
-                })
-                .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)))
-                : Collections.emptySet();
-    }
 
     protected TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, RandomSource rand) {
         ModelResourceLocation modelLocation = BlockModelShaper.stateToModelLocation(blockState);

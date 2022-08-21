@@ -1,15 +1,17 @@
 package ht.treechop.common.network;
 
-import ht.treechop.client.ForgeClient;
+import ht.treechop.TreeChop;
+import ht.treechop.client.Client;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ServerConfirmSettingsPacket {
-
+public class ServerConfirmSettingsPacket implements CustomPacket {
+    private static final ResourceLocation id = TreeChop.resource("server_confirm_settings");
     private final List<ConfirmedSetting> settings;
 
     public ServerConfirmSettingsPacket(final List<ConfirmedSetting> settings) {
@@ -35,8 +37,12 @@ public class ServerConfirmSettingsPacket {
     }
 
     private static void processSingleSetting(ConfirmedSetting setting) {
-        ForgeClient.getChopSettings().accept(setting.getField(), setting.getValue());
+        Client.getChopSettings().accept(setting.getField(), setting.getValue());
         setting.event.run(setting);
     }
 
+    @Override
+    public ResourceLocation getId() {
+        return id;
+    }
 }

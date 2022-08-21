@@ -1,31 +1,24 @@
 package ht.treechop.server;
 
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class Server {
 
-    private static final Permissions permissions = new Permissions();
     private static final ChopSettings defaultPlayerSettings = new ChopSettings();
-
-    public static Permissions getPermissions() {
-        return permissions;
-    }
 
     public static ChopSettings getDefaultPlayerSettings() {
         return defaultPlayerSettings;
     }
 
-    public static void updatePermissions(Permissions permissions) {
-        Server.permissions.copy(permissions);
-        updateDefaultPlayerSettings();
-    }
-
-    private static void updateDefaultPlayerSettings() {
+    public static void updateDefaultPlayerSettings() {
         Arrays.stream(SettingsField.values())
                 .map(Server::getDefaultPlayerSetting)
                 .forEach(defaultPlayerSettings::set);
@@ -33,6 +26,7 @@ public class Server {
 
     private static Setting getDefaultPlayerSetting(SettingsField field) {
         Setting defaultSettingIgnoringPermissions = new Setting(field, field.getDefaultValue());
+        Permissions permissions = getPermissions();
         if (permissions.isPermitted(defaultSettingIgnoringPermissions)) {
             return defaultSettingIgnoringPermissions;
         } else {
@@ -44,4 +38,7 @@ public class Server {
         }
     }
 
+    public static Permissions getPermissions() {
+        return new Permissions(ConfigHandler.getServerPermissions());
+    }
 }

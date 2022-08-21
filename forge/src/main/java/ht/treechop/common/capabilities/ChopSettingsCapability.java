@@ -1,7 +1,7 @@
 package ht.treechop.common.capabilities;
 
 import ht.treechop.TreeChop;
-import ht.treechop.common.settings.ChopSettings;
+import ht.treechop.common.settings.EntityChopSettings;
 import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -14,21 +14,12 @@ import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.Optional;
 
-public class ChopSettingsCapability extends ChopSettings implements INBTSerializable<CompoundTag> {
+public class ChopSettingsCapability extends EntityChopSettings implements INBTSerializable<CompoundTag> {
 
     public static final Capability<ChopSettingsCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
 
-    private boolean isSynced = false;
 
     public ChopSettingsCapability() {
-    }
-
-    public boolean isSynced() {
-        return isSynced;
-    }
-
-    public void setSynced() {
-        this.isSynced = true;
     }
 
     public static LazyOptional<ChopSettingsCapability> forPlayer(Player player) {
@@ -39,13 +30,6 @@ public class ChopSettingsCapability extends ChopSettings implements INBTSerializ
 
         return player.getCapability(CAPABILITY);
     }
-
-    private static final String CHOPPING_ENABLED_KEY = "choppingEnabled";
-    private static final String FELLING_ENABLED_KEY = "fellingEnabled";
-    private static final String SNEAK_BEHAVIOR_KEY = "sneakBehavior";
-    private static final String TREES_MUST_HAVE_LEAVES_KEY = "treesMustHaveLeaves";
-    private static final String CHOP_IN_CREATIVE_MODE_KEY = "chopInCreativeMode";
-    private static final String IS_SYNCED_KEY = "isSynced";
 
     @Override
     public CompoundTag serializeNBT() {
@@ -87,12 +71,6 @@ public class ChopSettingsCapability extends ChopSettings implements INBTSerializ
         } else {
             TreeChop.LOGGER.warn("Failed to read ChopSettingsCapability NBT");
         }
-    }
-
-    private Optional<Boolean> getBoolean(CompoundTag CompoundTag, String key) {
-        return (CompoundTag.contains(key))
-                ? Optional.of(CompoundTag.getBoolean(key))
-                : Optional.empty();
     }
 
 }

@@ -9,7 +9,6 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class ConfirmedSetting extends Setting {
-
     protected final Event event;
 
     public ConfirmedSetting(Setting setting, Event event) {

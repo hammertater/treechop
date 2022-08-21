@@ -4,7 +4,7 @@ import ht.treechop.api.ChopData;
 import ht.treechop.api.TreeChopEvents;
 import ht.treechop.api.TreeData;
 import ht.treechop.common.registry.FabricModBlocks;
-import ht.treechop.common.settings.ChopSettings;
+import ht.treechop.common.settings.EntityChopSettings;
 import ht.treechop.common.settings.SettingsField;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.core.BlockPos;
@@ -29,7 +29,7 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public Optional<ChopSettings> getPlayerChopSettings(Player player) {
+    public Optional<EntityChopSettings> getPlayerChopSettings(Player player) {
         return Optional.empty();
     }
 

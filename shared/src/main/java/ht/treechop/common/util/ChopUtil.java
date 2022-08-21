@@ -10,6 +10,7 @@ import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.events.EventHandler;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.common.settings.ChopSettings;
+import ht.treechop.common.settings.EntityChopSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -417,9 +418,9 @@ public class ChopUtil {
         return chopSettings.getFellingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeFellBehavior(player);
     }
 
-    public static ChopSettings getPlayerChopSettings(Player player) {
-        Optional<ChopSettings> playerSettings = TreeChop.platform.getPlayerChopSettings(player);
-        return playerSettings.orElse(ConfigHandler.fakePlayerChopSettings);
+    public static EntityChopSettings getPlayerChopSettings(Player player) {
+        Optional<EntityChopSettings> playerSettings = TreeChop.platform.getPlayerChopSettings(player);
+        return playerSettings.orElse(ConfigHandler.fakePlayerChopSettings.get());
     }
 
     public static void doItemDamage(ItemStack itemStack, Level level, BlockState blockState, BlockPos blockPos, Player agent) {
@@ -478,13 +479,6 @@ public class ChopUtil {
         }
 
         return false;
-    }
-
-    public static BlockState getStrippedState(BlockGetter level, BlockPos pos, BlockState state) {
-        BlockState stateToStrip = (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity)
-                ? entity.getOriginalState()
-                : state;
-        return getStrippedState(stateToStrip);
     }
 
     public static BlockState getStrippedState(BlockState state) {

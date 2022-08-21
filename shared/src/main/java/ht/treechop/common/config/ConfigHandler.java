@@ -27,7 +27,15 @@ import java.util.stream.Stream;
 
 public class ConfigHandler {
 
-    public final static ChopSettings fakePlayerChopSettings = new ChopSettings();
+    public final static Lazy<EntityChopSettings> fakePlayerChopSettings = new Lazy<>(
+            () -> new EntityChopSettings() {
+                @Override
+                public boolean isSynced() {
+                    return true;
+                }
+            }
+    );
+
     public static Lazy<Boolean> removeBarkOnInteriorLogs = new Lazy<>(() -> {
         try {
             return ConfigHandler.CLIENT.removeBarkOnInteriorLogs.get();
@@ -36,30 +44,20 @@ public class ConfigHandler {
             return false;
         }}
     );
+
     public static Lazy<Map<Block, BlockState>> inferredStrippedStates = new Lazy<>(ConfigHandler::inferStrippedStates);
 
     public static void onReload() {
-        COMMON.fakePlayerChopSettings.reset();
+        fakePlayerChopSettings.reset();
         removeBarkOnInteriorLogs.reset();
         inferredStrippedStates.reset();
-        updatePermissions();
+        Server.updateDefaultPlayerSettings();
         updateTags();
     }
 
     public static void updateTags() {
         COMMON.itemsBlacklist.reset();
         COMMON.itemOverrides.reset();
-    }
-
-    private static void updatePermissions() {
-        Set<Setting> permittedSettings = COMMON.rawPermissions.stream()
-                .filter(settingAndConfig -> settingAndConfig.getRight().get())
-                .map(Pair::getLeft)
-                .collect(Collectors.toSet());
-
-        Permissions permissions = new Permissions(permittedSettings);
-
-        Server.updatePermissions(permissions);
     }
 
     @NotNull
@@ -165,6 +163,13 @@ public class ConfigHandler {
         } else {
             return COMMON.itemsBlacklist.get().contains(item);
         }
+    }
+
+    public static Collection<Setting> getServerPermissions() {
+        return ConfigHandler.COMMON.rawPermissions.stream()
+                .filter(settingAndConfig -> settingAndConfig.getRight().get())
+                .map(Pair::getLeft)
+                .collect(Collectors.toSet());
     }
 
     public static class Common {

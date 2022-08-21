@@ -1,12 +1,14 @@
 package ht.treechop.common.network;
 
+import ht.treechop.TreeChop;
 import ht.treechop.client.settings.ClientChopSettings;
-import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.settings.ChopSettings;
+import ht.treechop.common.settings.EntityChopSettings;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.server.Server;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -15,8 +17,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ClientRequestSettingsPacket {
-
+public class ClientRequestSettingsPacket implements CustomPacket {
+    private static final ResourceLocation id = TreeChop.resource("client_request_settings");
     private final List<Setting> settings;
     private final Event event;
 
@@ -54,26 +56,26 @@ public class ClientRequestSettingsPacket {
     }
 
     private static <T> void processSettingsRequest(ClientRequestSettingsPacket message, ServerPlayer player) {
-        ChopSettingsCapability.forPlayer(player).ifPresent(capability -> processSettingsRequest(capability, message, player));
+        TreeChop.platform.getPlayerChopSettings(player).ifPresent(chopSettings -> processSettingsRequest(chopSettings, message, player));
     }
 
-    private static void processSettingsRequest(ChopSettingsCapability capability, ClientRequestSettingsPacket message, ServerPlayer player) {
-        List<Setting> settings = (message.event == Event.FIRST_TIME_SYNC && capability.isSynced())
-                ? capability.getAll()
+    private static void processSettingsRequest(EntityChopSettings chopSettings, ClientRequestSettingsPacket message, ServerPlayer player) {
+        List<Setting> settings = (message.event == Event.FIRST_TIME_SYNC && chopSettings.isSynced())
+                ? chopSettings.getAll()
                 : message.settings;
 
         List<ConfirmedSetting> confirmedSettings = settings.stream()
-                .map(setting -> processSingleSettingRequest(setting, player, capability, message.event))
+                .map(setting -> processSingleSettingRequest(setting, player, chopSettings, message.event))
                 .collect(Collectors.toList());;
 
-        PacketHandler.sendTo(player, new ServerConfirmSettingsPacket(confirmedSettings));
+        TreeChop.platform.sendTo(player, new ServerConfirmSettingsPacket(confirmedSettings));
 
         if (message.event == Event.FIRST_TIME_SYNC) {
-            if (!capability.isSynced()) {
-                capability.setSynced();
+            if (!chopSettings.isSynced()) {
+                chopSettings.setSynced();
             }
 
-            PacketHandler.sendTo(player, new ServerPermissionsPacket(Server.getPermissions()));
+            TreeChop.platform.sendTo(player, new ServerPermissionsPacket(Server.getPermissions()));
         }
     }
 
@@ -102,6 +104,11 @@ public class ClientRequestSettingsPacket {
 
     private static boolean playerHasPermission(Player player, Setting setting) {
         return Server.getPermissions().isPermitted(setting);
+    }
+
+    @Override
+    public ResourceLocation getId() {
+        return id;
     }
 
     private enum Event {

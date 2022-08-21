@@ -4,7 +4,6 @@ import ht.treechop.TreeChop;
 import ht.treechop.api.IChoppableBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.properties.ChoppedLogShape;
-import ht.treechop.common.properties.ModBlockStateProperties;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,8 +27,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -51,8 +48,6 @@ import static ht.treechop.common.util.ChopUtil.isBlockLeaves;
 
 public abstract class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, EntityBlock, SimpleWaterloggedBlock {
 
-    public static final IntegerProperty CHOPS = ModBlockStateProperties.CHOP_COUNT;
-    public static final EnumProperty<ChoppedLogShape> SHAPE = ModBlockStateProperties.CHOPPED_LOG_SHAPE;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public ChoppedLogBlock(BlockBehaviour.Properties properties) {
@@ -61,8 +56,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                 .isViewBlocking((BlockState blockState, BlockGetter level, BlockPos pos) -> false));
         this.registerDefaultState(
                 this.getStateDefinition().any()
-                        .setValue(CHOPS, 1)
-                        .setValue(SHAPE, ChoppedLogShape.PILLAR_Y)
                         .setValue(WATERLOGGED, Boolean.FALSE)
         );
     }
@@ -103,18 +96,32 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     @Nonnull
     @Override
     public VoxelShape getShape(BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
-        double scale = 1.0 / 16.0;
-        int chops = state.getValue(CHOPS);
-        AABB box = state.getValue(SHAPE).getBoundingBox(chops);
-        return Shapes.box(
-                box.minX * scale,
-                box.minY * scale,
-                box.minZ * scale,
-                box.maxX * scale,
-                box.maxY * scale,
-                box.maxZ * scale
-        );
+        final double scale = 1.0 / 16.0;
+        if (level.getBlockEntity(pos) instanceof MyEntity entity) {
+            AABB box = entity.getShape().getBoundingBox(entity.getChops());
+            return Shapes.box(
+                    box.minX * scale,
+                    box.minY * scale,
+                    box.minZ * scale,
+                    box.maxX * scale,
+                    box.maxY * scale,
+                    box.maxZ * scale
+            );
+        } else {
+            return Shapes.block();
+        }
     }
+
+    @Override
+    public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
+            return entity.getShape().getOcclusionShape();
+        } else {
+            return Shapes.block();
+        }
+    }
+
+
 
     @Override
     public boolean useShapeForLightOcclusion(BlockState blockState) {
@@ -123,12 +130,12 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(CHOPS, SHAPE, WATERLOGGED);
+        builder.add(WATERLOGGED);
     }
 
     @Override
     public int getNumChops(BlockGetter level, BlockPos pos, BlockState blockState) {
-        return (blockState.is(this)) ? blockState.getValue(CHOPS) : 0;
+        return (level.getBlockEntity(pos) instanceof MyEntity entity) ? entity.getChops() : 0;
     }
 
     @Override
@@ -151,19 +158,25 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
         if (!felling) {
             if (numAddedChops > 0) {
-                BlockState newBlockState = (blockState.is(this) ? blockState : getPlacementState(level, pos))
-                        .setValue(CHOPS, newNumChops);
-
-                if (level.setBlockAndUpdate(pos, newBlockState)) {
-                    if (!blockState.is(this) && level.getBlockEntity(pos) instanceof MyEntity entity && level instanceof ServerLevel serverLevel) {
+                if (!blockState.is(this)) {
+                    BlockState newBlockState = (blockState.is(this) ? blockState : getPlacementState(level, pos));
+                    if (level.setBlockAndUpdate(pos, newBlockState)
+                            && level.getBlockEntity(pos) instanceof MyEntity entity
+                            && level instanceof ServerLevel serverLevel) {
+                        entity.setShape(getPlacementShape(level, pos));
                         entity.setOriginalState(blockState);
                         List<ItemStack> drops = Block.getDrops(blockState, serverLevel, pos, entity, player, tool);
                         entity.setDrops(drops);
-                        entity.setChanged();
                     }
                 }
+
+                if (level.getBlockEntity(pos) instanceof MyEntity entity) {
+                    entity.setChops(newNumChops);
+                    entity.setChanged();
+
+                }
             } else {
-                level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+                level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
             }
         }
     }
@@ -176,7 +189,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
     private BlockState getPlacementState(Level level, BlockPos pos) {
         return defaultBlockState()
-                .setValue(SHAPE, getPlacementShape(level, pos))
                 .setValue(WATERLOGGED, shouldPlaceAsWaterlogged(level, pos));
     }
 
@@ -231,9 +243,19 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
         protected BlockState originalState = Blocks.OAK_LOG.defaultBlockState();
         protected List<ItemStack> drops = Collections.emptyList();
+        private ChoppedLogShape shape = ChoppedLogShape.PILLAR_Y;
+        private int chops = 1;
 
         public MyEntity(BlockPos pos, BlockState blockState) {
             super(TreeChop.platform.getChoppedLogBlockEntity(), pos, blockState);
+        }
+
+        public void setChops(int chops) {
+            this.chops = chops;
+        }
+
+        public void setShape(ChoppedLogShape shape) {
+            this.shape = shape;
         }
 
         public void setOriginalState(BlockState originalState) {
@@ -242,6 +264,14 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
         public void setDrops(List<ItemStack> drops) {
             this.drops = drops;
+        }
+
+        public int getChops() {
+            return chops;
+        }
+
+        public ChoppedLogShape getShape() {
+            return shape;
         }
 
         public BlockState getOriginalState() {
@@ -254,6 +284,8 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             super.saveAdditional(tag);
 
             tag.putInt("OriginalState", Block.getId(getOriginalState()));
+            tag.putInt("Chops", getChops());
+            tag.putInt("Shape", getShape().ordinal());
 
             ListTag list = new ListTag();
             drops.stream().map(stack -> stack.save(new CompoundTag()))
@@ -268,6 +300,9 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
             int stateId = tag.getInt("OriginalState");
             setOriginalState(stateId > 0 ? Block.stateById(stateId) : Blocks.OAK_LOG.defaultBlockState());
+
+            setChops(tag.getInt("Chops"));
+            setShape(ChoppedLogShape.values()[tag.getInt("Shape")]);
 
             ListTag list = tag.getList("Drops", 10);
 

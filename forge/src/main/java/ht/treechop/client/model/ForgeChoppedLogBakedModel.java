@@ -1,8 +1,8 @@
 package ht.treechop.client.model;
 
 import ht.treechop.TreeChop;
+import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.properties.ChoppedLogShape;
-import ht.treechop.common.properties.ModBlockStateProperties;
 import ht.treechop.common.registry.ForgeModBlocks;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.client.Minecraft;
@@ -39,6 +39,8 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
     protected final TextureAtlasSprite defaultSprite;
     public static ModelProperty<Set<Direction>> SOLID_SIDES = new ModelProperty<>();
     public static ModelProperty<BlockState> STRIPPED_BLOCK_STATE = new ModelProperty<>();
+    public static ModelProperty<Integer> CHOP_COUNT = new ModelProperty<>();
+    public static ModelProperty<ChoppedLogShape> CHOPPED_LOG_SHAPE = new ModelProperty<>();
 
     public ForgeChoppedLogBakedModel(BakedModel staticModel) {
         this.staticModel = staticModel;
@@ -70,10 +72,16 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
             @Nonnull BlockState state,
             @Nonnull ModelData tileData
     ) {
-        ModelData.Builder builder = ModelData.builder();
-        builder.with(SOLID_SIDES, getSolidSides(level, pos, state));
-        builder.with(STRIPPED_BLOCK_STATE, ChopUtil.getStrippedState(level, pos, state));
-        return builder.build();
+        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
+            ModelData.Builder builder = ModelData.builder();
+            builder.with(SOLID_SIDES, entity.getShape().getSolidSides(level, pos));
+            builder.with(STRIPPED_BLOCK_STATE, ChopUtil.getStrippedState(entity.getOriginalState()));
+            builder.with(CHOP_COUNT, entity.getChops());
+            builder.with(CHOPPED_LOG_SHAPE, entity.getShape());
+            return builder.build();
+        } else {
+            return ModelData.EMPTY;
+        }
     }
 
     @Override
@@ -88,8 +96,15 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
                 solidSides = Collections.emptySet();
             }
 
-            int chops = state.hasProperty(ModBlockStateProperties.CHOP_COUNT) ? state.getValue(ModBlockStateProperties.CHOP_COUNT) : 0;
-            ChoppedLogShape shape = state.getValue(ModBlockStateProperties.CHOPPED_LOG_SHAPE);
+            ChoppedLogShape shape = extraData.get(CHOPPED_LOG_SHAPE);
+            if (shape == null) {
+                shape = ChoppedLogShape.PILLAR_Y;
+            }
+
+            Integer chops = extraData.get(CHOP_COUNT);
+            if (chops == null) {
+                chops = 1;
+            }
 
             return getQuads(strippedState, shape, chops, solidSides, rand).collect(Collectors.toList());
         }
@@ -102,7 +117,7 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
     public boolean useAmbientOcclusion() {
         // TODO: figure out how to use this properly
         //return staticModel.useAmbientOcclusion();
-        return false;
+        return true;
     }
 
     @Override

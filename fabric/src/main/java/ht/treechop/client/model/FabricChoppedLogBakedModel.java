@@ -1,8 +1,8 @@
 package ht.treechop.client.model;
 
 import com.mojang.datafixers.util.Pair;
+import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.properties.ChoppedLogShape;
-import ht.treechop.common.properties.ModBlockStateProperties;
 import ht.treechop.common.util.ChopUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -44,17 +44,21 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
 
     @Override
     public void emitBlockQuads(BlockAndTintGetter level, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, RenderContext context) {
-        Set<Direction> solidSides = getSolidSides(level, pos, state);
-        BlockState strippedState = ChopUtil.getStrippedState(level, pos, state);
-        ChoppedLogShape shape = state.getValue(ModBlockStateProperties.CHOPPED_LOG_SHAPE);
-        int chops = state.getValue(ModBlockStateProperties.CHOP_COUNT);
-
-        QuadEmitter emitter = context.getEmitter();
-        getQuads(strippedState, shape, chops, solidSides, randomSupplier.get())
-                .forEach(quad -> {
-                    emitter.fromVanilla(quad, IndigoRenderer.MATERIAL_STANDARD, quad.getDirection());
-                    emitter.emit();
-                });
+        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
+            Set<Direction> solidSides = entity.getShape().getSolidSides(level, pos);
+            QuadEmitter emitter = context.getEmitter();
+            getQuads(
+                    ChopUtil.getStrippedState(entity.getOriginalState()),
+                    entity.getShape(),
+                    entity.getChops(),
+                    solidSides,
+                    randomSupplier.get()
+            )
+                    .forEach(quad -> {
+                        emitter.fromVanilla(quad, IndigoRenderer.MATERIAL_STANDARD, quad.getDirection());
+                        emitter.emit();
+                    });
+        }
     }
 
     @Override

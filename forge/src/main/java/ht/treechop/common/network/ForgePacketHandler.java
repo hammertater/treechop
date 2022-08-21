@@ -9,12 +9,11 @@ import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 // See https://github.com/Vazkii/Botania/blob/7e1d89a1d6deda7286744e3b7c55369b2cf5e533/src/main/java/vazkii/botania/common/network/PacketHandler.java
-public final class PacketHandler {
+public final class ForgePacketHandler implements PacketHandler {
     private static final String PROTOCOL = "7";
     public static final SimpleChannel HANDLER = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(TreeChop.MOD_ID + "-channel"),
@@ -33,18 +32,16 @@ public final class PacketHandler {
         // Server-to-client messages
         HANDLER.registerMessage(id++, ServerConfirmSettingsPacket.class, ServerConfirmSettingsPacket::encode, ServerConfirmSettingsPacket::decode, PacketProcessor.toClient(ServerConfirmSettingsPacket::handle));
         HANDLER.registerMessage(id++, ServerPermissionsPacket.class, ServerPermissionsPacket::encode, ServerPermissionsPacket::decode, PacketProcessor.toClient(ServerPermissionsPacket::handle));
-        HANDLER.registerMessage(id++, ServerChoppedLogPreparedUpdate.class, ServerChoppedLogPreparedUpdate::encode, ServerChoppedLogPreparedUpdate::decode, PacketProcessor.toClient(ServerChoppedLogPreparedUpdate::handle));
+        HANDLER.registerMessage(id++, ServerUpdateChopsPacket.class, ServerUpdateChopsPacket::encode, ServerUpdateChopsPacket::decode, PacketProcessor.toClient(ServerUpdateChopsPacket::handle));
     }
 
-    public static void sendToServer(Object msg) {
-        HANDLER.sendToServer(msg);
+    public void sendToServer(CustomPacket packet) {
+        HANDLER.sendToServer(packet);
     }
 
-    public static void sendTo(ServerPlayer playerMP, Object toSend) {
-         HANDLER.sendTo(toSend, playerMP.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+    public void sendTo(ServerPlayer playerMP, CustomPacket packet) {
+         HANDLER.sendTo(packet, playerMP.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
     }
-
-    private PacketHandler() {}
 
     record PacketProcessor<T> (BiConsumer<T, ServerPlayer> handler, LogicalSide receiverSide) implements BiConsumer<T, Supplier<NetworkEvent.Context>> {
         public static <T> PacketProcessor<T> toServer(BiConsumer<T, ServerPlayer> handler) {

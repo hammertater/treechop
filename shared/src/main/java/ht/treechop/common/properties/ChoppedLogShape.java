@@ -1,16 +1,21 @@
 package ht.treechop.common.properties;
 
+import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.util.DirectionBitMasks;
 import ht.treechop.common.util.FaceShape;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -119,6 +124,19 @@ public enum ChoppedLogShape implements StringRepresentable {
         return openSidesMap[openSides];
     }
 
+    public Set<Direction> getSolidSides(BlockGetter level, BlockPos pos) {
+        return ConfigHandler.removeBarkOnInteriorLogs.get()
+                ? Arrays.stream(Direction.values())
+                .filter(direction -> direction.getAxis().isHorizontal() && !isSideOpen(direction))
+                .filter(direction -> {
+                    BlockState blockState = level.getBlockState(pos.relative(direction));
+                    Block block = blockState.getBlock();
+                    return blockState.isSolidRender(level, pos) && !(block instanceof ChoppedLogBlock);
+                })
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)))
+                : Collections.emptySet();
+    }
+
     public String toString() {
         return this.name;
     }
@@ -155,7 +173,7 @@ public enum ChoppedLogShape implements StringRepresentable {
     }
 
     public AABB getBoundingBox(int chops) {
-        return chopsBoxes.get(chops);
+        return chopsBoxes.get(Math.max(1, Math.min(chops, 7)));
     }
 
     public boolean isSideOpen(Direction side) {
