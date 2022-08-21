@@ -100,7 +100,7 @@ public class ChopUtil {
             if (tool.isEmpty()) {
                 return true;
             } else {
-                return ConfigHandler.shouldOverrideItemBehavior(tool.getItem(), true) || TreeChop.platform.onStartBlockBreak(agent, tool, blockPos);
+                return ConfigHandler.shouldOverrideItemBehavior(tool.getItem(), true);
             }
         }
         else {

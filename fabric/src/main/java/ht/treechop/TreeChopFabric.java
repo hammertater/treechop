@@ -7,7 +7,6 @@ import ht.treechop.common.registry.FabricModBlocks;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.ModLoadingContext;
 import net.minecraftforge.api.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.config.ModConfig;
@@ -26,5 +25,8 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
                 ConfigHandler.onReload();
             }
         });
+
+        Registry.register(Registry.BLOCK, resource("chopped_log"), FabricModBlocks.CHOPPED_LOG);
+        Registry.register(Registry.BLOCK_ENTITY_TYPE, resource("chopped_log_entity"), FabricModBlocks.CHOPPED_LOG_ENTITY);
     }
 }
