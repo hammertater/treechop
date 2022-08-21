@@ -75,7 +75,7 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
     @Override
     public BakedModel bake(ModelBakery modelBakery, Function<Material, TextureAtlasSprite> textureGetter, ModelState modelState, ResourceLocation modelId) {
         defaultSprite = textureGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, defaultTextureRL));
-        return null;
+        return this;
     }
 
     @Override
