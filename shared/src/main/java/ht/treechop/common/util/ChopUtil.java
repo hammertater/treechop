@@ -5,6 +5,7 @@ import ht.treechop.api.ChopData;
 import ht.treechop.api.IChoppableBlock;
 import ht.treechop.api.IChoppingItem;
 import ht.treechop.api.TreeData;
+import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.events.EventHandler;
 import ht.treechop.common.platform.Platform;
@@ -18,9 +19,7 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
@@ -46,7 +45,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockALog(BlockState blockState) {
-        return blockState.is(ConfigHandler.blockTagForDetectingLogs);
+        return blockState.is(ConfigHandler.COMMON.blockTagForDetectingLogs.get());
     }
 
     public static boolean isBlockALog(Level level, BlockPos pos) {
@@ -58,8 +57,8 @@ public class ChopUtil {
     }
 
     public static boolean isBlockLeaves(BlockState blockState) {
-        if (blockState.is(ConfigHandler.blockTagForDetectingLeaves)) {
-            return !ConfigHandler.ignorePersistentLeaves || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.getValue(LeavesBlock.PERSISTENT);
+        if (blockState.is(ConfigHandler.COMMON.blockTagForDetectingLeaves.get())) {
+            return !ConfigHandler.COMMON.ignorePersistentLeaves.get() || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.getValue(LeavesBlock.PERSISTENT);
         } else {
             return false;
         }
@@ -112,6 +111,7 @@ public class ChopUtil {
     public static List<BlockPos> getTreeLeaves(Level level, Collection<BlockPos> treeBlocks) {
         AtomicInteger iterationCounter = new AtomicInteger();
         Set<BlockPos> leaves = new HashSet<>();
+        int maxDistance = ConfigHandler.COMMON.maxBreakLeavesDistance.get();
 
         int maxNumLeavesBlocks = ConfigHandler.COMMON.maxNumLeavesBlocks.get();
         getConnectedBlocks(
@@ -122,7 +122,7 @@ public class ChopUtil {
                                 ? BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS // Red mushroom caps can be connected diagonally downward
                                 : BlockNeighbors.ADJACENTS)
                         .asStream(pos1)
-                        .filter(pos2 -> markLeavesToDestroyAndKeepLooking(level, pos2, iterationCounter, leaves));
+                        .filter(pos2 -> markLeavesToDestroyAndKeepLooking(level, pos2, iterationCounter, leaves, maxDistance));
                 },
                 maxNumLeavesBlocks,
                 iterationCounter
@@ -135,14 +135,14 @@ public class ChopUtil {
         return new ArrayList<>(leaves);
     }
 
-    private static boolean markLeavesToDestroyAndKeepLooking(Level level, BlockPos pos, AtomicInteger iterationCounter, Set<BlockPos> leavesToDestroy) {
+    private static boolean markLeavesToDestroyAndKeepLooking(Level level, BlockPos pos, AtomicInteger iterationCounter, Set<BlockPos> leavesToDestroy, int maxDistance) {
         BlockState blockState = level.getBlockState(pos);
         if (isBlockLeaves(blockState)) {
             if (blockState.getBlock() instanceof LeavesBlock) {
                 if (iterationCounter.get() + 1 > blockState.getValue(LeavesBlock.DISTANCE)) {
                     return false;
                 }
-            } else if (iterationCounter.get() >= ConfigHandler.maxBreakLeavesDistance) {
+            } else if (iterationCounter.get() >= maxDistance) {
                 return false;
             }
 
@@ -426,7 +426,7 @@ public class ChopUtil {
         ItemStack mockItemStack = itemStack.copy();
         itemStack.mineBlock(level, blockState, blockPos, agent);
         if (itemStack.isEmpty() && !mockItemStack.isEmpty()) {
-            TreeChop.platform.onDestroyItem(agent, mockItemStack, InteractionHand.MAIN_HAND);
+            TreeChop.platform.doItemDamage(itemStack, level, blockState, blockPos, agent);
         }
     }
 
@@ -478,5 +478,21 @@ public class ChopUtil {
         }
 
         return false;
+    }
+
+    public static BlockState getStrippedState(BlockGetter level, BlockPos pos, BlockState state) {
+        BlockState stateToStrip = (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity)
+                ? entity.getOriginalState()
+                : state;
+        return getStrippedState(stateToStrip);
+    }
+
+    public static BlockState getStrippedState(BlockState state) {
+        BlockState strippedState = (AxeAccessor.isStripped(state.getBlock())) ? state : AxeAccessor.getStripped(state);
+        if (strippedState == null) {
+            return ConfigHandler.inferredStrippedStates.get()
+                    .getOrDefault(state.getBlock(), state.getBlock().defaultBlockState());
+        }
+        return strippedState;
     }
 }

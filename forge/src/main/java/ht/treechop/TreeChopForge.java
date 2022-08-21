@@ -15,19 +15,18 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(TreeChop.MOD_ID)
 public class TreeChopForge extends TreeChop {
     public TreeChopForge() {
+        platform = new ForgePlatform();
+
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigHandler.CLIENT_SPEC);
 
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        modBus.addListener((FMLCommonSetupEvent e) -> ConfigHandler.onReload());
         modBus.addListener((ModConfigEvent.Reloading e) -> ConfigHandler.onReload());
 
         modBus.addListener(Common::onCommonSetup);
 
         ForgeModBlocks.BLOCKS.register(modBus);
         ForgeModBlocks.ENTITIES.register(modBus);
-
-        platform = new ForgePlatform();
     }
 }

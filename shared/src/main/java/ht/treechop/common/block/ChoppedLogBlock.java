@@ -5,7 +5,6 @@ import ht.treechop.api.IChoppableBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.properties.ModBlockStateProperties;
-import ht.treechop.common.util.AxeAccessor;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -128,12 +127,12 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     }
 
     @Override
-    public int getNumChops(Level level, BlockPos pos, BlockState blockState) {
+    public int getNumChops(BlockGetter level, BlockPos pos, BlockState blockState) {
         return (blockState.is(this)) ? blockState.getValue(CHOPS) : 0;
     }
 
     @Override
-    public int getMaxNumChops(Level level, BlockPos blockPos, BlockState blockState) {
+    public int getMaxNumChops(BlockGetter level, BlockPos blockPos, BlockState blockState) {
         return 7;
     }
 
@@ -157,19 +156,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
                 if (level.setBlockAndUpdate(pos, newBlockState)) {
                     if (!blockState.is(this) && level.getBlockEntity(pos) instanceof MyEntity entity && level instanceof ServerLevel serverLevel) {
-                        BlockState strippedBlockState = AxeAccessor.getStripped(blockState);
-
-                        if (strippedBlockState == null) {
-                            if (AxeAccessor.isStripped(blockState.getBlock())) {
-                                strippedBlockState = blockState;
-                            } else {
-                                strippedBlockState = ConfigHandler.inferredStrippedStates.get()
-                                        .getOrDefault(blockState.getBlock(), blockState.getBlock().defaultBlockState());
-                            }
-                        }
-
                         entity.setOriginalState(blockState);
-
                         List<ItemStack> drops = Block.getDrops(blockState, serverLevel, pos, entity, player, tool);
                         entity.setDrops(drops);
                         entity.setChanged();

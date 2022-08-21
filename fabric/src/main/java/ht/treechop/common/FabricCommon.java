@@ -2,6 +2,7 @@ package ht.treechop.common;
 
 import ht.treechop.api.ChopData;
 import ht.treechop.api.TreeChopEvents;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.util.ChopResult;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.core.BlockPos;
@@ -15,12 +16,12 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
 
-public class Common {
+public class FabricCommon {
     public static boolean onBreakEvent(Level inLevel, Player inPlayer, BlockPos pos, BlockState blockState, BlockEntity blockEntity) {
         ItemStack tool = inPlayer.getMainHandItem();
 
         if (!isBlockALog(blockState)
-                || !ModRules.get().getEnabled()
+                || !ConfigHandler.COMMON.enabled.get()
                 || !(inLevel instanceof ServerLevel level)
                 || !(inPlayer instanceof ServerPlayer player)
                 || !player.hasCorrectToolForDrops(blockState)
@@ -30,7 +31,7 @@ public class Common {
         }
 
         if (!ChopUtil.playerWantsToChop(player)) {
-            if (ModRules.get().shouldOverrideItemBehavior(tool.getItem(), false)) {
+            if (ConfigHandler.shouldOverrideItemBehavior(tool.getItem(), false)) {
 //                FauxPlayerInteractionManager.harvestBlockSkippingOnBlockStartBreak(player, level, blockState, pos, event.getExpToDrop());
                 return false;
             }
@@ -59,7 +60,7 @@ public class Common {
         );
 
         if (chopResult != ChopResult.IGNORED) {
-            if (chopResult.apply(pos, player, tool, ModRules.get().getBreakLeaves())) {
+            if (chopResult.apply(pos, player, tool, ConfigHandler.COMMON.breakLeaves.get())) {
                 if (!player.isCreative()) {
                     ChopUtil.doItemDamage(tool, level, blockState, pos, player);
                 }

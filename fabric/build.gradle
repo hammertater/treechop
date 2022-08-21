@@ -7,12 +7,18 @@ targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = "${modname}-${mcversion}-fabric"
 
+repositories {
+    mavenCentral()
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${mcversion}"
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${fabricloaderversion}"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricversion}"
+    modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.1.4"
 
     implementation project(":shared")
 }

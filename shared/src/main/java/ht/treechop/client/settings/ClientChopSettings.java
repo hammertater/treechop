@@ -8,12 +8,13 @@ import net.minecraft.client.Minecraft;
 public class ClientChopSettings extends ChopSettings {
 
     @Override
-    public void set(SettingsField field, Object value) {
+    public ChopSettings set(SettingsField field, Object value) {
         if (Minecraft.getInstance().getConnection() == null) {
             super.set(field, value);
         } else if (!get(field).equals(value)) {
             Client.requestSetting(field, value);
         }
+        return this;
     }
 
     public void accept(SettingsField field, Object value) {

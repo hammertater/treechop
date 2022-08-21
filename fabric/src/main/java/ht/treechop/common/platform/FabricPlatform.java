@@ -82,9 +82,9 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public boolean doItemDamage(ItemStack tool, ServerLevel level, BlockState blockState, BlockPos pos, ServerPlayer player) {
+    public boolean doItemDamage(ItemStack tool, Level level, BlockState blockState, BlockPos pos, Player player) {
         AtomicBoolean broke = new AtomicBoolean(false);
-        tool.hurtAndBreak(1, player, (ServerPlayer thePlayer) -> broke.set(true));
+        tool.hurtAndBreak(1, player, (Player thePlayer) -> broke.set(true));
         return broke.get();
     }
 }

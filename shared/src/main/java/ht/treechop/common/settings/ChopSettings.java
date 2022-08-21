@@ -25,11 +25,30 @@ public class ChopSettings {
     public boolean getTreesMustHaveLeaves() { return get(SettingsField.TREES_MUST_HAVE_LEAVES, Boolean.class); }
     public boolean getChopInCreativeMode() { return get(SettingsField.CHOP_IN_CREATIVE_MODE, Boolean.class); }
 
-    public void setChoppingEnabled(boolean enabled) { set(SettingsField.CHOPPING, enabled); }
-    public void setFellingEnabled(boolean enabled) { set(SettingsField.FELLING, enabled); }
-    public void setSneakBehavior(SneakBehavior behavior) { set(SettingsField.SNEAK_BEHAVIOR, behavior); }
-    public void setTreesMustHaveLeaves(boolean enabled) { set(SettingsField.TREES_MUST_HAVE_LEAVES, enabled); }
-    public void setChopInCreativeMode(boolean enabled) { set(SettingsField.CHOP_IN_CREATIVE_MODE, enabled); }
+    public ChopSettings setChoppingEnabled(boolean enabled) {
+        set(SettingsField.CHOPPING, enabled);
+        return this;
+    }
+
+    public ChopSettings setFellingEnabled(boolean enabled) {
+        set(SettingsField.FELLING, enabled);
+        return this;
+    }
+
+    public ChopSettings setSneakBehavior(SneakBehavior behavior) {
+        set(SettingsField.SNEAK_BEHAVIOR, behavior);
+        return this;
+    }
+
+    public ChopSettings setTreesMustHaveLeaves(boolean enabled) {
+        set(SettingsField.TREES_MUST_HAVE_LEAVES, enabled);
+        return this;
+    }
+
+    public ChopSettings setChopInCreativeMode(boolean enabled) {
+        set(SettingsField.CHOP_IN_CREATIVE_MODE, enabled);
+        return this;
+    }
 
     @Override
     public boolean equals(Object other) {
@@ -66,20 +85,21 @@ public class ChopSettings {
         fieldValues.forEach(consumer);
     }
 
-    public void set(SettingsField field, Object value) {
+    public ChopSettings set(SettingsField field, Object value) {
         if (field.getDefaultValue().getClass().isInstance(value)) {
             fieldValues.put(field, value);
         } else {
             TreeChop.LOGGER.warn(String.format("Refusing to set setting %s to illegal value %s (%s)", field, value, value.getClass()));
         }
+        return this;
     }
 
-    public void set(Pair<SettingsField, Object> fieldValuePair) {
-        set(fieldValuePair.getLeft(), fieldValuePair.getRight());
+    public ChopSettings set(Pair<SettingsField, Object> fieldValuePair) {
+        return set(fieldValuePair.getLeft(), fieldValuePair.getRight());
     }
 
-    public void set(Setting setting) {
-        set(setting.getField(), setting.getValue());
+    public ChopSettings set(Setting setting) {
+        return set(setting.getField(), setting.getValue());
     }
 
     public List<Setting> getAll() {

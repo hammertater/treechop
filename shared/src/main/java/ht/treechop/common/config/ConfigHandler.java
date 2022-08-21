@@ -7,7 +7,6 @@ import ht.treechop.common.util.AxeAccessor;
 import ht.treechop.server.Server;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -28,42 +27,28 @@ import java.util.stream.Stream;
 
 public class ConfigHandler {
 
-    public static TagKey<Block> blockTagForDetectingLogs;
-    public static TagKey<Block> blockTagForDetectingLeaves;
     public final static ChopSettings fakePlayerChopSettings = new ChopSettings();
-    private static Set<Item> itemsBlacklist = null;
-    public static Map<Item, OverrideInfo> itemOverrides = null;
-    public static int maxBreakLeavesDistance = 7;
-    public static boolean ignorePersistentLeaves = true;
-    public static boolean removeBarkOnInteriorLogs = true;
+    public static Lazy<Boolean> removeBarkOnInteriorLogs = new Lazy<>(() -> {
+        try {
+            return ConfigHandler.CLIENT.removeBarkOnInteriorLogs.get();
+        } catch (IllegalStateException e) {
+            // this config isn't available on server, and that's just fine
+            return false;
+        }}
+    );
     public static Lazy<Map<Block, BlockState>> inferredStrippedStates = new Lazy<>(ConfigHandler::inferStrippedStates);
 
     public static void onReload() {
-        maxBreakLeavesDistance = COMMON.maxBreakLeavesDistance.get();
-        ignorePersistentLeaves = COMMON.ignorePersistentLeaves.get();
-        fakePlayerChopSettings.setChoppingEnabled(COMMON.fakePlayerChoppingEnabled.get());
-        fakePlayerChopSettings.setFellingEnabled(COMMON.fakePlayerFellingEnabled.get());
-        fakePlayerChopSettings.setTreesMustHaveLeaves(COMMON.fakePlayerTreesMustHaveLeaves.get());
-        blockTagForDetectingLogs = TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(COMMON.blockTagForDetectingLogs.get()));
-        blockTagForDetectingLeaves = TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(COMMON.blockTagForDetectingLeaves.get()));
-
-        itemsBlacklist = null;
-        itemOverrides = null;
-
-        try {
-            removeBarkOnInteriorLogs = CLIENT.removeBarkOnInteriorLogs.get();
-        } catch (IllegalStateException e) {
-            // this config isn't available on server, and that's just fine
-        }
-
-
+        COMMON.fakePlayerChopSettings.reset();
+        removeBarkOnInteriorLogs.reset();
         inferredStrippedStates.reset();
         updatePermissions();
+        updateTags();
     }
 
     public static void updateTags() {
-        itemsBlacklist = null;
-        itemOverrides = null;
+        COMMON.itemsBlacklist.reset();
+        COMMON.itemOverrides.reset();
     }
 
     private static void updatePermissions() {
@@ -79,10 +64,11 @@ public class ConfigHandler {
 
     @NotNull
     private static Map<Block, BlockState> inferStrippedStates() {
+        TagKey<Block> logTag = COMMON.blockTagForDetectingLogs.get();
         HashMap<Block, BlockState> map = new HashMap<>();
         // TODO: can we directly find tag blocks without iterating over the entire registry? (easy in Forge, what about Fabric?)
         Registry.BLOCK.forEach(block -> {
-            if (block.builtInRegistryHolder().is(blockTagForDetectingLogs)) {
+            if (block.builtInRegistryHolder().is(logTag)) {
                 Block unstripped = inferUnstripped(block);
                 if (unstripped != Blocks.AIR && AxeAccessor.getStripped(unstripped) == null) {
                     map.put(unstripped, block.defaultBlockState());
@@ -128,19 +114,8 @@ public class ConfigHandler {
     }
 
     public static boolean shouldOverrideItemBehavior(Item item, boolean chopping) {
-        OverrideInfo info = getItemOverrides().get(item);
+        OverrideInfo info = COMMON.itemOverrides.get().get(item);
         return (info != null && info.shouldOverride(chopping));
-    }
-
-    private static Map<Item, OverrideInfo> getItemOverrides() {
-        if (itemOverrides == null) {
-            itemOverrides = COMMON.itemsToOverride.get().stream().flatMap(
-                            itemId -> getQualifiedItemsFromIdentifier(itemId, id -> new OverrideInfo(getQualifierChops(id), getQualifierOverride(id))))
-                    .filter(qi -> qi.qualifier != null && !(qi.item instanceof IChoppingItem))
-                    .collect(Collectors.toMap(QualifiedItem::getItem, QualifiedItem::getQualifier));
-        }
-
-        return itemOverrides;
     }
 
     private static OverrideType getQualifierOverride(ItemIdentifier id) {
@@ -180,21 +155,15 @@ public class ConfigHandler {
      * @return {@code null} if there is no override info for {@code item}
      */
     public static Integer getNumChopsOverride(Item item) {
-        OverrideInfo overrideInfo = getItemOverrides().get(item);
+        OverrideInfo overrideInfo = COMMON.itemOverrides.get().get(item);
         return overrideInfo == null ? null : overrideInfo.getNumChops();
     }
 
     public static boolean canChopWithItem(Item item) {
-        if (itemsBlacklist == null) {
-            itemsBlacklist = COMMON.itemsToBlacklist.get().stream()
-                    .flatMap(id -> getItemsFromIdentifier(id))
-                    .collect(Collectors.toSet());
-        }
-
         if (COMMON.blacklistOrWhitelist.get() == ListType.BLACKLIST) {
-            return !itemsBlacklist.contains(item);
+            return !COMMON.itemsBlacklist.get().contains(item);
         } else {
-            return itemsBlacklist.contains(item);
+            return COMMON.itemsBlacklist.get().contains(item);
         }
     }
 
@@ -204,15 +173,40 @@ public class ConfigHandler {
 
         protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
 
+        public final Lazy<ChopSettings> fakePlayerChopSettings = new Lazy<>(() ->
+            new ChopSettings()
+                    .setChoppingEnabled(COMMON.fakePlayerChoppingEnabled.get())
+                    .setFellingEnabled(COMMON.fakePlayerFellingEnabled.get())
+                    .setTreesMustHaveLeaves(COMMON.fakePlayerTreesMustHaveLeaves.get())
+        );
+
+        public final Lazy<Set<Item>> itemsBlacklist = new Lazy<>(
+                () -> COMMON.itemsToBlacklist.get().stream()
+                        .flatMap(ConfigHandler::getItemsFromIdentifier)
+                        .collect(Collectors.toSet())
+        );
+
+        public final Lazy<Map<Item, OverrideInfo>> itemOverrides = new Lazy<>(
+                () -> COMMON.itemsToOverride.get().stream()
+                        .flatMap(itemId -> getQualifiedItemsFromIdentifier(itemId,
+                                id -> new OverrideInfo(getQualifierChops(id), getQualifierOverride(id))))
+                        .filter(qi -> qi.qualifier != null && !(qi.item instanceof IChoppingItem))
+                        .collect(Collectors.toMap(QualifiedItem::getItem, QualifiedItem::getQualifier))
+        );
+
         public final ForgeConfigSpec.BooleanValue dropLootForChoppedBlocks;
 
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
         public final ForgeConfigSpec.BooleanValue breakLeaves;
         public final ForgeConfigSpec.BooleanValue ignorePersistentLeaves;
-        protected final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
-        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLogs;
-        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeaves;
+        public final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
+
+        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLogsHandle;
+        public final Lazy<TagKey<Block>> blockTagForDetectingLogs = new Lazy<>(() -> TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(COMMON.blockTagForDetectingLogsHandle.get())));
+
+        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeavesHandle;
+        public final Lazy<TagKey<Block>> blockTagForDetectingLeaves = new Lazy<>(() -> TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(COMMON.blockTagForDetectingLeavesHandle.get())));
 
         public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
         public final ForgeConfigSpec.EnumValue<Rounder> chopCountRounding;
@@ -272,10 +266,10 @@ public class ConfigHandler {
             maxBreakLeavesDistance = builder
                     .comment("Maximum distance from log blocks to destroy non-standard leaves blocks (e.g. mushroom caps) when felling")
                     .defineInRange("maxBreakLeavesDistance", 7, 0, 16);
-            blockTagForDetectingLogs = builder
+            blockTagForDetectingLogsHandle = builder
                     .comment("The tag that blocks must have to be considered choppable (default: treechop:choppables)")
                     .define("blockTagForDetectingLogs", "treechop:choppables");
-            blockTagForDetectingLeaves = builder
+            blockTagForDetectingLeavesHandle = builder
                     .comment("The tag that blocks must have to be considered leaves (default: treechop:leaves_like)")
                     .define("blockTagForDetectingLeaves", "treechop:leaves_like");
             builder.pop();

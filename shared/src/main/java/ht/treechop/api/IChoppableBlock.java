@@ -3,6 +3,7 @@ package ht.treechop.api;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -19,8 +20,8 @@ public interface IChoppableBlock {
      */
     void chop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState, int numChops, boolean felling);
 
-    int getNumChops(Level level, BlockPos pos, BlockState blockState);
+    int getNumChops(BlockGetter level, BlockPos pos, BlockState blockState);
 
-    int getMaxNumChops(Level level, BlockPos blockPos, BlockState blockState);
+    int getMaxNumChops(BlockGetter level, BlockPos blockPos, BlockState blockState);
 
 }

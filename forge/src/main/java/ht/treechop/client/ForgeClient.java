@@ -2,7 +2,7 @@ package ht.treechop.client;
 
 import ht.treechop.TreeChop;
 import ht.treechop.client.gui.screen.ChopIndicator;
-import ht.treechop.client.model.ChoppedLogBakedModel;
+import ht.treechop.client.model.ForgeChoppedLogBakedModel;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ClientRequestSettingsPacket;
 import ht.treechop.common.network.PacketHandler;
@@ -28,7 +28,7 @@ public class ForgeClient extends Client {
 
         if (ConfigHandler.CLIENT.useProceduralChoppedModels.get()) {
             IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-            modBus.addListener(ChoppedLogBakedModel::overrideBlockStateModels);
+            modBus.addListener(ForgeChoppedLogBakedModel::overrideBlockStateModels);
         }
 
     }

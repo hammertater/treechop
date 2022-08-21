@@ -88,7 +88,7 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public boolean doItemDamage(ItemStack stack, ServerLevel level, BlockState blockState, BlockPos pos, ServerPlayer agent) {
+    public boolean doItemDamage(ItemStack stack, Level level, BlockState blockState, BlockPos pos, Player agent) {
         ItemStack mockItemStack = stack.copy();
         stack.mineBlock(level, blockState, pos, agent);
         if (stack.isEmpty() && !mockItemStack.isEmpty()) {

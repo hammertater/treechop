@@ -8,6 +8,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -23,5 +24,9 @@ public abstract class TreeChop {
     @SuppressWarnings("ConstantConditions")
     public static void showText(String text) {
         Minecraft.getInstance().player.sendSystemMessage(Component.literal(String.format("%s[%s] %s%s", ChatFormatting.GRAY, TreeChop.MOD_NAME, ChatFormatting.WHITE, text)));
+    }
+
+    public static ResourceLocation resource(String path) {
+        return new ResourceLocation(TreeChop.MOD_ID, path);
     }
 }

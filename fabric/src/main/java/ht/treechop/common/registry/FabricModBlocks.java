@@ -1,6 +1,7 @@
 package ht.treechop.common.registry;
 
 import ht.treechop.TreeChop;
+import ht.treechop.TreeChopFabric;
 import ht.treechop.common.block.FabricChoppedLogBlock;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -14,12 +15,16 @@ import net.minecraft.world.level.material.MaterialColor;
 
 public class FabricModBlocks {
 
-    public static final Block CHOPPED_LOG = new Block(
+    public static final Block CHOPPED_LOG = Registry.register(
+            Registry.BLOCK,
+            TreeChop.resource("chopped_log"),
+            new FabricChoppedLogBlock(
             FabricBlockSettings.of(
                     Material.WOOD,
                     MaterialColor.WOOD)
                     .strength(2.0F)
                     .sound(SoundType.WOOD)
+            )
     );
 
     public static final BlockEntityType<FabricChoppedLogBlock.MyEntity> CHOPPED_LOG_ENTITY = Registry.register(

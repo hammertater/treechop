@@ -35,5 +35,5 @@ public interface Platform {
 
     void sendClientSettingsRequest(SettingsField field, Object value);
 
-    boolean doItemDamage(ItemStack tool, ServerLevel level, BlockState blockState, BlockPos pos, ServerPlayer agent);
+    boolean doItemDamage(ItemStack tool, Level level, BlockState blockState, BlockPos pos, Player agent);
 }

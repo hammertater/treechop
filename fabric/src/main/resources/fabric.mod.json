@@ -20,6 +20,9 @@
   "entrypoints": {
     "main": [
       "ht.treechop.TreeChopFabric"
+    ],
+    "client": [
+      "ht.treechop.client.FabricClient"
     ]
   },
   "mixins": [
