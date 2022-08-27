@@ -1,8 +1,5 @@
 package ht.treechop.client.model;
 
-import ht.treechop.TreeChop;
-import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.FaceShape;
 import ht.treechop.common.util.Vector3;
@@ -11,23 +8,19 @@ import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.tuple.Triple;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public abstract class ChoppedLogBakedModel {
-    protected final ResourceLocation defaultTextureRL = new ResourceLocation(TreeChop.MOD_ID, "block/chopped_log");
+    protected final ResourceLocation defaultTextureRL = new ResourceLocation("block/stripped_oak_log");
 
     protected TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, RandomSource rand) {
         ModelResourceLocation modelLocation = BlockModelShaper.stateToModelLocation(blockState);

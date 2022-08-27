@@ -54,7 +54,7 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
                     randomSupplier.get()
             )
                     .forEach(quad -> {
-                        emitter.fromVanilla(quad, IndigoRenderer.MATERIAL_STANDARD, quad.getDirection());
+                        emitter.fromVanilla(quad, IndigoRenderer.MATERIAL_STANDARD, null);
                         emitter.emit();
                     });
         }
@@ -88,9 +88,7 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
 
     @Override
     public boolean useAmbientOcclusion() {
-        // TODO: figure out how to use this properly
-        //return staticModel.useAmbientOcclusion();
-        return false;
+        return true;
     }
 
     @Override
