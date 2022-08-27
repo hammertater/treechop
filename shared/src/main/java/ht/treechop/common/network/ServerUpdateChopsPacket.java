@@ -6,15 +6,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ServerUpdateChopsPacket implements CustomPacket {
-    private static final ResourceLocation id = TreeChop.resource("server_update_chops");
+    public static final ResourceLocation ID = TreeChop.resource("server_update_chops");
     private final BlockPos pos;
     private final CompoundTag tag;
 
@@ -30,9 +28,10 @@ public class ServerUpdateChopsPacket implements CustomPacket {
         this.tag = tag;
     }
 
-    public static void encode(ServerUpdateChopsPacket message, FriendlyByteBuf buffer) {
-        buffer.writeBlockPos(message.pos);
-        buffer.writeNbt(message.tag);
+    public FriendlyByteBuf encode(FriendlyByteBuf buffer) {
+        buffer.writeBlockPos(pos);
+        buffer.writeNbt(tag);
+        return buffer;
     }
 
     public static ServerUpdateChopsPacket decode(FriendlyByteBuf buffer) {
@@ -41,21 +40,32 @@ public class ServerUpdateChopsPacket implements CustomPacket {
         return new ServerUpdateChopsPacket(pos, tag);
     }
 
-    public static void handle(ServerUpdateChopsPacket message, ServerPlayer sender) {
+    public static void handle(ServerUpdateChopsPacket message) {
         pendingUpdates.put(message.pos, message.tag);
+    }
+
+    public static CompoundTag getPendingUpdate(Level level, BlockPos pos) {
+        return pendingUpdates.remove(pos);
     }
 
     public static void update(Level level, BlockPos pos) {
         CompoundTag tag = pendingUpdates.get(pos);
         if (tag != null && level != null && level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
             entity.load(tag);
-            level.setBlocksDirty(pos, Blocks.AIR.defaultBlockState(), level.getBlockState(pos));
+//            level.setBlocksDirty(pos, Blocks.AIR.defaultBlockState(), level.getBlockState(pos));
         }
     }
 
     @Override
     public ResourceLocation getId() {
-        return id;
+        return ID;
     }
 
+    public BlockPos getPos() {
+        return pos;
+    }
+
+    public CompoundTag getTag() {
+        return tag;
+    }
 }

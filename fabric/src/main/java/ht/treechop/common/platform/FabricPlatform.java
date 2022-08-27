@@ -3,6 +3,7 @@ package ht.treechop.common.platform;
 import ht.treechop.api.ChopData;
 import ht.treechop.api.TreeChopEvents;
 import ht.treechop.api.TreeData;
+import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.registry.FabricModBlocks;
 import ht.treechop.common.settings.EntityChopSettings;
 import ht.treechop.common.settings.SettingsField;
@@ -74,11 +75,6 @@ public class FabricPlatform implements Platform {
     @Override
     public BlockEntityType<?> getChoppedLogBlockEntity() {
         return FabricModBlocks.CHOPPED_LOG_ENTITY;
-    }
-
-    @Override
-    public void sendClientSettingsRequest(SettingsField field, Object value) {
-        // TODO
     }
 
     @Override

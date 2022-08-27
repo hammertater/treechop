@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ClientRequestSettingsPacket implements CustomPacket {
-    private static final ResourceLocation id = TreeChop.resource("client_request_settings");
+    public static final ResourceLocation ID = TreeChop.resource("client_request_settings");
     private final List<Setting> settings;
     private final Event event;
 
@@ -35,10 +35,11 @@ public class ClientRequestSettingsPacket implements CustomPacket {
         this(chopSettings.getAll(), Event.FIRST_TIME_SYNC);
     }
 
-    public static void encode(ClientRequestSettingsPacket message, FriendlyByteBuf buffer) {
-        message.event.encode(buffer);
-        buffer.writeInt(message.settings.size());
-        message.settings.forEach(setting -> setting.encode(buffer));
+    public FriendlyByteBuf encode(FriendlyByteBuf buffer) {
+        event.encode(buffer);
+        buffer.writeInt(settings.size());
+        settings.forEach(setting -> setting.encode(buffer));
+        return buffer;
     }
 
     public static ClientRequestSettingsPacket decode(FriendlyByteBuf buffer) {
@@ -51,15 +52,11 @@ public class ClientRequestSettingsPacket implements CustomPacket {
         return new ClientRequestSettingsPacket(settings, event);
     }
 
-    public static void handle(ClientRequestSettingsPacket message, ServerPlayer sender) {
-        processSettingsRequest(message, sender);
+    public static void handle(ClientRequestSettingsPacket message, ServerPlayer player, PacketChannel replyChannel) {
+        TreeChop.platform.getPlayerChopSettings(player).ifPresent(chopSettings -> processSettingsRequest(chopSettings, message, player, replyChannel));
     }
 
-    private static <T> void processSettingsRequest(ClientRequestSettingsPacket message, ServerPlayer player) {
-        TreeChop.platform.getPlayerChopSettings(player).ifPresent(chopSettings -> processSettingsRequest(chopSettings, message, player));
-    }
-
-    private static void processSettingsRequest(EntityChopSettings chopSettings, ClientRequestSettingsPacket message, ServerPlayer player) {
+    private static void processSettingsRequest(EntityChopSettings chopSettings, ClientRequestSettingsPacket message, ServerPlayer player, PacketChannel replyChannel) {
         List<Setting> settings = (message.event == Event.FIRST_TIME_SYNC && chopSettings.isSynced())
                 ? chopSettings.getAll()
                 : message.settings;
@@ -68,14 +65,14 @@ public class ClientRequestSettingsPacket implements CustomPacket {
                 .map(setting -> processSingleSettingRequest(setting, player, chopSettings, message.event))
                 .collect(Collectors.toList());;
 
-        TreeChop.platform.sendTo(player, new ServerConfirmSettingsPacket(confirmedSettings));
+        replyChannel.send(new ServerConfirmSettingsPacket(confirmedSettings));
 
         if (message.event == Event.FIRST_TIME_SYNC) {
             if (!chopSettings.isSynced()) {
                 chopSettings.setSynced();
             }
 
-            TreeChop.platform.sendTo(player, new ServerPermissionsPacket(Server.getPermissions()));
+            replyChannel.send(new ServerPermissionsPacket(Server.getPermissions()));
         }
     }
 
@@ -108,7 +105,7 @@ public class ClientRequestSettingsPacket implements CustomPacket {
 
     @Override
     public ResourceLocation getId() {
-        return id;
+        return ID;
     }
 
     private enum Event {

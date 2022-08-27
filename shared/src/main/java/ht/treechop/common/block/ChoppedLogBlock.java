@@ -3,8 +3,10 @@ package ht.treechop.common.block;
 import ht.treechop.TreeChop;
 import ht.treechop.api.IChoppableBlock;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.ChopUtil;
+import ht.treechop.server.Server;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -323,6 +325,25 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         @Override
         public ClientboundBlockEntityDataPacket getUpdatePacket() {
             return ClientboundBlockEntityDataPacket.create(this); // calls getUpdateTag
+        }
+
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            if (level instanceof ServerLevel serverLevel) {
+                Server.instance().broadcast(serverLevel, worldPosition, new ServerUpdateChopsPacket(worldPosition, getUpdateTag()));
+            }
+        }
+
+        @Override
+        public void setLevel(Level level) {
+            super.setLevel(level);
+            if (level.isClientSide()) {
+                CompoundTag update = ServerUpdateChopsPacket.getPendingUpdate(level, worldPosition);
+                if (update != null) {
+                    load(update);
+                }
+            }
         }
     }
 

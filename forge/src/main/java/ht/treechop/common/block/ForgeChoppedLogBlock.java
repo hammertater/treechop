@@ -1,7 +1,5 @@
 package ht.treechop.common.block;
 
-import ht.treechop.common.network.ForgePacketHandler;
-import ht.treechop.common.network.ServerUpdateChopsPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -15,7 +13,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -106,26 +103,6 @@ public class ForgeChoppedLogBlock extends ChoppedLogBlock {
     public static class MyEntity extends ChoppedLogBlock.MyEntity {
         public MyEntity(BlockPos pos, BlockState blockState) {
             super(pos, blockState);
-        }
-
-        @Override
-        public void onLoad() {
-            super.onLoad();
-            if (level != null && level.isClientSide()) {
-                ServerUpdateChopsPacket.update(level, worldPosition);
-            }
-        }
-
-        @Override
-        public void setChanged() {
-            super.setChanged();
-
-            if (level != null) {
-                ForgePacketHandler.HANDLER.send(
-                        PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(worldPosition)),
-                        new ServerUpdateChopsPacket(worldPosition, getUpdateTag())
-                );
-            }
         }
     }
 }

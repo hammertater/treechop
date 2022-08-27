@@ -23,6 +23,9 @@
     ],
     "client": [
       "ht.treechop.client.FabricClient"
+    ],
+    "server": [
+      "ht.treechop.server.FabricServer"
     ]
   },
   "mixins": [

@@ -27,20 +27,14 @@ public final class ForgePacketHandler implements PacketHandler {
         int id = 0;
 
         // Client-to-server messages
-        HANDLER.registerMessage(id++, ClientRequestSettingsPacket.class, ClientRequestSettingsPacket::encode, ClientRequestSettingsPacket::decode, PacketProcessor.toServer(ClientRequestSettingsPacket::handle));
+        HANDLER.registerMessage(id++, ClientRequestSettingsPacket.class, ClientRequestSettingsPacket::encode, ClientRequestSettingsPacket::decode, (packet, context) -> ClientRequestSettingsPacket.handle(packet, context.get().getSender(), reply -> HANDLER.sendTo(reply, context.get().getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT)));
 
         // Server-to-client messages
-        HANDLER.registerMessage(id++, ServerConfirmSettingsPacket.class, ServerConfirmSettingsPacket::encode, ServerConfirmSettingsPacket::decode, PacketProcessor.toClient(ServerConfirmSettingsPacket::handle));
-        HANDLER.registerMessage(id++, ServerPermissionsPacket.class, ServerPermissionsPacket::encode, ServerPermissionsPacket::decode, PacketProcessor.toClient(ServerPermissionsPacket::handle));
-        HANDLER.registerMessage(id++, ServerUpdateChopsPacket.class, ServerUpdateChopsPacket::encode, ServerUpdateChopsPacket::decode, PacketProcessor.toClient(ServerUpdateChopsPacket::handle));
-    }
+        HANDLER.registerMessage(id++, ServerConfirmSettingsPacket.class, ServerConfirmSettingsPacket::encode, ServerConfirmSettingsPacket::decode, PacketProcessor.toClient((message, sender) -> ServerConfirmSettingsPacket.handle(message)));
 
-    public void sendToServer(CustomPacket packet) {
-        HANDLER.sendToServer(packet);
-    }
+        HANDLER.registerMessage(id++, ServerPermissionsPacket.class, ServerPermissionsPacket::encode, ServerPermissionsPacket::decode, PacketProcessor.toClient((message, sender) -> ServerPermissionsPacket.handle(message)));
 
-    public void sendTo(ServerPlayer playerMP, CustomPacket packet) {
-         HANDLER.sendTo(packet, playerMP.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        HANDLER.registerMessage(id++, ServerUpdateChopsPacket.class, ServerUpdateChopsPacket::encode, ServerUpdateChopsPacket::decode, PacketProcessor.toClient((message, sender) -> ServerUpdateChopsPacket.handle(message)));
     }
 
     record PacketProcessor<T> (BiConsumer<T, ServerPlayer> handler, LogicalSide receiverSide) implements BiConsumer<T, Supplier<NetworkEvent.Context>> {

@@ -35,11 +35,6 @@ public interface Platform {
 
     BlockEntityType<?> getChoppedLogBlockEntity();
 
-    void sendClientSettingsRequest(SettingsField field, Object value);
-
     boolean doItemDamage(ItemStack tool, Level level, BlockState blockState, BlockPos pos, Player agent);
 
-    void sendTo(ServerPlayer player, CustomPacket packet);
-
-    void sendToServer(CustomPacket packet);
 }

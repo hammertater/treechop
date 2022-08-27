@@ -1,19 +1,13 @@
 package ht.treechop.common;
 
-import ht.treechop.TreeChop;
 import ht.treechop.api.ChopData;
 import ht.treechop.api.ChopEvent;
 import ht.treechop.api.TreeData;
-import ht.treechop.client.Client;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
-import ht.treechop.common.network.ClientRequestSettingsPacket;
-import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.network.ForgePacketHandler;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.common.registry.ForgeModBlocks;
 import ht.treechop.common.settings.EntityChopSettings;
-import ht.treechop.common.settings.SettingsField;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,8 +24,6 @@ import net.minecraftforge.event.ForgeEventFactory;
 import java.util.Optional;
 
 public class ForgePlatform implements Platform {
-
-    private static final ForgePacketHandler packetHandler = new ForgePacketHandler();
 
     @Override
     public boolean onStartBlockBreak(Player player, ItemStack tool, BlockPos blockPos) {
@@ -88,11 +80,6 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public void sendClientSettingsRequest(SettingsField field, Object value) {
-        TreeChop.platform.sendToServer(new ClientRequestSettingsPacket(field, value));
-    }
-
-    @Override
     public boolean doItemDamage(ItemStack stack, Level level, BlockState blockState, BlockPos pos, Player agent) {
         ItemStack mockItemStack = stack.copy();
         stack.mineBlock(level, blockState, pos, agent);
@@ -101,24 +88,6 @@ public class ForgePlatform implements Platform {
             return true;
         } else {
             return false;
-        }
-    }
-
-    @Override
-    public void sendTo(ServerPlayer player, CustomPacket packet) {
-        if (Minecraft.getInstance().isLocalServer()) {
-            packetHandler.sendTo(player, packet);
-        } else {
-            TreeChop.LOGGER.warn("Tried to send a server packet from client");
-        }
-    }
-
-    @Override
-    public void sendToServer(CustomPacket packet) {
-        if (Minecraft.getInstance().isLocalServer()) {
-            packetHandler.sendToServer(packet);
-        } else {
-            TreeChop.LOGGER.warn("Tried to send a client packet from server");
         }
     }
 }

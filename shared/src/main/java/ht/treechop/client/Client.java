@@ -4,6 +4,8 @@ import ht.treechop.TreeChop;
 import ht.treechop.client.gui.screen.ClientSettingsScreen;
 import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.network.ClientRequestSettingsPacket;
+import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
@@ -12,9 +14,10 @@ import net.minecraft.client.Minecraft;
 public abstract class Client {
     protected static final ClientChopSettings chopSettings = new ClientChopSettings();
     protected static final Permissions serverPermissions = new Permissions();
+    protected static Client instance;
 
     public static void requestSetting(SettingsField field, Object value) {
-        TreeChop.platform.sendClientSettingsRequest(field, value);
+        Client.instance().sendToServer(new ClientRequestSettingsPacket(field, value));
     }
 
     public static void toggleChopping() {
@@ -62,4 +65,10 @@ public abstract class Client {
     public static Permissions getServerPermissions() {
         return serverPermissions;
     }
+
+    public static Client instance() {
+        return instance;
+    }
+
+    abstract void sendToServer(CustomPacket packet);
 }

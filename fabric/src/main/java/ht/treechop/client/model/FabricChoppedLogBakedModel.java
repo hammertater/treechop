@@ -2,7 +2,6 @@ package ht.treechop.client.model;
 
 import com.mojang.datafixers.util.Pair;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.ChopUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
