@@ -55,10 +55,6 @@ public class ClientRequestSettingsPacket implements CustomPacket {
 
     public static void handle(ClientRequestSettingsPacket message, ServerPlayer player, PacketChannel replyChannel) {
         processSettingsRequest(Server.instance().getPlayerChopSettings(player), message, player, replyChannel);
-
-        if (message.event == Event.FIRST_TIME_SYNC) {
-            replyChannel.send(new ServerPermissionsPacket(ConfigHandler.getServerPermissions()));
-        }
     }
 
     private static void processSettingsRequest(EntityChopSettings chopSettings, ClientRequestSettingsPacket message, ServerPlayer player, PacketChannel replyChannel) {
@@ -75,6 +71,10 @@ public class ClientRequestSettingsPacket implements CustomPacket {
         }
 
         replyChannel.send(new ServerConfirmSettingsPacket(confirmedSettings));
+
+        if (message.event == Event.FIRST_TIME_SYNC) {
+            replyChannel.send(new ServerPermissionsPacket(ConfigHandler.getServerPermissions()));
+        }
     }
 
     private static ConfirmedSetting processSingleSettingRequest(Setting setting, ServerPlayer player, ChopSettings chopSettings, Event requestEvent) {
