@@ -403,7 +403,7 @@ public class ChopUtil {
     }
 
     public static boolean playerWantsToChop(Player player, ChopSettings chopSettings) {
-        if (!player.isCreative() || chopSettings.getChopInCreativeMode()) {
+        if (player != null && !player.isCreative() || chopSettings.getChopInCreativeMode()) {
             return chopSettings.getChoppingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
         } else {
             return false;

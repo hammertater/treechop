@@ -41,7 +41,8 @@ public class ChopIndicator extends GuiComponent {
 
         if (Client.isChoppingIndicatorEnabled() &&
                 minecraft.level != null && minecraft.screen == null && mouseOver != null &&
-                mouseOver.getType() == HitResult.Type.BLOCK && mouseOver instanceof BlockHitResult
+                mouseOver.getType() == HitResult.Type.BLOCK && mouseOver instanceof BlockHitResult &&
+                ChopUtil.playerWantsToChop(minecraft.player, Client.getChopSettings())
         ) {
             BlockPos blockPos = ((BlockHitResult) mouseOver).getBlockPos();
             if (blockWouldBeChopped(blockPos)) {
