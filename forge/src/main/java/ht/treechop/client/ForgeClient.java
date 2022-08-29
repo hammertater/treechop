@@ -37,7 +37,7 @@ public class ForgeClient extends Client {
 
     @SubscribeEvent
     public static void onRegisterOverlays(RegisterGuiOverlaysEvent event) {
-        event.registerAboveAll("chopping_indicator", (gui, poseStack, partialTicks, windowWidth, windowHeight) -> ChopIndicator.render(poseStack, partialTicks, windowWidth, windowHeight));
+        event.registerAboveAll("chopping_indicator", (gui, poseStack, partialTicks, windowWidth, windowHeight) -> ChopIndicator.render(poseStack, windowWidth, windowHeight));
     }
 
     @SubscribeEvent

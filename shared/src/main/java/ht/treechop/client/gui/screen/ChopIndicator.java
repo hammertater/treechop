@@ -31,7 +31,7 @@ public class ChopIndicator extends GuiComponent {
     private static boolean lastBlockWouldBeChopped = false;
     private static boolean wantedToChopLastBlock = false;
 
-    public static void render(PoseStack poseStack, float partialTicks, int windowWidth, int windowHeight) {
+    public static void render(PoseStack poseStack, int windowWidth, int windowHeight) {
         Minecraft minecraft = Minecraft.getInstance();
         HitResult mouseOver = minecraft.hitResult;
 
