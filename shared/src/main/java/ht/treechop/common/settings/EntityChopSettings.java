@@ -36,7 +36,7 @@ public class EntityChopSettings extends ChopSettings {
         return nbt;
     }
 
-    public void readSaveData(CompoundTag tag) {
+    public EntityChopSettings readSaveData(CompoundTag tag) {
         Optional<Boolean> choppingEnabled = getBoolean(tag, CHOPPING_ENABLED_KEY);
         Optional<Boolean> fellingEnabled = getBoolean(tag, FELLING_ENABLED_KEY);
         SneakBehavior sneakBehavior;
@@ -59,5 +59,7 @@ public class EntityChopSettings extends ChopSettings {
         if (isSynced.orElse(false)) {
             setSynced();
         }
+
+        return this;
     }
 }

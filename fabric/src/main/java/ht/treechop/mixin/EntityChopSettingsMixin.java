@@ -38,7 +38,7 @@ public class EntityChopSettingsMixin implements ChoppingEntity {
     public void injectDataLoading(CompoundTag tag, CallbackInfo info) {
         Tag data = tag.get(KEY);
         if (data != null) {
-            chopSettings.readSaveData(tag);
+            chopSettings = (new EntityChopSettings()).readSaveData(tag);
         }
     }
 }
