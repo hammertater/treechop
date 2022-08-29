@@ -71,7 +71,7 @@ public class Common {
 
         Entity entity = event.getObject();
         if (entity instanceof FakePlayer) {
-            event.addCapability(loc, new ChopSettingsProvider(ConfigHandler.COMMON.fakePlayerChopSettings.get()));
+            event.addCapability(loc, new ChopSettingsProvider(ConfigHandler.fakePlayerChopSettings.get()));
         } else {
             event.addCapability(loc, new ChopSettingsProvider());
         }

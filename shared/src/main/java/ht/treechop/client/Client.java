@@ -70,5 +70,11 @@ public abstract class Client {
         return instance;
     }
 
+    protected static void syncOnJoin() {
+        TreeChop.LOGGER.info("Sending chop settings sync request");
+        chopSettings.copyFrom(ConfigHandler.CLIENT.getChopSettings());
+        Client.instance().sendToServer(new ClientRequestSettingsPacket(chopSettings));
+    }
+
     abstract void sendToServer(CustomPacket packet);
 }

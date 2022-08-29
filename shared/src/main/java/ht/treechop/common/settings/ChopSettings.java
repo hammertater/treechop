@@ -19,12 +19,17 @@ public class ChopSettings {
     protected static final String TREES_MUST_HAVE_LEAVES_KEY = "treesMustHaveLeaves";
     protected static final String CHOP_IN_CREATIVE_MODE_KEY = "chopInCreativeMode";
     protected static final String IS_SYNCED_KEY = "isSynced";
-    private EnumMap<SettingsField, Object> fieldValues = new EnumMap<>(SettingsField.class);
+    private final EnumMap<SettingsField, Object> fieldValues = new EnumMap<>(SettingsField.class);
 
     public ChopSettings() {
         for (SettingsField field : SettingsField.values()) {
             fieldValues.put(field, field.getDefaultValue());
         }
+    }
+
+    public ChopSettings(ChopSettings template) {
+        this();
+        copyFrom(template);
     }
 
     public boolean getChoppingEnabled() { return get(SettingsField.CHOPPING, Boolean.class); }
@@ -70,8 +75,9 @@ public class ChopSettings {
         }
     }
 
-    public void copyFrom(ChopSettings other) {
+    public ChopSettings copyFrom(ChopSettings other) {
         fieldValues.putAll(other.fieldValues);
+        return this;
     }
 
     public <T> T get(SettingsField field, Class<T> type) {
@@ -89,7 +95,7 @@ public class ChopSettings {
         return fieldValues.get(field);
     }
 
-    public void forEachSetting(BiConsumer<SettingsField, Object> consumer) {
+    public void forEach(BiConsumer<SettingsField, Object> consumer) {
         fieldValues.forEach(consumer);
     }
 

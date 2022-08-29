@@ -11,6 +11,7 @@ import ht.treechop.common.events.EventHandler;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.EntityChopSettings;
+import ht.treechop.server.Server;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -419,8 +420,7 @@ public class ChopUtil {
     }
 
     public static EntityChopSettings getPlayerChopSettings(Player player) {
-        Optional<EntityChopSettings> playerSettings = TreeChop.platform.getPlayerChopSettings(player);
-        return playerSettings.orElse(ConfigHandler.fakePlayerChopSettings.get());
+        return Server.instance().getPlayerChopSettings(player);
     }
 
     public static void doItemDamage(ItemStack itemStack, Level level, BlockState blockState, BlockPos blockPos, Player agent) {

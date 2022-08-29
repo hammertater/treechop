@@ -1,18 +1,26 @@
 package ht.treechop.client;
 
+import ht.treechop.TreeChop;
 import ht.treechop.client.model.ChoppedLogModelProvider;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.network.CustomPacket;
-import ht.treechop.common.network.ServerConfirmSettingsPacket;
-import ht.treechop.common.network.ServerPermissionsPacket;
-import ht.treechop.common.network.ServerUpdateChopsPacket;
+import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.network.*;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
+import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.network.FriendlyByteBuf;
+import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public class FabricClient extends Client implements ClientModInitializer {
@@ -23,7 +31,24 @@ public class FabricClient extends Client implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ChoppedLogModelProvider());
+
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> syncOnJoin());
+
         registerPackets();
+        registerKeybindings();
+
+    }
+
+    private void registerKeybindings() {
+        KeyBindings.registerKeyMappings(KeyBindingHelper::registerKeyBinding);
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            for (KeyBindings.ActionableKeyBinding keyBinding : KeyBindings.allKeyBindings) {
+                if (keyBinding.consumeClick()) {
+                    keyBinding.onPress();
+                    return;
+                }
+            }
+        });
     }
 
     private void registerPackets() {
@@ -40,9 +65,7 @@ public class FabricClient extends Client implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(ServerUpdateChopsPacket.ID, (client, handler, buffer, sender) -> {
             ServerUpdateChopsPacket packet = ServerUpdateChopsPacket.decode(buffer);
-            client.execute(() -> {
-                ServerUpdateChopsPacket.handle(packet);
-            });
+            client.execute(() -> ServerUpdateChopsPacket.handle(packet));
         });
     }
 

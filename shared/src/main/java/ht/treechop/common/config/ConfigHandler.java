@@ -4,7 +4,6 @@ import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.config.item.ItemIdentifier;
 import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;
-import ht.treechop.server.Server;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -27,12 +26,37 @@ import java.util.stream.Stream;
 
 public class ConfigHandler {
 
+    public final static Lazy<ChopSettings> defaultChopSettings = new Lazy<>(() -> {
+        ChopSettings chopSettings = new ChopSettings();
+        Permissions permissions = getServerPermissions();
+
+        chopSettings.forEach((field, value) -> {
+            if (!permissions.isPermitted(field, value)) {
+                chopSettings.set(field, field.getValues().stream()
+                        .filter(candidate -> permissions.isPermitted(new Setting(field, candidate)))
+                        .findFirst()
+                        .orElse(value)
+                );
+            }
+        });
+
+        return chopSettings;
+    });
+
     public final static Lazy<EntityChopSettings> fakePlayerChopSettings = new Lazy<>(
-            () -> new EntityChopSettings() {
-                @Override
-                public boolean isSynced() {
-                    return true;
-                }
+            () -> {
+                EntityChopSettings chopSettings = new EntityChopSettings() {
+                    @Override
+                    public boolean isSynced() {
+                        return true;
+                    }
+                };
+
+                chopSettings.setChoppingEnabled(ConfigHandler.COMMON.fakePlayerChoppingEnabled.get())
+                        .setFellingEnabled(ConfigHandler.COMMON.fakePlayerFellingEnabled.get())
+                        .setTreesMustHaveLeaves(ConfigHandler.COMMON.fakePlayerTreesMustHaveLeaves.get());
+
+                return chopSettings;
             }
     );
 
@@ -51,7 +75,6 @@ public class ConfigHandler {
         fakePlayerChopSettings.reset();
         removeBarkOnInteriorLogs.reset();
         inferredStrippedStates.reset();
-        Server.updateDefaultPlayerSettings();
         updateTags();
     }
 
@@ -165,11 +188,11 @@ public class ConfigHandler {
         }
     }
 
-    public static Collection<Setting> getServerPermissions() {
-        return ConfigHandler.COMMON.rawPermissions.stream()
+    public static Permissions getServerPermissions() {
+        return new Permissions(ConfigHandler.COMMON.rawPermissions.stream()
                 .filter(settingAndConfig -> settingAndConfig.getRight().get())
                 .map(Pair::getLeft)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet()));
     }
 
     public static class Common {
@@ -177,13 +200,6 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue enabled;
 
         protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
-
-        public final Lazy<ChopSettings> fakePlayerChopSettings = new Lazy<>(() ->
-            new ChopSettings()
-                    .setChoppingEnabled(COMMON.fakePlayerChoppingEnabled.get())
-                    .setFellingEnabled(COMMON.fakePlayerFellingEnabled.get())
-                    .setTreesMustHaveLeaves(COMMON.fakePlayerTreesMustHaveLeaves.get())
-        );
 
         public final Lazy<Set<Item>> itemsBlacklist = new Lazy<>(
                 () -> COMMON.itemsToBlacklist.get().stream()

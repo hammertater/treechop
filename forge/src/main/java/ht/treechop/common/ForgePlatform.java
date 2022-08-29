@@ -31,11 +31,6 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public Optional<EntityChopSettings> getPlayerChopSettings(Player player) {
-        return ChopSettingsCapability.forPlayer(player).map(x -> x);
-    }
-
-    @Override
     public TreeData detectTreeEvent(Level level, ServerPlayer agent, BlockPos blockPos, BlockState blockState, boolean overrideLeaves) {
         TreeData treeData = new TreeData(overrideLeaves);
         boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.DetectTreeEvent(level, agent, blockPos, blockState, treeData));

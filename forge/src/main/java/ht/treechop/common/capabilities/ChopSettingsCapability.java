@@ -33,44 +33,15 @@ public class ChopSettingsCapability extends EntityChopSettings implements INBTSe
 
     @Override
     public CompoundTag serializeNBT() {
-        CompoundTag nbt = new CompoundTag();
-        nbt.putBoolean(CHOPPING_ENABLED_KEY, getChoppingEnabled());
-        nbt.putBoolean(FELLING_ENABLED_KEY, getFellingEnabled());
-        nbt.putString(SNEAK_BEHAVIOR_KEY, getSneakBehavior().name());
-        nbt.putBoolean(TREES_MUST_HAVE_LEAVES_KEY, getTreesMustHaveLeaves());
-        nbt.putBoolean(CHOP_IN_CREATIVE_MODE_KEY, getChopInCreativeMode());
-        nbt.putBoolean(IS_SYNCED_KEY, isSynced());
-        return nbt;
+        return makeSaveData();
     }
 
     @Override
     public void deserializeNBT(CompoundTag tag) {
         if (tag != null) {
-            Optional<Boolean> choppingEnabled = getBoolean(tag, CHOPPING_ENABLED_KEY);
-            Optional<Boolean> fellingEnabled = getBoolean(tag, FELLING_ENABLED_KEY);
-            SneakBehavior sneakBehavior;
-            try {
-                sneakBehavior = SneakBehavior.valueOf(tag.getString(SNEAK_BEHAVIOR_KEY));
-            } catch (IllegalArgumentException e) {
-                TreeChop.LOGGER.warn(String.format("NBT contains bad sneak behavior value \"%s\"; using default value instead", tag.getString(SNEAK_BEHAVIOR_KEY)));
-                sneakBehavior = SneakBehavior.INVERT_CHOPPING;
-            }
-            Optional<Boolean> onlyChopTreesWithLeaves = getBoolean(tag, TREES_MUST_HAVE_LEAVES_KEY);
-            Optional<Boolean> chopInCreativeMode = getBoolean(tag, CHOP_IN_CREATIVE_MODE_KEY);
-            Optional<Boolean> isSynced = getBoolean(tag, IS_SYNCED_KEY);
-
-            setChoppingEnabled(choppingEnabled.orElse(getChoppingEnabled()));
-            setFellingEnabled(fellingEnabled.orElse(getFellingEnabled()));
-            setSneakBehavior(sneakBehavior);
-            setTreesMustHaveLeaves(onlyChopTreesWithLeaves.orElse(getTreesMustHaveLeaves()));
-            setChopInCreativeMode(chopInCreativeMode.orElse(getChopInCreativeMode()));
-
-            if (isSynced.orElse(false)) {
-                setSynced();
-            }
+            readSaveData(tag);
         } else {
             TreeChop.LOGGER.warn("Failed to read ChopSettingsCapability NBT");
         }
     }
-
 }

@@ -23,8 +23,6 @@ public interface Platform {
 
     boolean onStartBlockBreak(Player player, ItemStack tool, BlockPos blockPos);
 
-    Optional<EntityChopSettings> getPlayerChopSettings(Player player);
-
     TreeData detectTreeEvent(Level level, ServerPlayer agent, BlockPos blockPos, BlockState blockState, boolean overrideLeaves);
 
     boolean startChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData);

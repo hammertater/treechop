@@ -1,10 +1,8 @@
 package ht.treechop.client;
 
-import ht.treechop.TreeChop;
 import ht.treechop.client.gui.screen.ChopIndicator;
 import ht.treechop.client.model.ForgeChoppedLogBakedModel;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.network.ClientRequestSettingsPacket;
 import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.network.ForgePacketHandler;
 import net.minecraftforge.api.distmarker.Dist;
@@ -55,9 +53,7 @@ public class ForgeClient extends Client {
     static class EventHandler {
         @SubscribeEvent
         public static void onConnect(ClientPlayerNetworkEvent.LoggingIn event) {
-            TreeChop.LOGGER.info("Sending chop settings sync request");
-            chopSettings.copyFrom(ConfigHandler.CLIENT.getChopSettings());
-            Client.instance().sendToServer(new ClientRequestSettingsPacket(chopSettings));
+            syncOnJoin();
         }
 
         @SubscribeEvent
@@ -72,4 +68,5 @@ public class ForgeClient extends Client {
             }
         }
     }
+
 }

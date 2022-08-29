@@ -4,6 +4,7 @@ import ht.treechop.TreeChop;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.network.ForgePacketHandler;
+import ht.treechop.common.settings.EntityChopSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +15,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
+
+import java.util.Optional;
 
 @Mod.EventBusSubscriber(modid = TreeChop.MOD_ID)
 public class ForgeServer extends Server {
@@ -45,5 +48,10 @@ public class ForgeServer extends Server {
     @Override
     public void sendTo(ServerPlayer player, CustomPacket packet) {
         ForgePacketHandler.HANDLER.sendTo(packet, player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+    }
+
+    @Override
+    public EntityChopSettings getPlayerChopSettings(Player player) {
+        return ChopSettingsCapability.forPlayer(player).map(x -> (EntityChopSettings) x).orElse(Server.getDefaultPlayerSettings());
     }
 }

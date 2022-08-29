@@ -7,6 +7,7 @@ import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.registry.FabricModBlocks;
 import ht.treechop.common.settings.EntityChopSettings;
 import ht.treechop.common.settings.SettingsField;
+import ht.treechop.settings.ChoppingEntity;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -27,11 +28,6 @@ public class FabricPlatform implements Platform {
     public boolean onStartBlockBreak(Player player, ItemStack tool, BlockPos blockPos) {
         Level level = player.level;
         return PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(level, player, blockPos, level.getBlockState(blockPos), level.getBlockEntity(blockPos));
-    }
-
-    @Override
-    public Optional<EntityChopSettings> getPlayerChopSettings(Player player) {
-        return Optional.empty();
     }
 
     @Override

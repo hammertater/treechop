@@ -33,6 +33,10 @@ public class Permissions {
         }
     }
 
+    public boolean isPermitted(SettingsField field, Object value) {
+        return permittedSettings.contains(new Setting(field, value));
+    }
+
     public boolean isPermitted(Setting setting) {
         return permittedSettings.contains(setting);
     }

@@ -2,6 +2,7 @@ package ht.treechop.common.network;
 
 import ht.treechop.TreeChop;
 import ht.treechop.client.settings.ClientChopSettings;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.EntityChopSettings;
 import ht.treechop.common.settings.Setting;
@@ -53,7 +54,11 @@ public class ClientRequestSettingsPacket implements CustomPacket {
     }
 
     public static void handle(ClientRequestSettingsPacket message, ServerPlayer player, PacketChannel replyChannel) {
-        TreeChop.platform.getPlayerChopSettings(player).ifPresent(chopSettings -> processSettingsRequest(chopSettings, message, player, replyChannel));
+        processSettingsRequest(Server.instance().getPlayerChopSettings(player), message, player, replyChannel);
+
+        if (message.event == Event.FIRST_TIME_SYNC) {
+            replyChannel.send(new ServerPermissionsPacket(ConfigHandler.getServerPermissions()));
+        }
     }
 
     private static void processSettingsRequest(EntityChopSettings chopSettings, ClientRequestSettingsPacket message, ServerPlayer player, PacketChannel replyChannel) {
@@ -65,15 +70,11 @@ public class ClientRequestSettingsPacket implements CustomPacket {
                 .map(setting -> processSingleSettingRequest(setting, player, chopSettings, message.event))
                 .collect(Collectors.toList());;
 
-        replyChannel.send(new ServerConfirmSettingsPacket(confirmedSettings));
-
-        if (message.event == Event.FIRST_TIME_SYNC) {
-            if (!chopSettings.isSynced()) {
-                chopSettings.setSynced();
-            }
-
-            replyChannel.send(new ServerPermissionsPacket(Server.getPermissions()));
+        if (!chopSettings.isSynced()) {
+            chopSettings.setSynced();
         }
+
+        replyChannel.send(new ServerConfirmSettingsPacket(confirmedSettings));
     }
 
     private static ConfirmedSetting processSingleSettingRequest(Setting setting, ServerPlayer player, ChopSettings chopSettings, Event requestEvent) {
@@ -100,7 +101,7 @@ public class ClientRequestSettingsPacket implements CustomPacket {
     }
 
     private static boolean playerHasPermission(Player player, Setting setting) {
-        return Server.getPermissions().isPermitted(setting);
+        return ConfigHandler.getServerPermissions().isPermitted(setting);
     }
 
     @Override
