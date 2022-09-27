@@ -1,6 +1,4 @@
-package ht.treechop.settings;
-
-import ht.treechop.common.settings.EntityChopSettings;
+package ht.treechop.common.settings;
 
 public interface ChoppingEntity {
     EntityChopSettings getChopSettings();

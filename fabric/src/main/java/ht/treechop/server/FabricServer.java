@@ -3,7 +3,7 @@ package ht.treechop.server;
 import ht.treechop.common.network.ClientRequestSettingsPacket;
 import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.settings.EntityChopSettings;
-import ht.treechop.settings.ChoppingEntity;
+import ht.treechop.common.settings.ChoppingEntity;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;

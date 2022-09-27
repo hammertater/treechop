@@ -1,4 +1,4 @@
-package ht.treechop.common.compat;
+package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.ChopEvent;

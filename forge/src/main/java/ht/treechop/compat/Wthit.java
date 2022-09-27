@@ -1,4 +1,4 @@
-package ht.treechop.common.compat;
+package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
 import ht.treechop.client.Client;
@@ -42,7 +42,7 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
 
     @Override
     public void appendBody(ITooltip tooltip, IBlockAccessor accessor, IPluginConfig config) {
-        if (ChopUtil.playerWantsToChop(accessor.getPlayer(), Client.getChopSettings())
+        if (ChopUtil.playerWantsToChop(accessor.getPlayer())
                 && ChopUtil.isBlockChoppable(accessor.getWorld(), accessor.getPosition(), accessor.getBlockState())
                 && (config.getBoolean(SHOW_TREE_BLOCKS) || config.getBoolean(SHOW_NUM_CHOPS_REMAINING))) {
             Level level = accessor.getWorld();

@@ -3,11 +3,7 @@ package ht.treechop.common.platform;
 import ht.treechop.api.ChopData;
 import ht.treechop.api.TreeChopEvents;
 import ht.treechop.api.TreeData;
-import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.registry.FabricModBlocks;
-import ht.treechop.common.settings.EntityChopSettings;
-import ht.treechop.common.settings.SettingsField;
-import ht.treechop.settings.ChoppingEntity;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -19,7 +15,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FabricPlatform implements Platform {
