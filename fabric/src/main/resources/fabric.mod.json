@@ -46,7 +46,7 @@
   "custom": {
     "waila:plugins": {
       "id": "treechop:plugin",
-      "initializer": "ht.treechop.common.compat.Wthit",
+      "initializer": "ht.treechop.compat.Wthit",
       "environment": "client"
     }
   }
