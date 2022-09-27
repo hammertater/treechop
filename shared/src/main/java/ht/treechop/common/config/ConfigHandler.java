@@ -80,7 +80,6 @@ public class ConfigHandler {
 
     public static void updateTags() {
         COMMON.itemsBlacklist.reset();
-        COMMON.itemOverrides.reset();
     }
 
     @NotNull
@@ -134,52 +133,6 @@ public class ConfigHandler {
                 .filter(qi -> qi.item != Items.AIR);
     }
 
-    public static boolean shouldOverrideItemBehavior(Item item, boolean chopping) {
-        OverrideInfo info = COMMON.itemOverrides.get().get(item);
-        return (info != null && info.shouldOverride(chopping));
-    }
-
-    private static OverrideType getQualifierOverride(ItemIdentifier id) {
-        Optional<String> override = id.getQualifier("override");
-        if (override.isPresent()) {
-            switch (override.get().toLowerCase()) {
-                case "always":
-                    return OverrideType.ALWAYS;
-                case "chopping":
-                    return OverrideType.WHEN_CHOPPING;
-                case "never":
-                    return OverrideType.NEVER;
-                default:
-                    id.parsingError(String.format("override qualifier \\\"%s\\\" is not valid (expected \\\"always\\\", \\\"chopping\\\", or \\\"never\\\"); defaulting to \\\"chopping\\\"", override.get()));
-                    return OverrideType.WHEN_CHOPPING;
-            }
-        } else {
-            return OverrideType.WHEN_CHOPPING;
-        }
-    }
-
-    private static int getQualifierChops(ItemIdentifier id) {
-        Optional<String> chops = id.getQualifier("chops");
-        if (chops.isPresent()) {
-            try {
-                return Integer.parseInt(chops.get());
-            } catch (NumberFormatException e) {
-                id.parsingError(String.format("chops value \"%s\" is not an integer", chops.get()));
-                return 1;
-            }
-        } else {
-            return 1;
-        }
-    }
-
-    /**
-     * @return {@code null} if there is no override info for {@code item}
-     */
-    public static Integer getNumChopsOverride(Item item) {
-        OverrideInfo overrideInfo = COMMON.itemOverrides.get().get(item);
-        return overrideInfo == null ? null : overrideInfo.getNumChops();
-    }
-
     public static boolean canChopWithItem(Item item) {
         if (COMMON.blacklistOrWhitelist.get() == ListType.BLACKLIST) {
             return !COMMON.itemsBlacklist.get().contains(item);
@@ -205,14 +158,6 @@ public class ConfigHandler {
                 () -> COMMON.itemsToBlacklist.get().stream()
                         .flatMap(ConfigHandler::getItemsFromIdentifier)
                         .collect(Collectors.toSet())
-        );
-
-        public final Lazy<Map<Item, OverrideInfo>> itemOverrides = new Lazy<>(
-                () -> COMMON.itemsToOverride.get().stream()
-                        .flatMap(itemId -> getQualifiedItemsFromIdentifier(itemId,
-                                id -> new OverrideInfo(getQualifierChops(id), getQualifierOverride(id))))
-                        .filter(qi -> qi.qualifier != null && !(qi.item instanceof IChoppingItem))
-                        .collect(Collectors.toMap(QualifiedItem::getItem, QualifiedItem::getQualifier))
         );
 
         public final ForgeConfigSpec.BooleanValue dropLootForChoppedBlocks;

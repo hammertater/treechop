@@ -93,23 +93,6 @@ public class ChopUtil {
         return getConnectedBlocks(startingPoints, searchOffsetsSupplier, maxNumBlocks, new AtomicInteger());
     }
 
-    public static boolean canChangeBlock(Level level, BlockPos blockPos, Player agent, GameType gameType) {
-        return canChangeBlock(level, blockPos, agent, gameType, ItemStack.EMPTY);
-    }
-
-    public static boolean canChangeBlock(Level level, BlockPos blockPos, Player agent, GameType gameType, ItemStack tool) {
-        if (!agent.blockActionRestricted(level, blockPos, gameType)) { // TODO: get the player's game mode
-            if (tool.isEmpty()) {
-                return true;
-            } else {
-                return ConfigHandler.shouldOverrideItemBehavior(tool.getItem(), true);
-            }
-        }
-        else {
-            return false;
-        }
-    }
-
     public static List<BlockPos> getTreeLeaves(Level level, Collection<BlockPos> treeBlocks) {
         AtomicInteger iterationCounter = new AtomicInteger();
         Set<BlockPos> leaves = new HashSet<>();
@@ -385,13 +368,8 @@ public class ChopUtil {
     }
 
     public static int getNumChopsByTool(ItemStack tool, BlockState blockState) {
-        Item toolItem = tool.getItem();
-
-        Integer overrideChops = ConfigHandler.getNumChopsOverride(tool.getItem());
-        if (overrideChops != null) {
-            return overrideChops;
-        } else if (toolItem instanceof IChoppingItem) {
-            return ((IChoppingItem) toolItem).getNumChops(tool, blockState);
+        if ( tool.getItem() instanceof IChoppingItem choppingItem) {
+            return choppingItem.getNumChops(tool, blockState);
         } else {
             return 1;
         }

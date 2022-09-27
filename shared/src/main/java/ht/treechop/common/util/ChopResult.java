@@ -53,7 +53,7 @@ public class ChopResult {
 
         AtomicBoolean somethingChanged = new AtomicBoolean(false);
         List<BlockPos> logs = Stream.concat(chops.stream().map(Chop::getBlockPos), fells.stream())
-                .filter(pos -> !somethingChanged.get() && ChopUtil.canChangeBlock(level, pos, agent, gameType, tool))
+                .filter(pos -> !somethingChanged.get() && !agent.blockActionRestricted(level, pos, gameType))
                 .peek(pos -> {
                     BlockState blockState = level.getBlockState(pos);
                     somethingChanged.compareAndSet(false, blockState.isAir());
@@ -69,7 +69,7 @@ public class ChopResult {
         if (felling) {
             List<BlockPos> leaves = breakLeaves
                     ? ChopUtil.getTreeLeaves(level, logs).stream()
-                    .filter(pos -> ChopUtil.canChangeBlock(level, pos, agent, agent.gameMode.getGameModeForPlayer()))
+                    .filter(pos -> !agent.blockActionRestricted(level, pos, agent.gameMode.getGameModeForPlayer()))
                     .collect(Collectors.toList())
                     : Collections.emptyList();
 

@@ -24,18 +24,10 @@ public class FabricCommon {
                 || !ConfigHandler.COMMON.enabled.get()
                 || !(inLevel instanceof ServerLevel level)
                 || !(inPlayer instanceof ServerPlayer player)
+                || !ChopUtil.playerWantsToChop(player)
                 || !player.hasCorrectToolForDrops(blockState)
                 || !ChopUtil.canChopWithTool(tool)
         ) {
-            return true;
-        }
-
-        if (!ChopUtil.playerWantsToChop(player)) {
-            if (ConfigHandler.shouldOverrideItemBehavior(tool.getItem(), false)) {
-//                FauxPlayerInteractionManager.harvestBlockSkippingOnBlockStartBreak(player, level, blockState, pos, event.getExpToDrop());
-                return false;
-            }
-
             return true;
         }
 
