@@ -15,13 +15,8 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-
-import javax.annotation.Nonnull;
 
 public class ChopIndicator extends GuiComponent {
 
@@ -82,7 +77,7 @@ public class ChopIndicator extends GuiComponent {
         boolean wantToChop = ChopUtil.canChopWithTool(player.getMainHandItem()) && ChopUtil.playerWantsToChop(minecraft.player, chopSettings);
         if (wantToChop) {
             if (ChopUtil.playerWantsToFell(player, chopSettings)) {
-                TreeData tree = Client.treeUnderCursor.getTree(
+                TreeData tree = Client.treeCache.getTree(
                         level, pos, chopSettings.getTreesMustHaveLeaves()
                 );
                 return tree != null && (tree.hasLeaves() || !chopSettings.getTreesMustHaveLeaves());

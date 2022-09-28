@@ -48,7 +48,7 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
             Level level = accessor.getWorld();
             AtomicInteger numChops = new AtomicInteger(0);
 
-            ChopUtil.detectTree(level, accessor.getPosition(), Client.getChopSettings().getTreesMustHaveLeaves()).getLogBlocks().ifPresent(
+            Client.treeCache.getTree(level, accessor.getPosition(), Client.getChopSettings().getTreesMustHaveLeaves()).getLogBlocks().ifPresent(
                     treeBlocks -> {
                         if (config.getBoolean(SHOW_NUM_CHOPS_REMAINING)) {
                             treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));

@@ -16,14 +16,14 @@ public abstract class Client {
     protected static final ClientChopSettings chopSettings = new ClientChopSettings() {
         @Override
         public ChopSettings set(SettingsField field, Object value) {
-            treeUnderCursor.invalidate();
+            treeCache.invalidate();
             return super.set(field, value);
         }
     };
     protected static final Permissions serverPermissions = new Permissions();
     protected static Client instance;
 
-    public static TreeCache treeUnderCursor = new TreeCache();
+    public static TreeCache treeCache = new TreeCache();
 
     public static void requestSetting(SettingsField field, Object value) {
         Client.instance().sendToServer(new ClientRequestSettingsPacket(field, value));

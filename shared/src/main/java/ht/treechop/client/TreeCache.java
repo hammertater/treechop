@@ -2,16 +2,16 @@ package ht.treechop.client;
 
 import ht.treechop.api.TreeData;
 import ht.treechop.common.util.ChopUtil;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class TreeCache {
     private final SingleBlockCache<TreeData> singleBlockCache = new SingleBlockCache<>();
 
-    public TreeData getTree(ClientLevel level, BlockPos pos, boolean mustHaveLeaves) {
+    public TreeData getTree(Level level, BlockPos pos, boolean mustHaveLeaves) {
         TreeData tree = singleBlockCache.get(level, pos);
         if (tree == null) {
             tree = ChopUtil.detectTree(level, pos, !mustHaveLeaves);
@@ -39,14 +39,14 @@ public class TreeCache {
             }
         }
 
-        public void put(ClientLevel level, BlockPos pos, T value) {
+        public void put(BlockGetter level, BlockPos pos, T value) {
             this.value = value;
             this.level = level;
             this.pos = pos;
             blockState = level.getBlockState(pos);
         }
 
-        public void clear(ClientLevel level, BlockPos pos) {
+        public void clear(BlockGetter level, BlockPos pos) {
             if (level == this.level & pos.equals(this.pos)) {
                 value = null;
                 blockState = Blocks.AIR.defaultBlockState();

@@ -1,6 +1,7 @@
 package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
+import ht.treechop.client.Client;
 import ht.treechop.client.ForgeClient;
 import ht.treechop.common.block.ForgeChoppedLogBlock;
 import ht.treechop.common.util.ChopUtil;
@@ -55,7 +56,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
             Level level = accessor.getLevel();
             AtomicInteger numChops = new AtomicInteger(0);
 
-            ChopUtil.detectTree(level, accessor.getPosition(), ForgeClient.getChopSettings().getTreesMustHaveLeaves()).getLogBlocks().ifPresent(
+            Client.treeCache.getTree(level, accessor.getPosition(), ForgeClient.getChopSettings().getTreesMustHaveLeaves()).getLogBlocks().ifPresent(
                     treeBlocks -> {
                         if (config.get(SHOW_NUM_CHOPS_REMAINING)) {
                             treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
