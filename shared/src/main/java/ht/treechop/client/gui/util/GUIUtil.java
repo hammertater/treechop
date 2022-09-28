@@ -5,10 +5,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
+
+import java.util.List;
 
 public class GUIUtil {
     public static final int TEXT_LINE_HEIGHT = 8;
     public static final int BUTTON_HEIGHT = 20;
+    public static int TOOLTIP_WIDTH_BUFFER = 20;
 
     private static int tooltipX;
     private static int tooltipY;
@@ -36,7 +40,9 @@ public class GUIUtil {
     public static void renderTooltip(PoseStack poseStack) {
         Screen screen = Minecraft.getInstance().screen;
         if (screen != null && tooltipText != null) {
-            screen.renderTooltip(poseStack, tooltipText, tooltipX, tooltipY);
+            int maxWidth = Math.max(Math.max(tooltipX, screen.width - tooltipX) - TOOLTIP_WIDTH_BUFFER, TOOLTIP_WIDTH_BUFFER);
+            List<FormattedCharSequence> splitText = Minecraft.getInstance().font.split(tooltipText, maxWidth);
+            screen.renderTooltip(poseStack, splitText, tooltipX, tooltipY);
         }
 
         tooltipText = null;
