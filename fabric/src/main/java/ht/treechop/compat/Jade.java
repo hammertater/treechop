@@ -1,6 +1,7 @@
 package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
+import ht.treechop.api.TreeData;
 import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.util.ChopUtil;
@@ -54,27 +55,30 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
             Level level = accessor.getLevel();
             AtomicInteger numChops = new AtomicInteger(0);
 
-           Client.treeCache.getTree(level, accessor.getPosition(), Client.getChopSettings().getTreesMustHaveLeaves()).getLogBlocks().ifPresent(
-                    treeBlocks -> {
-                        if (config.get(SHOW_NUM_CHOPS_REMAINING)) {
-                            treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
-                            tooltip.add(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size())));
-                        }
+            TreeData tree = Client.treeCache.getTree(level, accessor.getPosition());
+            if (tree.isAProperTree(Client.getChopSettings().getTreesMustHaveLeaves())) {
+                tree.getLogBlocks().ifPresent(
+                        treeBlocks -> {
+                            if (config.get(SHOW_NUM_CHOPS_REMAINING)) {
+                                treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
+                                tooltip.add(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size())));
+                            }
 
-                        if (config.get(SHOW_TREE_BLOCKS)) {
-                            LinkedList<IElement> tiles = new LinkedList<>();
-                            treeBlocks.stream()
-                                    .collect(Collectors.groupingBy((BlockPos pos) -> {
-                                        BlockState state = level.getBlockState(pos);
-                                        return getLogState(level, pos, state).getBlock();
-                                    }, Collectors.counting()))
-                                    .forEach((block, count) -> {
-                                        IElement icon = tooltip.getElementHelper().item(block.asItem().getDefaultInstance(), 1f, count.toString());
-                                        tiles.add(icon.translate(new Vec2(0, -1.5f)));
-                                    });
-                            tooltip.add(tiles);
-                        }
-                    });
+                            if (config.get(SHOW_TREE_BLOCKS)) {
+                                LinkedList<IElement> tiles = new LinkedList<>();
+                                treeBlocks.stream()
+                                        .collect(Collectors.groupingBy((BlockPos pos) -> {
+                                            BlockState state = level.getBlockState(pos);
+                                            return getLogState(level, pos, state).getBlock();
+                                        }, Collectors.counting()))
+                                        .forEach((block, count) -> {
+                                            IElement icon = tooltip.getElementHelper().item(block.asItem().getDefaultInstance(), 1f, count.toString());
+                                            tiles.add(icon.translate(new Vec2(0, -1.5f)));
+                                        });
+                                tooltip.add(tiles);
+                            }
+                        });
+            }
         }
     }
 

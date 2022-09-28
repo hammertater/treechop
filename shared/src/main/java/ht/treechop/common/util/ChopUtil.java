@@ -5,10 +5,7 @@ import ht.treechop.api.ChopData;
 import ht.treechop.api.IChoppableBlock;
 import ht.treechop.api.IChoppingItem;
 import ht.treechop.api.TreeData;
-import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.events.EventHandler;
-import ht.treechop.common.platform.Platform;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.EntityChopSettings;
 import ht.treechop.server.Server;
@@ -16,14 +13,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -148,20 +142,25 @@ public class ChopUtil {
     }
 
     private static ChopResult getChopResult(Level level, BlockPos blockPos, Player agent, int numChops, Predicate<BlockPos> logCondition) {
-        Set<BlockPos> supportedBlocks = getTreeBlocks(level, blockPos, logCondition, getPlayerChopSettings(agent).getTreesMustHaveLeaves()).getLogBlocks().orElse(Collections.emptySet());
-        return chopTree(level, blockPos, supportedBlocks, numChops);
+        TreeData tree = getTreeBlocks(level, blockPos, logCondition);
+        if (tree.isAProperTree(getPlayerChopSettings(agent).getTreesMustHaveLeaves())) {
+            Set<BlockPos> supportedBlocks = tree.getLogBlocks().orElse(Collections.emptySet());
+            return getChopResult(level, blockPos, supportedBlocks, numChops);
+        } else {
+            return ChopResult.IGNORED;
+        }
     }
 
-    public static TreeData detectTree(Level level, BlockPos blockPos, boolean mustHaveLeaves) {
-        return getTreeBlocks(level, blockPos, pos -> ChopUtil.isBlockALog(level, pos), mustHaveLeaves);
+    public static TreeData getTreeBlocks(Level level, BlockPos blockPos) {
+        return getTreeBlocks(level, blockPos, pos -> ChopUtil.isBlockALog(level, pos));
     }
 
-    public static TreeData getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition, boolean mustHaveLeaves) {
+    public static TreeData getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition) {
         if (!logCondition.test(blockPos)) {
             return new TreeData();
         }
 
-        TreeData detectData = TreeChop.platform.detectTreeEvent(level, null, blockPos, level.getBlockState(blockPos), !mustHaveLeaves);
+        TreeData detectData = TreeChop.platform.detectTreeEvent(level, null, blockPos, level.getBlockState(blockPos), false);
         if (detectData.getLogBlocks().isPresent()) {
             return detectData;
         }
@@ -184,7 +183,7 @@ public class ChopUtil {
         return detectData;
     }
 
-    private static ChopResult chopTree(Level level, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
+    private static ChopResult getChopResult(Level level, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
         if (supportedBlocks.isEmpty()) {
             return ChopResult.IGNORED;
         }
@@ -413,11 +412,6 @@ public class ChopUtil {
         if (level instanceof ServerLevel serverLevel && level.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
             ExperienceOrb.award(serverLevel, Vec3.atCenterOf(pos), amount);
         }
-    }
-
-    public static boolean isPartOfATree(Level level, BlockPos pos, boolean mustHaveLeaves) {
-        TreeData tree = getTreeBlocks(level, pos, blockPos -> isBlockALog(level, blockPos), !mustHaveLeaves);
-        return tree.getLogBlocksOrEmpty().size() > 1;
     }
 
     public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool) {

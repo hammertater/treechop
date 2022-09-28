@@ -1,6 +1,7 @@
 package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
+import ht.treechop.api.TreeData;
 import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.util.ChopUtil;
@@ -48,29 +49,32 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
             Level level = accessor.getWorld();
             AtomicInteger numChops = new AtomicInteger(0);
 
-            Client.treeCache.getTree(level, accessor.getPosition(), Client.getChopSettings().getTreesMustHaveLeaves()).getLogBlocks().ifPresent(
-                    treeBlocks -> {
-                        if (config.getBoolean(SHOW_NUM_CHOPS_REMAINING)) {
-                            treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
-                            tooltip.addLine(new WrappedComponent(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size()))));
-                        }
+            TreeData tree = Client.treeCache.getTree(level, accessor.getPosition());
+            if (tree.isAProperTree(Client.getChopSettings().getTreesMustHaveLeaves())) {
+                tree.getLogBlocks().ifPresent(
+                        treeBlocks -> {
+                            if (config.getBoolean(SHOW_NUM_CHOPS_REMAINING)) {
+                                treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
+                                tooltip.addLine(new WrappedComponent(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size()))));
+                            }
 
-                        if (config.getBoolean(SHOW_TREE_BLOCKS)) {
-                            LinkedList<ITooltipComponent> tiles = new LinkedList<>();
-                            treeBlocks.stream()
-                                    .collect(Collectors.groupingBy((BlockPos pos) -> {
-                                        BlockState state = level.getBlockState(pos);
-                                        return getLogState(level, pos, state).getBlock();
-                                    }, Collectors.counting()))
-                                    .forEach((block, count) -> {
-                                        ItemStack stack = accessor.getBlock().asItem().getDefaultInstance();
-                                        stack.setCount(count.intValue());
-                                        tiles.add(new ItemComponent(stack));
-                                    });
+                            if (config.getBoolean(SHOW_TREE_BLOCKS)) {
+                                LinkedList<ITooltipComponent> tiles = new LinkedList<>();
+                                treeBlocks.stream()
+                                        .collect(Collectors.groupingBy((BlockPos pos) -> {
+                                            BlockState state = level.getBlockState(pos);
+                                            return getLogState(level, pos, state).getBlock();
+                                        }, Collectors.counting()))
+                                        .forEach((block, count) -> {
+                                            ItemStack stack = accessor.getBlock().asItem().getDefaultInstance();
+                                            stack.setCount(count.intValue());
+                                            tiles.add(new ItemComponent(stack));
+                                        });
 
-                            tiles.stream().reduce(PairComponent::new).ifPresent(tooltip::addLine);
-                        }
-                    });
+                                tiles.stream().reduce(PairComponent::new).ifPresent(tooltip::addLine);
+                            }
+                        });
+            }
         }
     }
 

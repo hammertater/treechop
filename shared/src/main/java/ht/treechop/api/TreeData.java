@@ -1,5 +1,8 @@
 package ht.treechop.api;
 
+import ht.treechop.client.Client;
+import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.settings.ChopSettings;
 import net.minecraft.core.BlockPos;
 
 import java.util.Collections;
@@ -42,5 +45,9 @@ public class TreeData {
 
     public void setLeaves(boolean hasLeaves) {
         this.hasLeaves = hasLeaves;
+    }
+
+    public boolean isAProperTree(boolean mustHaveLeaves) {
+        return (hasLeaves || !mustHaveLeaves) && getLogBlocksOrEmpty().size() >= ((hasLeaves && ConfigHandler.COMMON.breakLeaves.get()) ? 1 : 2);
     }
 }

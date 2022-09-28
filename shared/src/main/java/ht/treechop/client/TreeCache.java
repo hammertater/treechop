@@ -11,10 +11,10 @@ import net.minecraft.world.level.block.state.BlockState;
 public class TreeCache {
     private final SingleBlockCache<TreeData> singleBlockCache = new SingleBlockCache<>();
 
-    public TreeData getTree(Level level, BlockPos pos, boolean mustHaveLeaves) {
+    public TreeData getTree(Level level, BlockPos pos) {
         TreeData tree = singleBlockCache.get(level, pos);
         if (tree == null) {
-            tree = ChopUtil.detectTree(level, pos, !mustHaveLeaves);
+            tree = ChopUtil.getTreeBlocks(level, pos);
             singleBlockCache.put(level, pos, tree);
         }
 
