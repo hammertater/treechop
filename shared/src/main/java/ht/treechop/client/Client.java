@@ -6,15 +6,24 @@ import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ClientRequestSettingsPacket;
 import ht.treechop.common.network.CustomPacket;
+import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.client.Minecraft;
 
 public abstract class Client {
-    protected static final ClientChopSettings chopSettings = new ClientChopSettings();
+    protected static final ClientChopSettings chopSettings = new ClientChopSettings() {
+        @Override
+        public ChopSettings set(SettingsField field, Object value) {
+            treeUnderCursor.invalidate();
+            return super.set(field, value);
+        }
+    };
     protected static final Permissions serverPermissions = new Permissions();
     protected static Client instance;
+
+    public static TreeCache treeUnderCursor = new TreeCache();
 
     public static void requestSetting(SettingsField field, Object value) {
         Client.instance().sendToServer(new ClientRequestSettingsPacket(field, value));

@@ -1,6 +1,5 @@
 package ht.treechop.common.config;
 
-import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.config.item.ItemIdentifier;
 import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;
@@ -123,14 +122,6 @@ public class ConfigHandler {
     private static Stream<Item> getItemsFromIdentifier(String stringId) {
         ItemIdentifier id = ItemIdentifier.from(stringId);
         return id.resolve();
-    }
-
-    private static <T> Stream<QualifiedItem<T>> getQualifiedItemsFromIdentifier(String stringId, Function<ItemIdentifier, T> qualifierParser) {
-        ItemIdentifier id = ItemIdentifier.from(stringId);
-        T qualifier = qualifierParser.apply(id);
-        return id.resolve()
-                .map(item -> new QualifiedItem<>(item, qualifier))
-                .filter(qi -> qi.item != Items.AIR);
     }
 
     public static boolean canChopWithItem(Item item) {
