@@ -1,0 +1,101 @@
+buildscript {
+    repositories {
+        maven { url = "https://maven.minecraftforge.net" }
+        maven { url = "https://repo.spongepowered.org/maven" }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: "net.minecraftforge.gradle", name: "ForgeGradle", version: "5.1.+", changing: true
+    }
+}
+apply plugin: "net.minecraftforge.gradle"
+
+archivesBaseName = "${modname}-${mcversion}-forge"
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+println("Java: " + System.getProperty("java.version") + " JVM: " + System.getProperty("java.vm.version") + "(" + System.getProperty("java.vendor") + ") Arch: " + System.getProperty("os.arch"))
+minecraft {
+    mappings channel: "official", version: mcversion
+
+    runs {
+        client {
+            workingDirectory project.file("run")
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName "Client"
+
+            property "forge.logging.markers", "REGISTRIES"
+            property "forge.logging.console.level", "debug"
+            property "forge.enabledGameTestNamespaces", modid
+
+            mods {
+                "${modid}" {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file("run")
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName "Server"
+
+            property "forge.logging.markers", "REGISTRIES"
+            property "forge.logging.console.level", "debug"
+            property "forge.enabledGameTestNamespaces", modid
+
+            mods {
+                "${modid}" {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file("run")
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName "Data"
+
+            property "forge.logging.markers", "REGISTRIES"
+            property "forge.logging.console.level", "debug"
+
+            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+            args "--mod", modid, "--all", "--output", file("src/generated/resources/"), "--existing", file("src/main/resources/")
+
+            mods {
+                "${modid}" {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    maven {
+        url "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${mcversion}-${forgeversion}"
+
+    compileOnly fg.deobf("curse.maven:jade-324717:3970956")
+    runtimeOnly fg.deobf("curse.maven:jade-324717:3970956")
+
+    compileOnly fg.deobf(rootProject.files("forge/build/libs/TreeChop-1.18.2-forge-0.16.0.jar"))
+    runtimeOnly fg.deobf(rootProject.files("forge/build/libs/TreeChop-1.18.2-forge-0.16.0.jar"))
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar.finalizedBy("reobfJar")
