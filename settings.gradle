@@ -11,4 +11,5 @@ pluginManagement {
 rootProject.name = "${modname}"
 
 include "shared", "forge", "fabric"
+include 'jade-plugin-forge'
 
