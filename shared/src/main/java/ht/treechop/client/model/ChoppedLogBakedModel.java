@@ -10,19 +10,19 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Stream;
 
 public abstract class ChoppedLogBakedModel {
     protected final ResourceLocation defaultTextureRL = new ResourceLocation("block/stripped_oak_log");
 
-    protected TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, RandomSource rand) {
+    protected TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, Random rand) {
         ModelResourceLocation modelLocation = BlockModelShaper.stateToModelLocation(blockState);
         return Minecraft.getInstance().getModelManager().getModel(modelLocation)
                 .getQuads(blockState, side, rand).stream()
@@ -34,7 +34,7 @@ public abstract class ChoppedLogBakedModel {
 
     protected abstract TextureAtlasSprite getDefaultSprite();
 
-    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int chops, Set<Direction> solidSides, RandomSource random) {
+    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int chops, Set<Direction> solidSides, Random random) {
         AABB box = shape.getBoundingBox(chops);
         float downY = (float) box.minY;
         float upY = (float) box.maxY;

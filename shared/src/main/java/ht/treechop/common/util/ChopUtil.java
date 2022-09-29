@@ -414,7 +414,7 @@ public class ChopUtil {
         }
     }
 
-    public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool) {
+    public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) {
         if (!isBlockALog(blockState)
                 || !ConfigHandler.COMMON.enabled.get()
                 || !ChopUtil.canChopWithTool(tool)) {
@@ -426,7 +426,7 @@ public class ChopUtil {
                 ChopUtil.playerWantsToFell(agent)
         );
 
-        boolean doChop = TreeChop.platform.startChopEvent(agent, level, pos, blockState, chopData);
+        boolean doChop = TreeChop.platform.startChopEvent(agent, level, pos, blockState, chopData, trigger);
         if (!doChop) {
             return false;
         }

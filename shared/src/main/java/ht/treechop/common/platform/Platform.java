@@ -2,11 +2,6 @@ package ht.treechop.common.platform;
 
 import ht.treechop.api.ChopData;
 import ht.treechop.api.TreeData;
-import ht.treechop.common.network.ClientRequestSettingsPacket;
-import ht.treechop.common.network.CustomPacket;
-import ht.treechop.common.network.ServerConfirmSettingsPacket;
-import ht.treechop.common.settings.EntityChopSettings;
-import ht.treechop.common.settings.SettingsField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,15 +12,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.Optional;
-
 public interface Platform {
 
     boolean onStartBlockBreak(Player player, ItemStack tool, BlockPos blockPos);
 
     TreeData detectTreeEvent(Level level, ServerPlayer agent, BlockPos blockPos, BlockState blockState, boolean overrideLeaves);
 
-    boolean startChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData);
+    boolean startChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData, Object trigger);
 
     void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData);
 

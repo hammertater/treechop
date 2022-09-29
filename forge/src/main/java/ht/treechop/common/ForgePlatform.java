@@ -3,11 +3,8 @@ package ht.treechop.common;
 import ht.treechop.api.ChopData;
 import ht.treechop.api.ChopEvent;
 import ht.treechop.api.TreeData;
-import ht.treechop.common.capabilities.ChopSettingsCapability;
-import ht.treechop.common.network.ForgePacketHandler;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.common.registry.ForgeModBlocks;
-import ht.treechop.common.settings.EntityChopSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,8 +17,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
-
-import java.util.Optional;
 
 public class ForgePlatform implements Platform {
 
@@ -41,13 +36,14 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public boolean startChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData) {
+    public boolean startChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData, Object trigger) {
         ChopEvent.StartChopEvent startChopEvent = new ChopEvent.StartChopEvent(
                 level,
                 agent,
                 pos,
                 blockState,
-                chopData
+                chopData,
+                trigger
         );
 
         boolean canceled = MinecraftForge.EVENT_BUS.post(startChopEvent);

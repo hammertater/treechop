@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,7 +18,7 @@ public class RowsGui extends NestedGui {
     private final List<NestedGui> rows = new ArrayList<>();
 
     public RowsGui(int rowSeparation, Collection<NestedGui> rows) {
-        super(0, 0, 0, 0, Component.empty());
+        super(0, 0, 0, 0, TextComponent.EMPTY);
         this.rowSeparation = rowSeparation;
         this.rows.addAll(rows);
 

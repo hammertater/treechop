@@ -93,21 +93,14 @@ dependencies {
 
     implementation project(":shared")
 
-    // compile against the API
-    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-5.9.0")
-//
-//    // run against the full jar
-//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-5.9.0")
-//    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.2.0")
+    compileOnly fg.deobf("curse.maven:dynamictrees-252818:3831578")
+    runtimeOnly fg.deobf("curse.maven:dynamictrees-252818:3831578")
 
-    compileOnly fg.deobf("curse.maven:jade-324717:3903693")
-    runtimeOnly fg.deobf("curse.maven:jade-324717:3903693")
+    compileOnly fg.deobf("curse.maven:pmmo-353935:3809102") // https://github.com/Harmonised7/project_mmo
+    runtimeOnly fg.deobf("curse.maven:pmmo-353935:3809102")
 
-//    compileOnly fg.deobf("curse.maven:pmmo-353935:353935") // https://github.com/Harmonised7/project_mmo
-//    runtimeOnly fg.deobf("curse.maven:pmmo-353935:353935")
-
-//    compileOnly fg.deobf("curse.maven:carry-on-274259:3828228")
-//    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3828228")
+    compileOnly fg.deobf("curse.maven:carry-on-274259:3674344")
+    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3674344")
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
     testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"

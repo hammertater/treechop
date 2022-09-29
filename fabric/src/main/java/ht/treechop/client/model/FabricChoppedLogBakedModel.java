@@ -18,16 +18,12 @@ import net.minecraft.client.resources.model.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -42,7 +38,7 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
     }
 
     @Override
-    public void emitBlockQuads(BlockAndTintGetter level, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, RenderContext context) {
+    public void emitBlockQuads(BlockAndTintGetter level, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
         if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
             Set<Direction> solidSides = entity.getShape().getSolidSides(level, pos);
             QuadEmitter emitter = context.getEmitter();
@@ -61,7 +57,7 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
     }
 
     @Override
-    public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
+    public void emitItemQuads(ItemStack stack, Supplier<Random> randomSupplier, RenderContext context) {
     }
 
     @Override
@@ -82,7 +78,7 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, RandomSource randomSource) {
+    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, Random randomSource) {
         return Collections.emptyList();
     }
 

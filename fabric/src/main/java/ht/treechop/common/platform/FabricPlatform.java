@@ -37,7 +37,7 @@ public class FabricPlatform implements Platform {
 
     // Returns true if chopping should continue
     @Override
-    public boolean startChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData) {
+    public boolean startChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData, Object trigger) {
         return !TreeChopEvents.BEFORE_CHOP.invoker().beforeChop(
                 level,
                 agent,

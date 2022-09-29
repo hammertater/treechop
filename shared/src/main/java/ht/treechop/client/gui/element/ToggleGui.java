@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,7 @@ public class ToggleGui extends NestedGui {
     private final Supplier<Component> tooltipSupplier;
 
     public ToggleGui(Runnable onPress, Supplier<ToggleWidget.State> stateSupplier, Supplier<Component> componentSupplier) {
-        super(0, 0, 0, 0, Component.empty());
+        super(0, 0, 0, 0, TextComponent.EMPTY);
         this.widget = new ToggleWidget(0, 0, onPress, stateSupplier);
         this.tooltipSupplier = componentSupplier;
     }

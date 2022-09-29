@@ -6,6 +6,7 @@ import ht.treechop.client.gui.widget.SpriteButtonWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -16,7 +17,7 @@ public class ButtonGui extends NestedGui {
     private final SpriteButtonWidget widget;
 
     public ButtonGui(Sprite sprite, Sprite highlightedSprite, Runnable onPress) {
-        super(0, 0, 0, 0, Component.empty());
+        super(0, 0, 0, 0, TextComponent.EMPTY);
         this.widget = new SpriteButtonWidget(0, 0, sprite, highlightedSprite, onPress);
     }
 

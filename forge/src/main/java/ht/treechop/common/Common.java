@@ -6,7 +6,6 @@ import ht.treechop.common.capabilities.ChopSettingsProvider;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ForgePacketHandler;
 import ht.treechop.common.util.ChopUtil;
-import ht.treechop.common.util.FauxPlayerInteractionManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -18,11 +17,10 @@ import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
-import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
-import static ht.treechop.common.util.ChopUtil.isBlockALog;
 import static net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 @EventBusSubscriber(modid = TreeChop.MOD_ID, bus = EventBusSubscriber.Bus.FORGE)
@@ -45,22 +43,17 @@ public class Common {
         BlockPos pos = event.getPos();
 
         if (event.isCanceled()
-                || !(event.getLevel() instanceof ServerLevel level)
+                || !(event.getWorld() instanceof ServerLevel level)
                 || !(event.getPlayer() instanceof ServerPlayer agent)
                 || !blockState.canHarvestBlock(level, pos, agent)) {
            return;
         }
 
         if (!ChopUtil.playerWantsToChop(agent)) {
-            if (ConfigHandler.shouldOverrideItemBehavior(tool.getItem(), false)) {
-                FauxPlayerInteractionManager.harvestBlockSkippingOnBlockStartBreak(agent, level, blockState, pos, event.getExpToDrop());
-                event.setCanceled(true);
-            }
-
             return;
         }
 
-        if (ChopUtil.chop(agent, level, pos, blockState, tool)) {
+        if (ChopUtil.chop(agent, level, pos, blockState, tool, event)) {
             event.setCanceled(true);
         }
     }

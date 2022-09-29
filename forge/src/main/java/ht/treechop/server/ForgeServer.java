@@ -28,7 +28,7 @@ public class ForgeServer extends Server {
     public static void onPlayerCloned(PlayerEvent.Clone event) {
         if (event.isWasDeath()) {
             Player oldPlayer = event.getOriginal();
-            Player newPlayer = event.getEntity();
+            Player newPlayer = event.getPlayer();
             LazyOptional<ChopSettingsCapability> lazyOldSettings = ChopSettingsCapability.forPlayer(oldPlayer);
             LazyOptional<ChopSettingsCapability> lazyNewSettings = ChopSettingsCapability.forPlayer(newPlayer);
 

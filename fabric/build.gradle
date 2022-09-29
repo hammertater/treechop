@@ -26,15 +26,15 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabricloaderversion}"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricversion}"
-    modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.1.4"
+    modImplementation "net.minecraftforge:forgeconfigapiport-fabric:3.2.4"
 
     implementation project(":shared")
 
-    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-5.9.0"
-    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-5.9.0"
-    modRuntimeOnly "lol.bai:badpackets:fabric-0.2.0"
+//    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-5.9.0"
+//    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-5.9.0"
+//    modRuntimeOnly "lol.bai:badpackets:fabric-0.2.0"
 
-    modCompileOnly "curse.maven:jade-324717:3952631"
+//    modCompileOnly "curse.maven:jade-324717:3952631"
 //    modRuntimeOnly "curse.maven:jade-324717:3952631"
 }
 

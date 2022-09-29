@@ -54,11 +54,17 @@ public class ChopEvent extends Event {
 
     @Cancelable
     public static class StartChopEvent extends ChopEvent {
+        private final Object trigger;
         private final ChopData chopData;
 
         public StartChopEvent(Level level, ServerPlayer player, BlockPos choppedBlockPos, BlockState choppedBlockState, ChopData chopData) {
+            this(level, player, choppedBlockPos, choppedBlockState, chopData, null);
+        }
+
+        public StartChopEvent(Level level, ServerPlayer player, BlockPos choppedBlockPos, BlockState choppedBlockState, ChopData chopData, Object trigger) {
             super(level, player, choppedBlockPos, choppedBlockState);
             this.chopData = chopData;
+            this.trigger = trigger;
         }
 
         public int getNumChops() {
@@ -75,6 +81,10 @@ public class ChopEvent extends Event {
 
         public void setFelling(boolean felling) {
             chopData.felling = felling;
+        }
+
+        public Object getTrigger() {
+            return trigger;
         }
     }
 

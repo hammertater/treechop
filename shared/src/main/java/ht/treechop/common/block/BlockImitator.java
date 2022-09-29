@@ -3,7 +3,6 @@ package ht.treechop.common.block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -13,6 +12,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Random;
 
 @ParametersAreNonnullByDefault
 public abstract class BlockImitator extends Block {
@@ -28,7 +28,7 @@ public abstract class BlockImitator extends Block {
     }
 
     @Override
-    public void animateTick(BlockState blockState, Level level, BlockPos pos, RandomSource random) {
+    public void animateTick(BlockState blockState, Level level, BlockPos pos, Random random) {
         getImitatedBlockState(level, pos).getBlock().animateTick(blockState, level, pos, random);
     }
 
@@ -68,12 +68,12 @@ public abstract class BlockImitator extends Block {
     }
 
     @Override
-    public void randomTick(BlockState blockState, ServerLevel level, BlockPos pos, RandomSource random) {
+    public void randomTick(BlockState blockState, ServerLevel level, BlockPos pos, Random random) {
         getImitatedBlockState(level, pos).randomTick(level, pos, random);
     }
 
     @Override
-    public void tick(BlockState blockState, ServerLevel level, BlockPos pos, RandomSource random) {
+    public void tick(BlockState blockState, ServerLevel level, BlockPos pos, Random random) {
         getImitatedBlockState(level, pos).tick(level, pos, random);
     }
 
