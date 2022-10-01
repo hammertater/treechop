@@ -12,12 +12,16 @@ import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class ChoppedLogModelProvider implements ModelResourceProvider {
-    private static final FabricChoppedLogBakedModel MODEL = new FabricChoppedLogBakedModel();
+    private final UnbakedModel model;
+
+    public ChoppedLogModelProvider(UnbakedModel model) {
+        this.model = model;
+    }
 
     @Override
     public @Nullable UnbakedModel loadModelResource(ResourceLocation resourceId, ModelProviderContext context) throws ModelProviderException {
         if (resourceId.equals(TreeChop.resource("block/chopped_log"))) {
-            return MODEL;
+            return model;
         } else {
             return null;
         }

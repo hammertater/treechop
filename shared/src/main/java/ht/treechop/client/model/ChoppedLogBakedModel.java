@@ -1,25 +1,31 @@
 package ht.treechop.client.model;
 
+import com.mojang.datafixers.util.Pair;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.FaceShape;
 import ht.treechop.common.util.Vector3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.*;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.tuple.Triple;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
-public abstract class ChoppedLogBakedModel {
+public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
+    private static TextureAtlasSprite defaultSprite;
     protected final ResourceLocation defaultTextureRL = new ResourceLocation("block/stripped_oak_log");
 
     protected TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, RandomSource rand) {
@@ -32,7 +38,63 @@ public abstract class ChoppedLogBakedModel {
                 .orElse(getDefaultSprite());
     }
 
-    protected abstract TextureAtlasSprite getDefaultSprite();
+    public Collection<ResourceLocation> getDependencies() {
+        return Collections.emptyList();
+    }
+
+    public Collection<Material> getMaterials(Function<ResourceLocation, UnbakedModel> unbakedModelGetter, Set<Pair<String, String>> unresolvedTextureReferences) {
+        return Collections.emptyList();
+    }
+
+    @Nullable
+    public BakedModel bake(ModelBakery modelBakery, Function<Material, TextureAtlasSprite> textureGetter, ModelState modelState, ResourceLocation modelId) {
+        defaultSprite = textureGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, defaultTextureRL));
+        return this;
+    }
+
+    @Override
+    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, RandomSource randomSource) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean useAmbientOcclusion() {
+        return true;
+    }
+
+    @Override
+    public boolean isGui3d() {
+        return false;
+    }
+
+    @Override
+    public boolean usesBlockLight() {
+        return true;
+    }
+
+    @Override
+    public boolean isCustomRenderer() {
+        return false;
+    }
+
+    @Override
+    public TextureAtlasSprite getParticleIcon() {
+        return defaultSprite;
+    }
+
+    @Override
+    public ItemTransforms getTransforms() {
+        return ItemTransforms.NO_TRANSFORMS;
+    }
+
+    @Override
+    public ItemOverrides getOverrides() {
+        return ItemOverrides.EMPTY;
+    }
+
+    protected TextureAtlasSprite getDefaultSprite() {
+        return ChoppedLogBakedModel.defaultSprite;
+    }
 
     protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int chops, Set<Direction> solidSides, RandomSource random) {
         AABB box = shape.getBoundingBox(chops);

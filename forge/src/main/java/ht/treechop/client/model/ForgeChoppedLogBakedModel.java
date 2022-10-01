@@ -35,19 +35,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements IDynamicBakedModel {
-    protected final BakedModel staticModel;
-    protected final TextureAtlasSprite defaultSprite;
     public static ModelProperty<Set<Direction>> SOLID_SIDES = new ModelProperty<>();
     public static ModelProperty<BlockState> STRIPPED_BLOCK_STATE = new ModelProperty<>();
     public static ModelProperty<Integer> CHOP_COUNT = new ModelProperty<>();
     public static ModelProperty<ChoppedLogShape> CHOPPED_LOG_SHAPE = new ModelProperty<>();
-
-    public ForgeChoppedLogBakedModel(BakedModel staticModel) {
-        this.staticModel = staticModel;
-        this.defaultSprite = Minecraft.getInstance().getModelManager()
-                .getAtlas(TextureAtlas.LOCATION_BLOCKS)
-                .getSprite(defaultTextureRL);
-    }
 
     public static void overrideBlockStateModels(ModelEvent.BakingCompleted event) {
         for (BlockState blockState : ForgeModBlocks.CHOPPED_LOG.get().getStateDefinition().getPossibleStates()) {
@@ -58,7 +49,7 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
             } else if (existingModel instanceof ForgeChoppedLogBakedModel) {
                 TreeChop.LOGGER.warn("Tried to replace ChoppedLogBakedModel twice");
             } else {
-                ForgeChoppedLogBakedModel customModel = new ForgeChoppedLogBakedModel(existingModel);
+                ForgeChoppedLogBakedModel customModel = new ForgeChoppedLogBakedModel();
                 event.getModels().put(variantMRL, customModel);
             }
         }
@@ -113,55 +104,4 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
         }
     }
 
-    @Override
-    public boolean useAmbientOcclusion() {
-        // TODO: figure out how to use this properly
-        //return staticModel.useAmbientOcclusion();
-        return true;
-    }
-
-    @Override
-    public boolean isGui3d() {
-        return staticModel.isGui3d();
-    }
-
-    @Override
-    public boolean usesBlockLight() {
-        return staticModel.usesBlockLight();
-    }
-
-    @Override
-    public boolean isCustomRenderer() {
-        return staticModel.isCustomRenderer();
-    }
-
-    @Override
-    public TextureAtlasSprite getParticleIcon() {
-        return staticModel.getParticleIcon();
-    }
-
-    @Override
-    public TextureAtlasSprite getParticleIcon(@NotNull ModelData data) {
-        BlockState strippedState = data.get(STRIPPED_BLOCK_STATE);
-        if (strippedState != null) {
-            return Minecraft.getInstance().getModelManager().getModel(BlockModelShaper.stateToModelLocation(strippedState)).getParticleIcon(data);
-        } else {
-            return getParticleIcon();
-        }
-    }
-
-    @Override
-    public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
-        return ChunkRenderTypeSet.of(RenderType.solid());
-    }
-
-    @Override
-    public ItemOverrides getOverrides() {
-        return null;
-    }
-
-    @Override
-    protected TextureAtlasSprite getDefaultSprite() {
-        return defaultSprite;
-    }
 }

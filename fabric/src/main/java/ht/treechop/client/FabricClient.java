@@ -2,9 +2,15 @@ package ht.treechop.client;
 
 import ht.treechop.TreeChop;
 import ht.treechop.client.model.ChoppedLogModelProvider;
-import ht.treechop.common.block.ChoppedLogBlock;
+import ht.treechop.client.model.FabricChoppedLogBakedModel;
+import ht.treechop.client.model.FabricChoppedLogEntityRenderer;
+import ht.treechop.client.model.HiddenChoppedLogBakedModel;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.network.*;
+import ht.treechop.common.network.CustomPacket;
+import ht.treechop.common.network.ServerConfirmSettingsPacket;
+import ht.treechop.common.network.ServerPermissionsPacket;
+import ht.treechop.common.network.ServerUpdateChopsPacket;
+import ht.treechop.common.registry.FabricModBlocks;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -12,20 +18,11 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
-import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
-import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
-import net.fabricmc.fabric.api.client.screen.v1.Screens;
-import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.core.Registry;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.inventory.MenuType;
-import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public class FabricClient extends Client implements ClientModInitializer {
@@ -35,13 +32,18 @@ public class FabricClient extends Client implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ChoppedLogModelProvider());
+        if (FabricLoader.getInstance().isModLoaded("sodium")) {
+            TreeChop.LOGGER.info("Sodium detected! Using alternative block renderer (chopped blocks will not use vanilla Minecraft's ambient occlusion).");
+            ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ChoppedLogModelProvider(new HiddenChoppedLogBakedModel()));
+            BlockEntityRendererRegistry.register(FabricModBlocks.CHOPPED_LOG_ENTITY, FabricChoppedLogEntityRenderer::new);
+        } else {
+            ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ChoppedLogModelProvider(new FabricChoppedLogBakedModel()));
+        }
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> syncOnJoin());
 
         registerPackets();
         registerKeybindings();
-
     }
 
     private void registerKeybindings() {

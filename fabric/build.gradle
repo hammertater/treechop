@@ -26,7 +26,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabricloaderversion}"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricversion}"
-    modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.1.4"
+    modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.2.6"
 
     implementation project(":shared")
 
@@ -36,6 +36,10 @@ dependencies {
 
     modCompileOnly "curse.maven:jade-324717:3952631"
 //    modRuntimeOnly "curse.maven:jade-324717:3952631"
+
+//    modRuntimeOnly "curse.maven:sodium-394468:3957319"
+//    modRuntimeOnly "curse.maven:indium-459496:3957480"
+//    modRuntimeOnly "curse.maven:irisshaders-455508:3981799"
 }
 
 processResources {
