@@ -47,17 +47,9 @@ public class Common {
         if (event.isCanceled()
                 || !(event.getLevel() instanceof ServerLevel level)
                 || !(event.getPlayer() instanceof ServerPlayer agent)
+                || !ChopUtil.playerWantsToChop(agent)
                 || !blockState.canHarvestBlock(level, pos, agent)) {
            return;
-        }
-
-        if (!ChopUtil.playerWantsToChop(agent)) {
-            if (ConfigHandler.shouldOverrideItemBehavior(tool.getItem(), false)) {
-                FauxPlayerInteractionManager.harvestBlockSkippingOnBlockStartBreak(agent, level, blockState, pos, event.getExpToDrop());
-                event.setCanceled(true);
-            }
-
-            return;
         }
 
         if (ChopUtil.chop(agent, level, pos, blockState, tool)) {

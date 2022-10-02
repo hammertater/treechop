@@ -95,7 +95,7 @@ dependencies {
 
     // compile against the API
     compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-5.9.0")
-//
+
 //    // run against the full jar
 //    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-5.9.0")
 //    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.2.0")
