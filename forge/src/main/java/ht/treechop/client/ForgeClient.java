@@ -36,10 +36,8 @@ public class ForgeClient extends Client {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(ForgeChoppedLogBakedModel::overrideBlockStateModels);
 
-        if (ConfigHandler.CLIENT.showChoppingIndicators.get()) {
-            OverlayRegistry.registerOverlayTop("treechop:chopping_indicator",
-                    (gui, poseStack, partialTick, width, height) -> ChopIndicator.render(poseStack, width, height));
-        }
+        OverlayRegistry.registerOverlayTop("treechop:chopping_indicator",
+                (gui, poseStack, partialTick, width, height) -> ChopIndicator.render(poseStack, width, height));
     }
 
     @Override
