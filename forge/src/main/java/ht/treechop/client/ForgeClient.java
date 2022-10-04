@@ -33,10 +33,8 @@ public class ForgeClient extends Client {
         KeyBindings.registerKeyMappings(ClientRegistry::registerKeyBinding);
         ItemBlockRenderTypes.setRenderLayer(ForgeModBlocks.CHOPPED_LOG.get(), RenderType.solid());
 
-        if (ConfigHandler.CLIENT.useProceduralChoppedModels.get()) {
-            IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-            modBus.addListener(ForgeChoppedLogBakedModel::overrideBlockStateModels);
-        }
+        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modBus.addListener(ForgeChoppedLogBakedModel::overrideBlockStateModels);
 
         if (ConfigHandler.CLIENT.showChoppingIndicators.get()) {
             OverlayRegistry.registerOverlayTop("treechop:chopping_indicator",

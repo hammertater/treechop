@@ -356,7 +356,6 @@ public class ConfigHandler {
         public final ForgeConfigSpec.EnumValue<SneakBehavior> sneakBehavior;
         public final ForgeConfigSpec.BooleanValue treesMustHaveLeaves;
         public final ForgeConfigSpec.BooleanValue chopInCreativeMode;
-        public final ForgeConfigSpec.BooleanValue useProceduralChoppedModels;
         public final ForgeConfigSpec.BooleanValue showChoppingIndicators;
         public final ForgeConfigSpec.BooleanValue removeBarkOnInteriorLogs;
         public final ForgeConfigSpec.IntValue indicatorXOffset;
@@ -387,9 +386,6 @@ public class ConfigHandler {
             builder.pop();
 
             builder.push("visuals");
-            useProceduralChoppedModels = builder
-                    .comment("Whether to use procedural chopped log models; disable to use models added by a resource pack")
-                    .define("useProceduralChoppedModels", true);
             removeBarkOnInteriorLogs = builder
                     .comment("Whether to replace the interior sides of logs with a chopped texture instead of bark")
                     .define("removeBarkOnInteriorLogs", true);
