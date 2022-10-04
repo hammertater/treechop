@@ -1,4 +1,4 @@
-package ht.treechopjadeplugin;
+package ht.treechop.plugin.jade;
 
 import ht.treechop.api.TreeData;
 import ht.treechop.client.Client;
