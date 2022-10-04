@@ -13,3 +13,10 @@ logoFile= "../logo.png"
 credits="This one goes out to all the lumberjacks."
 authors="HammerTater"
 description="Adds Jade support for HT's TreeChop."
+
+[[dependencies.treechopjadeplugin]]
+modId="treechop"
+mandatory=true
+versionRange="[0.16.0,)"
+ordering="NONE"
+side="CLIENT"
