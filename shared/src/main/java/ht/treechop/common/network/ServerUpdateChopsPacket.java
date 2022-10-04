@@ -2,6 +2,7 @@ package ht.treechop.common.network;
 
 import ht.treechop.TreeChop;
 import ht.treechop.common.block.ChoppedLogBlock;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -42,6 +43,7 @@ public class ServerUpdateChopsPacket implements CustomPacket {
 
     public static void handle(ServerUpdateChopsPacket message) {
         pendingUpdates.put(message.pos, message.tag);
+        update(Minecraft.getInstance().level, message.pos);
     }
 
     public static CompoundTag getPendingUpdate(Level level, BlockPos pos) {

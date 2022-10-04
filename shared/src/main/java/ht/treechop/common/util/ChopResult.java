@@ -1,6 +1,6 @@
 package ht.treechop.common.util;
 
-import ht.treechop.common.platform.Platform;
+import ht.treechop.common.block.ChoppedLogBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -80,6 +80,10 @@ public class ChopResult {
             fellBlocks(level, targetPos, agent, Stream.of(fells, leaves).flatMap(Collection::stream));
 
             return false;
+        } else {
+            if (chops.stream().noneMatch(chop -> chop.getBlockPos().equals(targetPos)) && level.getBlockEntity(targetPos) instanceof ChoppedLogBlock.MyEntity entity) {
+                entity.syncWithClients();
+            }
         }
 
         return true;
