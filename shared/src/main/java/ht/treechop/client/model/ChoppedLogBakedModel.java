@@ -78,7 +78,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
 
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        return defaultSprite;
+        return getDefaultSprite();
     }
 
     @Override
@@ -92,7 +92,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     protected TextureAtlasSprite getDefaultSprite() {
-        return ChoppedLogBakedModel.defaultSprite;
+        return defaultSprite;
     }
 
     protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int chops, Set<Direction> solidSides, Random random) {

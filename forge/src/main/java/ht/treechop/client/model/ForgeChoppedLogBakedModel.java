@@ -16,6 +16,7 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
@@ -45,7 +46,7 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
             } else if (existingModel instanceof ForgeChoppedLogBakedModel) {
                 TreeChop.LOGGER.warn("Tried to replace ChoppedLogBakedModel twice");
             } else {
-                ForgeChoppedLogBakedModel customModel = new ForgeChoppedLogBakedModel();
+                BakedModel customModel = new ForgeChoppedLogBakedModel().bake(event.getModelLoader(), ForgeModelBakery.defaultTextureGetter(), null, null);
                 event.getModelRegistry().put(variantMRL, customModel);
             }
         }
