@@ -84,11 +84,16 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${mcversion}-${forgeversion}"
 
+    compileOnly project(":forge")
+    runtimeOnly project(":forge")
+//    compileOnly fg.deobf(":TreeChop-$mcversion-forge-${rootProject.version}")
+//    runtimeOnly fg.deobf(":TreeChop-$mcversion-forge-${rootProject.version}")
+//    compileOnly fg.deobf(":TreeChop-$mcversion-forge-${version}")
+//    runtimeOnly fg.deobf(":TreeChop-$mcversion-forge-${version}")
+//    runtimeOnly fg.deobf(fileTree(dir: "forge/build/libs/", include: "TreeChop-{$mcversion}-forge-{$version}.jar"))
+
     compileOnly fg.deobf("curse.maven:jade-324717:3970956")
     runtimeOnly fg.deobf("curse.maven:jade-324717:3970956")
-
-    compileOnly fg.deobf(rootProject.files("forge/build/libs/TreeChop-1.18.2-forge-0.16.0.jar"))
-    runtimeOnly fg.deobf(rootProject.files("forge/build/libs/TreeChop-1.18.2-forge-0.16.0.jar"))
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'

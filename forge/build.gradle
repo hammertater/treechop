@@ -94,13 +94,13 @@ dependencies {
     implementation project(":shared")
 
     compileOnly fg.deobf("curse.maven:dynamictrees-252818:3831578")
-    runtimeOnly fg.deobf("curse.maven:dynamictrees-252818:3831578")
+//    runtimeOnly fg.deobf("curse.maven:dynamictrees-252818:3831578")
 
     compileOnly fg.deobf("curse.maven:pmmo-353935:3809102") // https://github.com/Harmonised7/project_mmo
-    runtimeOnly fg.deobf("curse.maven:pmmo-353935:3809102")
+//    runtimeOnly fg.deobf("curse.maven:pmmo-353935:3809102")
 
     compileOnly fg.deobf("curse.maven:carry-on-274259:3674344")
-    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3674344")
+//    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3674344")
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
     testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"
@@ -121,6 +121,19 @@ processResources {
 
 // Example configuration to allow publishing using the maven-publish task
 // This is the preferred method to reobfuscate your jar file
-jar.finalizedBy("reobfJar")
+//jar.finalizedBy("reobfJar")
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
-//publish.dependsOn("reobfJar")
+publish.dependsOn("reobfJar")
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file://${rootDir}/publishing"
+        }
+    }
+}
