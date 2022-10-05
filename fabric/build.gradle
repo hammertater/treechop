@@ -32,7 +32,11 @@ dependencies {
     modImplementation "net.minecraftforge:forgeconfigapiport-fabric:3.2.4"
 
     modCompileOnly "curse.maven:jade-324717:3922834"
-    modRuntimeOnly "curse.maven:jade-324717:3922834"
+//    modRuntimeOnly "curse.maven:jade-324717:3922834"
+
+    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-4.13.3"
+    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-4.13.3"
+    modRuntimeOnly "lol.bai:badpackets:fabric-0.1.2"
 }
 
 processResources {
