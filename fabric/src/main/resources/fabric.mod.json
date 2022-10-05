@@ -26,6 +26,9 @@
     ],
     "server": [
       "ht.treechop.server.FabricServer"
+    ],
+    "jade": [
+      "ht.treechop.compat.Jade"
     ]
   },
   "mixins": [
