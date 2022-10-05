@@ -1,5 +1,6 @@
 package ht.treechop.plugin.jade;
 
+import ht.treechop.TreeChop;
 import ht.treechop.api.TreeData;
 import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
@@ -27,10 +28,9 @@ import java.util.stream.Collectors;
 @WailaPlugin
 public class TreeChopJadePlugin implements IWailaPlugin, IComponentProvider {
     public static final String MOD_ID = "treechopjadeplugin";
-    public static final String TREECHOP_ID = "treechop";
     private static final TreeChopJadePlugin INSTANCE = new TreeChopJadePlugin();
-    private static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TREECHOP_ID, "show_tree_block_counts");
-    private static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TREECHOP_ID, "show_num_chops_remaining");
+    private static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
+    private static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
 
     public TreeChopJadePlugin() {
     }
