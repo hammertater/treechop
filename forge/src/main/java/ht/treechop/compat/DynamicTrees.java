@@ -2,8 +2,8 @@ package ht.treechop.compat;
 
 import com.ferreusveritas.dynamictrees.blocks.branches.BranchBlock;
 import ht.treechop.TreeChop;
-import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.api.ChopEvent;
+import ht.treechop.common.config.ConfigHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;

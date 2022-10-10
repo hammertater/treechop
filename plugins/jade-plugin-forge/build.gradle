@@ -84,7 +84,7 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${mcversion}-${forgeversion}"
 
-    implementation fg.deobf("ht.treechop:forge:0.16.2")
+    implementation fg.deobf("ht.treechop:forge:$rootProject.version")
     implementation fg.deobf("curse.maven:jade-324717:3970956")
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
@@ -95,4 +95,5 @@ test {
     useJUnitPlatform()
 }
 
-jar.finalizedBy("reobfJar")
+jar.dependsOn ":forge:publish"
+jar.finalizedBy "reobfJar"

@@ -2,7 +2,6 @@ package ht.treechop.common.network;
 
 import ht.treechop.TreeChop;
 import ht.treechop.client.Client;
-import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 

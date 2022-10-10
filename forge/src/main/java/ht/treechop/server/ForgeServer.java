@@ -16,8 +16,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
 
-import java.util.Optional;
-
 @Mod.EventBusSubscriber(modid = TreeChop.MOD_ID)
 public class ForgeServer extends Server {
     static {

@@ -1,12 +1,10 @@
 package ht.treechop.common.registry;
 
 import ht.treechop.TreeChop;
-import ht.treechop.TreeChopFabric;
 import ht.treechop.common.block.FabricChoppedLogBlock;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;

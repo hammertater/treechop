@@ -2,7 +2,6 @@ package ht.treechop.common.network;
 
 import ht.treechop.TreeChop;
 import ht.treechop.common.block.ChoppedLogBlock;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
