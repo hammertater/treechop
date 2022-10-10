@@ -15,11 +15,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class TreeChop {
     public static final String MOD_ID = "treechop";
     public static final String MOD_NAME = "HT's TreeChop";
-    public static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static Platform platform;
 
     @SuppressWarnings("ConstantConditions")
