@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Mod(TreeChopJadePlugin.MOD_ID)
 @WailaPlugin
 public class TreeChopJadePlugin implements IWailaPlugin, IComponentProvider {
-    public static final String MOD_ID = "treechopjadeplugin";
+    public static final String MOD_ID = "treechopjade";
     private static final TreeChopJadePlugin INSTANCE = new TreeChopJadePlugin();
     private static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
     private static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");

@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class TreeChopJadePlugin implements ModInitializer, IWailaPlugin, IComponentProvider {
-    public static final String MOD_ID = "treechopjadeplugin";
+    public static final String MOD_ID = "treechopjade";
     public static final String TREECHOP_ID = "treechop";
     private static final TreeChopJadePlugin INSTANCE = new TreeChopJadePlugin();
     private static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TREECHOP_ID, "show_tree_block_counts");

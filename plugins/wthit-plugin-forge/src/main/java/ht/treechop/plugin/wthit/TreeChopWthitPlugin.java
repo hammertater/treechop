@@ -23,10 +23,10 @@ import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-@WailaPlugin(id = TreeChop.MOD_ID + ":plugin")
+@WailaPlugin(id = TreeChop.MOD_ID)
 @Mod(TreeChopWthitPlugin.MOD_ID)
 public class TreeChopWthitPlugin implements IWailaPlugin, IComponentProvider {
-    public static final String MOD_ID = "treechopwthitplugin";
+    public static final String MOD_ID = "treechopwthit";
     public static final String TREECHOP_ID = "treechop";
     private static final TreeChopWthitPlugin INSTANCE = new TreeChopWthitPlugin();
 

@@ -72,7 +72,7 @@ public class FabricClient extends Client implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(ServerUpdateChopsPacket.ID, (client, handler, buffer, sender) -> {
             ServerUpdateChopsPacket packet = ServerUpdateChopsPacket.decode(buffer);
-            client.execute(() -> ServerUpdateChopsPacket.handle(packet));
+            client.execute(() -> ServerUpdateChopsPacket.handle(packet, sender.level));
         });
     }
 

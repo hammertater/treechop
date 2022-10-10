@@ -41,9 +41,9 @@ public class ServerUpdateChopsPacket implements CustomPacket {
         return new ServerUpdateChopsPacket(pos, tag);
     }
 
-    public static void handle(ServerUpdateChopsPacket message) {
+    public static void handle(ServerUpdateChopsPacket message, Level level) {
         pendingUpdates.put(message.pos, message.tag);
-        update(Minecraft.getInstance().level, message.pos);
+        update(level, message.pos);
     }
 
     public static CompoundTag getPendingUpdate(Level level, BlockPos pos) {

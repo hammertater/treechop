@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "treechopjadeplugin",
+  "id": "treechopjade",
   "version": "${version}",
 
   "name": "HT's TreeChop Jade Plugin",
@@ -9,7 +9,7 @@
     "hammertater"
   ],
   "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/treechopjadeplugin",
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/treechopjade",
     "sources": "https://github.com/hammertater/treechop"
   },
 
