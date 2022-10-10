@@ -37,6 +37,8 @@ dependencies {
     modCompileOnly "mcp.mobius.waila:wthit-api:fabric-4.13.3"
     modRuntimeOnly "mcp.mobius.waila:wthit:fabric-4.13.3"
     modRuntimeOnly "lol.bai:badpackets:fabric-0.1.2"
+
+    modRuntimeOnly "curse.maven:starlight-521783:3667443"
 }
 
 processResources {
