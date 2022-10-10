@@ -38,6 +38,7 @@ dependencies {
     modRuntimeOnly "mcp.mobius.waila:wthit:fabric-4.13.3"
     modRuntimeOnly "lol.bai:badpackets:fabric-0.1.2"
 
+    modRuntimeOnly "curse.maven:sodium-394468:3669187"
     modRuntimeOnly "curse.maven:starlight-521783:3667443"
 }
 
