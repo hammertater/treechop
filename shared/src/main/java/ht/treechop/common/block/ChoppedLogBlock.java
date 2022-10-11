@@ -175,7 +175,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                 if (level.getBlockEntity(pos) instanceof MyEntity entity) {
                     entity.setChops(newNumChops);
                     entity.setChanged();
-
                 }
             } else {
                 level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
@@ -330,6 +329,10 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         @Override
         public void setChanged() {
             super.setChanged();
+            syncWithClients();
+        }
+
+        public void syncWithClients() {
             if (level instanceof ServerLevel serverLevel) {
                 Server.instance().broadcast(serverLevel, worldPosition, new ServerUpdateChopsPacket(worldPosition, getUpdateTag()));
             }

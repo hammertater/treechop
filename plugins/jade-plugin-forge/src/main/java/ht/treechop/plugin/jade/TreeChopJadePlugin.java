@@ -1,42 +1,49 @@
-package ht.treechop.compat;
+package ht.treechop.plugin.jade;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.TreeData;
 import ht.treechop.client.Client;
-import ht.treechop.client.ForgeClient;
-import ht.treechop.common.block.ForgeChoppedLogBlock;
+import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.util.ChopUtil;
+import mcp.mobius.waila.api.*;
+import mcp.mobius.waila.api.config.IPluginConfig;
+import mcp.mobius.waila.api.ui.IElement;
+import mcp.mobius.waila.impl.ui.ItemStackElement;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
+import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
-import snownee.jade.api.*;
-import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.ui.IElement;
-import snownee.jade.impl.ui.ItemStackElement;
 
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-@WailaPlugin //(TreeChopMod.MOD_ID + ":waila_plugin")
-public class Jade implements IWailaPlugin, IBlockComponentProvider {
+@Mod(TreeChopJadePlugin.MOD_ID)
+@WailaPlugin
+public class TreeChopJadePlugin implements IWailaPlugin, IComponentProvider {
+    public static final String MOD_ID = "treechopjade";
+    private static final TreeChopJadePlugin INSTANCE = new TreeChopJadePlugin();
+    private static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
+    private static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
 
-    private static final ResourceLocation UID = ResourceLocation.tryBuild(TreeChop.MOD_ID, "plugin");
+    public TreeChopJadePlugin() {
+    }
 
-    public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
-    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
+    @Override
+    public void register(IWailaCommonRegistration registrar) {
+        registrar.addConfig(SHOW_TREE_BLOCKS, true);
+        registrar.addConfig(SHOW_NUM_CHOPS_REMAINING, true);
+    }
 
     @Override
     public void registerClient(IWailaClientRegistration registrar) {
-        registrar.registerBlockComponent(this, ForgeChoppedLogBlock.class);
-        registrar.registerBlockIcon(this, ForgeChoppedLogBlock.class);
-        registrar.addConfig(SHOW_TREE_BLOCKS, true);
-        registrar.addConfig(SHOW_NUM_CHOPS_REMAINING, true);
+        registrar.registerComponentProvider(INSTANCE, TooltipPosition.BODY, Block.class);
     }
 
     @Override
@@ -51,7 +58,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        if (ChopUtil.playerWantsToChop(accessor.getPlayer(), ForgeClient.getChopSettings())
+        if (ChopUtil.playerWantsToChop(accessor.getPlayer(), Client.getChopSettings())
                 && ChopUtil.isBlockChoppable(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState())
                 && (config.get(SHOW_TREE_BLOCKS) || config.get(SHOW_NUM_CHOPS_REMAINING))) {
             Level level = accessor.getLevel();
@@ -63,7 +70,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
                         treeBlocks -> {
                             if (config.get(SHOW_NUM_CHOPS_REMAINING)) {
                                 treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
-                                tooltip.add(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size())));
+                                tooltip.add(new TranslatableComponent("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size())));
                             }
 
                             if (config.get(SHOW_TREE_BLOCKS)) {
@@ -85,15 +92,10 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
     }
 
     private BlockState getLogState(Level level, BlockPos pos, BlockState state) {
-        if (level.getBlockEntity(pos) instanceof ForgeChoppedLogBlock.MyEntity entity) {
+        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
             return entity.getOriginalState();
         } else {
             return state;
         }
-    }
-
-    @Override
-    public ResourceLocation getUid() {
-        return UID;
     }
 }

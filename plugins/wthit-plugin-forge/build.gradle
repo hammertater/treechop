@@ -1,0 +1,88 @@
+buildscript {
+    repositories {
+        maven { url = "https://maven.minecraftforge.net" }
+        maven { url = "https://repo.spongepowered.org/maven" }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: "net.minecraftforge.gradle", name: "ForgeGradle", version: "5.1.+", changing: true
+    }
+}
+apply plugin: "net.minecraftforge.gradle"
+
+archivesBaseName = "${modname}-${mcversion}-forge"
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+println("Java: " + System.getProperty("java.version") + " JVM: " + System.getProperty("java.vm.version") + "(" + System.getProperty("java.vendor") + ") Arch: " + System.getProperty("os.arch"))
+minecraft {
+    mappings channel: "official", version: mcversion
+
+    runs {
+        client {
+            workingDirectory project.file("run")
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName "Client"
+
+            property "forge.logging.markers", "REGISTRIES"
+            property "forge.logging.console.level", "debug"
+            property "forge.enabledGameTestNamespaces", modid
+
+            mods {
+                "${modid}" {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file("run")
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName "Server"
+
+            property "forge.logging.markers", "REGISTRIES"
+            property "forge.logging.console.level", "debug"
+            property "forge.enabledGameTestNamespaces", modid
+
+            mods {
+                "${modid}" {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    maven {
+        url "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+    maven { url "https://maven.bai.lol" }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${mcversion}-${forgeversion}"
+
+    implementation fg.deobf("ht.treechop:forge:$rootProject.version")
+
+    implementation fg.deobf("curse.maven:wthit-455982:3947976")
+    runtimeOnly fg.deobf("curse.maven:badpackets-615134:3773642")
+
+//    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-4.13.3")
+//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-4.13.3")
+//    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.1.2")
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar.dependsOn ":forge:publish"
+jar.finalizedBy("reobfJar")

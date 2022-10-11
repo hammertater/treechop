@@ -2,17 +2,11 @@ package ht.treechop.server;
 
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.CustomPacket;
-import ht.treechop.common.network.ServerUpdateChopsPacket;
-import ht.treechop.common.settings.*;
+import ht.treechop.common.settings.EntityChopSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public abstract class Server {
 

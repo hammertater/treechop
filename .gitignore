@@ -27,3 +27,5 @@ forge*changelog.txt
 logs
 /gradle/wrapper/gradle-wrapper.jar
 /gradle/wrapper/gradle-wrapper.properties
+
+publishing

@@ -1,11 +1,7 @@
 package ht.treechop.client;
 
 import ht.treechop.TreeChop;
-import ht.treechop.client.model.ChoppedLogModelProvider;
-import ht.treechop.client.model.FabricChoppedLogBakedModel;
-import ht.treechop.client.model.FabricChoppedLogEntityRenderer;
-import ht.treechop.client.model.HiddenChoppedLogBakedModel;
-import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.client.model.*;
 import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.network.ServerConfirmSettingsPacket;
 import ht.treechop.common.network.ServerPermissionsPacket;
@@ -30,6 +26,8 @@ public class FabricClient extends Client implements ClientModInitializer {
         Client.instance = new FabricClient();
     }
 
+    public static ChoppedLogBakedModel choppedLogModel = new FabricChoppedLogBakedModel();
+
     @Override
     public void onInitializeClient() {
         if (FabricLoader.getInstance().isModLoaded("sodium")) {
@@ -37,13 +35,14 @@ public class FabricClient extends Client implements ClientModInitializer {
             ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ChoppedLogModelProvider(new HiddenChoppedLogBakedModel()));
             BlockEntityRendererRegistry.register(FabricModBlocks.CHOPPED_LOG_ENTITY, FabricChoppedLogEntityRenderer::new);
         } else {
-            ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ChoppedLogModelProvider(new FabricChoppedLogBakedModel()));
+            ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ChoppedLogModelProvider(choppedLogModel));
         }
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> syncOnJoin());
 
         registerPackets();
         registerKeybindings();
+
     }
 
     private void registerKeybindings() {
@@ -72,7 +71,7 @@ public class FabricClient extends Client implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(ServerUpdateChopsPacket.ID, (client, handler, buffer, sender) -> {
             ServerUpdateChopsPacket packet = ServerUpdateChopsPacket.decode(buffer);
-            client.execute(() -> ServerUpdateChopsPacket.handle(packet));
+            client.execute(() -> ServerUpdateChopsPacket.handle(packet, client.level));
         });
     }
 

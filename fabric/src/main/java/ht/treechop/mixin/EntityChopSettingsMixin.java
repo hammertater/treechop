@@ -1,7 +1,7 @@
 package ht.treechop.mixin;
 
-import ht.treechop.common.settings.EntityChopSettings;
 import ht.treechop.common.settings.ChoppingEntity;
+import ht.treechop.common.settings.EntityChopSettings;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;

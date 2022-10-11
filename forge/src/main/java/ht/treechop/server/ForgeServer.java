@@ -16,8 +16,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
 
-import java.util.Optional;
-
 @Mod.EventBusSubscriber(modid = TreeChop.MOD_ID)
 public class ForgeServer extends Server {
     static {
@@ -28,7 +26,7 @@ public class ForgeServer extends Server {
     public static void onPlayerCloned(PlayerEvent.Clone event) {
         if (event.isWasDeath()) {
             Player oldPlayer = event.getOriginal();
-            Player newPlayer = event.getEntity();
+            Player newPlayer = event.getPlayer();
             LazyOptional<ChopSettingsCapability> lazyOldSettings = ChopSettingsCapability.forPlayer(oldPlayer);
             LazyOptional<ChopSettingsCapability> lazyNewSettings = ChopSettingsCapability.forPlayer(newPlayer);
 

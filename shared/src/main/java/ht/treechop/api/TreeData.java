@@ -1,12 +1,9 @@
 package ht.treechop.api;
 
-import ht.treechop.client.Client;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.settings.ChopSettings;
 import net.minecraft.core.BlockPos;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 

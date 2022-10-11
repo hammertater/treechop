@@ -38,7 +38,7 @@ public class NoChopOnRightClick {
     private static class EventHandler {
         @SubscribeEvent(priority = EventPriority.HIGHEST)
         public static void onBlockStartClick(PlayerInteractEvent.RightClickBlock event) {
-            long time = event.getLevel().getGameTime();
+            long time = event.getWorld().getGameTime();
             lastRightClickTickByPlayers.put(event.getEntity(), time);
         }
 

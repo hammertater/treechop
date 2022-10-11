@@ -4,7 +4,6 @@ import ht.treechop.TreeChop;
 import ht.treechop.client.Client;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.Setting;
-import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 

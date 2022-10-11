@@ -6,7 +6,7 @@ import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @WailaPlugin
 public class Jade implements IWailaPlugin, IBlockComponentProvider {
 
-    private static final ResourceLocation UID = ResourceLocation.tryBuild(TreeChop.MOD_ID, "plugin");
+    private static final ResourceLocation UID = new ResourceLocation(TreeChop.MOD_ID, "plugin");
 
     public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
     public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
@@ -61,7 +61,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
                         treeBlocks -> {
                             if (config.get(SHOW_NUM_CHOPS_REMAINING)) {
                                 treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
-                                tooltip.add(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size())));
+                                tooltip.add(new TranslatableComponent("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size())));
                             }
 
                             if (config.get(SHOW_TREE_BLOCKS)) {

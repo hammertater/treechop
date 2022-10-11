@@ -1,4 +1,4 @@
-package ht.treechop.compat;
+package ht.treechop.plugin.wthit;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.TreeData;
@@ -10,23 +10,28 @@ import mcp.mobius.waila.api.component.ItemComponent;
 import mcp.mobius.waila.api.component.PairComponent;
 import mcp.mobius.waila.api.component.WrappedComponent;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class Wthit implements IWailaPlugin, IBlockComponentProvider {
-    private static final Wthit INSTANCE = new Wthit();
+@WailaPlugin(id = TreeChop.MOD_ID)
+@Mod(TreeChopWthitPlugin.MOD_ID)
+public class TreeChopWthitPlugin implements IWailaPlugin, IComponentProvider {
+    public static final String MOD_ID = "treechopwthit";
+    public static final String TREECHOP_ID = "treechop";
+    private static final TreeChopWthitPlugin INSTANCE = new TreeChopWthitPlugin();
 
-    public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
-    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
+    public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TREECHOP_ID, "show_tree_block_counts");
+    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TREECHOP_ID, "show_num_chops_remaining");
 
     @Override
     public void register(IRegistrar registrar) {
@@ -55,7 +60,7 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
                         treeBlocks -> {
                             if (config.getBoolean(SHOW_NUM_CHOPS_REMAINING)) {
                                 treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
-                                tooltip.addLine(new WrappedComponent(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size()))));
+                                tooltip.addLine(new WrappedComponent(new TranslatableComponent("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size()))));
                             }
 
                             if (config.getBoolean(SHOW_TREE_BLOCKS)) {

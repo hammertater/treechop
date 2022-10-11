@@ -7,7 +7,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -17,7 +16,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -179,7 +177,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
         public final ForgeConfigSpec.BooleanValue compatForProjectMMO;
-        //        public final ForgeConfigSpec.BooleanValue compatForDynamicTrees;
+        public final ForgeConfigSpec.BooleanValue compatForDynamicTrees;
         public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
@@ -323,11 +321,11 @@ public class ConfigHandler {
                             "Whether to enable compatibility with ProjectMMO; for example, award XP for chopping",
                             "See https://www.curseforge.com/minecraft/mc-mods/project-mmo"))
                     .define("projectMMO", true);
-//            compatForDynamicTrees = builder
-//                    .comment(String.join("\n",
-//                            "Whether to prevent conflicts with DynamicTrees",
-//                            "See https://www.curseforge.com/minecraft/mc-mods/dynamictrees"))
-//                    .define("dynamicTrees", true);
+            compatForDynamicTrees = builder
+                    .comment(String.join("\n",
+                            "Whether to prevent conflicts with DynamicTrees",
+                            "See https://www.curseforge.com/minecraft/mc-mods/dynamictrees"))
+                    .define("dynamicTrees", true);
             builder.pop();
             builder.pop();
         }
@@ -356,7 +354,6 @@ public class ConfigHandler {
         public final ForgeConfigSpec.EnumValue<SneakBehavior> sneakBehavior;
         public final ForgeConfigSpec.BooleanValue treesMustHaveLeaves;
         public final ForgeConfigSpec.BooleanValue chopInCreativeMode;
-        public final ForgeConfigSpec.BooleanValue useProceduralChoppedModels;
         public final ForgeConfigSpec.BooleanValue showChoppingIndicators;
         public final ForgeConfigSpec.BooleanValue removeBarkOnInteriorLogs;
         public final ForgeConfigSpec.IntValue indicatorXOffset;
@@ -387,9 +384,6 @@ public class ConfigHandler {
             builder.pop();
 
             builder.push("visuals");
-            useProceduralChoppedModels = builder
-                    .comment("Whether to use procedural chopped log models; disable to use models added by a resource pack")
-                    .define("useProceduralChoppedModels", true);
             removeBarkOnInteriorLogs = builder
                     .comment("Whether to replace the interior sides of logs with a chopped texture instead of bark")
                     .define("removeBarkOnInteriorLogs", true);

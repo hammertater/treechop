@@ -49,6 +49,9 @@
   "treechop.sneak_behavior.invert_felling": "INVERT FELLING",
   "treechop.sneak_behavior.none": "NONE",
   "treechop.waila.x_out_of_y_chops": "%d/%d chops",
+  "config.waila.plugin_treechop.plugin": "HT's TreeChop",
+  "config.waila.plugin_treechop.show_num_chops_remaining": "Chop counts",
+  "config.waila.plugin_treechop.show_tree_block_counts": "Block counts",
   "config.jade.plugin_treechop.plugin": "HT's TreeChop",
   "config.jade.plugin_treechop.show_num_chops_remaining": "Chop counts",
   "config.jade.plugin_treechop.show_tree_block_counts": "Block counts"

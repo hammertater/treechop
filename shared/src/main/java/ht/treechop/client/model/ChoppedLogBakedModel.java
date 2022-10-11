@@ -14,12 +14,11 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.tuple.Triple;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -28,7 +27,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     private static TextureAtlasSprite defaultSprite;
     protected final ResourceLocation defaultTextureRL = new ResourceLocation("block/stripped_oak_log");
 
-    protected TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, RandomSource rand) {
+    protected TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, Random rand) {
         ModelResourceLocation modelLocation = BlockModelShaper.stateToModelLocation(blockState);
         return Minecraft.getInstance().getModelManager().getModel(modelLocation)
                 .getQuads(blockState, side, rand).stream()
@@ -42,7 +41,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
         return Collections.emptyList();
     }
 
-    public Collection<Material> getMaterials(Function<ResourceLocation, UnbakedModel> unbakedModelGetter, Set<Pair<String, String>> unresolvedTextureReferences) {
+    public Collection<Material> getMaterials(Function<ResourceLocation, UnbakedModel> var1, Set<Pair<String, String>> var2) {
         return Collections.emptyList();
     }
 
@@ -53,7 +52,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, RandomSource randomSource) {
+    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, Random randomSource) {
         return Collections.emptyList();
     }
 
@@ -79,7 +78,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
 
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        return defaultSprite;
+        return getDefaultSprite();
     }
 
     @Override
@@ -93,10 +92,10 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     protected TextureAtlasSprite getDefaultSprite() {
-        return ChoppedLogBakedModel.defaultSprite;
+        return defaultSprite;
     }
 
-    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int chops, Set<Direction> solidSides, RandomSource random) {
+    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int chops, Set<Direction> solidSides, Random random) {
         AABB box = shape.getBoundingBox(chops);
         float downY = (float) box.minY;
         float upY = (float) box.maxY;

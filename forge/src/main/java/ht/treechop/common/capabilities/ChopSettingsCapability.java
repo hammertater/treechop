@@ -2,7 +2,6 @@ package ht.treechop.common.capabilities;
 
 import ht.treechop.TreeChop;
 import ht.treechop.common.settings.EntityChopSettings;
-import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
@@ -11,8 +10,6 @@ import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
-
-import java.util.Optional;
 
 public class ChopSettingsCapability extends EntityChopSettings implements INBTSerializable<CompoundTag> {
 

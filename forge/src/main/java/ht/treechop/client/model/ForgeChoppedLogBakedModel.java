@@ -5,13 +5,9 @@ import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.registry.ForgeModBlocks;
 import ht.treechop.common.util.ChopUtil;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
@@ -20,7 +16,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.ChunkRenderTypeSet;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.model.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.ModelData;
@@ -49,7 +44,7 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
             } else if (existingModel instanceof ForgeChoppedLogBakedModel) {
                 TreeChop.LOGGER.warn("Tried to replace ChoppedLogBakedModel twice");
             } else {
-                ForgeChoppedLogBakedModel customModel = new ForgeChoppedLogBakedModel();
+                BakedModel customModel = new ForgeChoppedLogBakedModel().bake(event.getModelLoader(), ForgeModelBakery.defaultTextureGetter(), null, null);
                 event.getModels().put(variantMRL, customModel);
             }
         }

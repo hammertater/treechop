@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "treechopjade",
+  "version": "${version}",
+
+  "name": "HT's TreeChop Jade Plugin",
+  "description": "Adds Jade support for HT's TreeChop.",
+  "authors": [
+    "hammertater"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/treechopjade",
+    "sources": "https://github.com/hammertater/treechop"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "logo.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "ht.treechop.plugin.jade.TreeChopJadePlugin"
+    ]
+  },
+
+  "depends": {
+    "jade": ">=5.99.7",
+    "fabricloader": ">=0.14.6",
+    "fabric": "*",
+    "minecraft": "~1.18.2",
+    "java": ">=17"
+  },
+  "suggests": {
+  }
+}
