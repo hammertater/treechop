@@ -34,6 +34,7 @@ public final class ForgePacketHandler implements PacketHandler {
 
         HANDLER.registerMessage(id++, ServerPermissionsPacket.class, ServerPermissionsPacket::encode, ServerPermissionsPacket::decode, PacketProcessor.toClient((message, sender) -> ServerPermissionsPacket.handle(message)));
 
+        // TODO: UH OH! sender is null!
         HANDLER.registerMessage(id++, ServerUpdateChopsPacket.class, ServerUpdateChopsPacket::encode, ServerUpdateChopsPacket::decode, PacketProcessor.toClient((message, sender) -> ServerUpdateChopsPacket.handle(message, sender.level)));
     }
 

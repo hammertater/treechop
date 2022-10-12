@@ -7,7 +7,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,7 +21,7 @@ public class ExclusiveButtonsGui extends NestedGui {
     private final Supplier<Component> tooltipSupplier;
 
     protected ExclusiveButtonsGui(Collection<AbstractWidget> widgets, Supplier<Component> tooltipSupplier) {
-        super(0, 0, 0, 0, TextComponent.EMPTY);
+        super(0, 0, 0, 0, Component.empty());
         this.widgets = new ArrayList<>(widgets);
         this.tooltipSupplier = tooltipSupplier;
     }

@@ -103,11 +103,11 @@ dependencies {
     compileOnly fg.deobf("curse.maven:jade-324717:3903693")
     runtimeOnly fg.deobf("curse.maven:jade-324717:3903693")
 
-//    compileOnly fg.deobf("curse.maven:pmmo-353935:353935") // https://github.com/Harmonised7/project_mmo
-//    runtimeOnly fg.deobf("curse.maven:pmmo-353935:353935")
+    compileOnly fg.deobf("curse.maven:project-mmo-353935:4019274") // https://github.com/Harmonised7/project_mmo
+//    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4019274")
 
-//    compileOnly fg.deobf("curse.maven:carry-on-274259:3828228")
-//    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3828228")
+    compileOnly fg.deobf("curse.maven:carry-on-274259:3885508")
+    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3885508")
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
     testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"

@@ -5,6 +5,7 @@ import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.registry.ForgeModBlocks;
 import ht.treechop.common.util.ChopUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -44,7 +45,7 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
             } else if (existingModel instanceof ForgeChoppedLogBakedModel) {
                 TreeChop.LOGGER.warn("Tried to replace ChoppedLogBakedModel twice");
             } else {
-                BakedModel customModel = new ForgeChoppedLogBakedModel().bake(event.getModelLoader(), ForgeModelBakery.defaultTextureGetter(), null, null);
+                BakedModel customModel = new ForgeChoppedLogBakedModel().bake(event.getModelBakery(), event.getModelBakery().getAtlasSet()::getSprite, null, null);
                 event.getModels().put(variantMRL, customModel);
             }
         }

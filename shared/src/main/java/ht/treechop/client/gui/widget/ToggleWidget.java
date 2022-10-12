@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.gui.util.Sprite;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.EnumMap;
@@ -18,7 +18,7 @@ public class ToggleWidget extends AbstractWidget {
     private final Runnable onPress;
 
     public ToggleWidget(int x, int y, Runnable onPress, Supplier<State> stateSupplier) {
-        super(x, y, Sprite.TOGGLE_BUTTON_OFF.width, Sprite.TOGGLE_BUTTON_OFF.height, TextComponent.EMPTY);
+        super(x, y, Sprite.TOGGLE_BUTTON_OFF.width, Sprite.TOGGLE_BUTTON_OFF.height, Component.empty());
         this.onPress = onPress;
         this.stateSupplier = stateSupplier;
     }

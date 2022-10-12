@@ -6,7 +6,7 @@ import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.util.ChopUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -61,7 +61,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
                         treeBlocks -> {
                             if (config.get(SHOW_NUM_CHOPS_REMAINING)) {
                                 treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
-                                tooltip.add(new TranslatableComponent("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size())));
+                                tooltip.add(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size())));
                             }
 
                             if (config.get(SHOW_TREE_BLOCKS)) {

@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -20,7 +21,7 @@ import java.util.Random;
 
 public class FabricChoppedLogEntityRenderer extends FabricChoppedLogBakedModel implements BlockEntityRenderer<FabricChoppedLogBlock.MyEntity> {
     protected final TextureAtlasSprite defaultSprite;
-    private final Random random = new Random();
+    private final RandomSource random = RandomSource.create();
     private final BlockRenderContext renderContext = new BlockRenderContext();
 
     public FabricChoppedLogEntityRenderer(BlockEntityRendererProvider.Context context) {

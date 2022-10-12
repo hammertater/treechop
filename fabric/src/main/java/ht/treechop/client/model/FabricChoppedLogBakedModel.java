@@ -34,6 +34,8 @@ import java.util.function.Supplier;
 @Environment(EnvType.CLIENT)
 public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements FabricBakedModel {
 
+    private static TextureAtlasSprite defaultSprite;
+
     @Override
     public boolean isVanillaAdapter() {
         return false;
@@ -80,7 +82,7 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, Random randomSource) {
+    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, RandomSource randomSource) {
         return Collections.emptyList();
     }
 

@@ -14,7 +14,7 @@ import net.minecraftforge.registries.RegistryObject;
 public class ForgeModBlocks {
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, TreeChop.MOD_ID);
-    public static final DeferredRegister<BlockEntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, TreeChop.MOD_ID);
+    public static final DeferredRegister<BlockEntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, TreeChop.MOD_ID);
 
     // Blocks
     public static final RegistryObject<Block> CHOPPED_LOG = BLOCKS.register("chopped_log",

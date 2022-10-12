@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.tuple.Triple;
@@ -27,7 +28,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     private static TextureAtlasSprite defaultSprite;
     protected final ResourceLocation defaultTextureRL = new ResourceLocation("block/stripped_oak_log");
 
-    protected TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, Random rand) {
+    protected TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, RandomSource rand) {
         ModelResourceLocation modelLocation = BlockModelShaper.stateToModelLocation(blockState);
         return Minecraft.getInstance().getModelManager().getModel(modelLocation)
                 .getQuads(blockState, side, rand).stream()
@@ -52,7 +53,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, Random randomSource) {
+    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, RandomSource randomSource) {
         return Collections.emptyList();
     }
 
@@ -95,7 +96,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
         return defaultSprite;
     }
 
-    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int chops, Set<Direction> solidSides, Random random) {
+    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int chops, Set<Direction> solidSides, RandomSource random) {
         AABB box = shape.getBoundingBox(chops);
         float downY = (float) box.minY;
         float upY = (float) box.maxY;
