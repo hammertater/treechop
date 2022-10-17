@@ -2,11 +2,6 @@
 
 For a far more fun description, see https://www.curseforge.com/minecraft/mc-mods/treechop.
 
-## TO-DO:
-- Mushroom WAILA counts don't include cap blocks
-- Jade plugin needs logo etc.
-- Spillover chops in Forge look weird
-
 ## Are trees leaving behind floating blocks?
 
 Let me know [here](https://github.com/hammertater/treechop/issues/44)!
