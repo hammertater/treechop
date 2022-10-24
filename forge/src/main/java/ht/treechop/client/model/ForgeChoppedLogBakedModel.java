@@ -63,7 +63,7 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
             ModelData.Builder builder = ModelData.builder();
             builder.with(SOLID_SIDES, entity.getShape().getSolidSides(level, pos));
             builder.with(STRIPPED_BLOCK_STATE, ChopUtil.getStrippedState(entity.getOriginalState()));
-            builder.with(CHOP_COUNT, entity.getChops());
+            builder.with(CHOP_COUNT, entity.getChops() + (entity.getUnchoppedRadius() - 8));
             builder.with(CHOPPED_LOG_SHAPE, entity.getShape());
             return builder.build();
         } else {
