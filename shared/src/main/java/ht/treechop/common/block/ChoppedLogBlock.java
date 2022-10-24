@@ -2,6 +2,8 @@ package ht.treechop.common.block;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.IChoppableBlock;
+import ht.treechop.api.IFellableBlock;
+import ht.treechop.api.ISimpleChoppableBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.properties.ChoppedLogShape;
@@ -141,14 +143,28 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     }
 
     @Override
-    public int getMaxNumChops(BlockGetter level, BlockPos blockPos, BlockState blockState) {
-        return 7;
+    public int getMaxNumChops(BlockGetter level, BlockPos pos, BlockState blockState) {
+        if (level.getBlockEntity(pos) instanceof MyEntity entity) {
+            return entity.getMaxNumChops();
+        } else {
+            return 7;
+        }
+    }
+
+    @Override
+    public double getSupportFactor(BlockGetter level, BlockPos pos, BlockState blockState) {
+        if (level.getBlockEntity(pos) instanceof MyEntity entity) {
+            return entity.getSupportFactor();
+        } else {
+            return 7;
+        }
     }
 
     @Override
     public void chop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState, int numChops, boolean felling) {
         int currentNumChops = (blockState.is(this)) ? getNumChops(level, pos, blockState) : 0;
-        int newNumChops = Math.min(currentNumChops + numChops, ChopUtil.getMaxNumChops(level, pos, blockState));
+        int maxNumChops = ChopUtil.getMaxNumChops(level, pos, blockState);
+        int newNumChops = Math.min(currentNumChops + numChops, maxNumChops);
         int numAddedChops = newNumChops - currentNumChops;
 
         if (level instanceof ServerLevel serverLevel) {
@@ -161,12 +177,22 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         if (!felling) {
             if (numAddedChops > 0) {
                 if (!blockState.is(this)) {
+                    int chopZeroRadius = (blockState.getBlock() instanceof ISimpleChoppableBlock simple)
+                            ? simple.getUnchoppedRadius(level, pos, blockState)
+                            : 8;
+
+                    double supportFactor = (blockState.getBlock() instanceof IFellableBlock fellable)
+                            ? fellable.getSupportFactor(level, pos, blockState)
+                            : 1.0;
+
                     BlockState newBlockState = (blockState.is(this) ? blockState : getPlacementState(level, pos));
                     if (level.setBlockAndUpdate(pos, newBlockState)
                             && level.getBlockEntity(pos) instanceof MyEntity entity
                             && level instanceof ServerLevel serverLevel) {
                         entity.setShape(getPlacementShape(level, pos));
                         entity.setOriginalState(blockState);
+                        entity.setParameters(chopZeroRadius, maxNumChops, supportFactor);
+
                         List<ItemStack> drops = Block.getDrops(blockState, serverLevel, pos, entity, player, tool);
                         entity.setDrops(drops);
                     }
@@ -247,6 +273,10 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         private ChoppedLogShape shape = ChoppedLogShape.PILLAR_Y;
         private int chops = 1;
 
+        private int unchoppedRadius = 8;
+        private int maxNumChops = 7;
+        private double supportFactor = 1.0;
+
         public MyEntity(BlockPos pos, BlockState blockState) {
             super(TreeChop.platform.getChoppedLogBlockEntity(), pos, blockState);
         }
@@ -263,6 +293,15 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             this.originalState = originalState;
         }
 
+        /**
+         * @param unchoppedRadius Maximum is 8 (default), minimum is 1.
+         */
+        public void setParameters(int unchoppedRadius, int maxNumChops, double supportFactor) {
+            this.unchoppedRadius = unchoppedRadius;
+            this.maxNumChops = maxNumChops;
+            this.supportFactor = supportFactor;
+        }
+
         public void setDrops(List<ItemStack> drops) {
             this.drops = drops;
         }
@@ -277,6 +316,18 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
         public BlockState getOriginalState() {
             return originalState;
+        }
+
+        public int getUnchoppedRadius() {
+            return unchoppedRadius;
+        }
+
+        public int getMaxNumChops() {
+            return maxNumChops;
+        }
+
+        public double getSupportFactor() {
+            return supportFactor;
         }
 
         @Override
