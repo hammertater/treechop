@@ -53,6 +53,9 @@ import static ht.treechop.common.util.ChopUtil.isBlockLeaves;
 public abstract class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, EntityBlock, SimpleWaterloggedBlock {
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final int DEFAULT_SUPPORT_FACTOR = 7;
+    public static final int DEFAULT_MAX_NUM_CHOPS = 7;
+    public static final int DEFAULT_UNCHOPPED_RADIUS = 8;
 
     public ChoppedLogBlock(BlockBehaviour.Properties properties) {
         super(properties
@@ -147,7 +150,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         if (level.getBlockEntity(pos) instanceof MyEntity entity) {
             return entity.getMaxNumChops();
         } else {
-            return 7;
+            return DEFAULT_MAX_NUM_CHOPS;
         }
     }
 
@@ -156,7 +159,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         if (level.getBlockEntity(pos) instanceof MyEntity entity) {
             return entity.getSupportFactor();
         } else {
-            return 7;
+            return DEFAULT_SUPPORT_FACTOR;
         }
     }
 
@@ -267,15 +270,22 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     }
 
     public static abstract class MyEntity extends BlockEntity {
+        public static final String KEY_CHOPS = "Chops";
+        public static final String KEY_SHAPE = "Shape";
+        public static final String KEY_DROPS = "Drops";
+        public static final String KEY_ORIGINAL_STATE = "OriginalState";
+        public static final String KEY_UNCHOPPED_RADIUS = "UnchoppedRadius";
+        public static final String KEY_MAX_NUM_CHOPS = "MaxNumChops";
+        public static final String KEY_SUPPORT_FACTOR = "SupportFactor";
 
         protected BlockState originalState = Blocks.OAK_LOG.defaultBlockState();
         protected List<ItemStack> drops = Collections.emptyList();
         private ChoppedLogShape shape = ChoppedLogShape.PILLAR_Y;
         private int chops = 1;
 
-        private int unchoppedRadius = 8;
-        private int maxNumChops = 7;
-        private double supportFactor = 1.0;
+        private int unchoppedRadius = DEFAULT_UNCHOPPED_RADIUS;
+        private int maxNumChops = DEFAULT_MAX_NUM_CHOPS;
+        private double supportFactor = DEFAULT_SUPPORT_FACTOR;
 
         public MyEntity(BlockPos pos, BlockState blockState) {
             super(TreeChop.platform.getChoppedLogBlockEntity(), pos, blockState);
@@ -335,14 +345,26 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         {
             super.saveAdditional(tag);
 
-            tag.putInt("OriginalState", Block.getId(getOriginalState()));
-            tag.putInt("Chops", getChops());
-            tag.putInt("Shape", getShape().ordinal());
+            tag.putInt(KEY_ORIGINAL_STATE, Block.getId(getOriginalState()));
+            tag.putInt(KEY_CHOPS, getChops());
+            tag.putInt(KEY_SHAPE, getShape().ordinal());
+
+            if (unchoppedRadius != DEFAULT_UNCHOPPED_RADIUS) {
+                tag.putInt(KEY_UNCHOPPED_RADIUS, unchoppedRadius);
+            }
+
+            if (maxNumChops != DEFAULT_MAX_NUM_CHOPS) {
+                tag.putInt(KEY_MAX_NUM_CHOPS, maxNumChops);
+            }
+
+            if (supportFactor != DEFAULT_SUPPORT_FACTOR) {
+                tag.putDouble(KEY_SUPPORT_FACTOR, supportFactor);
+            }
 
             ListTag list = new ListTag();
             drops.stream().map(stack -> stack.save(new CompoundTag()))
                     .forEach(list::add);
-            tag.put("Drops", list);
+            tag.put(KEY_DROPS, list);
         }
 
         @Override
@@ -350,13 +372,18 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         {
             super.load(tag);
 
-            int stateId = tag.getInt("OriginalState");
+            int stateId = tag.getInt(KEY_ORIGINAL_STATE);
             setOriginalState(stateId > 0 ? Block.stateById(stateId) : Blocks.OAK_LOG.defaultBlockState());
 
-            setChops(tag.getInt("Chops"));
-            setShape(ChoppedLogShape.values()[tag.getInt("Shape")]);
+            setChops(tag.getInt(KEY_CHOPS));
+            setShape(ChoppedLogShape.values()[tag.getInt(KEY_SHAPE)]);
 
-            ListTag list = tag.getList("Drops", 10);
+            int unchoppedRadius = (tag.contains(KEY_UNCHOPPED_RADIUS)) ? tag.getInt(KEY_UNCHOPPED_RADIUS) : DEFAULT_UNCHOPPED_RADIUS;
+            int maxNumChops = (tag.contains(KEY_MAX_NUM_CHOPS)) ? tag.getInt(KEY_MAX_NUM_CHOPS) : DEFAULT_MAX_NUM_CHOPS;
+            double supportFactor = (tag.contains(KEY_SUPPORT_FACTOR)) ? tag.getInt(KEY_SUPPORT_FACTOR) : DEFAULT_SUPPORT_FACTOR;
+            setParameters(unchoppedRadius, maxNumChops, supportFactor);
+
+            ListTag list = tag.getList(KEY_DROPS, 10);
 
             drops = new LinkedList<>();
             for(int i = 0; i < list.size(); ++i) {
