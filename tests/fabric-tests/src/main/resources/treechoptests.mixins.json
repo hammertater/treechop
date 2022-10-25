@@ -3,7 +3,9 @@
   "minVersion": "0.8",
   "package": "ht.treechoptests.mixin",
   "compatibilityLevel": "JAVA_17",
+  "plugin": "ht.treechoptests.TestsMixinPlugin",
   "mixins": [
+    "HugeMushroomBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1
