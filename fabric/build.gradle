@@ -2,6 +2,8 @@ plugins {
     id 'fabric-loom' version '0.12-SNAPSHOT'
 }
 
+apply plugin: 'maven-publish'
+
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
@@ -9,14 +11,13 @@ archivesBaseName = "${modname}-${mcversion}-fabric"
 
 repositories {
     mavenCentral()
-    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
-
     maven {
         url "https://www.cursemaven.com"
         content {
             includeGroup "curse.maven"
         }
     }
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
     maven { url "https://maven.bai.lol" }
 }
 
@@ -92,4 +93,17 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        fabricJar(MavenPublication) {
+            artifact(remapJar) {
+                builtBy remapJar
+            }
+            artifact(sourcesJar) {
+                builtBy remapSourcesJar
+            }
+        }
+    }
 }
