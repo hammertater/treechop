@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 import snownee.jade.api.*;
+import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.IElement;
 import snownee.jade.impl.ui.ItemStackElement;
 
@@ -38,7 +39,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
     }
 
     @Override
-    public IElement getIcon(BlockAccessor accessor, snownee.jade.api.config.IPluginConfig config, IElement currentIcon) {
+    public IElement getIcon(BlockAccessor accessor, IPluginConfig config, IElement currentIcon) {
         BlockState state = getLogState(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState());
         return ItemStackElement.of(
                 (state != accessor.getBlockState())
@@ -48,7 +49,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
     }
 
     @Override
-    public void appendTooltip(snownee.jade.api.ITooltip tooltip, BlockAccessor accessor, snownee.jade.api.config.IPluginConfig config) {
+    public void appendTooltip(snownee.jade.api.ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         if (ChopUtil.isBlockChoppable(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState())
                 && ChopUtil.playerWantsToChop(accessor.getPlayer(), Client.getChopSettings())
                 && (config.get(SHOW_TREE_BLOCKS) || config.get(SHOW_NUM_CHOPS_REMAINING))) {
@@ -61,7 +62,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
                         treeBlocks -> {
                             if (config.get(SHOW_NUM_CHOPS_REMAINING)) {
                                 treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
-                                tooltip.add(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size())));
+                                tooltip.add(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(level, treeBlocks)));
                             }
 
                             if (config.get(SHOW_TREE_BLOCKS)) {

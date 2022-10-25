@@ -1,10 +1,7 @@
 package ht.treechop.common.util;
 
 import ht.treechop.TreeChop;
-import ht.treechop.api.ChopData;
-import ht.treechop.api.IChoppableBlock;
-import ht.treechop.api.IChoppingItem;
-import ht.treechop.api.TreeData;
+import ht.treechop.api.*;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.EntityChopSettings;
@@ -136,6 +133,18 @@ public class ChopUtil {
         return ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(numBlocks);
     }
 
+    public static int numChopsToFell(Level level, Set<BlockPos> supportedBlocks) {
+        int treeSize = Math.max(supportedBlocks.stream()
+                        .map(pos -> (level.getBlockState(pos).getBlock() instanceof IFellableBlock block)
+                                ? block.getSupportFactor(level, pos, level.getBlockState(pos))
+                                : 1.0)
+                        .reduce(Double::sum)
+                        .orElse(1.0).intValue(),
+                1);
+
+        return numChopsToFell(treeSize);
+    }
+
     public static ChopResult getChopResult(Level level, BlockPos blockPos, Player agent, int numChops, boolean fellIfPossible, Predicate<BlockPos> logCondition) {
         return fellIfPossible
                 ? getChopResult(level, blockPos, agent, numChops, logCondition)
@@ -191,7 +200,7 @@ public class ChopUtil {
 
         BlockState blockState = level.getBlockState(target);
         int currentNumChops = getNumChops(level, target, blockState);
-        int numChopsToFell = numChopsToFell(supportedBlocks.size());
+        int numChopsToFell = numChopsToFell(level, supportedBlocks);
 
         if (currentNumChops + numChops < numChopsToFell) {
             Set<BlockPos> nearbyChoppableBlocks;
