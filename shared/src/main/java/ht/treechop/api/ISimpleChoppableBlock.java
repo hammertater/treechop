@@ -44,7 +44,7 @@ public interface ISimpleChoppableBlock extends IChoppableBlock {
 
     @Override
     default int getMaxNumChops(BlockGetter level, BlockPos pos, BlockState blockState) {
-        return getUnchoppedRadius(level, pos, blockState);
+        return getUnchoppedRadius(level, pos, blockState) - 1;
     }
 
     @Override
