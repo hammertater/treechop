@@ -11,7 +11,7 @@ public class TreeData {
     private boolean hasLeaves;
     private Set<BlockPos> logBlocks;
 
-    public <T> TreeData() {
+    public TreeData() {
         logBlocks = null;
     }
 
