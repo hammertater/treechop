@@ -24,7 +24,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import static net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 @EventBusSubscriber(modid = TreeChop.MOD_ID, bus = EventBusSubscriber.Bus.FORGE)
-public class Common {
+public class ForgeCommon {
 
     // Don't @SubscribeEvent; FMLCommonSetupEvent fires on Bus.MOD
     public static void onCommonSetup(FMLCommonSetupEvent event) {
@@ -38,18 +38,15 @@ public class Common {
 
     @SubscribeEvent
     public static void onBreakEvent(BlockEvent.BreakEvent event) {
-        ItemStack tool = event.getPlayer().getMainHandItem();
-        BlockState blockState = event.getState();
-        BlockPos pos = event.getPos();
-
         if (event.isCanceled()
                 || !(event.getLevel() instanceof ServerLevel level)
-                || !(event.getPlayer() instanceof ServerPlayer agent)
-                || !ChopUtil.playerWantsToChop(agent)
-                || !blockState.canHarvestBlock(level, pos, agent)) {
+                || !(event.getPlayer() instanceof ServerPlayer agent)) {
            return;
         }
 
+        ItemStack tool = event.getPlayer().getMainHandItem();
+        BlockState blockState = event.getState();
+        BlockPos pos = event.getPos();
         if (ChopUtil.chop(agent, level, pos, blockState, tool, event)) {
             event.setCanceled(true);
         }

@@ -49,7 +49,7 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
             getQuads(
                     ChopUtil.getStrippedState(entity.getOriginalState()),
                     entity.getShape(),
-                    entity.getChops() + (entity.getUnchoppedRadius() - 8),
+                    entity.getChops() + (ChoppedLogBlock.DEFAULT_UNCHOPPED_RADIUS - entity.getUnchoppedRadius()),
                     solidSides,
                     randomSupplier.get()
             )

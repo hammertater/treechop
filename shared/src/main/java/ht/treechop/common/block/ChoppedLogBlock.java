@@ -88,7 +88,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     }
 
     public BlockState getImitatedBlockState(BlockGetter level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof MyEntity entity) {
+        if (level.getBlockEntity(pos) instanceof MyEntity entity && !(entity.getOriginalState().is(this))) {
             return entity.getOriginalState();
         } else {
             return Blocks.OAK_LOG.defaultBlockState();
@@ -105,7 +105,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     public VoxelShape getShape(BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
         final double scale = 1.0 / 16.0;
         if (level.getBlockEntity(pos) instanceof MyEntity entity) {
-            AABB box = entity.getShape().getBoundingBox(entity.getChops());
+            AABB box = entity.getShape().getBoundingBox(entity.getChops() + (DEFAULT_UNCHOPPED_RADIUS - entity.getUnchoppedRadius()));
             return Shapes.box(
                     box.minX * scale,
                     box.minY * scale,

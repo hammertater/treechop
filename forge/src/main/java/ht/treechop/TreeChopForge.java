@@ -1,6 +1,6 @@
 package ht.treechop;
 
-import ht.treechop.common.Common;
+import ht.treechop.common.ForgeCommon;
 import ht.treechop.common.ForgePlatform;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.registry.ForgeModBlocks;
@@ -23,7 +23,7 @@ public class TreeChopForge extends TreeChop {
 
         modBus.addListener((ModConfigEvent.Reloading e) -> ConfigHandler.onReload());
 
-        modBus.addListener(Common::onCommonSetup);
+        modBus.addListener(ForgeCommon::onCommonSetup);
 
         ForgeModBlocks.BLOCKS.register(modBus);
         ForgeModBlocks.ENTITIES.register(modBus);

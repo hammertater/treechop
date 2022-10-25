@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 public class ChopUtil {
 
     public static boolean isBlockChoppable(Level level, BlockPos pos, BlockState blockState) {
-        return (blockState.getBlock() instanceof IChoppableBlock) || (isBlockALog(blockState));
+        return isBlockALog(blockState);
     }
 
     public static boolean isBlockChoppable(Level level, BlockPos pos) {
@@ -42,7 +42,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockALog(BlockState blockState) {
-        return blockState.is(ConfigHandler.COMMON.blockTagForDetectingLogs.get());
+        return blockState.is(ConfigHandler.COMMON.blockTagForDetectingLogs.get()) || (blockState.getBlock() instanceof IChoppableBlock);
     }
 
     public static boolean isBlockALog(Level level, BlockPos pos) {
@@ -416,8 +416,10 @@ public class ChopUtil {
     }
 
     public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) {
-        if (!isBlockALog(blockState)
+        if (!isBlockChoppable(level, pos, blockState)
                 || !ConfigHandler.COMMON.enabled.get()
+                || !ChopUtil.playerWantsToChop(agent)
+                || !agent.hasCorrectToolForDrops(blockState)
                 || !ChopUtil.canChopWithTool(tool)) {
             return false;
         }

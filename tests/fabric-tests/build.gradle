@@ -28,7 +28,6 @@ dependencies {
     modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.2.6"
 
     modImplementation "ht.treechop:fabric:$rootProject.version"
-//    modImplementation project(":fabric")
 }
 
 processResources {

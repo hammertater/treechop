@@ -78,7 +78,7 @@ public class ChopIndicator extends GuiComponent {
             if (ChopUtil.playerWantsToFell(player, chopSettings)) {
                 return Client.treeCache.getTree(level, pos).isAProperTree(chopSettings.getTreesMustHaveLeaves());
             } else {
-                return ChopUtil.isBlockALog(level, pos);
+                return ChopUtil.isBlockChoppable(level, pos);
             }
         }
 
