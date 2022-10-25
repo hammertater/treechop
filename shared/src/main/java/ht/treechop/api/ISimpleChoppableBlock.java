@@ -12,11 +12,21 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Blocks that implement this interface will be replaced by {@code treechop:chopped_log} when chopped, with starting
- * radius {@code getUnchoppedRadius}, which determines the maximum number of times the block can be chopped and the amount
- * this block contributes to the "size" of the tree, e.g., felling a tree with radius 4 logs will require half the
- * number of chops of a tree with full-size (radius 8) logs.
+ * radius {@code getUnchoppedRadius(...)}. Slimmer logs can't be chopped as many times as full-sized logs, and
+ * contribute less to the "size" of the tree. For example,
+ * - a log with radius 4 can only be chopped 3 times
+ * - a 10-block tall tree of logs with radius 4 will only count as 5 blocks when calculating how many chops are needed
+ *   to fell the tree.
  */
 public interface ISimpleChoppableBlock extends IChoppableBlock {
+
+    /**
+     * When chopped, the block will turn into a {@code treechop:chopped_log} with starting radius returned by this
+     * function.
+     *
+     * @return an integer between 1 and 8 (default), inclusive.
+     */
+    int getUnchoppedRadius(BlockGetter level, BlockPos blockPos, BlockState blockState);
 
     @Override
     default void chop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState, int numChops, boolean felling) {
@@ -41,13 +51,5 @@ public interface ISimpleChoppableBlock extends IChoppableBlock {
     default double getSupportFactor(BlockGetter level, BlockPos pos, BlockState blockState) {
         return getUnchoppedRadius(level, pos, blockState) / 8.0;
     }
-
-    /**
-     * @param level
-     * @param blockPos
-     * @param blockState
-     * @return an integer between 1 and 8 (default), inclusive.
-     */
-    int getUnchoppedRadius(BlockGetter level, BlockPos blockPos, BlockState blockState);
 
 }
