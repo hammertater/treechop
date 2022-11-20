@@ -10,6 +10,7 @@ import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
+import ht.treechop.common.util.TreeCache;
 import net.minecraft.client.Minecraft;
 
 public abstract class Client {

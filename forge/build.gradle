@@ -6,9 +6,11 @@ buildscript {
     }
     dependencies {
         classpath group: "net.minecraftforge.gradle", name: "ForgeGradle", version: "5.1.+", changing: true
+        classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
 apply plugin: "net.minecraftforge.gradle"
+apply plugin: 'org.spongepowered.mixin'
 
 archivesBaseName = "${modname}-${mcversion}-forge"
 
@@ -90,6 +92,7 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${mcversion}-${forgeversion}"
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     implementation project(":shared")
 
@@ -101,7 +104,10 @@ dependencies {
 //    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.2.0")
 
     compileOnly fg.deobf("curse.maven:jade-324717:3903693")
-    runtimeOnly fg.deobf("curse.maven:jade-324717:3903693")
+//    runtimeOnly fg.deobf("curse.maven:jade-324717:3903693")
+
+    compileOnly fg.deobf("curse.maven:the-one-probe-245211:3965693")
+    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:3965693")
 
     compileOnly fg.deobf("curse.maven:project-mmo-353935:4019274") // https://github.com/Harmonised7/project_mmo
 //    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4019274")
@@ -112,6 +118,11 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
     testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
+}
+
+mixin {
+    add(sourceSets.main, "treechop.mixins.refmap.json")
+    config "treechop.mixins.json"
 }
 
 test {

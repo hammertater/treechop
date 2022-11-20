@@ -1,4 +1,4 @@
-package ht.treechop.client;
+package ht.treechop.common.util;
 
 import ht.treechop.api.TreeData;
 import ht.treechop.common.util.ChopUtil;
