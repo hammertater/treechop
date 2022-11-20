@@ -26,14 +26,11 @@ public class ChopIndicator extends GuiComponent {
         HitResult mouseOver = minecraft.hitResult;
         Player player = minecraft.player;
 
-        if (!ConfigHandler.CLIENT.showChoppingIndicators.get()) {
-            return;
-        }
-
         if (Client.isChoppingIndicatorEnabled() &&
+                player != null && !player.isSpectator() &&
                 minecraft.level != null && minecraft.screen == null && mouseOver != null &&
                 mouseOver.getType() == HitResult.Type.BLOCK && mouseOver instanceof BlockHitResult &&
-                ChopUtil.playerWantsToChop(minecraft.player, Client.getChopSettings())
+                ChopUtil.playerWantsToChop(player, Client.getChopSettings())
         ) {
             BlockPos blockPos = ((BlockHitResult) mouseOver).getBlockPos();
             if (blockCanBeChopped(blockPos)) {
@@ -47,7 +44,7 @@ public class ChopIndicator extends GuiComponent {
                 int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset.get();
                 int indicatorCenterY = windowHeight / 2 + ConfigHandler.CLIENT.indicatorYOffset.get();
 
-                Sprite sprite = ChopUtil.playerWantsToFell(minecraft.player, Client.getChopSettings()) ? Sprite.CHOP_INDICATOR : Sprite.NO_FELL_INDICATOR;
+                Sprite sprite = ChopUtil.playerWantsToFell(player, Client.getChopSettings()) ? Sprite.CHOP_INDICATOR : Sprite.NO_FELL_INDICATOR;
                 int imageWidth = (int) (sprite.width * IMAGE_SCALE);
                 int imageHeight = (int) (sprite.height * IMAGE_SCALE);
                 sprite.blit(
