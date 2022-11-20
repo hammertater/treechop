@@ -32,9 +32,9 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
         ModelResourceLocation modelLocation = BlockModelShaper.stateToModelLocation(blockState);
         return Minecraft.getInstance().getModelManager().getModel(modelLocation)
                 .getQuads(blockState, side, rand).stream()
+                .map(BakedQuad::getSprite)
                 .filter(Objects::nonNull)
                 .findFirst()
-                .map(BakedQuad::getSprite)
                 .orElse(getDefaultSprite());
     }
 
