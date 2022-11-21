@@ -25,8 +25,7 @@ public class ForgeChoppedLogBlock extends ChoppedLogBlock {
 
     @Override
     public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState blockState) {
-        MyEntity entity = new MyEntity(pos, blockState);
-        return entity;
+        return new MyEntity(pos, blockState);
     }
 
     @Override

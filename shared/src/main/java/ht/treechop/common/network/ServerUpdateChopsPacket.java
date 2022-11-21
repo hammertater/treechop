@@ -2,17 +2,21 @@ package ht.treechop.common.network;
 
 import ht.treechop.TreeChop;
 import ht.treechop.common.block.ChoppedLogBlock;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ServerUpdateChopsPacket implements CustomPacket {
     public static final ResourceLocation ID = TreeChop.resource("server_update_chops");
+    private static Level lastLevel = null;
+
     private final BlockPos pos;
     private final CompoundTag tag;
 
@@ -40,17 +44,27 @@ public class ServerUpdateChopsPacket implements CustomPacket {
         return new ServerUpdateChopsPacket(pos, tag);
     }
 
-    public static void handle(ServerUpdateChopsPacket message, Level level) {
+    public static void handle(ServerUpdateChopsPacket message) {
+        Level level = checkLevel(Minecraft.getInstance().level);
         pendingUpdates.put(message.pos, message.tag);
-        update(level, message.pos);
+    }
+
+    @Nullable
+    private static Level checkLevel(Level level) {
+        if (level != lastLevel) {
+            pendingUpdates.clear();
+            lastLevel = level;
+        }
+        return level;
     }
 
     public static CompoundTag getPendingUpdate(Level level, BlockPos pos) {
+        checkLevel(level);
         return pendingUpdates.remove(pos);
     }
 
     public static void update(Level level, BlockPos pos) {
-        CompoundTag tag = pendingUpdates.get(pos);
+        CompoundTag tag = getPendingUpdate(level, pos);
         if (tag != null && level != null && level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
             entity.load(tag);
 //            level.setBlocksDirty(pos, Blocks.AIR.defaultBlockState(), level.getBlockState(pos));

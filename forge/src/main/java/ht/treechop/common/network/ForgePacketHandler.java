@@ -10,6 +10,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 // See https://github.com/Vazkii/Botania/blob/7e1d89a1d6deda7286744e3b7c55369b2cf5e533/src/main/java/vazkii/botania/common/network/PacketHandler.java
@@ -27,33 +28,46 @@ public final class ForgePacketHandler implements PacketHandler {
         int id = 0;
 
         // Client-to-server messages
-        HANDLER.registerMessage(id++, ClientRequestSettingsPacket.class, ClientRequestSettingsPacket::encode, ClientRequestSettingsPacket::decode, (packet, context) -> ClientRequestSettingsPacket.handle(packet, context.get().getSender(), reply -> HANDLER.sendTo(reply, context.get().getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT)));
+        HANDLER.registerMessage(id++, ClientRequestSettingsPacket.class, ClientRequestSettingsPacket::encode, ClientRequestSettingsPacket::decode, ClientPacketProcessor.toServer(ClientRequestSettingsPacket::handle));
 
         // Server-to-client messages
-        HANDLER.registerMessage(id++, ServerConfirmSettingsPacket.class, ServerConfirmSettingsPacket::encode, ServerConfirmSettingsPacket::decode, PacketProcessor.toClient((message, sender) -> ServerConfirmSettingsPacket.handle(message)));
+        HANDLER.registerMessage(id++, ServerConfirmSettingsPacket.class, ServerConfirmSettingsPacket::encode, ServerConfirmSettingsPacket::decode, ServerPacketProcessor.toClient(ServerConfirmSettingsPacket::handle));
 
-        HANDLER.registerMessage(id++, ServerPermissionsPacket.class, ServerPermissionsPacket::encode, ServerPermissionsPacket::decode, PacketProcessor.toClient((message, sender) -> ServerPermissionsPacket.handle(message)));
+        HANDLER.registerMessage(id++, ServerPermissionsPacket.class, ServerPermissionsPacket::encode, ServerPermissionsPacket::decode, ServerPacketProcessor.toClient(ServerPermissionsPacket::handle));
 
-        // TODO: UH OH! sender is null!
-        HANDLER.registerMessage(id++, ServerUpdateChopsPacket.class, ServerUpdateChopsPacket::encode, ServerUpdateChopsPacket::decode, PacketProcessor.toClient((message, sender) -> ServerUpdateChopsPacket.handle(message, sender.level)));
+        HANDLER.registerMessage(id++, ServerUpdateChopsPacket.class, ServerUpdateChopsPacket::encode, ServerUpdateChopsPacket::decode, ServerPacketProcessor.toClient(ServerUpdateChopsPacket::handle));
     }
 
-    record PacketProcessor<T> (BiConsumer<T, ServerPlayer> handler, LogicalSide receiverSide) implements BiConsumer<T, Supplier<NetworkEvent.Context>> {
-        public static <T> PacketProcessor<T> toServer(BiConsumer<T, ServerPlayer> handler) {
-            return new PacketProcessor<>(handler, LogicalSide.SERVER);
-        }
+    @FunctionalInterface
+    interface ClientPacketHandler<T> {
+        void accept(T message, ServerPlayer sender, PacketChannel replyChannel);
+    }
 
-        public static <T> PacketProcessor<T> toClient(BiConsumer<T, ServerPlayer> handler) {
-            return new PacketProcessor<>(handler, LogicalSide.CLIENT);
+    record ClientPacketProcessor<T> (ClientPacketHandler<T> handler) implements BiConsumer<T, Supplier<NetworkEvent.Context>> {
+        public static <T> ClientPacketProcessor<T> toServer(ClientPacketHandler<T> handler) {
+            return new ClientPacketProcessor<>(handler);
         }
 
         @Override
         public void accept(T message, Supplier<NetworkEvent.Context> context) {
-            if (context.get().getDirection().getReceptionSide() == receiverSide) {
-                context.get().enqueueWork(() -> handler.accept(message, context.get().getSender()));
+            if (context.get().getDirection().getReceptionSide() == LogicalSide.SERVER) {
+                context.get().enqueueWork(() -> handler.accept(message, context.get().getSender(), reply -> HANDLER.sendTo(reply, context.get().getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT)));
             }
             context.get().setPacketHandled(true);
+        }
+    }
 
+    record ServerPacketProcessor<T> (Consumer<T> handler) implements BiConsumer<T, Supplier<NetworkEvent.Context>> {
+        public static <T> ServerPacketProcessor<T> toClient(Consumer<T> handler) {
+            return new ServerPacketProcessor<T>(handler);
+        }
+
+        @Override
+        public void accept(T message, Supplier<NetworkEvent.Context> context) {
+            if (context.get().getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+                context.get().enqueueWork(() -> handler.accept(message));
+            }
+            context.get().setPacketHandled(true);
         }
     }
 }
