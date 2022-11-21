@@ -1,95 +1,18 @@
 package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
-import ht.treechop.api.TreeData;
-import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.settings.EntityChopSettings;
-import ht.treechop.common.util.ChopUtil;
-import ht.treechop.common.util.TreeCache;
-import mcjty.theoneprobe.api.*;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import mcjty.theoneprobe.api.ITheOneProbe;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber(modid = TreeChop.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class TheOneProbe implements IProbeInfoProvider {
-    private static final boolean SHOW_TREE_BLOCKS = true;
-    private static final boolean SHOW_NUM_CHOPS_REMAINING = true;
-
-    private static final TreeCache treeCache = new TreeCache();
-
+public class TheOneProbe {
     @SubscribeEvent
     public static void enqueueModComms(InterModEnqueueEvent event) {
-        InterModComms.sendTo("theoneprobe", "getTheOneProbe", () -> (Function<Object, Void>) probe -> getTheOneProbe((ITheOneProbe) probe));
-    }
-
-    public static Void getTheOneProbe(ITheOneProbe probe) {
-        probe.registerProvider(new TheOneProbe());
-        return null;
-    }
-
-    @Override
-    public ResourceLocation getID() {
-        return TreeChop.resource("tree_info");
-    }
-
-    @Override
-    public void addProbeInfo(ProbeMode probeMode, IProbeInfo builder, Player player, Level level, BlockState blockState, IProbeHitData iProbeHitData) {
-        BlockPos blockPos = iProbeHitData.getPos();
-        EntityChopSettings chopSettings = ChopUtil.getPlayerChopSettings(player);
-
-        if (ChopUtil.playerWantsToChop(player, chopSettings)
-                && ChopUtil.isBlockChoppable(level, blockPos, blockState)
-                && SHOW_TREE_BLOCKS || SHOW_NUM_CHOPS_REMAINING) {
-            AtomicInteger numChops = new AtomicInteger(0);
-
-            TreeData tree = treeCache.getTree(level, blockPos);
-            if (tree.isAProperTree(chopSettings.getTreesMustHaveLeaves())) {
-                tree.getLogBlocks().ifPresent(
-                        treeBlocks -> {
-                            if (SHOW_NUM_CHOPS_REMAINING) {
-                                treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
-                                builder.text(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size())));
-                            }
-
-                            if (SHOW_TREE_BLOCKS) {
-                                TreeChop.LOGGER.info(("show tree blocks"));
-                                IItemStyle itemStyle = builder.defaultItemStyle();
-                                IProbeInfo tiles = builder.horizontal();
-                                treeBlocks.stream()
-                                        .collect(Collectors.groupingBy((BlockPos pos) -> {
-                                            BlockState state = level.getBlockState(pos);
-                                            return getLogState(level, pos, state).getBlock();
-                                        }, Collectors.counting()))
-                                        .forEach((block, count) -> {
-                                            ItemStack stack = block.asItem().getDefaultInstance();
-                                            stack.setCount(count.intValue());
-                                            TreeChop.LOGGER.info(stack.toString());
-                                            tiles.item(stack, itemStyle);
-                                        });
-                            }
-                        });
-            }
-        }
-    }
-
-    private BlockState getLogState(Level level, BlockPos pos, BlockState state) {
-        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
-            return entity.getOriginalState();
-        } else {
-            return state;
-        }
+        InterModComms.sendTo("theoneprobe", "getTheOneProbe", () -> (Function<Object, Void>) probe -> TheOneProbeInfoProvider.register((ITheOneProbe) probe));
     }
 }

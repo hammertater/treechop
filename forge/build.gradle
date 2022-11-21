@@ -107,7 +107,7 @@ dependencies {
 //    runtimeOnly fg.deobf("curse.maven:jade-324717:3903693")
 
     compileOnly fg.deobf("curse.maven:the-one-probe-245211:3965693")
-    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:3965693")
+//    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:3965693")
 
     compileOnly fg.deobf("curse.maven:project-mmo-353935:4019274") // https://github.com/Harmonised7/project_mmo
 //    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4019274")
