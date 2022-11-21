@@ -4,7 +4,6 @@
   "package": "ht.treechop.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "TheOneProbeMixin"
   ],
   "injectors": {
     "defaultRequire": 1
