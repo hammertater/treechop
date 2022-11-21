@@ -1,0 +1,6 @@
+{
+  "yourmodid:plugin": {
+    "initializer": "ht.treechop.compat.Wthit",
+    "side": "client"
+  }
+}
