@@ -32,8 +32,8 @@ dependencies {
     implementation project(":shared")
 
     modCompileOnly "mcp.mobius.waila:wthit-api:fabric-5.9.0"
-    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-5.9.0"
-    modRuntimeOnly "lol.bai:badpackets:fabric-0.2.0"
+//    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-5.9.0"
+//    modRuntimeOnly "lol.bai:badpackets:fabric-0.2.0"
 
     modCompileOnly "curse.maven:jade-324717:3952631"
 //    modRuntimeOnly "curse.maven:jade-324717:3952631"

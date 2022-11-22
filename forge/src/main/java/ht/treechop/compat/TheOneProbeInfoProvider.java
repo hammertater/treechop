@@ -50,7 +50,7 @@ public class TheOneProbeInfoProvider implements IProbeInfoProvider {
                         treeBlocks -> {
                             if (SHOW_NUM_CHOPS_REMAINING) {
                                 treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
-                                builder.text(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size())));
+                                builder.text(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(level, treeBlocks)));
                             }
 
                             if (SHOW_TREE_BLOCKS) {

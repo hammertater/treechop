@@ -64,7 +64,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
                         treeBlocks -> {
                             if (config.get(SHOW_NUM_CHOPS_REMAINING)) {
                                 treeBlocks.forEach((BlockPos pos) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos)));
-                                tooltip.add(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(treeBlocks.size())));
+                                tooltip.add(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(level, treeBlocks)));
                             }
 
                             if (config.get(SHOW_TREE_BLOCKS)) {

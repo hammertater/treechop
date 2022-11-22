@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @WailaPlugin
 public class Jade implements IWailaPlugin, IBlockComponentProvider {
 
-    private static final ResourceLocation UID = new ResourceLocation(TreeChop.MOD_ID, "plugin");
+    private static final ResourceLocation UID = TreeChop.resource("plugin");
 
     public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
     public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
@@ -50,8 +50,8 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
 
     @Override
     public void appendTooltip(snownee.jade.api.ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        if (ChopUtil.isBlockChoppable(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState())
-                && ChopUtil.playerWantsToChop(accessor.getPlayer(), Client.getChopSettings())
+        if (ChopUtil.playerWantsToChop(accessor.getPlayer(), Client.getChopSettings())
+                && ChopUtil.isBlockChoppable(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState())
                 && (config.get(SHOW_TREE_BLOCKS) || config.get(SHOW_NUM_CHOPS_REMAINING))) {
             Level level = accessor.getLevel();
             AtomicInteger numChops = new AtomicInteger(0);

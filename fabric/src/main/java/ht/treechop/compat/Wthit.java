@@ -43,7 +43,7 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
 
     @Override
     public void appendBody(ITooltip tooltip, IBlockAccessor accessor, IPluginConfig config) {
-        if (ChopUtil.playerWantsToChop(accessor.getPlayer(), Client.getChopSettings())
+        if (ChopUtil.playerWantsToChop(accessor.getPlayer())
                 && ChopUtil.isBlockChoppable(accessor.getWorld(), accessor.getPosition(), accessor.getBlockState())
                 && (config.getBoolean(SHOW_TREE_BLOCKS) || config.getBoolean(SHOW_NUM_CHOPS_REMAINING))) {
             Level level = accessor.getWorld();
@@ -59,19 +59,17 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
                             }
 
                             if (config.getBoolean(SHOW_TREE_BLOCKS)) {
-                                LinkedList<ITooltipComponent> tiles = new LinkedList<>();
+                                ITooltipLine line = tooltip.addLine();
                                 treeBlocks.stream()
                                         .collect(Collectors.groupingBy((BlockPos pos) -> {
                                             BlockState state = level.getBlockState(pos);
                                             return getLogState(level, pos, state).getBlock();
                                         }, Collectors.counting()))
                                         .forEach((block, count) -> {
-                                            ItemStack stack = accessor.getBlock().asItem().getDefaultInstance();
+                                            ItemStack stack = block.asItem().getDefaultInstance();
                                             stack.setCount(count.intValue());
-                                            tiles.add(new ItemComponent(stack));
+                                            line.with(new ItemComponent(stack));
                                         });
-
-                                tiles.stream().reduce(PairComponent::new).ifPresent(tooltip::addLine);
                             }
                         });
             }

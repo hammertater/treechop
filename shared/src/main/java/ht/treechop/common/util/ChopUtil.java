@@ -129,8 +129,8 @@ public class ChopUtil {
         return false;
     }
 
-    public static int numChopsToFell(int numBlocks) {
-        return ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(numBlocks);
+    public static int numChopsToFell(int supportSize) {
+        return ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(supportSize);
     }
 
     public static int numChopsToFell(Level level, Set<BlockPos> supportedBlocks) {
