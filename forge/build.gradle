@@ -100,8 +100,8 @@ dependencies {
     compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-5.13.4")
 
 //    // run against the full jar
-    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-5.13.4")
-    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.3.3")
+//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-5.13.4")
+//    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.3.3")
 
     compileOnly fg.deobf("curse.maven:jade-324717:4096513")
 //    runtimeOnly fg.deobf("curse.maven:jade-324717:4096513")
@@ -113,7 +113,7 @@ dependencies {
 //    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4019274")
 
     compileOnly fg.deobf("curse.maven:carry-on-274259:3885508")
-    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3885508")
+//    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3885508")
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
     testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"
