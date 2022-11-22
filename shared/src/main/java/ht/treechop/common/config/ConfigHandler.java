@@ -1,6 +1,6 @@
 package ht.treechop.common.config;
 
-import ht.treechop.common.config.item.ItemIdentifier;
+import ht.treechop.common.config.item.ResourceIdentifier;
 import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;
 import net.minecraft.core.Registry;
@@ -118,8 +118,8 @@ public class ConfigHandler {
     }
 
     private static Stream<Item> getItemsFromIdentifier(String stringId) {
-        ItemIdentifier id = ItemIdentifier.from(stringId);
-        return id.resolve();
+        ResourceIdentifier id = ResourceIdentifier.from(stringId);
+        return id.resolve(Registry.ITEM);
     }
 
     public static boolean canChopWithItem(Item item) {
