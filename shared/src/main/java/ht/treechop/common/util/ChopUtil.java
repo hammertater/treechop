@@ -39,7 +39,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockALog(BlockState blockState) {
-        return blockState.is(ConfigHandler.COMMON.blockTagForDetectingLogs.get()) || (blockState.getBlock() instanceof IChoppableBlock);
+        return ConfigHandler.COMMON.choppableBlocks.get().contains(blockState.getBlock());
     }
 
     public static boolean isBlockALog(Level level, BlockPos pos) {
@@ -51,7 +51,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockLeaves(BlockState blockState) {
-        if (blockState.is(ConfigHandler.COMMON.blockTagForDetectingLeaves.get())) {
+        if (ConfigHandler.COMMON.leavesBlocks.get().contains(blockState.getBlock())) {
             return !ConfigHandler.COMMON.ignorePersistentLeaves.get() || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.getValue(LeavesBlock.PERSISTENT);
         } else {
             return false;

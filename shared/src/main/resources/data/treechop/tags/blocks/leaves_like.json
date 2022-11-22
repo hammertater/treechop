@@ -1,9 +1,5 @@
 {
   "replace": false,
   "values": [
-    "#minecraft:leaves",
-    "#minecraft:wart_blocks",
-    "#forge:mushroom_caps",
-    "minecraft:shroomlight"
   ]
 }

@@ -76,20 +76,19 @@ public class ConfigHandler {
     }
 
     public static void updateTags() {
+        COMMON.choppableBlocks.reset();
+        COMMON.leavesBlocks.reset();
         COMMON.itemsBlacklist.reset();
     }
 
     @NotNull
     private static Map<Block, BlockState> inferStrippedStates() {
-        TagKey<Block> logTag = COMMON.blockTagForDetectingLogs.get();
+        Set<Block> choppableBlocks = COMMON.choppableBlocks.get();
         HashMap<Block, BlockState> map = new HashMap<>();
-        // TODO: can we directly find tag blocks without iterating over the entire registry? (easy in Forge, what about Fabric?)
-        Registry.BLOCK.forEach(block -> {
-            if (block.builtInRegistryHolder().is(logTag)) {
-                Block unstripped = inferUnstripped(block);
-                if (unstripped != Blocks.AIR && AxeAccessor.getStripped(unstripped) == null) {
-                    map.put(unstripped, block.defaultBlockState());
-                }
+        choppableBlocks.forEach(block -> {
+            Block unstripped = inferUnstripped(block);
+            if (unstripped != Blocks.AIR && AxeAccessor.getStripped(unstripped) == null) {
+                map.put(unstripped, block.defaultBlockState());
             }
         });
         return map;
@@ -117,13 +116,18 @@ public class ConfigHandler {
         return Blocks.AIR;
     }
 
-    private static Stream<Item> getItemsFromIdentifier(String stringId) {
+    private static Stream<Item> getIdentifiedItems(String stringId) {
         ResourceIdentifier id = ResourceIdentifier.from(stringId);
         return id.resolve(Registry.ITEM);
     }
 
+    private static Stream<Block> getIdentifiedBlocks(String stringId) {
+        ResourceIdentifier id = ResourceIdentifier.from(stringId);
+        return id.resolve(Registry.BLOCK);
+    }
+
     public static boolean canChopWithItem(Item item) {
-        if (COMMON.blacklistOrWhitelist.get() == ListType.BLACKLIST) {
+        if (COMMON.itemsBlacklistOrWhitelist.get() == ListType.BLACKLIST) {
             return !COMMON.itemsBlacklist.get().contains(item);
         } else {
             return COMMON.itemsBlacklist.get().contains(item);
@@ -145,8 +149,34 @@ public class ConfigHandler {
 
         public final Lazy<Set<Item>> itemsBlacklist = new Lazy<>(
                 () -> COMMON.itemsToBlacklist.get().stream()
-                        .flatMap(ConfigHandler::getItemsFromIdentifier)
+                        .flatMap(ConfigHandler::getIdentifiedItems)
                         .collect(Collectors.toSet())
+        );
+
+        public final Lazy<Set<Block>> choppableBlocks = new Lazy<>(
+                () -> {
+                    Set<Block> exceptions = COMMON.choppableBlocksExceptionsList.get().stream()
+                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                            .collect(Collectors.toSet());
+
+                    return COMMON.choppableBlocksList.get().stream()
+                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                            .filter(block -> !exceptions.contains(block))
+                            .collect(Collectors.toSet());
+                }
+        );
+
+        public final Lazy<Set<Block>> leavesBlocks = new Lazy<>(
+                () -> {
+                    Set<Block> exceptions = COMMON.leavesBlocksExceptionsList.get().stream()
+                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                            .collect(Collectors.toSet());
+
+                    return COMMON.leavesBlocksList.get().stream()
+                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                            .filter(block -> !exceptions.contains(block))
+                            .collect(Collectors.toSet());
+                }
         );
 
         public final ForgeConfigSpec.BooleanValue dropLootForChoppedBlocks;
@@ -157,11 +187,11 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue ignorePersistentLeaves;
         public final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
 
-        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLogsHandle;
-        public final Lazy<TagKey<Block>> blockTagForDetectingLogs = new Lazy<>(() -> TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(COMMON.blockTagForDetectingLogsHandle.get())));
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksList;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksExceptionsList;
 
-        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeavesHandle;
-        public final Lazy<TagKey<Block>> blockTagForDetectingLeaves = new Lazy<>(() -> TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(COMMON.blockTagForDetectingLeavesHandle.get())));
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksList;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksExceptionsList;
 
         public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
         public final ForgeConfigSpec.EnumValue<Rounder> chopCountRounding;
@@ -170,9 +200,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue linearM;
         public final ForgeConfigSpec.DoubleValue linearB;
 
-        public final ForgeConfigSpec.EnumValue<ListType> blacklistOrWhitelist;
+        public final ForgeConfigSpec.EnumValue<ListType> itemsBlacklistOrWhitelist;
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> itemsToBlacklist;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> itemsToOverride;
 
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
@@ -221,12 +250,46 @@ public class ConfigHandler {
             maxBreakLeavesDistance = builder
                     .comment("Maximum distance from log blocks to destroy non-standard leaves blocks (e.g. mushroom caps) when felling")
                     .defineInRange("maxBreakLeavesDistance", 7, 0, 16);
-            blockTagForDetectingLogsHandle = builder
-                    .comment("The tag that blocks must have to be considered choppable (default: treechop:choppables)")
-                    .define("blockTagForDetectingLogs", "treechop:choppables");
-            blockTagForDetectingLeavesHandle = builder
-                    .comment("The tag that blocks must have to be considered leaves (default: treechop:leaves_like)")
-                    .define("blockTagForDetectingLeaves", "treechop:leaves_like");
+
+            builder.push("logs");
+            choppableBlocksList = builder
+                    .comment(String.join("\n",
+                            "Blocks that should be considered choppable",
+                            "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
+                    .defineList("blocks",
+                            List.of("#treechop:choppables",
+                                    "#minecraft:logs",
+                                    "#forge:mushroom_stems"),
+                            always -> true);
+            choppableBlocksExceptionsList = builder
+                    .comment(String.join("\n",
+                            "Blocks that should never be chopped, even if included in the list above",
+                            "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
+                    .defineList("exceptions",
+                            List.of("minecraft:bamboo"),
+                            always -> true);
+            builder.pop();
+
+            builder.push("leaves");
+            leavesBlocksList = builder
+                    .comment(String.join("\n",
+                            "Blocks that should be considered leaves",
+                            "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
+                    .defineList("blocks",
+                            List.of("#treechop:leaves_like",
+                                    "#minecraft:leaves",
+                                    "#minecraft:wart_blocks",
+                                    "#forge:mushroom_caps",
+                                    "minecraft:shroomlight"),
+                            always -> true);
+            leavesBlocksExceptionsList = builder
+                    .comment(String.join("\n",
+                            "Blocks that should never be considered leaves, even if included in the list above",
+                            "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
+                    .defineList("exceptions",
+                            List.of(),
+                            always -> true);
+            builder.pop();
             builder.pop();
 
             builder.push("chopCounting");
@@ -266,7 +329,7 @@ public class ConfigHandler {
                     .define("preventChopRecursion", true);
 
             builder.push("blacklist");
-            blacklistOrWhitelist = builder
+            itemsBlacklistOrWhitelist = builder
                     .comment("Whether the listed items should be blacklisted or whitelisted")
                     .defineEnum("blacklistOrWhitelist", ListType.BLACKLIST);
             itemsToBlacklist = builder
@@ -283,21 +346,6 @@ public class ConfigHandler {
                                     "practicaltools:golden_greataxe",
                                     "practicaltools:diamond_greataxe",
                                     "practicaltools:netherite_greataxe"),
-                            always -> true);
-            builder.pop();
-
-            builder.push("overrides");
-            itemsToOverride = builder
-                    .comment(String.join("\n",
-                            "List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not perform their default behavior when chopping",
-                            "- Add \"?chops=N\" to specify the number of chops to be performed when breaking a log with the item (defaults to 1)",
-                            "- Add \"?override=always\" to disable default behavior even when chopping is disabled",
-                            "- Add \"?override=never\" to never disable default behavior",
-                            "- Items in this list that have special support for TreeChop will not be overridden; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#overrides",
-                            "- This might not work as expected for some items; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#caveats"))
-                    .defineList("items",
-                            Arrays.asList(
-                                    "silentgear:saw?chops=3,override=always"),
                             always -> true);
             builder.pop();
 

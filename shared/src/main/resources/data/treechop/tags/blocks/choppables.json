@@ -1,7 +1,5 @@
 {
   "replace": false,
   "values": [
-    "#minecraft:logs",
-    "#forge:mushroom_stems"
   ]
 }
