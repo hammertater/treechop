@@ -18,15 +18,15 @@ import net.minecraft.world.level.block.state.BlockState;
  * - a 10-block tall tree of logs with radius 4 will only count as 5 blocks when calculating how many chops are needed
  *   to fell the tree.
  */
-public interface ISimpleChoppableBlock extends IChoppableBlock {
+public interface ISimpleChoppableBlock extends IChoppableBlock, ICylinderBlock {
 
     /**
-     * When chopped, the block will turn into a {@code treechop:chopped_log} with starting radius returned by this
+     * When chopped, the block will turn into a {@code treechop:chopped_log} with the starting radius returned by this
      * function.
      *
      * @return an integer between 1 and 8 (default), inclusive.
      */
-    int getUnchoppedRadius(BlockGetter level, BlockPos blockPos, BlockState blockState);
+    int getRadius(BlockGetter level, BlockPos blockPos, BlockState blockState);
 
     @Override
     default void chop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState, int numChops, boolean felling) {
@@ -44,12 +44,12 @@ public interface ISimpleChoppableBlock extends IChoppableBlock {
 
     @Override
     default int getMaxNumChops(BlockGetter level, BlockPos pos, BlockState blockState) {
-        return getUnchoppedRadius(level, pos, blockState) - 1;
+        return getRadius(level, pos, blockState) - 1;
     }
 
     @Override
     default double getSupportFactor(BlockGetter level, BlockPos pos, BlockState blockState) {
-        return getUnchoppedRadius(level, pos, blockState) / 8.0;
+        return getRadius(level, pos, blockState) / 8.0;
     }
 
 }

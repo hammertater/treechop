@@ -1,9 +1,9 @@
 package ht.treechop.common.block;
 
 import ht.treechop.TreeChop;
+import ht.treechop.api.ICylinderBlock;
 import ht.treechop.api.IChoppableBlock;
 import ht.treechop.api.IFellableBlock;
-import ht.treechop.api.ISimpleChoppableBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.properties.ChoppedLogShape;
@@ -39,6 +39,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,6 +51,7 @@ import java.util.List;
 import static ht.treechop.common.util.ChopUtil.isBlockALog;
 import static ht.treechop.common.util.ChopUtil.isBlockLeaves;
 
+@SuppressWarnings("NullableProblems")
 public abstract class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, EntityBlock, SimpleWaterloggedBlock {
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -95,6 +97,12 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
+    public float getDestroyProgress(BlockState blockState, Player player, BlockGetter level, BlockPos pos) {
+        return (float)Math.min(0.35, getImitatedBlockState(level, pos).getDestroyProgress(player, level, pos));
+    }
+
     private static boolean isBlockOpen(Level level, BlockPos pos) {
         return (level.isEmptyBlock(pos) || isBlockLeaves(level, pos));
     }
@@ -119,6 +127,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
@@ -128,8 +137,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
     }
 
-
-
+    @SuppressWarnings("deprecation")
     @Override
     public boolean useShapeForLightOcclusion(BlockState blockState) {
         return true;
@@ -165,7 +173,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
     @Override
     public void chop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState, int numChops, boolean felling) {
-        int currentNumChops = (blockState.is(this)) ? getNumChops(level, pos, blockState) : 0;
+        int currentNumChops = ChopUtil.getNumChops(level, pos, blockState);
         int maxNumChops = ChopUtil.getMaxNumChops(level, pos, blockState);
         int newNumChops = Math.min(currentNumChops + numChops, maxNumChops);
         int numAddedChops = newNumChops - currentNumChops;
@@ -180,8 +188,8 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         if (!felling) {
             if (numAddedChops > 0) {
                 if (!blockState.is(this)) {
-                    int chopZeroRadius = (blockState.getBlock() instanceof ISimpleChoppableBlock simple)
-                            ? simple.getUnchoppedRadius(level, pos, blockState)
+                    int chopZeroRadius = (blockState.getBlock() instanceof ICylinderBlock slimBlock)
+                            ? slimBlock.getRadius(level, pos, blockState)
                             : 8;
 
                     double supportFactor = (blockState.getBlock() instanceof IFellableBlock fellable)
@@ -237,10 +245,12 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                 .count() == 2;
     }
 
+    @SuppressWarnings("deprecation")
     public FluidState getFluidState(BlockState blockState) {
         return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
     }
 
+    @SuppressWarnings("deprecation")
     public BlockState updateShape(BlockState blockState, Direction side, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (blockState.getValue(WATERLOGGED)) {
             level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
@@ -249,24 +259,19 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         return super.updateShape(blockState, side, neighborState, level, pos, neighborPos);
     }
 
-    public boolean propagatesSkylightDown(BlockState blockState, BlockGetter level, BlockPos pos) {
+    public boolean propagatesSkylightDown(BlockState blockState, @NotNull BlockGetter level, @NotNull BlockPos pos) {
         return !blockState.getValue(WATERLOGGED) && super.propagatesSkylightDown(blockState, level, pos);
     }
 
     @SuppressWarnings("deprecation")
     @Nonnull
     @Override
-    public List<ItemStack> getDrops(@Nonnull BlockState blockState, LootContext.Builder context) {
+    public List<ItemStack> getDrops(BlockState blockState, LootContext.Builder context) {
         if (ConfigHandler.COMMON.dropLootForChoppedBlocks.get() && context.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof MyEntity entity) {
             return entity.drops;
         } else {
             return Collections.emptyList();
         }
-    }
-
-    @Override
-    public float getDestroyProgress(BlockState blockState, Player player, BlockGetter level, BlockPos pos) {
-        return (float)Math.min(0.35, getImitatedBlockState(level, pos).getDestroyProgress(player, level, pos));
     }
 
     public static abstract class MyEntity extends BlockEntity {
@@ -417,7 +422,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
 
         @Override
-        public void setLevel(Level level) {
+        public void setLevel(@NotNull Level level) {
             super.setLevel(level);
             if (level.isClientSide()) {
                 CompoundTag update = ServerUpdateChopsPacket.getPendingUpdate(level, worldPosition);
