@@ -54,7 +54,7 @@ public class ServerUpdateChopsPacket implements CustomPacket {
 
     public static CompoundTag getPendingUpdate(Level level, BlockPos pos) {
         checkLevel(level);
-        return pendingUpdates.remove(pos);
+        return pendingUpdates.get(pos);
     }
 
     @Override
