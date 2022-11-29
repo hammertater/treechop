@@ -5,7 +5,6 @@ import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -16,7 +15,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -95,26 +93,31 @@ public class ConfigHandler {
     }
 
     private static Block inferUnstripped(Block block) {
-        final Pattern prefix = Pattern.compile("stripped_(.+)");
-        final Pattern suffix = Pattern.compile("(.+)_stripped$");
-
         ResourceLocation resource = Registry.BLOCK.getKey(block);
-        Block unstripped = inferUnstripped(resource, prefix);
-        if (unstripped == Blocks.AIR) {
-            unstripped = inferUnstripped(resource, suffix);
-        }
-        return unstripped;
+        return inferUnstripped(resource);
     }
 
-    private static Block inferUnstripped(ResourceLocation resource, Pattern pattern) {
+    private static Block inferUnstripped(ResourceLocation resource) {
         if (resource != null) {
-            Matcher match = pattern.matcher(resource.getPath());
-            if (match.find()) {
-                return Registry.BLOCK.get(new ResourceLocation(resource.getNamespace(), match.group(1)));
+            ResourceLocation unstripped = getFilteredResourceLocation(resource, "stripped");
+            if (unstripped != null) {
+                return Registry.BLOCK.get(unstripped);
             }
         }
         return Blocks.AIR;
     }
+
+    private static ResourceLocation getFilteredResourceLocation(ResourceLocation resource, String filterTerm) {
+        if (resource != null) {
+            String strippedPath = resource.getPath();
+            String unstrippedPath = Arrays.stream(strippedPath.split("_")).filter(token -> !token.equals(filterTerm)).collect(Collectors.joining("_"));
+            if (!strippedPath.equals(unstrippedPath)) {
+                return new ResourceLocation(resource.getNamespace(), unstrippedPath);
+            }
+        }
+        return null;
+    }
+
 
     private static Stream<Item> getIdentifiedItems(String stringId) {
         ResourceIdentifier id = ResourceIdentifier.from(stringId);
