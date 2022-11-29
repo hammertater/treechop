@@ -1,6 +1,6 @@
 {
   "variants": {
-    "waterlogged=false": { "model": "minecraft:block/air" },
-    "waterlogged=true": { "model": "minecraft:block/air" }
+    "waterlogged=false": { "model": "treechop:block/chopped_log" },
+    "waterlogged=true": { "model": "treechop:block/chopped_log" }
   }
 }
