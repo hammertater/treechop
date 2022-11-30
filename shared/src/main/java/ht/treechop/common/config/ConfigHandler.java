@@ -15,30 +15,34 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ConfigHandler {
 
-    public final static Lazy<ChopSettings> defaultChopSettings = new Lazy<>(() -> {
-        ChopSettings chopSettings = new ChopSettings();
-        Permissions permissions = getServerPermissions();
+    private static final Signal<Lazy<?>> RELOAD = new Signal<>(Lazy::reset);
+    private static final Signal<Lazy<?>> UPDATE_TAGS = new Signal<>(Lazy::reset);
 
-        chopSettings.forEach((field, value) -> {
-            if (!permissions.isPermitted(field, value)) {
-                chopSettings.set(field, field.getValues().stream()
-                        .filter(candidate -> permissions.isPermitted(new Setting(field, candidate)))
-                        .findFirst()
-                        .orElse(value)
-                );
-            }
-        });
+    public final static Lazy<ChopSettings> defaultChopSettings = new Lazy<>(
+            RELOAD,
+            () -> {
+                ChopSettings chopSettings = new ChopSettings();
+                Permissions permissions = getServerPermissions();
 
-        return chopSettings;
-    });
+                chopSettings.forEach((field, value) -> {
+                    if (!permissions.isPermitted(field, value)) {
+                        chopSettings.set(field, field.getValues().stream()
+                                .filter(candidate -> permissions.isPermitted(new Setting(field, candidate)))
+                                .findFirst()
+                                .orElse(value)
+                        );
+                    }
+                });
+                return chopSettings;
+            });
 
     public final static Lazy<EntityChopSettings> fakePlayerChopSettings = new Lazy<>(
+            RELOAD,
             () -> {
                 EntityChopSettings chopSettings = new EntityChopSettings() {
                     @Override
@@ -52,31 +56,30 @@ public class ConfigHandler {
                         .setTreesMustHaveLeaves(ConfigHandler.COMMON.fakePlayerTreesMustHaveLeaves.get());
 
                 return chopSettings;
-            }
-    );
+            });
 
-    public static Lazy<Boolean> removeBarkOnInteriorLogs = new Lazy<>(() -> {
-        try {
-            return ConfigHandler.CLIENT.removeBarkOnInteriorLogs.get();
-        } catch (IllegalStateException e) {
-            // this config isn't available on server, and that's just fine
-            return false;
-        }}
-    );
+    public static Lazy<Boolean> removeBarkOnInteriorLogs = new Lazy<>(
+            RELOAD,
+            () -> {
+                try {
+                    return ConfigHandler.CLIENT.removeBarkOnInteriorLogs.get();
+                } catch (IllegalStateException e) {
+                    // this config isn't available on server, and that's just fine
+                    return false;
+                }
+            });
 
-    public static Lazy<Map<Block, BlockState>> inferredStrippedStates = new Lazy<>(ConfigHandler::inferStrippedStates);
+    public static Lazy<Map<Block, BlockState>> inferredStrippedStates = new Lazy<>(
+            UPDATE_TAGS,
+            ConfigHandler::inferStrippedStates);
 
     public static void onReload() {
-        fakePlayerChopSettings.reset();
-        removeBarkOnInteriorLogs.reset();
-        inferredStrippedStates.reset();
+        RELOAD.run();
         updateTags();
     }
 
     public static void updateTags() {
-        COMMON.choppableBlocks.reset();
-        COMMON.leavesBlocks.reset();
-        COMMON.itemsBlacklist.reset();
+        UPDATE_TAGS.run();
     }
 
     @NotNull
@@ -151,12 +154,14 @@ public class ConfigHandler {
         protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
 
         public final Lazy<Set<Item>> itemsBlacklist = new Lazy<>(
+                UPDATE_TAGS,
                 () -> COMMON.itemsToBlacklist.get().stream()
                         .flatMap(ConfigHandler::getIdentifiedItems)
                         .collect(Collectors.toSet())
         );
 
         public final Lazy<Set<Block>> choppableBlocks = new Lazy<>(
+                UPDATE_TAGS,
                 () -> {
                     Set<Block> exceptions = COMMON.choppableBlocksExceptionsList.get().stream()
                             .flatMap(ConfigHandler::getIdentifiedBlocks)
@@ -170,6 +175,7 @@ public class ConfigHandler {
         );
 
         public final Lazy<Set<Block>> leavesBlocks = new Lazy<>(
+                UPDATE_TAGS,
                 () -> {
                     Set<Block> exceptions = COMMON.leavesBlocksExceptionsList.get().stream()
                             .flatMap(ConfigHandler::getIdentifiedBlocks)

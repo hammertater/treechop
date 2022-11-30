@@ -2,12 +2,13 @@ package ht.treechop.common.config;
 
 import java.util.function.Supplier;
 
-public class Lazy<T extends Object> implements Supplier<T> {
+public class Lazy<T> implements Supplier<T> {
     private final Supplier<T> supplier;
     private T cache;
     private boolean available = false;
 
-    public Lazy(Supplier<T> supplier) {
+    public Lazy(Signal<Lazy<?>> resetSignal, Supplier<T> supplier) {
+        resetSignal.add(this);
         this.supplier = supplier;
     }
 
