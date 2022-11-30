@@ -31,19 +31,20 @@ import java.util.stream.Stream;
 public class ChopUtil {
 
     public static boolean isBlockChoppable(Level level, BlockPos pos, BlockState blockState) {
-        return isBlockALog(blockState);
+        return isBlockALog(level, pos, blockState);
     }
 
     public static boolean isBlockChoppable(Level level, BlockPos pos) {
         return isBlockChoppable(level, pos, level.getBlockState(pos));
     }
 
-    public static boolean isBlockALog(BlockState blockState) {
-        return ConfigHandler.COMMON.choppableBlocks.get().contains(blockState.getBlock());
+    public static boolean isBlockALog(Level level, BlockPos pos, BlockState blockState) {
+        Block block = blockState.getBlock();
+        return ConfigHandler.COMMON.choppableBlocks.get().contains(block) || (block instanceof IChoppableBlock choppable && choppable.isChoppable(level, pos, blockState));
     }
 
     public static boolean isBlockALog(Level level, BlockPos pos) {
-        return isBlockALog(level.getBlockState(pos));
+        return isBlockALog(level, pos, level.getBlockState(pos));
     }
 
     public static boolean isBlockLeaves(Level level, BlockPos pos) {
@@ -307,7 +308,7 @@ public class ChopUtil {
     }
 
     public static int adjustNumChops(Level level, BlockPos blockPos, BlockState blockState, int numChops, boolean destructive) {
-        Block choppedBlock = getChoppedBlock(blockState);
+        Block choppedBlock = getChoppableBlock(level, blockPos, blockState);
         if (choppedBlock instanceof IChoppableBlock choppableBlock) {
             if (destructive) {
                 return numChops;
@@ -326,7 +327,7 @@ public class ChopUtil {
             return ((IChoppableBlock) block).getMaxNumChops(level, blockPos, blockState);
         } else {
             if (isBlockChoppable(level, blockPos, level.getBlockState(blockPos))) {
-                Block choppedBlock = getChoppedBlock(blockState);
+                Block choppedBlock = getChoppableBlock(level, blockPos, blockState);
                 return (choppedBlock instanceof IChoppableBlock choppableBlock) ? choppableBlock.getMaxNumChops(level, blockPos, blockState) : 0;
             } else {
                 return 0;
@@ -334,8 +335,8 @@ public class ChopUtil {
         }
     }
 
-    public static Block getChoppedBlock(BlockState blockState) {
-        if (isBlockALog(blockState)) {
+    public static Block getChoppableBlock(Level level, BlockPos blockPos, BlockState blockState) {
+        if (isBlockALog(level, blockPos, blockState)) {
             return blockState.getBlock() instanceof IChoppableBlock ? blockState.getBlock() : TreeChop.platform.getChoppedLogBlock();
         } else {
             return null;

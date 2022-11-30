@@ -28,7 +28,7 @@ public class Chop {
 
     public void apply(Level level, Player player, ItemStack tool, boolean felling) {
         BlockState blockState = level.getBlockState(blockPos);
-        Block block = ChopUtil.getChoppedBlock(blockState);
+        Block block = ChopUtil.getChoppableBlock(level, blockPos, blockState);
         if (block instanceof IChoppableBlock choppableBlock) {
             choppableBlock.chop(player, tool, level, blockPos, blockState, numChops, felling);
         } else {

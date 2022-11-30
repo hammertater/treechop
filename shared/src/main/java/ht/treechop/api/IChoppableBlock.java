@@ -24,6 +24,10 @@ public interface IChoppableBlock extends IFellableBlock {
 
     int getMaxNumChops(BlockGetter level, BlockPos blockPos, BlockState blockState);
 
+    default boolean isChoppable(BlockGetter level, BlockPos blockPos, BlockState blockState) {
+        return true;
+    }
+
     @Override
     default double getSupportFactor(BlockGetter level, BlockPos pos, BlockState blockState) {
         return 1.0;
