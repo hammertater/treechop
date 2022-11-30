@@ -29,7 +29,6 @@ public class ChopResult {
     private final Level level;
     private final Collection<Chop> chops;
     private final Collection<BlockPos> fells;
-    private final boolean felling;
 
     public static final int MAX_NUM_FELLING_EFFECTS = 32;;
 
@@ -37,7 +36,6 @@ public class ChopResult {
         this.level = level;
         this.chops = chops;
         this.fells = fells;
-        this.felling = !fells.isEmpty();
     }
 
     /**
@@ -64,9 +62,9 @@ public class ChopResult {
             return false;
         }
 
-        chopBlocks(level, agent, tool, chops.stream());
+        chopBlocks(level, agent, tool, chops.stream(), isFelling());
 
-        if (felling) {
+        if (isFelling()) {
             List<BlockPos> leaves = breakLeaves
                     ? ChopUtil.getTreeLeaves(level, logs).stream()
                     .filter(pos -> !agent.blockActionRestricted(level, pos, agent.gameMode.getGameModeForPlayer()))
@@ -80,20 +78,16 @@ public class ChopResult {
             fellBlocks(level, targetPos, agent, Stream.of(fells, leaves).flatMap(Collection::stream));
 
             return false;
-        } else {
-            if (chops.stream().noneMatch(chop -> chop.getBlockPos().equals(targetPos)) && level.getBlockEntity(targetPos) instanceof ChoppedLogBlock.MyEntity entity) {
-                entity.syncWithClients();
-            }
         }
 
         return true;
     }
 
-    private void chopBlocks(Level level, Player player, ItemStack tool, Stream<Chop> chops) {
+    private static void chopBlocks(Level level, Player player, ItemStack tool, Stream<Chop> chops, boolean felling) {
         chops.forEach(chop -> chop.apply(level, player, tool, felling));
     }
 
-    private void fellBlocks(Level level, BlockPos targetPos, Entity agent, Stream<BlockPos> blocks) {
+    private static void fellBlocks(Level level, BlockPos targetPos, Entity agent, Stream<BlockPos> blocks) {
         AtomicInteger xpAccumulator = new AtomicInteger(0);
         Consumer<BlockPos> blockBreaker;
 
@@ -108,7 +102,7 @@ public class ChopResult {
         ChopUtil.dropExperience(level, targetPos, xpAccumulator.get());
     }
 
-    private void playBlockBreakEffects(Level level, List<BlockPos> logs, List<BlockPos> leaves) {
+    private static void playBlockBreakEffects(Level level, List<BlockPos> logs, List<BlockPos> leaves) {
         int numLogsAndLeaves = logs.size() + leaves.size();
         int numEffects = Math.min((int) Math.ceil(Math.sqrt(numLogsAndLeaves)), MAX_NUM_FELLING_EFFECTS) - 1;
         int numLeavesEffects = Math.max(1, (int) Math.ceil(numEffects * ((double) leaves.size() / (double) numLogsAndLeaves)));
@@ -144,6 +138,6 @@ public class ChopResult {
     }
 
     public boolean isFelling() {
-        return fells.size() > 0;
+        return !fells.isEmpty();
     }
 }

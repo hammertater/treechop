@@ -1,6 +1,7 @@
 package ht.treechop.common.network;
 
 import ht.treechop.TreeChop;
+import ht.treechop.client.Client;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.fml.LogicalSide;
@@ -35,7 +36,7 @@ public final class ForgePacketHandler implements PacketHandler {
 
         HANDLER.registerMessage(id++, ServerPermissionsPacket.class, ServerPermissionsPacket::encode, ServerPermissionsPacket::decode, ServerPacketProcessor.toClient(ServerPermissionsPacket::handle));
 
-        HANDLER.registerMessage(id++, ServerUpdateChopsPacket.class, ServerUpdateChopsPacket::encode, ServerUpdateChopsPacket::decode, ServerPacketProcessor.toClient(ServerUpdateChopsPacket::handle));
+        HANDLER.registerMessage(id++, ServerUpdateChopsPacket.class, ServerUpdateChopsPacket::encode, ServerUpdateChopsPacket::decode, ServerPacketProcessor.toClient(Client::handleUpdateChopsPacket));
     }
 
     @FunctionalInterface

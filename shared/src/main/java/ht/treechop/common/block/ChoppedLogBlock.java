@@ -206,7 +206,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
                         List<ItemStack> drops = Block.getDrops(blockState, serverLevel, pos, entity, player, tool);
                         entity.setDrops(drops);
-                        entity.setChanged();
                     }
                 }
 
@@ -426,10 +425,14 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         public void setLevel(@NotNull Level level) {
             super.setLevel(level);
             if (level.isClientSide()) {
-                CompoundTag update = ServerUpdateChopsPacket.getPendingUpdate(level, worldPosition);
-                if (update != null) {
-                    load(update);
-                }
+                update(level);
+            }
+        }
+
+        public void update(@NotNull Level level) {
+            CompoundTag update = ServerUpdateChopsPacket.getPendingUpdate(level, worldPosition);
+            if (update != null) {
+                load(update);
             }
         }
     }
