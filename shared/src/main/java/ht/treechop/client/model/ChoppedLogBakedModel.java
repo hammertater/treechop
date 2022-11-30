@@ -30,12 +30,19 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
 
     protected TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, RandomSource rand) {
         ModelResourceLocation modelLocation = BlockModelShaper.stateToModelLocation(blockState);
-        return Minecraft.getInstance().getModelManager().getModel(modelLocation)
-                .getQuads(blockState, side, rand).stream()
+        BakedModel model = Minecraft.getInstance().getModelManager().getModel(modelLocation);
+
+        return getSpriteForBlockSide(model, blockState, side, rand)
+                .or(() -> getSpriteForBlockSide(model, blockState, null, rand))
+                .or(() -> Optional.ofNullable(model.getParticleIcon()))
+                .orElse(defaultSprite);
+    }
+
+    protected Optional<TextureAtlasSprite> getSpriteForBlockSide(BakedModel model, BlockState blockState, Direction side, RandomSource rand) {
+        return model.getQuads(blockState, side, rand).stream()
                 .map(BakedQuad::getSprite)
                 .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(getDefaultSprite());
+                .findFirst();
     }
 
     public Collection<ResourceLocation> getDependencies() {

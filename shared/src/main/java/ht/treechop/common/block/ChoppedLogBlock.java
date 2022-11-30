@@ -206,6 +206,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
                         List<ItemStack> drops = Block.getDrops(blockState, serverLevel, pos, entity, player, tool);
                         entity.setDrops(drops);
+                        entity.setChanged();
                     }
                 }
 
