@@ -19,6 +19,7 @@ repositories {
     }
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
     maven { url "https://maven.bai.lol" }
+    maven { url = 'https://maven.terraformersmc.com/' }
 }
 
 dependencies {
@@ -41,6 +42,8 @@ dependencies {
 //    modRuntimeOnly "curse.maven:sodium-394468:3957319"
 //    modRuntimeOnly "curse.maven:indium-459496:3957480"
 //    modRuntimeOnly "curse.maven:irisshaders-455508:3981799"
+
+    modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:4.2.0"
 }
 
 processResources {

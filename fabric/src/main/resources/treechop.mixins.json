@@ -3,8 +3,10 @@
   "minVersion": "0.8",
   "package": "ht.treechop.mixin",
   "compatibilityLevel": "JAVA_17",
+  "plugin": "ht.treechop.TreeChopMixinPlugin",
   "mixins": [
-    "EntityChopSettingsMixin"
+    "EntityChopSettingsMixin",
+    "TerraformMixin",
   ],
   "client": [
     "GuiMixin"

@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(HugeMushroomBlock.class)
 public class HugeMushroomBlockMixin implements ISimpleChoppableBlock {
     @Override
-    public int getUnchoppedRadius(BlockGetter blockGetter, BlockPos blockPos, BlockState blockState) {
+    public int getRadius(BlockGetter blockGetter, BlockPos blockPos, BlockState blockState) {
         return 4;
     }
 }
