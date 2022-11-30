@@ -46,17 +46,18 @@ public class EntityChopSettings extends ChopSettings {
             Optional<Boolean> isSynced = getBoolean(tag, IS_SYNCED_KEY);
 
             SneakBehavior defaultSneakBehavior = ConfigHandler.defaultChopSettings.get().getSneakBehavior();
-            if (tag.contains(SNEAK_BEHAVIOR_KEY)) {
+            String sneakBehaviorId = (tag.contains(SNEAK_BEHAVIOR_KEY)) ? tag.getString(SNEAK_BEHAVIOR_KEY) : "";
+            if (sneakBehaviorId.equals("")) {
+                setSneakBehavior(defaultSneakBehavior);
+            } else {
                 SneakBehavior sneakBehavior;
                 try {
-                    sneakBehavior = SneakBehavior.valueOf(tag.getString(SNEAK_BEHAVIOR_KEY));
+                    sneakBehavior = SneakBehavior.valueOf(sneakBehaviorId);
                 } catch (IllegalArgumentException e) {
                     TreeChop.LOGGER.warn(String.format("NBT contains bad sneak behavior value \"%s\"; using default value \"%s\"", tag.getString(SNEAK_BEHAVIOR_KEY), defaultSneakBehavior.name()));
                     sneakBehavior = defaultSneakBehavior;
                 }
                 setSneakBehavior(sneakBehavior);
-            } else {
-                setSneakBehavior(defaultSneakBehavior);
             }
 
             setChoppingEnabled(choppingEnabled.orElse(getChoppingEnabled()));
