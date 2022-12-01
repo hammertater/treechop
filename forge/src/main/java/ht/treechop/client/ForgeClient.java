@@ -2,7 +2,6 @@ package ht.treechop.client;
 
 import ht.treechop.client.gui.screen.ChopIndicator;
 import ht.treechop.client.model.ForgeChoppedLogBakedModel;
-import ht.treechop.client.network.ForgeClientPacketHandler;
 import ht.treechop.common.network.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -26,7 +25,6 @@ public class ForgeClient extends Client {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(EventHandler.class);
-        registerPackets();
 
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(ForgeChoppedLogBakedModel::overrideBlockStateModels);
@@ -42,36 +40,9 @@ public class ForgeClient extends Client {
         KeyBindings.registerKeyMappings(event::register);
     }
 
-    private static void registerPackets() {
-        // Client-to-server messages
-        ForgeClientPacketHandler.registerSender(
-                ClientRequestSettingsPacket.ID,
-                ClientRequestSettingsPacket.class,
-                ClientRequestSettingsPacket::encode);
-
-        // Server-to-client messages
-        ForgeClientPacketHandler.registerReceiver(
-                ServerConfirmSettingsPacket.ID,
-                ServerConfirmSettingsPacket.class,
-                ServerConfirmSettingsPacket::decode,
-                ServerConfirmSettingsPacket::handle);
-
-        ForgeClientPacketHandler.registerReceiver(
-                ServerPermissionsPacket.ID,
-                ServerPermissionsPacket.class,
-                ServerPermissionsPacket::decode,
-                ServerPermissionsPacket::handle);
-
-        ForgeClientPacketHandler.registerReceiver(
-                ServerUpdateChopsPacket.ID,
-                ServerUpdateChopsPacket.class,
-                ServerUpdateChopsPacket::decode,
-                ServerUpdateChopsPacket::handle);
-    }
-
     @Override
     void sendToServer(CustomPacket packet) {
-        ForgeClientPacketHandler.sendToServer(packet);
+        ForgePacketHandler.HANDLER.sendToServer(packet);
     }
 
     static class EventHandler {

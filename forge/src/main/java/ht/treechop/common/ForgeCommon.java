@@ -26,6 +26,11 @@ import static net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 @EventBusSubscriber(modid = TreeChop.MOD_ID, bus = EventBusSubscriber.Bus.FORGE)
 public class ForgeCommon {
 
+    // Don't @SubscribeEvent; FMLCommonSetupEvent fires on Bus.MOD
+    public static void onCommonSetup(FMLCommonSetupEvent event) {
+        ForgePacketHandler.registerPackets();
+    }
+
     @SubscribeEvent
     public static void onTagsUpdated(TagsUpdatedEvent event) {
         ConfigHandler.updateTags();

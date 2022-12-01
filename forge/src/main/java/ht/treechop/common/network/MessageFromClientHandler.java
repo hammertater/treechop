@@ -1,6 +1,5 @@
-package ht.treechop.server.network;
+package ht.treechop.common.network;
 
-import ht.treechop.common.network.PacketChannel;
 import net.minecraft.server.level.ServerPlayer;
 
 @FunctionalInterface

@@ -20,7 +20,7 @@ public class TreeChopForge extends TreeChop {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigHandler.CLIENT_SPEC);
 
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-
+        modBus.addListener(ForgeCommon::onCommonSetup);
         modBus.addListener((ModConfigEvent.Reloading e) -> ConfigHandler.onReload());
 
         ForgeModBlocks.BLOCKS.register(modBus);
