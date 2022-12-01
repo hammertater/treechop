@@ -23,8 +23,6 @@ public class TreeChopForge extends TreeChop {
 
         modBus.addListener((ModConfigEvent.Reloading e) -> ConfigHandler.onReload());
 
-        modBus.addListener(ForgeCommon::onCommonSetup);
-
         ForgeModBlocks.BLOCKS.register(modBus);
         ForgeModBlocks.ENTITIES.register(modBus);
     }

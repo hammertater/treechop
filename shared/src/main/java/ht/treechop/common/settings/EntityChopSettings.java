@@ -47,7 +47,7 @@ public class EntityChopSettings extends ChopSettings {
 
             SneakBehavior defaultSneakBehavior = ConfigHandler.defaultChopSettings.get().getSneakBehavior();
             String sneakBehaviorId = (tag.contains(SNEAK_BEHAVIOR_KEY)) ? tag.getString(SNEAK_BEHAVIOR_KEY) : "";
-            if (sneakBehaviorId.equals("")) {
+            if (sneakBehaviorId.isEmpty()) {
                 setSneakBehavior(defaultSneakBehavior);
             } else {
                 SneakBehavior sneakBehavior;

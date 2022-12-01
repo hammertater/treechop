@@ -36,6 +36,7 @@ public class ClientRequestSettingsPacket implements CustomPacket {
         this(chopSettings.getAll(), Event.FIRST_TIME_SYNC);
     }
 
+    @Override
     public FriendlyByteBuf encode(FriendlyByteBuf buffer) {
         event.encode(buffer);
         buffer.writeInt(settings.size());
