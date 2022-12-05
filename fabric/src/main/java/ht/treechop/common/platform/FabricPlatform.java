@@ -18,6 +18,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FabricPlatform implements Platform {
+    @Override
+    public boolean uses(ModLoader loader) {
+        return loader == ModLoader.FABRIC;
+    }
 
     @Override
     public boolean onStartBlockBreak(Player player, ItemStack tool, BlockPos blockPos) {

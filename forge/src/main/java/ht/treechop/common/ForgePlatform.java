@@ -3,6 +3,7 @@ package ht.treechop.common;
 import ht.treechop.api.ChopData;
 import ht.treechop.api.ChopEvent;
 import ht.treechop.api.TreeData;
+import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.common.registry.ForgeModBlocks;
 import net.minecraft.core.BlockPos;
@@ -19,6 +20,10 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
 
 public class ForgePlatform implements Platform {
+    @Override
+    public boolean uses(ModLoader loader) {
+        return loader == ModLoader.FORGE;
+    }
 
     @Override
     public boolean onStartBlockBreak(Player player, ItemStack tool, BlockPos blockPos) {

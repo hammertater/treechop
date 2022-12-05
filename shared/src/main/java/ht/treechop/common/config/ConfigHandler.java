@@ -1,8 +1,11 @@
 package ht.treechop.common.config;
 
+import ht.treechop.TreeChop;
 import ht.treechop.common.config.item.ResourceIdentifier;
+import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;
+import ht.treechop.compat.ProjectMMOChopXp;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -15,6 +18,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -147,6 +151,27 @@ public class ConfigHandler {
                 .collect(Collectors.toSet()));
     }
 
+    private static <T> InitializedSupplier<T> defaultValue(T defaultValue) {
+        return new InitializedSupplier<>(() -> defaultValue);
+    }
+
+    public static class InitializedSupplier<T> implements Supplier<T> {
+        private Supplier<T> supplier;
+
+        public InitializedSupplier(Supplier<T> defaultSupplier) {
+            supplier = defaultSupplier;
+        }
+
+        @Override
+        public T get() {
+            return supplier.get();
+        }
+
+        private void set(Supplier<T> newSupplier) {
+            supplier = newSupplier;
+        }
+    }
+
     public static class Common {
 
         public final ForgeConfigSpec.BooleanValue enabled;
@@ -214,8 +239,12 @@ public class ConfigHandler {
 
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
-        public final ForgeConfigSpec.BooleanValue compatForProjectMMO;
-        public final ForgeConfigSpec.BooleanValue compatForDynamicTrees;
+        public final InitializedSupplier<Boolean> compatForProjectMMO = defaultValue(true);
+        public final InitializedSupplier<ProjectMMOChopXp> pmmoXpMethod = defaultValue(ProjectMMOChopXp.USE_BLOCK_XP);
+        public final InitializedSupplier<Double> pmmoScaleXp = defaultValue(1.0);
+        public final InitializedSupplier<Long> pmmoOverrideXp = defaultValue(80L);
+
+        public final InitializedSupplier<Boolean> compatForDynamicTrees = defaultValue(true);
         public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
@@ -372,18 +401,31 @@ public class ConfigHandler {
 
             builder.pop();
 
-            builder.push("specific");
-            compatForProjectMMO = builder
-                    .comment(String.join("\n",
-                            "Whether to enable compatibility with ProjectMMO; for example, award XP for chopping",
-                            "See https://www.curseforge.com/minecraft/mc-mods/project-mmo"))
-                    .define("projectMMO", true);
-            compatForDynamicTrees = builder
-                    .comment(String.join("\n",
-                            "Whether to prevent conflicts with DynamicTrees",
-                            "See https://www.curseforge.com/minecraft/mc-mods/dynamictrees"))
-                    .define("dynamicTrees", true);
-            builder.pop();
+            if (TreeChop.platform.uses(ModLoader.FORGE)) {
+                compatForDynamicTrees.set(builder
+                        .comment(String.join("\n",
+                                "Prevent conflicts with DynamicTrees",
+                                "See https://www.curseforge.com/minecraft/mc-mods/dynamictrees"))
+                        .define("dynamicTrees", true));
+
+                builder.push("projectMMO");
+                compatForProjectMMO.set(builder
+                        .comment(String.join("\n",
+                                "Fix ProjectMMO XP awards for chopping",
+                                "See https://www.curseforge.com/minecraft/mc-mods/project-mmo"))
+                        .define("projectMMO", true));
+                pmmoXpMethod.set(builder
+                        .comment("When chopping, award the default XP for the chopped block or use a custom value")
+                        .defineEnum("useBlockXpOrOverride", ProjectMMOChopXp.USE_BLOCK_XP));
+                pmmoScaleXp.set(builder
+                        .comment(String.format("Multiplier for the amount of XP awarded if useBlockXpOrOverride = %s", ProjectMMOChopXp.USE_BLOCK_XP.name()))
+                        .defineInRange("xpMultiplier", 1.0, 0.0, 100000.0));
+                pmmoOverrideXp.set(builder
+                        .comment(String.format("How much XP to award if useBlockXpOrOverride = %s", ProjectMMOChopXp.OVERRIDE.name()))
+                        .defineInRange("xpOverride", 80L, 0L, 100000L));
+                builder.pop();
+            }
+
             builder.pop();
         }
 

@@ -14,6 +14,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public interface Platform {
 
+    boolean uses(ModLoader loader);
+
     boolean onStartBlockBreak(Player player, ItemStack tool, BlockPos blockPos);
 
     TreeData detectTreeEvent(Level level, ServerPlayer agent, BlockPos blockPos, BlockState blockState, boolean overrideLeaves);
