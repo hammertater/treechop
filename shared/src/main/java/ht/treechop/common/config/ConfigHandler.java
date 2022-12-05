@@ -239,15 +239,17 @@ public class ConfigHandler {
 
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
+
+        public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
+        public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
+        public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
+
         public final InitializedSupplier<Boolean> compatForProjectMMO = defaultValue(true);
         public final InitializedSupplier<ProjectMMOChopXp> pmmoXpMethod = defaultValue(ProjectMMOChopXp.USE_BLOCK_XP);
         public final InitializedSupplier<Double> pmmoScaleXp = defaultValue(1.0);
         public final InitializedSupplier<Long> pmmoOverrideXp = defaultValue(80L);
 
         public final InitializedSupplier<Boolean> compatForDynamicTrees = defaultValue(true);
-        public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
-        public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
-        public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
 
         public Common(ForgeConfigSpec.Builder builder) {
             builder.push("permissions");
