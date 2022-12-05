@@ -4,7 +4,9 @@ import ht.treechop.api.ChopData;
 import ht.treechop.api.TreeChopEvents;
 import ht.treechop.api.TreeData;
 import ht.treechop.common.registry.FabricModBlocks;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,6 +20,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FabricPlatform implements Platform {
+    @Override
+    public boolean isDedicatedServer() {
+        return FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
+    }
+
     @Override
     public boolean uses(ModLoader loader) {
         return loader == ModLoader.FABRIC;

@@ -14,6 +14,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public interface Platform {
 
+    boolean isDedicatedServer();
+
     boolean uses(ModLoader loader);
 
     boolean onStartBlockBreak(Player player, ItemStack tool, BlockPos blockPos);

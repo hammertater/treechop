@@ -1,7 +1,7 @@
 package ht.treechop.common.network;
 
 import ht.treechop.TreeChop;
-import ht.treechop.client.Client;
+import ht.treechop.client.SafeClient;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.LogicalSide;
@@ -53,7 +53,7 @@ public abstract class ForgePacketHandler {
                 ServerUpdateChopsPacket.class,
                 ServerUpdateChopsPacket::encode,
                 ServerUpdateChopsPacket::decode,
-                Client::handleUpdateChopsPacket
+                SafeClient::handleUpdateChopsPacket
         );
     }
 

@@ -18,8 +18,16 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 public class ForgePlatform implements Platform {
+
+    @SuppressWarnings("UnstableApiUsage")
+    @Override
+    public boolean isDedicatedServer() {
+        return FMLEnvironment.dist.isDedicatedServer();
+    };
+
     @Override
     public boolean uses(ModLoader loader) {
         return loader == ModLoader.FORGE;
