@@ -26,7 +26,10 @@ public interface ISimpleChoppableBlock extends IChoppableBlock, ICylinderBlock {
      *
      * @return an integer between 1 and 8 (default), inclusive.
      */
-    int getRadius(BlockGetter level, BlockPos blockPos, BlockState blockState);
+    @Override
+    default int getRadius(BlockGetter level, BlockPos blockPos, BlockState blockState) {
+        return 8;
+    };
 
     @Override
     default void chop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState, int numChops, boolean felling) {
