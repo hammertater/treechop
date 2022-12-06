@@ -1,5 +1,6 @@
 package ht.treechop;
 
+import ht.treechop.api.TreeChopAPI;
 import ht.treechop.common.platform.Platform;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -13,6 +14,7 @@ public abstract class TreeChop {
     public static final String MOD_NAME = "HT's TreeChop";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static Platform platform;
+    public static TreeChopAPI api;
 
     @SuppressWarnings("ConstantConditions")
     public static void showText(String text) {

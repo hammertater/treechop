@@ -7,10 +7,12 @@ import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.common.registry.ForgeModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -19,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class ForgePlatform implements Platform {
 
@@ -93,5 +96,15 @@ public class ForgePlatform implements Platform {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public ResourceLocation getResourceLocationForBlock(Block block) {
+        return ForgeRegistries.BLOCKS.getKey(block);
+    }
+
+    @Override
+    public ResourceLocation getResourceLocationForItem(Item item) {
+        return ForgeRegistries.ITEMS.getKey(item);
     }
 }

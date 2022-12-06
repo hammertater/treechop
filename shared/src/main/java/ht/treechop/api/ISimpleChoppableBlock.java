@@ -11,9 +11,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Blocks that implement this interface will be replaced by {@code treechop:chopped_log} when chopped, with starting
- * radius {@code getUnchoppedRadius(...)}. Slimmer logs can't be chopped as many times as full-sized logs, and
- * contribute less to the "size" of the tree. For example,
+ * Chopping a block that implements this interface will replace the block by a {@code treechop:chopped_log} with
+ * starting radius {@code getUnchoppedRadius(...)}. By default, slimmer logs can't be chopped as many times as
+ * full-sized logs, and contribute less to the "size" of the tree. For example,
  * - a log with radius 4 can only be chopped 3 times
  * - a 10-block tall tree of logs with radius 4 will only count as 5 blocks when calculating how many chops are needed
  *   to fell the tree.
