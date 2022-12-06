@@ -47,7 +47,7 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
             Set<Direction> solidSides = entity.getShape().getSolidSides(level, pos);
             QuadEmitter emitter = context.getEmitter();
             getQuads(
-                    ChopUtil.getStrippedState(entity.getOriginalState()),
+                    ChopUtil.getStrippedState(level, pos, entity.getOriginalState()),
                     entity.getShape(),
                     entity.getChops() + (ChoppedLogBlock.DEFAULT_UNCHOPPED_RADIUS - entity.getUnchoppedRadius()),
                     solidSides,

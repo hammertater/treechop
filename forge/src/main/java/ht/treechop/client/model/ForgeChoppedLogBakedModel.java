@@ -61,7 +61,7 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
         if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
             ModelData.Builder builder = ModelData.builder();
             builder.with(SOLID_SIDES, entity.getShape().getSolidSides(level, pos));
-            builder.with(STRIPPED_BLOCK_STATE, ChopUtil.getStrippedState(entity.getOriginalState()));
+            builder.with(STRIPPED_BLOCK_STATE, ChopUtil.getStrippedState(level, pos, entity.getOriginalState()));
             builder.with(CHOP_COUNT, entity.getChops() + (ChoppedLogBlock.DEFAULT_UNCHOPPED_RADIUS - entity.getUnchoppedRadius()));
             builder.with(CHOPPED_LOG_SHAPE, entity.getShape());
             return builder.build();

@@ -16,6 +16,7 @@ public class TreeChopForge extends TreeChop {
     public TreeChopForge() {
         platform = new ForgePlatform();
         api = new TreeChopForgeAPI(TreeChop.MOD_ID);
+        init();
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigHandler.CLIENT_SPEC);

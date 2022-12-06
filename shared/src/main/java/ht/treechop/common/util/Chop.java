@@ -28,11 +28,11 @@ public class Chop {
 
     public void apply(Level level, Player player, ItemStack tool, boolean felling) {
         BlockState blockState = level.getBlockState(blockPos);
-        Block block = ChopUtil.getChoppableBlock(level, blockPos, blockState);
-        if (block instanceof IChoppableBlock choppableBlock) {
+        IChoppableBlock choppableBlock = ChopUtil.getChoppableBlock(level, blockPos, blockState);
+        if (choppableBlock != null) {
             choppableBlock.chop(player, tool, level, blockPos, blockState, numChops, felling);
         } else {
-            TreeChop.LOGGER.warn("Failed to chop block in level {} at position {} for player {}: {} does not implement IChoppableBlock", level.dimension(), blockPos, player.getName(), block.getDescriptionId());
+            TreeChop.LOGGER.warn("Failed to chop block in level {} at position {} for player {}: {} is not choppable", level.dimension(), blockPos, player.getName(), TreeChop.platform.getResourceLocationForBlock(blockState.getBlock()));
         }
     }
 }

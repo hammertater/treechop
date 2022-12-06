@@ -19,6 +19,7 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
     public void onInitialize() {
         platform = new FabricPlatform();
         api = new TreeChopFabricAPI(TreeChop.MOD_ID);
+        init();
 
         ModLoadingContext.registerConfig(TreeChop.MOD_ID, ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
         ModLoadingContext.registerConfig(TreeChop.MOD_ID, ModConfig.Type.CLIENT, ConfigHandler.CLIENT_SPEC);

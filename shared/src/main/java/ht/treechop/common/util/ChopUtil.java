@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -44,8 +45,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockChoppable(Level level, BlockPos pos, BlockState blockState) {
-        return getChoppableBlock(level, pos, blockState) instanceof IChoppableBlock choppableBlock
-                && choppableBlock.isChoppable(level, pos, blockState);
+        return getChoppableBlock(level, pos, blockState) != null;
     }
 
     public static boolean isBlockLeaves(Level level, BlockPos pos) {
@@ -309,12 +309,12 @@ public class ChopUtil {
     }
 
     public static int adjustNumChops(Level level, BlockPos blockPos, BlockState blockState, int numChops, boolean destructive) {
-        Block choppedBlock = getChoppableBlock(level, blockPos, blockState);
-        if (choppedBlock instanceof IChoppableBlock choppableBlock) {
+        IChoppableBlock choppableBlock = getChoppableBlock(level, blockPos, blockState);
+        if (choppableBlock != null) {
             if (destructive) {
                 return numChops;
             } else {
-                int currentNumChops = (blockState.is(choppedBlock)) ? choppableBlock.getNumChops(level, blockPos, blockState) : 0;
+                int currentNumChops = choppableBlock.getNumChops(level, blockPos, blockState);
                 int maxNondestructiveChops = choppableBlock.getMaxNumChops(level, blockPos, blockState) - currentNumChops;
                 return Math.min(maxNondestructiveChops, numChops);
             }
@@ -328,21 +328,21 @@ public class ChopUtil {
             return ((IChoppableBlock) block).getMaxNumChops(level, blockPos, blockState);
         } else {
             if (isBlockChoppable(level, blockPos, level.getBlockState(blockPos))) {
-                Block choppedBlock = getChoppableBlock(level, blockPos, blockState);
-                return (choppedBlock instanceof IChoppableBlock choppableBlock) ? choppableBlock.getMaxNumChops(level, blockPos, blockState) : 0;
+                IChoppableBlock choppableBlock = getChoppableBlock(level, blockPos, blockState);
+                return (choppableBlock != null) ? choppableBlock.getMaxNumChops(level, blockPos, blockState) : 0;
             } else {
                 return 0;
             }
         }
     }
 
-    @Nullable public static Block getChoppableBlock(Level level, BlockPos blockPos, BlockState blockState) {
+    @Nullable public static IChoppableBlock getChoppableBlock(Level level, BlockPos blockPos, BlockState blockState) {
         Block block = blockState.getBlock();
         IChoppableBlock choppableBlock = (block instanceof IChoppableBlock) ? (IChoppableBlock) block : TreeChop.api.getRegisteredLogBlockBehavior(block);
         if (choppableBlock != null && choppableBlock.isChoppable(level, blockPos, blockState)) {
-            return block;
+            return choppableBlock;
         } else if (ConfigHandler.COMMON.choppableBlocks.get().contains(block)) {
-            return TreeChop.platform.getChoppedLogBlock();
+            return (IChoppableBlock) TreeChop.platform.getChoppedLogBlock();
         } else {
             return null;
         }
@@ -476,11 +476,19 @@ public class ChopUtil {
         return false;
     }
 
-    public static BlockState getStrippedState(BlockState state) {
+    /**
+     * Only use for visual purposes, does not affect gameplay
+     */
+    public static BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state) {
         BlockState strippedState = (AxeAccessor.isStripped(state.getBlock())) ? state : AxeAccessor.getStripped(state);
         if (strippedState == null) {
-            return ConfigHandler.inferredStrippedStates.get()
-                    .getOrDefault(state.getBlock(), state.getBlock().defaultBlockState());
+            strippedState = (TreeChop.api.getRegisteredLogBlockBehavior(state.getBlock()) instanceof IStrippableBlock strippableBlock)
+                            ? strippableBlock.getStrippedState(level, pos, state)
+                            : ConfigHandler.inferredStrippedStates.get().get(state.getBlock());
+
+            if (strippedState == null) {
+                return state.getBlock().defaultBlockState();
+            }
         }
         return strippedState;
     }
