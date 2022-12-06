@@ -1,5 +1,6 @@
 package ht.treechop;
 
+import ht.treechop.api.TreeChopAPI;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.compat.MushroomStemHandler;
 import net.minecraft.ChatFormatting;
@@ -17,7 +18,7 @@ public abstract class TreeChop {
     public static Platform platform;
     public static TreeChopInternalAPI api;
 
-    protected void init() {
+    protected void initUsingAPI(TreeChopAPI api) {
         api.registerLogBlockBehavior(Blocks.MUSHROOM_STEM, new MushroomStemHandler());
     }
 

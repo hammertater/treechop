@@ -1,5 +1,6 @@
 package ht.treechop;
 
+import ht.treechop.api.TreeChopAPI;
 import ht.treechop.common.FabricCommon;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.platform.FabricPlatform;
@@ -19,7 +20,6 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
     public void onInitialize() {
         platform = new FabricPlatform();
         api = new TreeChopFabricAPI(TreeChop.MOD_ID);
-        init();
 
         ModLoadingContext.registerConfig(TreeChop.MOD_ID, ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
         ModLoadingContext.registerConfig(TreeChop.MOD_ID, ModConfig.Type.CLIENT, ConfigHandler.CLIENT_SPEC);
@@ -35,7 +35,10 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
         Registry.register(Registry.BLOCK_ENTITY_TYPE, resource("chopped_log_entity"), FabricModBlocks.CHOPPED_LOG_ENTITY);
 
         FabricServer.initialize();
-
         FabricLoader.getInstance().getObjectShare().put("treechop:api", api);
+
+        // This is totally unnecessary - just testing to make sure it works
+        TreeChopAPI apiTest = (TreeChopAPI) FabricLoader.getInstance().getObjectShare().get("treechop:api");
+        initUsingAPI(apiTest);
     }
 }

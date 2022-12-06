@@ -284,6 +284,8 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
 
+        public final InitializedSupplier<Boolean> compatForMushroomStems = defaultValue(true);
+
         public final InitializedSupplier<Boolean> compatForProjectMMO = defaultValue(true);
         public final InitializedSupplier<ProjectMMOChopXp> pmmoXpMethod = defaultValue(ProjectMMOChopXp.USE_BLOCK_XP);
         public final InitializedSupplier<Double> pmmoScaleXp = defaultValue(1.0);
@@ -442,6 +444,10 @@ public class ConfigHandler {
             builder.pop();
 
             builder.pop();
+
+            compatForMushroomStems.set(builder
+                    .comment("Better chopping behavior for mushroom stems")
+                    .define("mushroomStems", true));
 
             if (TreeChop.platform.uses(ModLoader.FORGE)) {
                 compatForDynamicTrees.set(builder
