@@ -294,7 +294,7 @@ public class ConfigHandler {
         public Common(ForgeConfigSpec.Builder builder) {
             builder.push("permissions");
             enabled = builder
-                    .comment("Whether this mod is enabled or not")
+                    .comment("Set to false to disable TreeChop without having to uninstall the mod")
                     .define("enabled", true);
 
             for (SettingsField field : SettingsField.values()) {
@@ -310,8 +310,8 @@ public class ConfigHandler {
 
             builder.push("general");
             dropLootForChoppedBlocks = builder
-                    .comment("Whether to drop loot for blocks that have been chopped")
-                    .define("loseLootForChoppedBlocks", true);
+                    .comment("If false, log items will be destroyed when chopping")
+                    .define("dropLootForChoppedBlocks", true);
             builder.pop();
 
             builder.push("treeDetection");
@@ -322,10 +322,10 @@ public class ConfigHandler {
                     .comment("Maximum number of leaves blocks that can destroyed when a tree is felled")
                     .defineInRange("maxLeavesBlocks", 1024, 1, 8096);
             breakLeaves = builder
-                    .comment("Whether to destroy leaves when a tree is felled")
+                    .comment("Destroy leaves when a tree is felled")
                     .define("breakLeaves", true);
             ignorePersistentLeaves = builder
-                    .comment("Whether non-decayable leaves are ignored when detecting leaves")
+                    .comment("Non-decayable leaves are ignored when detecting leaves")
                     .define("ignorePersistentLeaves", true);
             maxBreakLeavesDistance = builder
                     .comment("Maximum distance from log blocks to destroy non-standard leaves blocks (e.g. mushroom caps) when felling")
@@ -380,7 +380,7 @@ public class ConfigHandler {
                     .comment("How to round the number of chops needed to fell a tree; this is more meaningful for smaller trees")
                     .defineEnum("rounding", Rounder.NEAREST);
             canRequireMoreChopsThanBlocks = builder
-                    .comment("Whether felling a tree can require more chops than the number of blocks in the tree")
+                    .comment("Felling a tree can require more chops than the number of blocks in the tree")
                     .define("canRequireMoreChopsThanBlocks", false);
 
             builder.comment("See https://github.com/hammertater/treechop/#logarithmic").push("logarithmic");
@@ -402,10 +402,10 @@ public class ConfigHandler {
             builder.push("compatibility");
             builder.push("general");
             preventChoppingOnRightClick = builder
-                    .comment("Whether to prevent chopping during right-click actions")
+                    .comment("Prevent chopping when right-clicking blocks")
                     .define("preventChoppingOnRightClick", false);
             preventChopRecursion = builder
-                    .comment("Whether to prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")
+                    .comment("Prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")
                     .define("preventChopRecursion", true);
 
             builder.push("blacklist");
@@ -517,21 +517,21 @@ public class ConfigHandler {
                     .comment("Default setting for the effect that sneaking has on chopping (can be cycled in-game)")
                     .defineEnum("sneakBehavior", SneakBehavior.INVERT_CHOPPING);
             treesMustHaveLeaves = builder
-                    .comment("Whether to ignore trees without connected leaves")
+                    .comment("Ignore trees without connected leaves (can be toggled in-game)")
                     .define("treesMustHaveLeaves", true);
             chopInCreativeMode = builder
-                    .comment("Whether to enable chopping when in creative mode (even when false, sneaking can still enable chopping)")
+                    .comment("Enable chopping in creative mode (even when false, sneaking can still enable chopping) (can be toggled in-game)")
                     .define("chopInCreativeMode", false);
             builder.pop();
 
             builder.push("visuals");
             removeBarkOnInteriorLogs = builder
-                    .comment("Whether to replace the interior sides of logs with a chopped texture instead of bark")
+                    .comment("Visually replace the interior sides of logs with a chopped texture instead of bark")
                     .define("removeBarkOnInteriorLogs", true);
 
             builder.push("choppingIndicator");
             showChoppingIndicators = builder
-                    .comment("Whether to show an on-screen icon indicating whether targeted blocks can be chopped")
+                    .comment("Show an on-screen indicator when a block will be chopped instead of broken (can be toggled in-game)")
                     .define("enabled", true);
             indicatorXOffset = builder
                     .comment("Horizontal location of the indicator relative to the player's crosshairs; positive values move the indicator to the right")
@@ -544,13 +544,13 @@ public class ConfigHandler {
 
             builder.push("settingsScreen");
             showFellingOptions = builder
-                    .comment("Whether to show in-game options for enabling and disable felling")
+                    .comment("Show in-game options for enabling and disable felling (can be toggled in-game)")
                     .define("showFellingOptions", false);
             showFeedbackMessages = builder
-                    .comment("Whether to show chat confirmations when using hotkeys to change chop settings")
+                    .comment("Show chat confirmations when using hotkeys to change chop settings (can be toggled in-game)")
                     .define("showFeedbackMessages", true);
             showTooltips = builder
-                    .comment("Whether to show tooltips in the settings screen")
+                    .comment("Show tooltips in the settings screen (can be toggled in-game)")
                     .define("showTooltips", true);
             builder.pop();
 
