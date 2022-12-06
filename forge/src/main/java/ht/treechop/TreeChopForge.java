@@ -6,12 +6,10 @@ import ht.treechop.common.ForgePlatform;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.registry.ForgeModBlocks;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -32,17 +30,9 @@ public class TreeChopForge extends TreeChop {
         modBus.addListener(ForgeCommon::onCommonSetup);
         modBus.addListener((ModConfigEvent.Reloading e) -> ConfigHandler.onReload());
         modBus.addListener(this::processIMC);
-        modBus.addListener(this::enqueueIMC);
 
         ForgeModBlocks.BLOCKS.register(modBus);
         ForgeModBlocks.ENTITIES.register(modBus);
-    }
-
-    private void enqueueIMC(InterModEnqueueEvent event) {
-        // This is totally unnecessary - just testing to make sure it works
-        if (ConfigHandler.COMMON.compatForMushroomStems.get()) {
-            InterModComms.sendTo("treechop", "getTreeChopAPI", () -> (Consumer<TreeChopAPI>) this::initUsingAPI);
-        }
     }
 
     private void processIMC(InterModProcessEvent event) {

@@ -1,13 +1,13 @@
 package ht.treechop;
 
 import ht.treechop.api.TreeChopAPI;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.compat.MushroomStemHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Blocks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +18,11 @@ public abstract class TreeChop {
     public static Platform platform;
     public static TreeChopInternalAPI api;
 
-    protected void initUsingAPI(TreeChopAPI api) {
-        api.registerLogBlockBehavior(Blocks.MUSHROOM_STEM, new MushroomStemHandler());
+    public static void initUsingAPI(TreeChopAPI api) {
+        if (ConfigHandler.COMMON.compatForMushroomStems.get()) {
+            MushroomStemHandler handler = new MushroomStemHandler();
+            ConfigHandler.getMushroomStems().forEach(block -> api.registerLogBlockBehavior(block, handler));
+        }
     }
 
     @SuppressWarnings("ConstantConditions")

@@ -161,6 +161,14 @@ public class ConfigHandler {
         return new InitializedSupplier<>(() -> defaultValue);
     }
 
+    public static Stream<Block> getMushroomStems() {
+        return ConfigHandler.getIdentifiedBlocks(getMushroomStemsTagId());
+    }
+
+    private static String getMushroomStemsTagId() {
+        return String.format("#%s:mushroom_stems", TreeChop.platform.uses(ModLoader.FORGE) ? "forge" : "c");
+    }
+
     public static class InitializedSupplier<T> implements Supplier<T> {
         private Supplier<T> supplier;
 
@@ -446,7 +454,7 @@ public class ConfigHandler {
             builder.pop();
 
             compatForMushroomStems.set(builder
-                    .comment("Better chopping behavior for mushroom stems")
+                    .comment(String.format("Better chopping behavior for block with the %s tag", getMushroomStemsTagId()))
                     .define("mushroomStems", true));
 
             if (TreeChop.platform.uses(ModLoader.FORGE)) {
