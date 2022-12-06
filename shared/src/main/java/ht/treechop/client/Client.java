@@ -15,7 +15,6 @@ import ht.treechop.common.settings.SneakBehavior;
 import ht.treechop.common.util.TreeCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.level.Level;
 
 public abstract class Client {
     protected static final ClientChopSettings chopSettings = new ClientChopSettings() {

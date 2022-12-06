@@ -1,8 +1,8 @@
 package ht.treechop.common.block;
 
 import ht.treechop.TreeChop;
-import ht.treechop.api.ICylinderBlock;
 import ht.treechop.api.IChoppableBlock;
+import ht.treechop.api.ICylinderBlock;
 import ht.treechop.api.IFellableBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ServerUpdateChopsPacket;

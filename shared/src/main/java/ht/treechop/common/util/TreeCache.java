@@ -1,7 +1,6 @@
 package ht.treechop.common.util;
 
 import ht.treechop.api.TreeData;
-import ht.treechop.common.util.ChopUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;

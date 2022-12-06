@@ -2,7 +2,8 @@ package ht.treechop.client;
 
 import ht.treechop.client.gui.screen.ChopIndicator;
 import ht.treechop.client.model.ForgeChoppedLogBakedModel;
-import ht.treechop.common.network.*;
+import ht.treechop.common.network.CustomPacket;
+import ht.treechop.common.network.ForgePacketHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.InputEvent;

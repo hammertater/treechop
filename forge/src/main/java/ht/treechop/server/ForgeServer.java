@@ -1,7 +1,8 @@
 package ht.treechop.server;
 
 import ht.treechop.common.capabilities.ChopSettingsCapability;
-import ht.treechop.common.network.*;
+import ht.treechop.common.network.CustomPacket;
+import ht.treechop.common.network.ForgePacketHandler;
 import ht.treechop.common.settings.EntityChopSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

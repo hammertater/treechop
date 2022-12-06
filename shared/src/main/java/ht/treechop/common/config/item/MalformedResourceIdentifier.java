@@ -1,8 +1,6 @@
 package ht.treechop.common.config.item;
 
 import net.minecraft.core.DefaultedRegistry;
-import net.minecraft.core.Registry;
-import net.minecraft.world.item.Item;
 
 import java.util.Collections;
 import java.util.stream.Stream;

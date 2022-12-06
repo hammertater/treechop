@@ -1,6 +1,5 @@
 package ht.treechop;
 
-import ht.treechop.api.TreeChopAPI;
 import ht.treechop.common.platform.Platform;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

@@ -2,13 +2,10 @@ package ht.treechop.common.config.item;
 
 import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
 
 import java.util.List;
-import java.util.Spliterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
