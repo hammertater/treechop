@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -30,21 +31,21 @@ import java.util.stream.Stream;
 
 public class ChopUtil {
 
-    public static boolean isBlockChoppable(Level level, BlockPos pos, BlockState blockState) {
-        return isBlockALog(level, pos, blockState);
+    public static boolean isBlockALog(Level level, BlockPos pos) {
+        return isBlockALog(level, pos, level.getBlockState(pos));
+    }
+
+    public static boolean isBlockALog(Level level, BlockPos pos, BlockState blockState) {
+        return isBlockChoppable(level, pos, blockState);
     }
 
     public static boolean isBlockChoppable(Level level, BlockPos pos) {
         return isBlockChoppable(level, pos, level.getBlockState(pos));
     }
 
-    public static boolean isBlockALog(Level level, BlockPos pos, BlockState blockState) {
-        Block block = blockState.getBlock();
-        return ConfigHandler.COMMON.choppableBlocks.get().contains(block) || (block instanceof IChoppableBlock choppable && choppable.isChoppable(level, pos, blockState));
-    }
-
-    public static boolean isBlockALog(Level level, BlockPos pos) {
-        return isBlockALog(level, pos, level.getBlockState(pos));
+    public static boolean isBlockChoppable(Level level, BlockPos pos, BlockState blockState) {
+        return getChoppableBlock(level, pos, blockState) instanceof IChoppableBlock choppableBlock
+                && choppableBlock.isChoppable(level, pos, blockState);
     }
 
     public static boolean isBlockLeaves(Level level, BlockPos pos) {
@@ -335,9 +336,13 @@ public class ChopUtil {
         }
     }
 
-    public static Block getChoppableBlock(Level level, BlockPos blockPos, BlockState blockState) {
-        if (isBlockALog(level, blockPos, blockState)) {
-            return blockState.getBlock() instanceof IChoppableBlock ? blockState.getBlock() : TreeChop.platform.getChoppedLogBlock();
+    @Nullable public static Block getChoppableBlock(Level level, BlockPos blockPos, BlockState blockState) {
+        Block block = blockState.getBlock();
+        IChoppableBlock choppableBlock = (block instanceof IChoppableBlock) ? (IChoppableBlock) block : TreeChop.api.getRegisteredLogBlockBehavior(block);
+        if (choppableBlock != null && choppableBlock.isChoppable(level, blockPos, blockState)) {
+            return block;
+        } else if (ConfigHandler.COMMON.choppableBlocks.get().contains(block)) {
+            return TreeChop.platform.getChoppedLogBlock();
         } else {
             return null;
         }
@@ -373,8 +378,13 @@ public class ChopUtil {
         return a.distManhattan(b);
     }
 
-    public static boolean canChopWithTool(ItemStack tool) {
-        return ConfigHandler.canChopWithItem(tool.getItem());
+    public static boolean canChopWithTool(Player player, Level level, BlockPos pos) {
+        return canChopWithTool(player, player.getMainHandItem(), level, pos, level.getBlockState(pos));
+
+    }
+
+    public static boolean canChopWithTool(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState) {
+        return ConfigHandler.canChopWithTool(player, tool, level, pos, blockState);
     }
 
     public static int getNumChopsByTool(ItemStack tool, BlockState blockState) {
@@ -430,7 +440,7 @@ public class ChopUtil {
                 || !ConfigHandler.COMMON.enabled.get()
                 || !ChopUtil.playerWantsToChop(agent)
                 || !agent.hasCorrectToolForDrops(blockState)
-                || !ChopUtil.canChopWithTool(tool)) {
+                || !ChopUtil.canChopWithTool(agent, tool, level, pos, blockState)) {
             return false;
         }
 

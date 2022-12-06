@@ -14,7 +14,7 @@ public abstract class TreeChop {
     public static final String MOD_NAME = "HT's TreeChop";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static Platform platform;
-    public static TreeChopAPI api;
+    public static TreeChopInternalAPI api;
 
     @SuppressWarnings("ConstantConditions")
     public static void showText(String text) {

@@ -6,9 +6,13 @@ import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;
 import ht.treechop.compat.ProjectMMOChopXp;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -136,18 +140,20 @@ public class ConfigHandler {
         return id.resolve(Registry.BLOCK);
     }
 
-    public static boolean canChopWithItem(Item item) {
-        if (COMMON.itemsBlacklistOrWhitelist.get() == ListType.BLACKLIST) {
-            return !COMMON.itemsBlacklist.get().contains(item);
-        } else {
-            return COMMON.itemsBlacklist.get().contains(item);
-        }
+    public static boolean canChopWithTool(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState) {
+        return TreeChop.api.getRegisteredChoppingItemBehavior(tool.getItem())
+                .map(choppingItem -> choppingItem.canChop(player, tool, level, pos, blockState))
+                .orElse(choppingItemIsBlacklisted(tool.getItem()));
+    }
+
+    private static boolean choppingItemIsBlacklisted(Item item) {
+        return COMMON.itemsBlacklistOrWhitelist.get().accepts(COMMON.choppingItemsList.get().contains(item));
     }
 
     public static Permissions getServerPermissions() {
         return new Permissions(ConfigHandler.COMMON.rawPermissions.stream()
-                .filter(settingAndConfig -> settingAndConfig.getRight().get())
-                .map(Pair::getLeft)
+                .filter(settingAndConfig -> settingAndConfig.getValue().get())
+                .map(Pair::getKey)
                 .collect(Collectors.toSet()));
     }
 
@@ -178,11 +184,25 @@ public class ConfigHandler {
 
         protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
 
-        public final Lazy<Set<Item>> itemsBlacklist = new Lazy<>(
+        public final Lazy<Set<Item>> choppingItemsList = new Lazy<>(
                 UPDATE_TAGS,
-                () -> COMMON.itemsToBlacklist.get().stream()
-                        .flatMap(ConfigHandler::getIdentifiedItems)
-                        .collect(Collectors.toSet())
+                () -> {
+                    Set<Item> items = COMMON.choppingItemsToBlacklistOrWhitelist.get().stream()
+                            .flatMap(ConfigHandler::getIdentifiedItems)
+                            .collect(Collectors.toSet());
+
+                    ListType blackListOrWhiteList = COMMON.itemsBlacklistOrWhitelist.get();
+                    TreeChop.api.getChoppingItemOverrides()
+                            .forEach(itemCanChop -> {
+                                if (blackListOrWhiteList.accepts(itemCanChop.getValue())) {
+                                    items.add(itemCanChop.getKey());
+                                } else {
+                                    items.remove(itemCanChop.getKey());
+                                }
+                            });
+
+                    return items;
+                }
         );
 
         public final Lazy<Set<Block>> choppableBlocks = new Lazy<>(
@@ -192,10 +212,20 @@ public class ConfigHandler {
                             .flatMap(ConfigHandler::getIdentifiedBlocks)
                             .collect(Collectors.toSet());
 
-                    return COMMON.choppableBlocksList.get().stream()
+                    Set<Block> blocks = COMMON.choppableBlocksList.get().stream()
                             .flatMap(ConfigHandler::getIdentifiedBlocks)
                             .filter(block -> !exceptions.contains(block))
                             .collect(Collectors.toSet());
+
+                    TreeChop.api.getChoppableBlockOverrides().forEach(blockIsChoppable -> {
+                        if (blockIsChoppable.getValue()) {
+                            blocks.add(blockIsChoppable.getKey());
+                        } else {
+                            blocks.remove(blockIsChoppable.getKey());
+                        }
+                    });
+
+                    return blocks;
                 }
         );
 
@@ -206,10 +236,20 @@ public class ConfigHandler {
                             .flatMap(ConfigHandler::getIdentifiedBlocks)
                             .collect(Collectors.toSet());
 
-                    return COMMON.leavesBlocksList.get().stream()
+                    Set<Block> blocks = COMMON.leavesBlocksList.get().stream()
                             .flatMap(ConfigHandler::getIdentifiedBlocks)
                             .filter(block -> !exceptions.contains(block))
                             .collect(Collectors.toSet());
+
+                    TreeChop.api.getLeavesBlockOverrides().forEach(blockIsLeaves -> {
+                        if (blockIsLeaves.getValue()) {
+                            blocks.add(blockIsLeaves.getKey());
+                        } else {
+                            blocks.remove(blockIsLeaves.getKey());
+                        }
+                    });
+
+                    return blocks;
                 }
         );
 
@@ -235,7 +275,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue linearB;
 
         public final ForgeConfigSpec.EnumValue<ListType> itemsBlacklistOrWhitelist;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> itemsToBlacklist;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppingItemsToBlacklistOrWhitelist;
 
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
@@ -372,7 +412,7 @@ public class ConfigHandler {
             itemsBlacklistOrWhitelist = builder
                     .comment("Whether the listed items should be blacklisted or whitelisted")
                     .defineEnum("blacklistOrWhitelist", ListType.BLACKLIST);
-            itemsToBlacklist = builder
+            choppingItemsToBlacklistOrWhitelist = builder
                     .comment(String.join("\n",
                             "List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not chop when used to break a log",
                             "- Items in this list that have special support for TreeChop will not be blacklisted; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#blacklist"))
