@@ -318,28 +318,29 @@ public class ChopUtil {
                 int maxNondestructiveChops = choppableBlock.getMaxNumChops(level, blockPos, blockState) - currentNumChops;
                 return Math.min(maxNondestructiveChops, numChops);
             }
-        }
-        return 0;
-    }
-
-    public static int getMaxNumChops(Level level, BlockPos blockPos, BlockState blockState) {
-        Block block = blockState.getBlock();
-        if (block instanceof IChoppableBlock) {
-            return ((IChoppableBlock) block).getMaxNumChops(level, blockPos, blockState);
         } else {
-            if (isBlockChoppable(level, blockPos, level.getBlockState(blockPos))) {
-                IChoppableBlock choppableBlock = getChoppableBlock(level, blockPos, blockState);
-                return (choppableBlock != null) ? choppableBlock.getMaxNumChops(level, blockPos, blockState) : 0;
-            } else {
-                return 0;
-            }
+            return 0;
         }
     }
 
-    @Nullable public static IChoppableBlock getChoppableBlock(Level level, BlockPos blockPos, BlockState blockState) {
-        Block block = blockState.getBlock();
-        IChoppableBlock choppableBlock = (block instanceof IChoppableBlock) ? (IChoppableBlock) block : TreeChop.api.getRegisteredLogBlockBehavior(block);
-        if (choppableBlock != null && choppableBlock.isChoppable(level, blockPos, blockState)) {
+    public static int getMaxNumChops(Level level, BlockPos blockPos, BlockState blockState) {;
+        IChoppableBlock choppableBlock = getChoppableBlock(level, blockPos, blockState);
+        return (choppableBlock != null) ? choppableBlock.getMaxNumChops(level, blockPos, blockState) : 0;
+    }
+
+    @Nullable
+    public static IChoppableBlock getChoppableBlock(Level level, BlockPos blockPos, BlockState blockState) {
+        IChoppableBlock choppableBlock = getChoppableBlockUnchecked(blockState.getBlock());
+        return (choppableBlock != null && choppableBlock.isChoppable(level, blockPos, blockState))
+                ? choppableBlock
+                : null;
+    }
+
+    @Nullable
+    private static IChoppableBlock getChoppableBlockUnchecked(Block block) {
+        if (block instanceof IChoppableBlock choppableBlock) {
+            return choppableBlock;
+        } else if (TreeChop.api.getRegisteredLogBlockBehavior(block) instanceof IChoppableBlock choppableBlock) {
             return choppableBlock;
         } else if (ConfigHandler.COMMON.choppableBlocks.get().contains(block)) {
             return (IChoppableBlock) TreeChop.platform.getChoppedLogBlock();
