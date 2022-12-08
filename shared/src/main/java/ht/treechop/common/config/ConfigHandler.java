@@ -28,9 +28,11 @@ import java.util.stream.Stream;
 
 public class ConfigHandler {
 
+    public static final Common COMMON;
+    public static final ForgeConfigSpec COMMON_SPEC;
+    public static final Client CLIENT;
+    public static final ForgeConfigSpec CLIENT_SPEC;
     private static final Signal<Lazy<?>> RELOAD = new Signal<>(Lazy::reset);
-    private static final Signal<Lazy<?>> UPDATE_TAGS = new Signal<>(Lazy::reset);
-
     public final static Lazy<ChopSettings> defaultChopSettings = new Lazy<>(
             RELOAD,
             () -> {
@@ -48,7 +50,6 @@ public class ConfigHandler {
                 });
                 return chopSettings;
             });
-
     public final static Lazy<EntityChopSettings> fakePlayerChopSettings = new Lazy<>(
             RELOAD,
             () -> {
@@ -65,7 +66,7 @@ public class ConfigHandler {
 
                 return chopSettings;
             });
-
+    private static final Signal<Lazy<?>> UPDATE_TAGS = new Signal<>(Lazy::reset);
     public static Lazy<Boolean> removeBarkOnInteriorLogs = new Lazy<>(
             RELOAD,
             () -> {
@@ -76,10 +77,21 @@ public class ConfigHandler {
                     return false;
                 }
             });
-
     public static Lazy<Map<Block, BlockState>> inferredStrippedStates = new Lazy<>(
             UPDATE_TAGS,
             ConfigHandler::inferStrippedStates);
+
+    static {
+        final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
+        COMMON_SPEC = specPair.getRight();
+        COMMON = specPair.getLeft();
+    }
+
+    static {
+        final Pair<Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
+        CLIENT_SPEC = specPair.getRight();
+        CLIENT = specPair.getLeft();
+    }
 
     public static void onReload() {
         RELOAD.run();
@@ -129,7 +141,6 @@ public class ConfigHandler {
         return null;
     }
 
-
     private static Stream<Item> getIdentifiedItems(String stringId) {
         ResourceIdentifier id = ResourceIdentifier.from(stringId);
         return id.resolve(Registry.ITEM);
@@ -162,11 +173,11 @@ public class ConfigHandler {
     }
 
     public static Stream<Block> getMushroomStems() {
-        return ConfigHandler.getIdentifiedBlocks(getMushroomStemsTagId());
+        return ConfigHandler.getIdentifiedBlocks(getCommonTagId("mushroom_stems"));
     }
 
-    private static String getMushroomStemsTagId() {
-        return String.format("#%s:mushroom_stems", TreeChop.platform.uses(ModLoader.FORGE) ? "forge" : "c");
+    private static String getCommonTagId(String path) {
+        return String.format("#%s:%s", TreeChop.platform.uses(ModLoader.FORGE) ? "forge" : "c", path);
     }
 
     public static class InitializedSupplier<T> implements Supplier<T> {
@@ -189,30 +200,33 @@ public class ConfigHandler {
     public static class Common {
 
         public final ForgeConfigSpec.BooleanValue enabled;
-
+        public final ForgeConfigSpec.BooleanValue dropLootForChoppedBlocks;
+        public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
+        public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
+        public final ForgeConfigSpec.BooleanValue breakLeaves;
+        public final ForgeConfigSpec.BooleanValue ignorePersistentLeaves;
+        public final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
+        public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
+        public final ForgeConfigSpec.EnumValue<Rounder> chopCountRounding;
+        public final ForgeConfigSpec.BooleanValue canRequireMoreChopsThanBlocks;
+        public final ForgeConfigSpec.DoubleValue logarithmicA;
+        public final ForgeConfigSpec.DoubleValue linearM;
+        public final ForgeConfigSpec.DoubleValue linearB;
+        public final ForgeConfigSpec.EnumValue<ListType> itemsBlacklistOrWhitelist;
+        public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
+        public final ForgeConfigSpec.BooleanValue preventChopRecursion;
+        public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
+        public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
+        public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
+        public final InitializedSupplier<Boolean> compatForMushroomStems = defaultValue(true);
+        public final InitializedSupplier<Boolean> compatForProjectMMO = defaultValue(true);
+        public final InitializedSupplier<ProjectMMOChopXp> pmmoXpMethod = defaultValue(ProjectMMOChopXp.USE_BLOCK_XP);
+        public final InitializedSupplier<Double> pmmoScaleXp = defaultValue(1.0);
+        public final InitializedSupplier<Long> pmmoOverrideXp = defaultValue(80L);
+        public final InitializedSupplier<Boolean> compatForDynamicTrees = defaultValue(true);
         protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
-
-        public final Lazy<Set<Item>> choppingItemsList = new Lazy<>(
-                UPDATE_TAGS,
-                () -> {
-                    Set<Item> items = COMMON.choppingItemsToBlacklistOrWhitelist.get().stream()
-                            .flatMap(ConfigHandler::getIdentifiedItems)
-                            .collect(Collectors.toSet());
-
-                    ListType blackListOrWhiteList = COMMON.itemsBlacklistOrWhitelist.get();
-                    TreeChop.api.getChoppingItemOverrides()
-                            .forEach(itemCanChop -> {
-                                if (blackListOrWhiteList.accepts(itemCanChop.getValue())) {
-                                    items.add(itemCanChop.getKey());
-                                } else {
-                                    items.remove(itemCanChop.getKey());
-                                }
-                            });
-
-                    return items;
-                }
-        );
-
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksList;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksExceptionsList;
         public final Lazy<Set<Block>> choppableBlocks = new Lazy<>(
                 UPDATE_TAGS,
                 () -> {
@@ -236,7 +250,8 @@ public class ConfigHandler {
                     return blocks;
                 }
         );
-
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksList;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksExceptionsList;
         public final Lazy<Set<Block>> leavesBlocks = new Lazy<>(
                 UPDATE_TAGS,
                 () -> {
@@ -260,46 +275,27 @@ public class ConfigHandler {
                     return blocks;
                 }
         );
-
-        public final ForgeConfigSpec.BooleanValue dropLootForChoppedBlocks;
-
-        public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
-        public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
-        public final ForgeConfigSpec.BooleanValue breakLeaves;
-        public final ForgeConfigSpec.BooleanValue ignorePersistentLeaves;
-        public final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
-
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksList;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksExceptionsList;
-
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksList;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksExceptionsList;
-
-        public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
-        public final ForgeConfigSpec.EnumValue<Rounder> chopCountRounding;
-        public final ForgeConfigSpec.BooleanValue canRequireMoreChopsThanBlocks;
-        public final ForgeConfigSpec.DoubleValue logarithmicA;
-        public final ForgeConfigSpec.DoubleValue linearM;
-        public final ForgeConfigSpec.DoubleValue linearB;
-
-        public final ForgeConfigSpec.EnumValue<ListType> itemsBlacklistOrWhitelist;
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppingItemsToBlacklistOrWhitelist;
+        public final Lazy<Set<Item>> choppingItemsList = new Lazy<>(
+                UPDATE_TAGS,
+                () -> {
+                    Set<Item> items = COMMON.choppingItemsToBlacklistOrWhitelist.get().stream()
+                            .flatMap(ConfigHandler::getIdentifiedItems)
+                            .collect(Collectors.toSet());
 
-        public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
-        public final ForgeConfigSpec.BooleanValue preventChopRecursion;
+                    ListType blackListOrWhiteList = COMMON.itemsBlacklistOrWhitelist.get();
+                    TreeChop.api.getChoppingItemOverrides()
+                            .forEach(itemCanChop -> {
+                                if (blackListOrWhiteList.accepts(itemCanChop.getValue())) {
+                                    items.add(itemCanChop.getKey());
+                                } else {
+                                    items.remove(itemCanChop.getKey());
+                                }
+                            });
 
-        public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
-        public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
-        public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
-
-        public final InitializedSupplier<Boolean> compatForMushroomStems = defaultValue(true);
-
-        public final InitializedSupplier<Boolean> compatForProjectMMO = defaultValue(true);
-        public final InitializedSupplier<ProjectMMOChopXp> pmmoXpMethod = defaultValue(ProjectMMOChopXp.USE_BLOCK_XP);
-        public final InitializedSupplier<Double> pmmoScaleXp = defaultValue(1.0);
-        public final InitializedSupplier<Long> pmmoOverrideXp = defaultValue(80L);
-
-        public final InitializedSupplier<Boolean> compatForDynamicTrees = defaultValue(true);
+                    return items;
+                }
+        );
 
         public Common(ForgeConfigSpec.Builder builder) {
             builder.push("permissions");
@@ -349,7 +345,7 @@ public class ConfigHandler {
                     .defineList("blocks",
                             List.of("#treechop:choppables",
                                     "#minecraft:logs",
-                                    "#forge:mushroom_stems"),
+                                    getCommonTagId("mushroom_stems")),
                             always -> true);
             choppableBlocksExceptionsList = builder
                     .comment(String.join("\n",
@@ -369,7 +365,7 @@ public class ConfigHandler {
                             List.of("#treechop:leaves_like",
                                     "#minecraft:leaves",
                                     "#minecraft:wart_blocks",
-                                    "#forge:mushroom_caps",
+                                    getCommonTagId("mushroom_caps"),
                                     "minecraft:shroomlight"),
                             always -> true);
             leavesBlocksExceptionsList = builder
@@ -454,7 +450,7 @@ public class ConfigHandler {
             builder.pop();
 
             compatForMushroomStems.set(builder
-                    .comment(String.format("Better chopping behavior for block with the %s tag", getMushroomStemsTagId()))
+                    .comment(String.format("Better chopping behavior for block with the %s tag", getCommonTagId("mushroom_stems")))
                     .define("mushroomStems", true));
 
             if (TreeChop.platform.uses(ModLoader.FORGE)) {
@@ -491,15 +487,6 @@ public class ConfigHandler {
                     .map(WordUtils::capitalize)
                     .collect(Collectors.joining());
         }
-    }
-
-    public static final Common COMMON;
-    public static final ForgeConfigSpec COMMON_SPEC;
-
-    static {
-        final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
-        COMMON_SPEC = specPair.getRight();
-        COMMON = specPair.getLeft();
     }
 
     public static class Client {
@@ -582,15 +569,6 @@ public class ConfigHandler {
             chopSettings.setChopInCreativeMode(ConfigHandler.CLIENT.chopInCreativeMode.get());
             return chopSettings;
         }
-    }
-
-    public static final Client CLIENT;
-    public static final ForgeConfigSpec CLIENT_SPEC;
-
-    static {
-        final Pair<Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
-        CLIENT_SPEC = specPair.getRight();
-        CLIENT = specPair.getLeft();
     }
 
 }

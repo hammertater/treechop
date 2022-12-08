@@ -1,10 +1,10 @@
 package ht.treechop;
 
-import ht.treechop.api.TreeChopAPI;
 import ht.treechop.common.FabricCommon;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.platform.FabricPlatform;
 import ht.treechop.common.registry.FabricModBlocks;
+import ht.treechop.compat.TreeChopFabricAPITest;
 import ht.treechop.server.FabricServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
@@ -37,8 +37,6 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
         FabricServer.initialize();
         FabricLoader.getInstance().getObjectShare().put("treechop:api", api);
 
-        // This is totally unnecessary - just testing to make sure it works
-        TreeChopAPI apiTest = (TreeChopAPI) FabricLoader.getInstance().getObjectShare().get("treechop:api");
-        initUsingAPI(apiTest);
+        TreeChopFabricAPITest.init();
     }
 }

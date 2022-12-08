@@ -13,23 +13,23 @@ import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import java.util.function.Consumer;
 
 /**
- * This is totally unnecessary - just testing the API stuff
-  */
+ * This is totally unnecessary - just testing the API
+ */
 @Mod.EventBusSubscriber(modid = TreeChop.MOD_ID, bus = Bus.MOD)
-public class TreeChopAPITest {
+public class TreeChopForgeAPITest {
 
     private static TreeChopAPI api = null;
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
-        Bus.FORGE.bus().get().addListener(TreeChopAPITest::onTagsUpdated);
+        Bus.FORGE.bus().get().addListener(TreeChopForgeAPITest::onTagsUpdated);
     }
 
     @SubscribeEvent
     public static void enqueueIMC(InterModEnqueueEvent event) {
         InterModComms.sendTo("treechop", "getTreeChopAPI", () -> (Consumer<TreeChopAPI>) response -> {
             api = response;
-        } );
+        });
     }
 
     public static void onTagsUpdated(TagsUpdatedEvent event) {
