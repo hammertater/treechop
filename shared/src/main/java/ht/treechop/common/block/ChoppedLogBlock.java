@@ -4,10 +4,10 @@ import ht.treechop.TreeChop;
 import ht.treechop.api.IChoppableBlock;
 import ht.treechop.api.ICylinderBlock;
 import ht.treechop.api.IFellableBlock;
+import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.properties.ChoppedLogShape;
-import ht.treechop.common.util.ChopUtil;
 import ht.treechop.server.Server;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -48,8 +48,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static ht.treechop.common.util.ChopUtil.isBlockALog;
-import static ht.treechop.common.util.ChopUtil.isBlockLeaves;
+import static ht.treechop.common.chop.ChopUtil.isBlockALog;
+import static ht.treechop.common.chop.ChopUtil.isBlockLeaves;
 
 @SuppressWarnings("NullableProblems")
 public abstract class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, EntityBlock, SimpleWaterloggedBlock {
@@ -70,12 +70,12 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     }
 
     public static ChoppedLogShape getPlacementShape(Level level, BlockPos blockPos) {
-        final byte DOWN     = 1;
-        final byte UP       = 1 << 1;
-        final byte NORTH    = 1 << 2;
-        final byte SOUTH    = 1 << 3;
-        final byte WEST     = 1 << 4;
-        final byte EAST     = 1 << 5;
+        final byte DOWN = 1;
+        final byte UP = 1 << 1;
+        final byte NORTH = 1 << 2;
+        final byte SOUTH = 1 << 3;
+        final byte WEST = 1 << 4;
+        final byte EAST = 1 << 5;
 
         byte openSides = (byte) (
                 (isBlockOpen(level, blockPos.below()) ? DOWN : 0)
@@ -89,6 +89,10 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         return ChoppedLogShape.forOpenSides(openSides);
     }
 
+    private static boolean isBlockOpen(Level level, BlockPos pos) {
+        return (level.isEmptyBlock(pos) || isBlockLeaves(level, pos));
+    }
+
     public BlockState getImitatedBlockState(BlockGetter level, BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof MyEntity entity && !(entity.getOriginalState().is(this))) {
             return entity.getOriginalState();
@@ -100,11 +104,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     @SuppressWarnings("deprecation")
     @Override
     public float getDestroyProgress(BlockState blockState, Player player, BlockGetter level, BlockPos pos) {
-        return (float)Math.min(0.35, getImitatedBlockState(level, pos).getDestroyProgress(player, level, pos));
-    }
-
-    private static boolean isBlockOpen(Level level, BlockPos pos) {
-        return (level.isEmptyBlock(pos) || isBlockLeaves(level, pos));
+        return (float) Math.min(0.35, getImitatedBlockState(level, pos).getDestroyProgress(player, level, pos));
     }
 
     @SuppressWarnings("deprecation")
@@ -296,18 +296,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             super(TreeChop.platform.getChoppedLogBlockEntity(), pos, blockState);
         }
 
-        public void setChops(int chops) {
-            this.chops = chops;
-        }
-
-        public void setShape(ChoppedLogShape shape) {
-            this.shape = shape;
-        }
-
-        public void setOriginalState(BlockState originalState) {
-            this.originalState = originalState;
-        }
-
         /**
          * @param unchoppedRadius Maximum is 8 (default), minimum is 1.
          */
@@ -325,12 +313,24 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             return chops;
         }
 
+        public void setChops(int chops) {
+            this.chops = chops;
+        }
+
         public ChoppedLogShape getShape() {
             return shape;
         }
 
+        public void setShape(ChoppedLogShape shape) {
+            this.shape = shape;
+        }
+
         public BlockState getOriginalState() {
             return originalState;
+        }
+
+        public void setOriginalState(BlockState originalState) {
+            this.originalState = originalState;
         }
 
         public int getUnchoppedRadius() {
@@ -346,8 +346,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
 
         @Override
-        public void saveAdditional(@Nonnull CompoundTag tag)
-        {
+        public void saveAdditional(@Nonnull CompoundTag tag) {
             super.saveAdditional(tag);
 
             tag.putInt(KEY_ORIGINAL_STATE, Block.getId(getOriginalState()));
@@ -373,8 +372,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
 
         @Override
-        public void load(@Nonnull CompoundTag tag)
-        {
+        public void load(@Nonnull CompoundTag tag) {
             super.load(tag);
 
             int stateId = tag.getInt(KEY_ORIGINAL_STATE);
@@ -391,7 +389,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             ListTag list = tag.getList(KEY_DROPS, 10);
 
             drops = new LinkedList<>();
-            for(int i = 0; i < list.size(); ++i) {
+            for (int i = 0; i < list.size(); ++i) {
                 CompoundTag item = list.getCompound(i);
                 drops.add(ItemStack.of(item));
             }

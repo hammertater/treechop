@@ -1,10 +1,13 @@
-package ht.treechop.common.util;
+package ht.treechop.common.chop;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.*;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.EntityChopSettings;
+import ht.treechop.common.util.AxeAccessor;
+import ht.treechop.common.util.BlockNeighbors;
+import ht.treechop.common.util.TreeDataImpl;
 import ht.treechop.server.Server;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;

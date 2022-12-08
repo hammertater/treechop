@@ -3,8 +3,8 @@ package ht.treechop;
 import ht.treechop.api.IChoppingItem;
 import ht.treechop.api.ITreeChopBlockBehavior;
 import ht.treechop.api.TreeChopAPI;
+import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.util.ChopUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -126,7 +126,7 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
     public Optional<IChoppingItem> getRegisteredChoppingItemBehavior(Item item) {
         return Optional.ofNullable(choppingItemBehaviors.get(item));
     }
-    
+
     @Override
     public boolean isBlockChoppable(Level level, BlockPos pos, BlockState blockState) {
         return ChopUtil.isBlockALog(level, pos, blockState);

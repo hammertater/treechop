@@ -2,9 +2,9 @@ package ht.treechop.client.model;
 
 import ht.treechop.TreeChop;
 import ht.treechop.common.block.ChoppedLogBlock;
+import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.registry.ForgeModBlocks;
-import ht.treechop.common.util.ChopUtil;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -93,8 +93,7 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
             }
 
             return getQuads(strippedState, shape, chops, solidSides, rand).collect(Collectors.toList());
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }

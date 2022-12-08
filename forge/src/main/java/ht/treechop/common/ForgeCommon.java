@@ -3,9 +3,9 @@ package ht.treechop.common;
 import ht.treechop.TreeChop;
 import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.capabilities.ChopSettingsProvider;
+import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ForgePacketHandler;
-import ht.treechop.common.util.ChopUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -41,7 +41,7 @@ public class ForgeCommon {
         if (event.isCanceled()
                 || !(event.getLevel() instanceof ServerLevel level)
                 || !(event.getPlayer() instanceof ServerPlayer agent)) {
-           return;
+            return;
         }
 
         ItemStack tool = event.getPlayer().getMainHandItem();

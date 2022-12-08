@@ -4,7 +4,7 @@ import ht.treechop.TreeChop;
 import ht.treechop.api.TreeData;
 import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.util.ChopUtil;
+import ht.treechop.common.chop.ChopUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

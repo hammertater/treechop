@@ -1,4 +1,4 @@
-package ht.treechop.common.util;
+package ht.treechop.common.chop;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -24,12 +24,10 @@ import java.util.stream.Stream;
 
 public class ChopResult {
     public static final ChopResult IGNORED = new ChopResult(null, Collections.emptyList(), Collections.emptyList());
-
+    public static final int MAX_NUM_FELLING_EFFECTS = 32;
     private final Level level;
     private final Collection<Chop> chops;
     private final Collection<BlockPos> fells;
-
-    public static final int MAX_NUM_FELLING_EFFECTS = 32;;
 
     public ChopResult(Level level, Collection<Chop> chops, Collection<BlockPos> fells) {
         this.level = level;
@@ -37,11 +35,65 @@ public class ChopResult {
         this.fells = fells;
     }
 
+    private static void chopBlocks(Level level, Player player, ItemStack tool, Stream<Chop> chops, boolean felling) {
+        chops.forEach(chop -> chop.apply(level, player, tool, felling));
+    }
+
+    private static void fellBlocks(Level level, BlockPos targetPos, Entity agent, Stream<BlockPos> blocks) {
+        AtomicInteger xpAccumulator = new AtomicInteger(0);
+        Consumer<BlockPos> blockBreaker;
+
+        if (level.isClientSide() || (agent instanceof ServerPlayer player && player.isCreative())) {
+            BlockState air = Blocks.AIR.defaultBlockState();
+            blockBreaker = pos -> level.setBlockAndUpdate(pos, air);
+        } else {
+            blockBreaker = pos -> harvestWorldBlock(null, level, pos, ItemStack.EMPTY);
+        }
+
+        blocks.forEach(blockBreaker);
+        ChopUtil.dropExperience(level, targetPos, xpAccumulator.get());
+    }
+
+    private static void playBlockBreakEffects(Level level, List<BlockPos> logs, List<BlockPos> leaves) {
+        int numLogsAndLeaves = logs.size() + leaves.size();
+        int numEffects = Math.min((int) Math.ceil(Math.sqrt(numLogsAndLeaves)), MAX_NUM_FELLING_EFFECTS) - 1;
+        int numLeavesEffects = Math.max(1, (int) Math.ceil(numEffects * ((double) leaves.size() / (double) numLogsAndLeaves)));
+        int numLogsEffects = Math.max(1, numEffects - numLeavesEffects);
+
+        Collections.shuffle(logs);
+        Collections.shuffle(leaves);
+
+        Stream.concat(
+                        logs.stream().limit(numLogsEffects),
+                        leaves.stream().limit(numLeavesEffects)
+                )
+                .forEach(pos -> level.levelEvent(2001, pos, Block.getId(level.getBlockState(pos))));
+    }
+
+    private static void harvestWorldBlock(
+            Entity agent,
+            Level level,
+            BlockPos pos,
+            ItemStack tool
+    ) {
+        BlockState blockState = level.getBlockState(pos);
+
+        // Do not call -- makes particle and sound effects
+        // blockState.removedByPlayer(level, pos, agent, true, level.getFluidState(pos));
+
+        if (level instanceof ServerLevel) {
+            FluidState fluidStateOrAir = level.getFluidState(pos);
+            blockState.getBlock().destroy(level, pos, blockState);
+            Block.dropResources(blockState, level, pos, level.getBlockEntity(pos), agent, tool); // Should drop XP
+            level.setBlockAndUpdate(pos, fluidStateOrAir.createLegacyBlock());
+        }
+    }
+
     /**
-     *  Applies the results of chopping to the level, spawning the appropriate drops.
-     * - Chopped blocks: harvest by agent, change to chopped state
-     * - Felled blocks: harvest by no one, change to felled state
-     * - Chopped and felled blocks: harvest by agent, change to felled state
+     * Applies the results of chopping to the level, spawning the appropriate drops. - Chopped blocks: harvest by agent,
+     * change to chopped state - Felled blocks: harvest by no one, change to felled state - Chopped and felled blocks:
+     * harvest by agent, change to felled state
+     *
      * @return whether the block at targetPos needs to be preserved.
      */
     public boolean apply(BlockPos targetPos, ServerPlayer agent, ItemStack tool, boolean breakLeaves) {
@@ -80,60 +132,6 @@ public class ChopResult {
         }
 
         return true;
-    }
-
-    private static void chopBlocks(Level level, Player player, ItemStack tool, Stream<Chop> chops, boolean felling) {
-        chops.forEach(chop -> chop.apply(level, player, tool, felling));
-    }
-
-    private static void fellBlocks(Level level, BlockPos targetPos, Entity agent, Stream<BlockPos> blocks) {
-        AtomicInteger xpAccumulator = new AtomicInteger(0);
-        Consumer<BlockPos> blockBreaker;
-
-        if (level.isClientSide() || (agent instanceof ServerPlayer player && player.isCreative())) {
-            BlockState air = Blocks.AIR.defaultBlockState();
-            blockBreaker = pos -> level.setBlockAndUpdate(pos, air);
-        } else {
-            blockBreaker = pos -> harvestWorldBlock(null, level, pos, ItemStack.EMPTY);
-        }
-
-        blocks.forEach(blockBreaker);
-        ChopUtil.dropExperience(level, targetPos, xpAccumulator.get());
-    }
-
-    private static void playBlockBreakEffects(Level level, List<BlockPos> logs, List<BlockPos> leaves) {
-        int numLogsAndLeaves = logs.size() + leaves.size();
-        int numEffects = Math.min((int) Math.ceil(Math.sqrt(numLogsAndLeaves)), MAX_NUM_FELLING_EFFECTS) - 1;
-        int numLeavesEffects = Math.max(1, (int) Math.ceil(numEffects * ((double) leaves.size() / (double) numLogsAndLeaves)));
-        int numLogsEffects = Math.max(1, numEffects - numLeavesEffects);
-
-        Collections.shuffle(logs);
-        Collections.shuffle(leaves);
-
-        Stream.concat(
-                logs.stream().limit(numLogsEffects),
-                leaves.stream().limit(numLeavesEffects)
-        )
-                .forEach(pos -> level.levelEvent(2001, pos, Block.getId(level.getBlockState(pos))));
-    }
-
-    private static void harvestWorldBlock(
-            Entity agent,
-            Level level,
-            BlockPos pos,
-            ItemStack tool
-    ) {
-        BlockState blockState = level.getBlockState(pos);
-
-        // Do not call -- makes particle and sound effects
-        // blockState.removedByPlayer(level, pos, agent, true, level.getFluidState(pos));
-
-        if (level instanceof ServerLevel) {
-            FluidState fluidStateOrAir = level.getFluidState(pos);
-            blockState.getBlock().destroy(level, pos, blockState);
-            Block.dropResources(blockState, level, pos, level.getBlockEntity(pos), agent, tool); // Should drop XP
-            level.setBlockAndUpdate(pos, fluidStateOrAir.createLegacyBlock());
-        }
     }
 
     public boolean isFelling() {

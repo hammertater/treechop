@@ -17,6 +17,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 
 public abstract class Client {
+    protected static final Permissions serverPermissions = new Permissions();
+    public static TreeCache treeCache = new TreeCache();
+    protected static Client instance;
     protected static final ClientChopSettings chopSettings = new ClientChopSettings() {
         @Override
         public ChopSettings set(SettingsField field, Object value) {
@@ -24,10 +27,6 @@ public abstract class Client {
             return super.set(field, value);
         }
     };
-    protected static final Permissions serverPermissions = new Permissions();
-    protected static Client instance;
-
-    public static TreeCache treeCache = new TreeCache();
 
     public static void requestSetting(SettingsField field, Object value) {
         Client.instance().sendToServer(new ClientRequestSettingsPacket(field, value));

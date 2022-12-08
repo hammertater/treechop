@@ -1,6 +1,6 @@
 package ht.treechop.common;
 
-import ht.treechop.common.util.ChopUtil;
+import ht.treechop.common.chop.ChopUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

@@ -4,7 +4,7 @@ import ht.treechop.TreeChop;
 import ht.treechop.api.TreeData;
 import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.util.ChopUtil;
+import ht.treechop.common.chop.ChopUtil;
 import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.component.ItemComponent;
 import mcp.mobius.waila.api.component.WrappedComponent;
