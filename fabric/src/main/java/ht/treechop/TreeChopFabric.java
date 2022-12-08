@@ -1,5 +1,6 @@
 package ht.treechop;
 
+import ht.treechop.api.ITreeChopAPIProvider;
 import ht.treechop.common.FabricCommon;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.platform.FabricPlatform;
@@ -38,7 +39,7 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
         Registry.register(Registry.BLOCK_ENTITY_TYPE, resource("chopped_log_entity"), FabricModBlocks.CHOPPED_LOG_ENTITY);
 
         FabricServer.initialize();
-        FabricLoader.getInstance().getObjectShare().put("treechop:api", api);
+        FabricLoader.getInstance().getObjectShare().put("treechop:api_provider", (ITreeChopAPIProvider) TreeChopFabricAPI::new);
 
         TreeChopFabricAPITest.init();
     }

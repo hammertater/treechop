@@ -13,6 +13,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +22,6 @@ import java.util.stream.Stream;
 
 public abstract class TreeChopInternalAPI implements TreeChopAPI {
     private static final Map<Block, ITreeChopBlockBehavior> choppableBlockBehaviors = new HashMap<>();
-    private static final Map<Item, IChoppingItem> choppingItemBehaviors = new HashMap<>();
     private static final Map<Block, Boolean> choppableBlockOverrides = new HashMap<>() {
         @Override
         public Boolean put(Block block, Boolean isChoppable) {
@@ -28,6 +29,7 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
             return super.put(block, isChoppable);
         }
     };
+
     private static final Map<Block, Boolean> leavesBlockOverrides = new HashMap<>() {
         @Override
         public Boolean put(Block block, Boolean isLeaves) {
@@ -35,7 +37,12 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
             return super.put(block, isLeaves);
         }
     };
+
+    private static final Map<Item, IChoppingItem> choppingItemBehaviors = new HashMap<>();
     private static final Map<Item, Boolean> choppingItemOverrides = new HashMap<>();
+
+    private static final Marker API_MARKER = MarkerManager.getMarker("API");
+
     private final String modId;
 
     TreeChopInternalAPI(String modId) {
@@ -44,7 +51,7 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
 
     private void print(String message) {
         if (ConfigHandler.COMMON.verboseAPI.get()) {
-            TreeChop.LOGGER.info(String.format("[%s using TreeChop API] %s", modId, message));
+            TreeChop.LOGGER.info(API_MARKER, "API [{}] {}", modId, message);
         }
     }
 
