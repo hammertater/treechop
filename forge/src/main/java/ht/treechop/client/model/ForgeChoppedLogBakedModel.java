@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements IDynamicBakedModel {
     private static final RandomSource RANDOM = RandomSource.create();
-    public static ModelProperty<Map<Direction, BlockState>> NEIGHBORS = new ModelProperty<>();
+    public static ModelProperty<Map<Direction, BlockState>> STRIPPED_NEIGHBORS = new ModelProperty<>();
     public static ModelProperty<BlockState> STRIPPED_BLOCK_STATE = new ModelProperty<>();
     public static ModelProperty<Integer> CHOP_COUNT = new ModelProperty<>();
     public static ModelProperty<ChoppedLogShape> CHOPPED_LOG_SHAPE = new ModelProperty<>();
@@ -60,22 +60,17 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
             @Nonnull ModelData tileData
     ) {
         if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
+            BlockState strippedState = ChopUtil.getStrippedState(level, pos, entity.getOriginalState());
+
             ModelData.Builder builder = ModelData.builder();
-            builder.with(NEIGHBORS, getNeighborStates(level, pos, entity));
-            builder.with(STRIPPED_BLOCK_STATE, ChopUtil.getStrippedState(level, pos, entity.getOriginalState()));
+            builder.with(STRIPPED_NEIGHBORS, getStrippedNeighbors(level, pos, entity, strippedState));
+            builder.with(STRIPPED_BLOCK_STATE, strippedState);
             builder.with(CHOP_COUNT, entity.getChops() + (ChoppedLogBlock.DEFAULT_UNCHOPPED_RADIUS - entity.getUnchoppedRadius()));
             builder.with(CHOPPED_LOG_SHAPE, entity.getShape());
             return builder.build();
         } else {
             return ModelData.EMPTY;
         }
-    }
-
-    private Map<Direction, BlockState> getNeighborStates(BlockAndTintGetter level, BlockPos pos, ChoppedLogBlock.MyEntity entity) {
-        return entity.getShape().getSolidSides(level, pos).stream().collect(Collectors.toMap(
-                side -> side,
-                side -> level.getBlockState(pos.relative(side))
-        ));
     }
 
     @Override
@@ -85,9 +80,9 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
                     ? extraData.get(STRIPPED_BLOCK_STATE)
                     : Blocks.STRIPPED_OAK_LOG.defaultBlockState();
 
-            Map<Direction, BlockState> neighbors = extraData.get(NEIGHBORS);
-            if (neighbors == null) {
-                neighbors = Collections.emptyMap();
+            Map<Direction, BlockState> strippedNeighbors = extraData.get(STRIPPED_NEIGHBORS);
+            if (strippedNeighbors == null) {
+                strippedNeighbors = Collections.emptyMap();
             }
 
             ChoppedLogShape shape = extraData.get(CHOPPED_LOG_SHAPE);
@@ -103,9 +98,8 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
             return getQuads(strippedState,
                     shape,
                     chops,
-                    neighbors.keySet(),
                     rand,
-                    neighbors::get
+                    strippedNeighbors
             ).collect(Collectors.toList());
         } else {
             return Collections.emptyList();

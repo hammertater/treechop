@@ -1,6 +1,8 @@
 package ht.treechop.client.model;
 
 import com.mojang.datafixers.util.Pair;
+import ht.treechop.common.block.ChoppedLogBlock;
+import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.FaceShape;
 import ht.treechop.common.util.Vector3;
@@ -12,9 +14,11 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.tuple.Triple;
@@ -23,11 +27,24 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     private static TextureAtlasSprite defaultSprite;
     protected final ResourceLocation defaultTextureRL = new ResourceLocation("block/stripped_oak_log");
+
+    private static BlockState getStrippedNeighbor(BlockAndTintGetter level, BlockPos pos, Direction direction, BlockState fallback) {
+        BlockPos neighborPos = pos.relative(direction);
+        return ChopUtil.getStrippedState(level, pos, level.getBlockState(neighborPos), fallback);
+    }
+
+    protected Map<Direction, BlockState> getStrippedNeighbors(BlockAndTintGetter level, BlockPos pos, ChoppedLogBlock.MyEntity entity, BlockState fallback) {
+        return entity.getShape().getSolidSides(level, pos).stream().collect(Collectors.toMap(
+                side -> side,
+                side -> getStrippedNeighbor(level, pos, side, fallback)
+        ));
+    }
 
     protected TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, RandomSource rand) {
         ModelResourceLocation modelLocation = BlockModelShaper.stateToModelLocation(blockState);
@@ -106,7 +123,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
         return defaultSprite;
     }
 
-    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int chops, Set<Direction> solidSides, RandomSource random, Function<Direction, BlockState> neighborGetter) {
+    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int chops, RandomSource random, Map<Direction, BlockState> strippedNeighbors) {
         AABB box = shape.getBoundingBox(chops);
         float downY = (float) box.minY;
         float upY = (float) box.maxY;
@@ -142,19 +159,18 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
                                 null
                         )
                 ),
-                solidSides.stream().map(
-                        direction -> ModelUtil.makeQuad(
-                                getSpriteForNeighbor(strippedState, neighborGetter, direction, random),
-                                FaceShape.get(direction),
-                                direction.getOpposite(),
-                                null
-                        )
+                strippedNeighbors.entrySet().stream().map(
+                        entry -> {
+                            Direction side = entry.getKey();
+                            BlockState strippedNeighbor = entry.getValue();
+                            return ModelUtil.makeQuad(
+                                    getSpriteForBlockSide(strippedNeighbor, side.getOpposite(), random),
+                                    FaceShape.get(side),
+                                    side.getOpposite(),
+                                    null);
+                        }
                 )
         ).filter(Objects::nonNull);
     }
 
-    private TextureAtlasSprite getSpriteForNeighbor(BlockState blockState, Function<Direction, BlockState> neighborGetter, Direction direction, RandomSource random) {
-        BlockState neighbor = neighborGetter.apply(direction);
-        return getSpriteForBlockSide((neighbor != null) ? neighbor : blockState, direction.getOpposite(), random);
-    }
 }

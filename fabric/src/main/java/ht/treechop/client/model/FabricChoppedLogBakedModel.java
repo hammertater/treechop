@@ -25,10 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -36,11 +33,6 @@ import java.util.function.Supplier;
 public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements FabricBakedModel {
 
     private static TextureAtlasSprite defaultSprite;
-
-    private static BlockState getNeighborBlockState(BlockAndTintGetter level, BlockPos pos, Direction direction) {
-        BlockPos neighborPos = pos.relative(direction);
-        return ChopUtil.getStrippedState(level, pos, level.getBlockState(neighborPos));
-    }
 
     @Override
     public boolean isVanillaAdapter() {
@@ -50,15 +42,15 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
     @Override
     public void emitBlockQuads(BlockAndTintGetter level, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, RenderContext context) {
         if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
-            Set<Direction> solidSides = entity.getShape().getSolidSides(level, pos);
+            BlockState strippedState = ChopUtil.getStrippedState(level, pos, entity.getOriginalState());
+            Map<Direction, BlockState> strippedNeighbors = getStrippedNeighbors(level, pos, entity, strippedState);
             QuadEmitter emitter = context.getEmitter();
             getQuads(
-                    ChopUtil.getStrippedState(level, pos, entity.getOriginalState()),
+                    strippedState,
                     entity.getShape(),
                     entity.getChops() + (ChoppedLogBlock.DEFAULT_UNCHOPPED_RADIUS - entity.getUnchoppedRadius()),
-                    solidSides,
                     randomSupplier.get(),
-                    direction -> getNeighborBlockState(level, pos, direction)
+                    strippedNeighbors
             )
                     .forEach(quad -> {
                         emitter.fromVanilla(quad, IndigoRenderer.MATERIAL_STANDARD, null);

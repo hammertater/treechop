@@ -481,10 +481,14 @@ public class ChopUtil {
         return false;
     }
 
+    public static BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+        return getStrippedState(level, pos, state, state);
+    }
+
     /**
      * Only use for visual purposes, does not affect gameplay
      */
-    public static BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+    public static BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state, BlockState fallback) {
         BlockState strippedState = (AxeAccessor.isStripped(state.getBlock())) ? state : AxeAccessor.getStripped(state);
         if (strippedState == null) {
             strippedState = (TreeChop.api.getRegisteredChoppableBlockBehavior(state.getBlock()) instanceof IStrippableBlock strippableBlock)
@@ -492,7 +496,7 @@ public class ChopUtil {
                     : ConfigHandler.inferredStrippedStates.get().get(state.getBlock());
 
             if (strippedState == null) {
-                return state.getBlock().defaultBlockState();
+                return fallback;
             }
         }
         return strippedState;
