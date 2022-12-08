@@ -1,9 +1,11 @@
 package ht.treechop.common.platform;
 
 import ht.treechop.api.ChopData;
+import ht.treechop.api.ChopDataImmutable;
 import ht.treechop.api.TreeChopEvents;
 import ht.treechop.api.TreeData;
 import ht.treechop.common.registry.FabricModBlocks;
+import ht.treechop.common.util.TreeDataImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -41,10 +43,10 @@ public class FabricPlatform implements Platform {
 
     @Override
     public TreeData detectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, boolean overrideLeaves) {
-        TreeData treeData = new TreeData(overrideLeaves);
+        TreeData treeData = new TreeDataImpl(overrideLeaves);
         boolean canceled = !TreeChopEvents.DETECT_TREE.invoker().onDetectTree(level, player, blockPos, blockState, overrideLeaves);
         if (canceled) {
-            return TreeData.empty();
+            return TreeDataImpl.empty();
         }
         return treeData;
     }
@@ -62,8 +64,8 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData) {
-        TreeChopEvents.BEFORE_CHOP.invoker().beforeChop(
+    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData) {
+        TreeChopEvents.AFTER_CHOP.invoker().afterChop(
                 level,
                 agent,
                 pos,

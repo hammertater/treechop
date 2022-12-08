@@ -98,10 +98,10 @@ public class ChopUtil {
                 pos1 -> {
                     BlockState blockState = level.getBlockState(pos1);
                     return ((isBlockLeaves(blockState) && !(blockState.getBlock() instanceof LeavesBlock))
-                                ? BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS // Red mushroom caps can be connected diagonally downward
-                                : BlockNeighbors.ADJACENTS)
-                        .asStream(pos1)
-                        .filter(pos2 -> markLeavesToDestroyAndKeepLooking(level, pos2, iterationCounter, leaves, maxDistance));
+                            ? BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS // Red mushroom caps can be connected diagonally downward
+                            : BlockNeighbors.ADJACENTS)
+                            .asStream(pos1)
+                            .filter(pos2 -> markLeavesToDestroyAndKeepLooking(level, pos2, iterationCounter, leaves, maxDistance));
                 },
                 maxNumLeavesBlocks,
                 iterationCounter
@@ -169,7 +169,7 @@ public class ChopUtil {
 
     public static TreeData getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition) {
         if (!logCondition.test(blockPos)) {
-            return new TreeData();
+            return new TreeDataImpl();
         }
 
         TreeData detectData = TreeChop.platform.detectTreeEvent(level, null, blockPos, level.getBlockState(blockPos), false);
@@ -241,6 +241,7 @@ public class ChopUtil {
 
     /**
      * Adds chops to the targeted block without destroying it. Overflow chops spill to nearby blocks.
+     *
      * @param nearbyChoppableBlocks must not include {@code target}
      */
     private static ChopResult gatherChops(Level level, BlockPos target, int numChops, Set<BlockPos> nearbyChoppableBlocks) {
@@ -323,7 +324,7 @@ public class ChopUtil {
         }
     }
 
-    public static int getMaxNumChops(Level level, BlockPos blockPos, BlockState blockState) {;
+    public static int getMaxNumChops(Level level, BlockPos blockPos, BlockState blockState) {
         IChoppableBlock choppableBlock = getChoppableBlock(level, blockPos, blockState);
         return (choppableBlock != null) ? choppableBlock.getMaxNumChops(level, blockPos, blockState) : 0;
     }
@@ -340,7 +341,7 @@ public class ChopUtil {
     private static IChoppableBlock getChoppableBlockUnchecked(Block block) {
         if (block instanceof IChoppableBlock choppableBlock) {
             return choppableBlock;
-        } else if (TreeChop.api.getRegisteredLogBlockBehavior(block) instanceof IChoppableBlock choppableBlock) {
+        } else if (TreeChop.api.getRegisteredChoppableBlockBehavior(block) instanceof IChoppableBlock choppableBlock) {
             return choppableBlock;
         } else if (ConfigHandler.COMMON.choppableBlocks.get().contains(block)) {
             return (IChoppableBlock) TreeChop.platform.getChoppedLogBlock();
@@ -355,7 +356,7 @@ public class ChopUtil {
 
     public static int getNumChops(Level level, BlockPos pos, BlockState blockState) {
         Block block = blockState.getBlock();
-        return block instanceof IChoppableBlock choppableBlock? choppableBlock.getNumChops(level, pos, blockState) : 0;
+        return block instanceof IChoppableBlock choppableBlock ? choppableBlock.getNumChops(level, pos, blockState) : 0;
     }
 
     public static int getNumChops(Level level, Set<BlockPos> positions) {
@@ -389,7 +390,7 @@ public class ChopUtil {
     }
 
     public static int getNumChopsByTool(ItemStack tool, BlockState blockState) {
-        if ( tool.getItem() instanceof IChoppingItem choppingItem) {
+        if (tool.getItem() instanceof IChoppingItem choppingItem) {
             return choppingItem.getNumChops(tool, blockState);
         } else {
             return 1;
@@ -445,7 +446,7 @@ public class ChopUtil {
             return false;
         }
 
-        ChopData chopData = new ChopData(
+        ChopDataImpl chopData = new ChopDataImpl(
                 ChopUtil.getNumChopsByTool(tool, blockState),
                 ChopUtil.playerWantsToFell(agent)
         );
@@ -483,9 +484,9 @@ public class ChopUtil {
     public static BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state) {
         BlockState strippedState = (AxeAccessor.isStripped(state.getBlock())) ? state : AxeAccessor.getStripped(state);
         if (strippedState == null) {
-            strippedState = (TreeChop.api.getRegisteredLogBlockBehavior(state.getBlock()) instanceof IStrippableBlock strippableBlock)
-                            ? strippableBlock.getStrippedState(level, pos, state)
-                            : ConfigHandler.inferredStrippedStates.get().get(state.getBlock());
+            strippedState = (TreeChop.api.getRegisteredChoppableBlockBehavior(state.getBlock()) instanceof IStrippableBlock strippableBlock)
+                    ? strippableBlock.getStrippedState(level, pos, state)
+                    : ConfigHandler.inferredStrippedStates.get().get(state.getBlock());
 
             if (strippedState == null) {
                 return state.getBlock().defaultBlockState();

@@ -21,7 +21,7 @@ public abstract class TreeChop {
     public static void initUsingAPI(TreeChopAPI api) {
         if (ConfigHandler.COMMON.compatForMushroomStems.get()) {
             MushroomStemHandler handler = new MushroomStemHandler();
-            ConfigHandler.getMushroomStems().forEach(block -> api.registerLogBlockBehavior(block, handler));
+            ConfigHandler.getMushroomStems().forEach(block -> api.registerChoppableBlockBehavior(block, handler));
         }
     }
 

@@ -1,6 +1,5 @@
 package ht.treechop;
 
-import ht.treechop.api.IChoppableBlock;
 import ht.treechop.api.IChoppingItem;
 import ht.treechop.api.ITreeChopBlockBehavior;
 import ht.treechop.api.TreeChopAPI;
@@ -21,12 +20,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public abstract class TreeChopInternalAPI implements TreeChopAPI {
-    private final String modId;
-
-    private static final Map<Block, IChoppableBlock> choppableBlockBehaviors = new HashMap<>();
-
+    private static final Map<Block, ITreeChopBlockBehavior> choppableBlockBehaviors = new HashMap<>();
     private static final Map<Item, IChoppingItem> choppingItemBehaviors = new HashMap<>();
-
     private static final Map<Block, Boolean> choppableBlockOverrides = new HashMap<>() {
         @Override
         public Boolean put(Block block, Boolean isChoppable) {
@@ -34,7 +29,6 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
             return super.put(block, isChoppable);
         }
     };
-
     private static final Map<Block, Boolean> leavesBlockOverrides = new HashMap<>() {
         @Override
         public Boolean put(Block block, Boolean isLeaves) {
@@ -42,8 +36,8 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
             return super.put(block, isLeaves);
         }
     };
-
     private static final Map<Item, Boolean> choppingItemOverrides = new HashMap<>();
+    private final String modId;
 
     TreeChopInternalAPI(String modId) {
         this.modId = modId;
@@ -54,7 +48,7 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
     }
 
     @Override
-    public void overrideLogBlock(Block block, boolean isChoppable) {
+    public void overrideChoppableBlock(Block block, boolean isChoppable) {
         Boolean existingOverride = choppableBlockOverrides.put(block, isChoppable);
 
         if (existingOverride != null && !existingOverride.equals(isChoppable)) {
@@ -90,24 +84,24 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
     }
 
     @Override
-    public void registerLogBlockBehavior(Block block, IChoppableBlock handler) {
+    public void registerChoppableBlockBehavior(Block block, ITreeChopBlockBehavior handler) {
         ITreeChopBlockBehavior existingHandler = choppableBlockBehaviors.put(block, handler);
 
         if (existingHandler != null) {
             print(String.format("overrode existing log block behavior for %s",
                     TreeChop.platform.getResourceLocationForBlock(block)));
         } else {
-            overrideLogBlock(block, true);
+            overrideChoppableBlock(block, true);
         }
     }
 
     @Override
-    public boolean deregisterLogBlockBehavior(Block block) {
+    public boolean deregisterChoppableBlockBehavior(Block block) {
         return choppableBlockBehaviors.remove(block) == null;
     }
 
     @Override
-    public IChoppableBlock getRegisteredLogBlockBehavior(Block block) {
+    public ITreeChopBlockBehavior getRegisteredChoppableBlockBehavior(Block block) {
         return choppableBlockBehaviors.get(block);
     }
 
@@ -132,20 +126,10 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
     public Optional<IChoppingItem> getRegisteredChoppingItemBehavior(Item item) {
         return Optional.ofNullable(choppingItemBehaviors.get(item));
     }
-
+    
     @Override
-    public boolean isBlockALog(Level level, BlockPos pos) {
-        return isBlockALog(level, pos, level.getBlockState(pos));
-    }
-
-    @Override
-    public boolean isBlockALog(Level level, BlockPos pos, BlockState blockState) {
+    public boolean isBlockChoppable(Level level, BlockPos pos, BlockState blockState) {
         return ChopUtil.isBlockALog(level, pos, blockState);
-    }
-
-    @Override
-    public boolean isBlockLeaves(Level level, BlockPos pos) {
-        return isBlockLeaves(level, pos, level.getBlockState(pos));
     }
 
     @Override

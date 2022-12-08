@@ -21,10 +21,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class Wthit implements IWailaPlugin, IBlockComponentProvider {
-    private static final Wthit INSTANCE = new Wthit();
-
     public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
     public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
+    private static final Wthit INSTANCE = new Wthit();
 
     @Override
     public void register(IRegistrar registrar) {

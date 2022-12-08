@@ -1,11 +1,12 @@
 package ht.treechop.common;
 
 import ht.treechop.api.ChopData;
+import ht.treechop.api.ChopDataImmutable;
 import ht.treechop.api.ChopEvent;
-import ht.treechop.api.TreeData;
 import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.common.registry.ForgeModBlocks;
+import ht.treechop.common.util.TreeDataImpl;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -29,7 +30,7 @@ public class ForgePlatform implements Platform {
     @Override
     public boolean isDedicatedServer() {
         return FMLEnvironment.dist.isDedicatedServer();
-    };
+    }
 
     @Override
     public boolean uses(ModLoader loader) {
@@ -42,11 +43,11 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public TreeData detectTreeEvent(Level level, ServerPlayer agent, BlockPos blockPos, BlockState blockState, boolean overrideLeaves) {
-        TreeData treeData = new TreeData(overrideLeaves);
+    public TreeDataImpl detectTreeEvent(Level level, ServerPlayer agent, BlockPos blockPos, BlockState blockState, boolean overrideLeaves) {
+        TreeDataImpl treeData = new TreeDataImpl(overrideLeaves);
         boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.DetectTreeEvent(level, agent, blockPos, blockState, treeData));
         if (canceled) {
-            return TreeData.empty();
+            return TreeDataImpl.empty();
         }
         return treeData;
     }
@@ -67,13 +68,13 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData) {
+    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData) {
         MinecraftForge.EVENT_BUS.post(new ChopEvent.FinishChopEvent(
                 level,
                 agent,
                 pos,
-                blockState
-        ));
+                blockState,
+                chopData));
     }
 
     @Override

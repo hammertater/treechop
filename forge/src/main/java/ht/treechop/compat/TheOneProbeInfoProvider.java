@@ -21,13 +21,20 @@ import java.util.stream.Collectors;
 public class TheOneProbeInfoProvider implements IProbeInfoProvider {
     private static final boolean SHOW_TREE_BLOCKS = true;
     private static final boolean SHOW_NUM_CHOPS_REMAINING = true;
+    private static final TreeCache treeCache = new TreeCache();
 
     public static Void register(ITheOneProbe probe) {
         probe.registerProvider(new TheOneProbeInfoProvider());
         return null;
     }
 
-    private static final TreeCache treeCache = new TreeCache();
+    private static BlockState getLogState(Level level, BlockPos pos, BlockState state) {
+        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
+            return entity.getOriginalState();
+        } else {
+            return state;
+        }
+    }
 
     @Override
     public ResourceLocation getID() {
@@ -71,14 +78,6 @@ public class TheOneProbeInfoProvider implements IProbeInfoProvider {
                             }
                         });
             }
-        }
-    }
-
-    private static BlockState getLogState(Level level, BlockPos pos, BlockState state) {
-        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
-            return entity.getOriginalState();
-        } else {
-            return state;
         }
     }
 }

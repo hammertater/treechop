@@ -1,6 +1,7 @@
 package ht.treechop.common.platform;
 
 import ht.treechop.api.ChopData;
+import ht.treechop.api.ChopDataImmutable;
 import ht.treechop.api.TreeData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -26,7 +27,7 @@ public interface Platform {
 
     boolean startChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData, Object trigger);
 
-    void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData);
+    void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData);
 
     Block getChoppedLogBlock();
 

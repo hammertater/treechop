@@ -40,6 +40,7 @@ public class TreeChopForge extends TreeChop {
                 .forEach(action -> {
                     Supplier<?> supplier = action.messageSupplier();
                     try {
+                        @SuppressWarnings("unchecked")
                         Consumer<TreeChopAPI> consumer = (Consumer<TreeChopAPI>) supplier.get();
                         consumer.accept(new TreeChopForgeAPI(action.senderModId()));
                     } catch (ClassCastException | NullPointerException e) {

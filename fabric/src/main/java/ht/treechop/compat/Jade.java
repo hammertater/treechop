@@ -25,10 +25,9 @@ import java.util.stream.Collectors;
 @WailaPlugin
 public class Jade implements IWailaPlugin, IBlockComponentProvider {
 
-    private static final ResourceLocation UID = TreeChop.resource("plugin");
-
     public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
     public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
+    private static final ResourceLocation UID = TreeChop.resource("plugin");
 
     @Override
     public void registerClient(IWailaClientRegistration registrar) {

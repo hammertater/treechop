@@ -13,13 +13,11 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * Chopping a block that implements this interface will replace the block by a {@code treechop:chopped_log} with
  * starting radius {@code getUnchoppedRadius(...)}. By default, slimmer logs can't be chopped as many times as
- * full-sized logs, and contribute less to the "size" of the tree. For example,
- * - a log with radius 4 can only be chopped 3 times
- * - a 10-block tall tree of logs with radius 4 will only count as 5 blocks when calculating how many chops are needed
- *   to fell the tree.
+ * full-sized logs, and contribute less to the "size" of the tree. For example, - a log with radius 4 can only be
+ * chopped 3 times - a 10-block tall tree of logs with radius 4 will only count as 5 blocks when calculating how many
+ * chops are needed to fell the tree.
  */
 public interface ISimpleChoppableBlock extends IChoppableBlock, ICylinderBlock {
-
     /**
      * When chopped, the block will turn into a {@code treechop:chopped_log} with the starting radius returned by this
      * function.
@@ -29,7 +27,7 @@ public interface ISimpleChoppableBlock extends IChoppableBlock, ICylinderBlock {
     @Override
     default int getRadius(BlockGetter level, BlockPos blockPos, BlockState blockState) {
         return 8;
-    };
+    }
 
     @Override
     default void chop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState, int numChops, boolean felling) {
