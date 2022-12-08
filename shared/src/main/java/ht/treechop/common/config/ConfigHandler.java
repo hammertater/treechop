@@ -1,6 +1,7 @@
 package ht.treechop.common.config;
 
 import ht.treechop.TreeChop;
+import ht.treechop.api.IChoppingItem;
 import ht.treechop.common.config.item.ResourceIdentifier;
 import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.settings.*;
@@ -152,9 +153,10 @@ public class ConfigHandler {
     }
 
     public static boolean canChopWithTool(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState) {
-        return TreeChop.api.getRegisteredChoppingItemBehavior(tool.getItem())
-                .map(choppingItem -> choppingItem.canChop(player, tool, level, pos, blockState))
-                .orElse(choppingItemIsBlacklisted(tool.getItem()));
+        IChoppingItem choppingItem = TreeChop.api.getRegisteredChoppingItemBehavior(tool.getItem());
+        return (choppingItem != null)
+                ? choppingItem.canChop(player, tool, level, pos, blockState)
+                : choppingItemIsBlacklisted(tool.getItem());
     }
 
     private static boolean choppingItemIsBlacklisted(Item item) {
@@ -224,6 +226,7 @@ public class ConfigHandler {
         public final InitializedSupplier<Double> pmmoScaleXp = defaultValue(1.0);
         public final InitializedSupplier<Long> pmmoOverrideXp = defaultValue(80L);
         public final InitializedSupplier<Boolean> compatForDynamicTrees = defaultValue(true);
+        public final ForgeConfigSpec.BooleanValue verboseAPI;
         protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksList;
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksExceptionsList;
@@ -477,6 +480,12 @@ public class ConfigHandler {
                         .defineInRange("xpOverride", 80L, 0L, 100000L));
                 builder.pop();
             }
+
+            builder.push("API");
+            verboseAPI = builder
+                    .comment("Log information about TreeChop API usage. May be useful for debugging mod compatibility issues.")
+                    .define("verbose", false);
+            builder.pop();
 
             builder.pop();
         }

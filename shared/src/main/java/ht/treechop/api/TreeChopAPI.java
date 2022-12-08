@@ -9,8 +9,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.Optional;
-
 public interface TreeChopAPI {
     /**
      * Changes whether the specified block can be chopped. Overrides the TreeChop configuration files. See {@link
@@ -69,7 +67,7 @@ public interface TreeChopAPI {
      *
      * @return {@code null} if no handler is registered for {@code item}
      */
-    Optional<IChoppingItem> getRegisteredChoppingItemBehavior(Item item);
+    IChoppingItem getRegisteredChoppingItemBehavior(Item item);
 
     /**
      * Using default config settings, block states with the {@link LeavesBlock#PERSISTENT} property set to {@code true}

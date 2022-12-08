@@ -16,7 +16,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 public abstract class TreeChopInternalAPI implements TreeChopAPI {
@@ -44,60 +43,48 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
     }
 
     private void print(String message) {
-        TreeChop.LOGGER.info(String.format("[API via %s] %s", modId, message));
+        if (ConfigHandler.COMMON.verboseAPI.get()) {
+            TreeChop.LOGGER.info(String.format("[%s using TreeChop API] %s", modId, message));
+        }
     }
 
     @Override
     public void overrideChoppableBlock(Block block, boolean isChoppable) {
-        Boolean existingOverride = choppableBlockOverrides.put(block, isChoppable);
-
-        if (existingOverride != null && !existingOverride.equals(isChoppable)) {
-            print(String.format("changed \"choppable block\" override for %s from %s to %s",
-                    TreeChop.platform.getResourceLocationForBlock(block),
-                    existingOverride,
-                    isChoppable));
-        }
+        choppableBlockOverrides.put(block, isChoppable);
+        print(String.format("set isChoppable=%s for block %s",
+                isChoppable,
+                TreeChop.platform.getResourceLocationForBlock(block)));
     }
 
     @Override
     public void overrideLeavesBlock(Block block, boolean isLeaves) {
-        Boolean existingOverride = leavesBlockOverrides.put(block, isLeaves);
-
-        if (existingOverride != null && !existingOverride.equals(isLeaves)) {
-            print(String.format("changed \"leaves block\" override for %s from %s to %s",
-                    TreeChop.platform.getResourceLocationForBlock(block),
-                    existingOverride,
-                    isLeaves));
-        }
+        leavesBlockOverrides.put(block, isLeaves);
+        print(String.format("set isLeaves=%s for block %s",
+                isLeaves,
+                TreeChop.platform.getResourceLocationForBlock(block)));
     }
 
     @Override
     public void overrideChoppingItem(Item item, boolean canChop) {
-        Boolean existingOverride = choppingItemOverrides.put(item, canChop);
-
-        if (existingOverride != null && !existingOverride.equals(canChop)) {
-            print(String.format("changed \"chopping item\" override for %s from %s to %s",
-                    TreeChop.platform.getResourceLocationForItem(item),
-                    existingOverride,
-                    canChop));
-        }
+        choppingItemOverrides.put(item, canChop);
+        print(String.format("set canChop=%s for item %s",
+                canChop,
+                TreeChop.platform.getResourceLocationForItem(item)));
     }
 
     @Override
     public void registerChoppableBlockBehavior(Block block, ITreeChopBlockBehavior handler) {
-        ITreeChopBlockBehavior existingHandler = choppableBlockBehaviors.put(block, handler);
-
-        if (existingHandler != null) {
-            print(String.format("overrode existing log block behavior for %s",
-                    TreeChop.platform.getResourceLocationForBlock(block)));
-        } else {
-            overrideChoppableBlock(block, true);
-        }
+        choppableBlockBehaviors.put(block, handler);
+        print(String.format("registered new behavior for block %s",
+                TreeChop.platform.getResourceLocationForBlock(block)));
     }
 
     @Override
     public boolean deregisterChoppableBlockBehavior(Block block) {
-        return choppableBlockBehaviors.remove(block) == null;
+        ITreeChopBlockBehavior existing = choppableBlockBehaviors.remove(block);
+        print(String.format("deregistered behavior for block %s",
+                TreeChop.platform.getResourceLocationForBlock(block)));
+        return existing == null;
     }
 
     @Override
@@ -107,24 +94,22 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
 
     @Override
     public void registerChoppingItemBehavior(Item item, IChoppingItem handler) {
-        IChoppingItem existingHandler = choppingItemBehaviors.put(item, handler);
-
-        if (existingHandler != null) {
-            print(String.format("overrode existing behavior for item %s",
-                    TreeChop.platform.getResourceLocationForItem(item)));
-        } else {
-            overrideChoppingItem(item, true);
-        }
+        choppingItemBehaviors.put(item, handler);
+        print(String.format("registered new behavior for item %s",
+                TreeChop.platform.getResourceLocationForItem(item)));
     }
 
     @Override
     public boolean deregisterChoppingItemBehavior(Item item) {
-        return choppingItemBehaviors.remove(item) == null;
+        IChoppingItem existing = choppingItemBehaviors.remove(item);
+        print(String.format("deregistered behavior for item %s",
+                TreeChop.platform.getResourceLocationForItem(item)));
+        return existing == null;
     }
 
     @Override
-    public Optional<IChoppingItem> getRegisteredChoppingItemBehavior(Item item) {
-        return Optional.ofNullable(choppingItemBehaviors.get(item));
+    public IChoppingItem getRegisteredChoppingItemBehavior(Item item) {
+        return choppingItemBehaviors.get(item);
     }
 
     @Override
