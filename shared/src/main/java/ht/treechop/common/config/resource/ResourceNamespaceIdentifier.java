@@ -1,4 +1,4 @@
-package ht.treechop.common.config.item;
+package ht.treechop.common.config.resource;
 
 import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.resources.ResourceLocation;
@@ -15,8 +15,8 @@ public class ResourceNamespaceIdentifier extends ResourceIdentifier {
     @Override
     public <R extends DefaultedRegistry<T>, T> Stream<T> resolve(R registry) {
         return registry.stream()
-                .filter(item -> {
-                    ResourceLocation loc = registry.getKey(item);
+                .filter(resource -> {
+                    ResourceLocation loc = registry.getKey(resource);
                     return loc != registry.getDefaultKey() && loc.getNamespace().equals(getNamespace());
                 });
     }

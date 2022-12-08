@@ -7,6 +7,7 @@ import ht.treechop.common.registry.FabricModBlocks;
 import ht.treechop.compat.TreeChopFabricAPITest;
 import ht.treechop.server.FabricServer;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
@@ -24,6 +25,8 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
         ModLoadingContext.registerConfig(TreeChop.MOD_ID, ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
         ModLoadingContext.registerConfig(TreeChop.MOD_ID, ModConfig.Type.CLIENT, ConfigHandler.CLIENT_SPEC);
         PlayerBlockBreakEvents.BEFORE.register(FabricCommon::onBreakEvent);
+
+        CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> ConfigHandler.updateTags());
 
         ModConfigEvents.reloading(TreeChop.MOD_ID).register((ModConfig config) -> {
             if (config.getModId().equals(TreeChop.MOD_ID)) {

@@ -1,4 +1,4 @@
-package ht.treechop.common.config.item;
+package ht.treechop.common.config.resource;
 
 import net.minecraft.core.DefaultedRegistry;
 

@@ -1,9 +1,9 @@
 package ht.treechop.common.config;
 
-import ht.treechop.common.config.item.ResourceIdentifier;
-import ht.treechop.common.config.item.ResourceNamespaceIdentifier;
-import ht.treechop.common.config.item.ResourceTagIdentifier;
-import ht.treechop.common.config.item.MalformedResourceIdentifier;
+import ht.treechop.common.config.resource.MalformedResourceIdentifier;
+import ht.treechop.common.config.resource.ResourceIdentifier;
+import ht.treechop.common.config.resource.ResourceNamespaceIdentifier;
+import ht.treechop.common.config.resource.ResourceTagIdentifier;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;

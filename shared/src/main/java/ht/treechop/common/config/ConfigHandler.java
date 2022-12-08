@@ -2,7 +2,7 @@ package ht.treechop.common.config;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.IChoppingItem;
-import ht.treechop.common.config.item.ResourceIdentifier;
+import ht.treechop.common.config.resource.ResourceIdentifier;
 import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;

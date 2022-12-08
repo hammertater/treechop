@@ -1,8 +1,7 @@
-package ht.treechop.common.config.item;
+package ht.treechop.common.config.resource;
 
 import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Items;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -16,16 +15,17 @@ public class SingleResourceIdentifier extends ResourceIdentifier {
     @Override
     public <R extends DefaultedRegistry<T>, T> Stream<T> resolve(R registry) {
         String resourceString = getNamespace() + ":" + getLocalSpace();
-        ResourceLocation itemId = ResourceLocation.tryParse(resourceString);
-        if (itemId != null) {
-            if (registry.containsKey(itemId)) {
-                T item = registry.get(itemId); // Returns minecraft:air if itemId is not registered
-                if (item != Items.AIR) {
-                    return Stream.of(item);
+        ResourceLocation key = ResourceLocation.tryParse(resourceString);
+        if (key != null) {
+            if (registry.containsKey(key)) {
+                T resource = registry.get(key);
+                ResourceLocation defaultKey = registry.getDefaultKey();
+                if (!registry.getKey(resource).equals(defaultKey) || key.equals(defaultKey)) {
+                    return Stream.of(resource);
                 }
             }
         } else {
-            parsingError(String.format("\"%s\" is not a valid resource location", getItemID()));
+            parsingError(String.format("\"%s\" is not a valid resource location", getResourceLocation()));
         }
 
         return Stream.empty();

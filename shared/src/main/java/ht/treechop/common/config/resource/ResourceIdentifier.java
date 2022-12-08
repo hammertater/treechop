@@ -1,4 +1,4 @@
-package ht.treechop.common.config.item;
+package ht.treechop.common.config.resource;
 
 import ht.treechop.TreeChop;
 import net.minecraft.core.DefaultedRegistry;
@@ -31,7 +31,8 @@ public abstract class ResourceIdentifier {
     }
 
     /**
-     * @param string by mod ("@mod"), tag ("#mod:tag"), or single identifier ("mod:item") with optional qualifiers ("mod:item=2")
+     * @param string by mod ("@mod"), tag ("#mod:tag"), or single identifier ("mod:id") with optional qualifiers
+     *               ("mod:id=2")
      */
     public static ResourceIdentifier from(String string) {
         Matcher matcher = PATTERN.matcher(string);
@@ -53,7 +54,7 @@ public abstract class ResourceIdentifier {
                 return new SingleResourceIdentifier(either(namespace, DEFAULT_NAMESPACE), localSpace, qualifiers, string);
             }
         } else {
-            return new MalformedResourceIdentifier(string, "unqualified identifier does not match \"@mod\", \"#mod:tag\", or \"mod:item\"");
+            return new MalformedResourceIdentifier(string, "unqualified identifier does not match \"@mod\", \"#mod:tag\", or \"mod:id\"");
         }
     }
 
@@ -81,6 +82,10 @@ public abstract class ResourceIdentifier {
         return string.equals("") ? fallbackIfEmpty : string;
     }
 
+    private static void parsingError(String idString, String message) {
+        TreeChop.LOGGER.warn("Configuration issue: failed to parse \"{}\": {} (to silence this warning, find and delete \"{}\" in treechop-common.toml)", idString, message, idString);
+    }
+
     public String getNamespace() {
         return nameSpace;
     }
@@ -97,15 +102,11 @@ public abstract class ResourceIdentifier {
         return string;
     }
 
-    public String getItemID() {
+    public String getResourceLocation() {
         return String.format("%s:%s", getNamespace(), getLocalSpace());
     }
 
     public abstract <R extends DefaultedRegistry<T>, T> Stream<T> resolve(R registry);
-
-    private static void parsingError(String idString, String message) {
-        TreeChop.LOGGER.warn("Configuration issue: failed to parse \"{}\": {} (to silence this warning, find and delete \"{}\" in treechop-common.toml)", idString, message, idString);
-    }
 
     public void parsingError(String message) {
         parsingError(getString(), message);

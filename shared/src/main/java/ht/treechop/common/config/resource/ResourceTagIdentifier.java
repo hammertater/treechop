@@ -1,4 +1,4 @@
-package ht.treechop.common.config.item;
+package ht.treechop.common.config.resource;
 
 import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.core.Holder;
@@ -22,7 +22,7 @@ public class ResourceTagIdentifier extends ResourceIdentifier {
             TagKey<T> tag = TagKey.create(registry.key(), tagId);
             return StreamSupport.stream(registry.getTagOrEmpty(tag).spliterator(), false).map(Holder::value);
         } else {
-            parsingError(String.format("\"%s\" is not a valid resource location", getItemID()));
+            parsingError(String.format("\"%s\" is not a valid resource location", getResourceLocation()));
         }
 
         return Stream.empty();
