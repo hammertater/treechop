@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Unique(silent = true)
 @Mixin(BareSmallLogBlock.class)
-public class TerraformersMCTreesMixin implements ISimpleChoppableBlock {
+public class TerraformTreesMixin implements ISimpleChoppableBlock {
     @Override
     public int getRadius(BlockGetter level, BlockPos blockPos, BlockState blockState) {
         return 5;
