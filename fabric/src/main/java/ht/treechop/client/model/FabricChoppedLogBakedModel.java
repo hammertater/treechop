@@ -22,6 +22,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -35,6 +36,11 @@ import java.util.function.Supplier;
 public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements FabricBakedModel {
 
     private static TextureAtlasSprite defaultSprite;
+
+    private static BlockState getNeighborBlockState(BlockAndTintGetter level, BlockPos pos, Direction direction) {
+        BlockPos neighborPos = pos.relative(direction);
+        return ChopUtil.getStrippedState(level, pos, level.getBlockState(neighborPos));
+    }
 
     @Override
     public boolean isVanillaAdapter() {
@@ -51,7 +57,8 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
                     entity.getShape(),
                     entity.getChops() + (ChoppedLogBlock.DEFAULT_UNCHOPPED_RADIUS - entity.getUnchoppedRadius()),
                     solidSides,
-                    randomSupplier.get()
+                    randomSupplier.get(),
+                    direction -> getNeighborBlockState(level, pos, direction)
             )
                     .forEach(quad -> {
                         emitter.fromVanilla(quad, IndigoRenderer.MATERIAL_STANDARD, null);
@@ -65,24 +72,24 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
     }
 
     @Override
-    public Collection<ResourceLocation> getDependencies() {
+    public @NotNull Collection<ResourceLocation> getDependencies() {
         return Collections.emptyList();
     }
 
     @Override
-    public Collection<Material> getMaterials(Function<ResourceLocation, UnbakedModel> unbakedModelGetter, Set<Pair<String, String>> unresolvedTextureReferences) {
+    public @NotNull Collection<Material> getMaterials(@NotNull Function<ResourceLocation, UnbakedModel> unbakedModelGetter, @NotNull Set<Pair<String, String>> unresolvedTextureReferences) {
         return Collections.emptyList();
     }
 
     @Nullable
     @Override
-    public BakedModel bake(ModelBakery modelBakery, Function<Material, TextureAtlasSprite> textureGetter, ModelState modelState, ResourceLocation modelId) {
+    public BakedModel bake(@NotNull ModelBakery modelBakery, Function<Material, TextureAtlasSprite> textureGetter, ModelState modelState, ResourceLocation modelId) {
         defaultSprite = textureGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, defaultTextureRL));
         return this;
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, RandomSource randomSource) {
+    public @NotNull List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, @NotNull RandomSource randomSource) {
         return Collections.emptyList();
     }
 
@@ -107,17 +114,17 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
     }
 
     @Override
-    public TextureAtlasSprite getParticleIcon() {
+    public @NotNull TextureAtlasSprite getParticleIcon() {
         return defaultSprite;
     }
 
     @Override
-    public ItemTransforms getTransforms() {
+    public @NotNull ItemTransforms getTransforms() {
         return ItemTransforms.NO_TRANSFORMS;
     }
 
     @Override
-    public ItemOverrides getOverrides() {
+    public @NotNull ItemOverrides getOverrides() {
         return ItemOverrides.EMPTY;
     }
 

@@ -18,6 +18,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.tuple.Triple;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -32,6 +33,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
         ModelResourceLocation modelLocation = BlockModelShaper.stateToModelLocation(blockState);
         BakedModel model = Minecraft.getInstance().getModelManager().getModel(modelLocation);
 
+        //noinspection ConstantConditions
         return getSpriteForBlockSide(model, blockState, side, rand)
                 .or(() -> getSpriteForBlockSide(model, blockState, null, rand))
                 .or(() -> Optional.ofNullable(model.getParticleIcon()))
@@ -39,28 +41,29 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     protected Optional<TextureAtlasSprite> getSpriteForBlockSide(BakedModel model, BlockState blockState, Direction side, RandomSource rand) {
+        //noinspection ConstantConditions
         return model.getQuads(blockState, side, rand).stream()
                 .map(BakedQuad::getSprite)
                 .filter(Objects::nonNull)
                 .findFirst();
     }
 
-    public Collection<ResourceLocation> getDependencies() {
+    public @NotNull Collection<ResourceLocation> getDependencies() {
         return Collections.emptyList();
     }
 
-    public Collection<Material> getMaterials(Function<ResourceLocation, UnbakedModel> var1, Set<Pair<String, String>> var2) {
+    public @NotNull Collection<Material> getMaterials(@NotNull Function<ResourceLocation, UnbakedModel> var1, @NotNull Set<Pair<String, String>> var2) {
         return Collections.emptyList();
     }
 
     @Nullable
-    public BakedModel bake(ModelBakery modelBakery, Function<Material, TextureAtlasSprite> textureGetter, ModelState modelState, ResourceLocation modelId) {
+    public BakedModel bake(@NotNull ModelBakery modelBakery, Function<Material, TextureAtlasSprite> textureGetter, ModelState modelState, ResourceLocation modelId) {
         defaultSprite = textureGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, defaultTextureRL));
         return this;
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, RandomSource randomSource) {
+    public @NotNull List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, @NotNull RandomSource randomSource) {
         return Collections.emptyList();
     }
 
@@ -85,17 +88,17 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     @Override
-    public TextureAtlasSprite getParticleIcon() {
+    public @NotNull TextureAtlasSprite getParticleIcon() {
         return getDefaultSprite();
     }
 
     @Override
-    public ItemTransforms getTransforms() {
+    public @NotNull ItemTransforms getTransforms() {
         return ItemTransforms.NO_TRANSFORMS;
     }
 
     @Override
-    public ItemOverrides getOverrides() {
+    public @NotNull ItemOverrides getOverrides() {
         return ItemOverrides.EMPTY;
     }
 
@@ -103,7 +106,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
         return defaultSprite;
     }
 
-    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int chops, Set<Direction> solidSides, RandomSource random) {
+    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int chops, Set<Direction> solidSides, RandomSource random, Function<Direction, BlockState> neighborGetter) {
         AABB box = shape.getBoundingBox(chops);
         float downY = (float) box.minY;
         float upY = (float) box.maxY;
@@ -141,12 +144,17 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
                 ),
                 solidSides.stream().map(
                         direction -> ModelUtil.makeQuad(
-                                getSpriteForBlockSide(strippedState, direction.getOpposite(), random),
+                                getSpriteForNeighbor(strippedState, neighborGetter, direction, random),
                                 FaceShape.get(direction),
                                 direction.getOpposite(),
                                 null
                         )
                 )
         ).filter(Objects::nonNull);
+    }
+
+    private TextureAtlasSprite getSpriteForNeighbor(BlockState blockState, Function<Direction, BlockState> neighborGetter, Direction direction, RandomSource random) {
+        BlockState neighbor = neighborGetter.apply(direction);
+        return getSpriteForBlockSide((neighbor != null) ? neighbor : blockState, direction.getOpposite(), random);
     }
 }
