@@ -14,10 +14,12 @@ public class TreeChopFabricAPITest {
     private static TreeChopAPI api = null;
 
     public static void init() {
-        if (FabricLoader.getInstance().getObjectShare().get("treechop:api_provider") instanceof ITreeChopAPIProvider provider) {
-            api = provider.get("treechop");
-            CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> TreeChopFabricAPITest.onTagsUpdated());
-        }
+        FabricLoader.getInstance().getObjectShare().whenAvailable("treechop:api_provider", (key, value) -> {
+            if (value instanceof ITreeChopAPIProvider provider) {
+                api = provider.get("treechop");
+                CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> TreeChopFabricAPITest.onTagsUpdated());
+            }
+        });
     }
 
     public static void onTagsUpdated() {
