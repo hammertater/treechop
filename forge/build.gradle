@@ -115,9 +115,6 @@ dependencies {
     compileOnly fg.deobf("curse.maven:carry-on-274259:3885508")
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3885508")
 
-    compileOnly fg.deobf("curse.maven:blueprint-382216:4019850")
-    runtimeOnly fg.deobf("curse.maven:blueprint-382216:4019850")
-
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
     testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
