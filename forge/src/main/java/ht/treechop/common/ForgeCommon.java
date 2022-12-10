@@ -5,7 +5,6 @@ import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.capabilities.ChopSettingsProvider;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.network.ForgePacketHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -19,17 +18,11 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import static net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 @EventBusSubscriber(modid = TreeChop.MOD_ID, bus = EventBusSubscriber.Bus.FORGE)
 public class ForgeCommon {
-
-    // Don't @SubscribeEvent; FMLCommonSetupEvent fires on Bus.MOD
-    public static void onCommonSetup(FMLCommonSetupEvent event) {
-        ForgePacketHandler.registerPackets();
-    }
 
     @SubscribeEvent
     public static void onTagsUpdated(TagsUpdatedEvent event) {
