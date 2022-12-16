@@ -1,5 +1,6 @@
 package ht.treechop.common.util;
 
+import ht.treechop.TreeChopMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -50,6 +51,7 @@ public class ChopResult {
         GameType gameType;
         gameType = agent.gameMode.getGameModeForPlayer();
 
+        TreeChopMod.LOGGER.warn("3a");
         AtomicBoolean somethingChanged = new AtomicBoolean(false);
         List<BlockPos> logs = Stream.concat(chops.stream().map(Chop::getBlockPos), fells.stream())
                 .filter(pos -> !somethingChanged.get() && ChopUtil.canChangeBlock(world, pos, agent, gameType, tool))
@@ -62,10 +64,13 @@ public class ChopResult {
         if (somethingChanged.get()) {
             return false;
         }
+        TreeChopMod.LOGGER.warn(String.format("3b -- %d blocks to chop, %d to fell", chops.size(), fells.size()));
 
         chopBlocks(world, agent, tool, chops.stream());
+        TreeChopMod.LOGGER.warn("3c");
 
         if (felling) {
+            TreeChopMod.LOGGER.warn("3d");
             List<BlockPos> leaves = breakLeaves
                     ? ChopUtil.getTreeLeaves(world, logs).stream()
                     .filter(pos -> ChopUtil.canChangeBlock(world, pos, agent, agent.gameMode.getGameModeForPlayer()))
@@ -77,10 +82,12 @@ public class ChopResult {
 
             fells.remove(targetPos);
             fellBlocks(world, targetPos, agent, Stream.of(fells, leaves).flatMap(Collection::stream));
+            TreeChopMod.LOGGER.warn("3e");
 
             return false;
         }
 
+        TreeChopMod.LOGGER.warn("3d");
         return true;
     }
 

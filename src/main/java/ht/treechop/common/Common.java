@@ -94,16 +94,21 @@ public class Common {
                 logPos -> isBlockALog(world, logPos)
         );
 
+        TreeChopMod.LOGGER.warn("11111");
         if (chopResult != ChopResult.IGNORED) {
+            TreeChopMod.LOGGER.warn("22222");
             if (chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get())) {
+                TreeChopMod.LOGGER.warn("33333");
                 event.setCanceled(true);
 
                 if (!agent.isCreative()) {
+                    TreeChopMod.LOGGER.warn("44444");
                     ChopUtil.doItemDamage(tool, world, blockState, pos, agent);
                 }
             }
 
             MinecraftForge.EVENT_BUS.post(new ChopEvent.FinishChopEvent(world, agent, pos, blockState));
+            TreeChopMod.LOGGER.warn("55555");
         }
     }
 

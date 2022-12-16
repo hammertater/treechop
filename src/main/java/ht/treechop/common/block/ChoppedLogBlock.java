@@ -1,5 +1,6 @@
 package ht.treechop.common.block;
 
+import ht.treechop.TreeChopMod;
 import ht.treechop.api.IChoppableBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.init.ModBlocks;
@@ -159,22 +160,30 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, I
         int currentNumChops = (blockState.is(this)) ? getNumChops(world, pos, blockState) : 0;
         int newNumChops = Math.min(currentNumChops + numChops, ChopUtil.getMaxNumChops(world, pos, blockState));
         int numAddedChops = newNumChops - currentNumChops;
+        TreeChopMod.LOGGER.warn(felling ? "felling" : "chopping");
+        TreeChopMod.LOGGER.warn(String.format("%d chops", numChops));
 
         if (world instanceof ServerWorld) {
+            TreeChopMod.LOGGER.warn("z1");
             ServerWorld serverWorld = (ServerWorld) world;
             for (int i = 0; i < numAddedChops; ++i) {
+                TreeChopMod.LOGGER.warn(String.format("z2-%d", i));
                 getDrops(defaultBlockState(), serverWorld, pos, null, player, tool)
                         .forEach(stack -> popResource(serverWorld, pos, stack));
             }
         }
 
         if (!felling) {
+            TreeChopMod.LOGGER.warn(String.format("z3: numAddedChops = %d", numAddedChops));
             if (numAddedChops > 0) {
+                TreeChopMod.LOGGER.warn("z4");
                 BlockState newBlockState = (blockState.is(this) ? blockState : getPlacementState(world, pos))
                         .setValue(CHOPS, newNumChops);
 
                 if (world.setBlock(pos, newBlockState, 3)) {
+                    TreeChopMod.LOGGER.warn("z5");
                     if (!blockState.is(this) && world.getBlockEntity(pos) instanceof Entity && world instanceof ServerWorld) {
+                        TreeChopMod.LOGGER.warn("z6");
                         Entity entity = (Entity) world.getBlockEntity(pos);
                         ServerWorld serverWorld = (ServerWorld) world;
                         BlockState strippedBlockState = blockState.getToolModifiedState(
@@ -186,21 +195,27 @@ public class ChoppedLogBlock extends BlockImitator implements IChoppableBlock, I
                         );
 
                         if (strippedBlockState == null) {
+                            TreeChopMod.LOGGER.warn("z7");
                             if (AxeAccessor.isStrippedLog(blockState.getBlock())) {
+                                TreeChopMod.LOGGER.warn("z8a");
                                 strippedBlockState = blockState;
                             } else {
+                                TreeChopMod.LOGGER.warn("z8b");
                                 strippedBlockState = Blocks.STRIPPED_OAK_LOG.defaultBlockState();
                             }
                         }
 
+                        TreeChopMod.LOGGER.warn("z9");
                         entity.setOriginalState(blockState, strippedBlockState);
 
                         List<ItemStack> drops = Block.getDrops(blockState, serverWorld, pos, entity, player, tool);
                         entity.setDrops(drops);
                         entity.setChanged();
+                        TreeChopMod.LOGGER.warn("z10");
                     }
                 }
             } else {
+                TreeChopMod.LOGGER.warn("z99");
                 world.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
             }
         }
