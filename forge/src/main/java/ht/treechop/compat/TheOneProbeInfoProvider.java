@@ -61,7 +61,6 @@ public class TheOneProbeInfoProvider implements IProbeInfoProvider {
                             }
 
                             if (SHOW_TREE_BLOCKS) {
-                                TreeChop.LOGGER.info(("show tree blocks"));
                                 IItemStyle itemStyle = builder.defaultItemStyle();
                                 IProbeInfo tiles = builder.horizontal();
                                 treeBlocks.stream()
