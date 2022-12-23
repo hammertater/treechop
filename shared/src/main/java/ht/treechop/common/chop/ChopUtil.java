@@ -406,7 +406,7 @@ public class ChopUtil {
     }
 
     public static boolean playerWantsToChop(Player player, ChopSettings chopSettings) {
-        if (player != null && !player.isCreative() || chopSettings.getChopInCreativeMode()) {
+        if (ConfigHandler.COMMON.enabled.get() && (player != null && !player.isCreative() || chopSettings.getChopInCreativeMode())) {
             return chopSettings.getChoppingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
         } else {
             return false;
@@ -442,7 +442,6 @@ public class ChopUtil {
 
     public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) {
         if (!isBlockChoppable(level, pos, blockState)
-                || !ConfigHandler.COMMON.enabled.get()
                 || !ChopUtil.playerWantsToChop(agent)
                 || !agent.hasCorrectToolForDrops(blockState)
                 || !ChopUtil.canChopWithTool(agent, tool, level, pos, blockState)) {
