@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -97,6 +98,9 @@ public class ConfigHandler {
     public static void onReload() {
         RELOAD.run();
         updateTags();
+
+        org.apache.logging.log4j.Level logLevel = (COMMON.enableLogging.get()) ? org.apache.logging.log4j.Level.ALL : org.apache.logging.log4j.Level.OFF;
+        Configurator.setLevel(TreeChop.MOD_ID, logLevel);
     }
 
     public static void updateTags() {
@@ -200,8 +204,8 @@ public class ConfigHandler {
     }
 
     public static class Common {
-
         public final ForgeConfigSpec.BooleanValue enabled;
+        public final ForgeConfigSpec.BooleanValue enableLogging;
         public final ForgeConfigSpec.BooleanValue dropLootForChoppedBlocks;
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
@@ -305,6 +309,10 @@ public class ConfigHandler {
             enabled = builder
                     .comment("Set to false to disable TreeChop without having to uninstall the mod")
                     .define("enabled", true);
+
+            enableLogging = builder
+                    .comment("Let TreeChop print to the log")
+                    .define("printDebugInfo", true);
 
             for (SettingsField field : SettingsField.values()) {
                 String fieldName = field.getConfigKey();
