@@ -4,6 +4,7 @@ import ht.treechop.TreeChop;
 import ht.treechop.api.TreeData;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.chop.ChopUtil;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.EntityChopSettings;
 import ht.treechop.common.util.TreeCache;
 import mcjty.theoneprobe.api.*;
@@ -51,7 +52,8 @@ public class TheOneProbeInfoProvider implements IProbeInfoProvider {
                 && SHOW_TREE_BLOCKS || SHOW_NUM_CHOPS_REMAINING) {
             AtomicInteger numChops = new AtomicInteger(0);
 
-            TreeData tree = treeCache.getTree(level, blockPos);
+            int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
+            TreeData tree = treeCache.getTree(level, blockPos, maxNumTreeBlocks);
             if (tree.isAProperTree(chopSettings.getTreesMustHaveLeaves())) {
                 tree.getLogBlocks().ifPresent(
                         treeBlocks -> {

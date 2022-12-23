@@ -157,7 +157,12 @@ public class ChopUtil {
     }
 
     private static ChopResult getChopResult(Level level, BlockPos blockPos, Player agent, int numChops, Predicate<BlockPos> logCondition) {
-        TreeData tree = getTreeBlocks(level, blockPos, logCondition);
+        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
+        TreeData tree = getTreeBlocks(level, blockPos, logCondition, maxNumTreeBlocks);
+        if (tree.getLogBlocksOrEmpty().size() >= maxNumTreeBlocks) {
+            TreeChop.LOGGER.warn("Max tree size {} reached (not including leaves)", maxNumTreeBlocks);
+        }
+
         if (tree.isAProperTree(getPlayerChopSettings(agent).getTreesMustHaveLeaves())) {
             Set<BlockPos> supportedBlocks = tree.getLogBlocks().orElse(Collections.emptySet());
             return getChopResult(level, blockPos, supportedBlocks, numChops);
@@ -166,11 +171,11 @@ public class ChopUtil {
         }
     }
 
-    public static TreeData getTreeBlocks(Level level, BlockPos blockPos) {
-        return getTreeBlocks(level, blockPos, pos -> ChopUtil.isBlockALog(level, pos));
+    public static TreeData getTreeBlocks(Level level, BlockPos blockPos, int maxNumTreeBlocks) {
+        return getTreeBlocks(level, blockPos, pos -> ChopUtil.isBlockALog(level, pos), maxNumTreeBlocks);
     }
 
-    public static TreeData getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition) {
+    public static TreeData getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition, int maxNumTreeBlocks) {
         if (!logCondition.test(blockPos)) {
             return new TreeDataImpl();
         }
@@ -180,8 +185,6 @@ public class ChopUtil {
             return detectData;
         }
 
-        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
-
         Set<BlockPos> supportedBlocks = getConnectedBlocks(
                 Collections.singletonList(blockPos),
                 somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)
@@ -189,10 +192,6 @@ public class ChopUtil {
                         .filter(logCondition),
                 maxNumTreeBlocks
         );
-
-        if (supportedBlocks.size() >= maxNumTreeBlocks) {
-            TreeChop.LOGGER.warn(String.format("Max tree size reached: %d >= %d blocks (not including leaves)", supportedBlocks.size(), maxNumTreeBlocks));
-        }
 
         detectData.setLogBlocks(supportedBlocks);
         return detectData;

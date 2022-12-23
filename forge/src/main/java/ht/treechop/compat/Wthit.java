@@ -5,6 +5,7 @@ import ht.treechop.api.TreeData;
 import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.chop.ChopUtil;
+import ht.treechop.common.config.ConfigHandler;
 import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.component.ItemComponent;
 import mcp.mobius.waila.api.component.WrappedComponent;
@@ -47,7 +48,8 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
             Level level = accessor.getWorld();
             AtomicInteger numChops = new AtomicInteger(0);
 
-            TreeData tree = Client.treeCache.getTree(level, accessor.getPosition());
+            int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
+            TreeData tree = Client.treeCache.getTree(level, accessor.getPosition(), maxNumTreeBlocks);
             if (tree.isAProperTree(Client.getChopSettings().getTreesMustHaveLeaves())) {
                 tree.getLogBlocks().ifPresent(
                         treeBlocks -> {
