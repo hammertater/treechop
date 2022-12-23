@@ -83,6 +83,8 @@ public class ConfigHandler {
             UPDATE_TAGS,
             ConfigHandler::inferStrippedStates);
 
+    private static org.apache.logging.log4j.Level logLevel = org.apache.logging.log4j.Level.ALL;
+
     static {
         final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
         COMMON_SPEC = specPair.getRight();
@@ -96,15 +98,23 @@ public class ConfigHandler {
     }
 
     public static void onReload() {
+        updateLogLevel();
         RELOAD.run();
         updateTags();
-
-        org.apache.logging.log4j.Level logLevel = (COMMON.enableLogging.get()) ? org.apache.logging.log4j.Level.ALL : org.apache.logging.log4j.Level.OFF;
-        Configurator.setLevel(TreeChop.MOD_ID, logLevel);
     }
 
     public static void updateTags() {
         UPDATE_TAGS.run();
+    }
+
+    private static void updateLogLevel() {
+        org.apache.logging.log4j.Level newLevel = (COMMON.enableLogging.get()) ? org.apache.logging.log4j.Level.ALL : org.apache.logging.log4j.Level.OFF;
+        if (newLevel != logLevel) {
+            Configurator.setLevel(TreeChop.MOD_ID, org.apache.logging.log4j.Level.ALL);
+            TreeChop.LOGGER.info("Changing log level to {}", newLevel.name());
+            Configurator.setLevel(TreeChop.MOD_ID, newLevel);
+            logLevel = newLevel;
+        }
     }
 
     @NotNull
@@ -305,15 +315,16 @@ public class ConfigHandler {
         );
 
         public Common(ForgeConfigSpec.Builder builder) {
-            builder.push("permissions");
+            builder.push("mod");
             enabled = builder
                     .comment("Set to false to disable TreeChop without having to uninstall the mod")
                     .define("enabled", true);
-
             enableLogging = builder
                     .comment("Let TreeChop print to the log")
                     .define("printDebugInfo", true);
+            builder.pop();
 
+            builder.push("permissions");
             for (SettingsField field : SettingsField.values()) {
                 String fieldName = field.getConfigKey();
                 for (Object value : field.getValues()) {
@@ -322,7 +333,6 @@ public class ConfigHandler {
                     rawPermissions.add(Pair.of(new Setting(field, value), configHandle));
                 }
             }
-
             builder.pop();
 
             builder.push("general");
