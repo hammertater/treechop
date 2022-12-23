@@ -71,7 +71,6 @@ public class TheOneProbeInfoProvider implements IProbeInfoProvider {
                                         .forEach((block, count) -> {
                                             ItemStack stack = block.asItem().getDefaultInstance();
                                             stack.setCount(count.intValue());
-                                            TreeChop.LOGGER.info(stack.toString());
                                             tiles.item(stack, itemStyle);
                                         });
                             }
