@@ -3,15 +3,17 @@ package ht.treechop.client.model;
 import com.mojang.math.Vector3f;
 import ht.treechop.common.util.FaceShape;
 import ht.treechop.common.util.Vector3;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockElementFace;
-import net.minecraft.client.renderer.block.model.BlockFaceUV;
-import net.minecraft.client.renderer.block.model.FaceBakery;
+import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+
+import java.util.Optional;
 
 public class ModelUtil {
+    private static final ResourceLocation UNKNOWN_RESOURCE = new ResourceLocation("treechop", "dynamic");
+
     public static BakedQuad makeQuad(
             TextureAtlasSprite sprite,
             FaceShape faceShape,
@@ -48,18 +50,11 @@ public class ModelUtil {
     private static float[] getUVsForQuad(Vector3 posFrom, Vector3 posTo, Direction orientation) {
         Vector3f posFrom3f = posFrom.asVector3f();
         Vector3f posTo3f = posTo.asVector3f();
-        switch (orientation) {
-            case UP:
-            case DOWN:
-                return new float[]{posFrom3f.x(), posFrom3f.z(), posTo3f.x(), posTo3f.z()};
-            case EAST:
-            case WEST:
-                return new float[]{posFrom3f.z(), posFrom3f.y(), posTo3f.z(), posTo3f.y()};
-            case NORTH:
-            case SOUTH:
-            default:
-                return new float[]{posFrom3f.x(), posFrom3f.y(), posTo3f.x(), posTo3f.y()};
-        }
+        return switch (orientation) {
+            case UP, DOWN -> new float[]{posFrom3f.x(), posFrom3f.z(), posTo3f.x(), posTo3f.z()};
+            case EAST, WEST -> new float[]{posFrom3f.z(), posFrom3f.y(), posTo3f.z(), posTo3f.y()};
+            case NORTH, SOUTH -> new float[]{posFrom3f.x(), posFrom3f.y(), posTo3f.x(), posTo3f.y()};
+        };
     }
 
     public static BakedQuad makeQuad(
@@ -78,9 +73,9 @@ public class ModelUtil {
                 sprite,
                 orientation,
                 BlockModelRotation.X0_Y0,
-                null,
+                null, // TODO
                 true,
-                null
+                UNKNOWN_RESOURCE
         );
     }
 }
