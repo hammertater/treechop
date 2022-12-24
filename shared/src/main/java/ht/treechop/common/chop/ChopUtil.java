@@ -429,14 +429,6 @@ public class ChopUtil {
         return Server.instance().getPlayerChopSettings(player);
     }
 
-    public static void doItemDamage(ItemStack itemStack, Level level, BlockState blockState, BlockPos blockPos, Player agent) {
-        ItemStack mockItemStack = itemStack.copy();
-        itemStack.mineBlock(level, blockState, blockPos, agent);
-        if (itemStack.isEmpty() && !mockItemStack.isEmpty()) {
-            TreeChop.platform.doItemDamage(itemStack, level, blockState, blockPos, agent);
-        }
-    }
-
     public static void dropExperience(Level level, BlockPos pos, int amount) {
         if (level instanceof ServerLevel serverLevel && level.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
             ExperienceOrb.award(serverLevel, Vec3.atCenterOf(pos), amount);
@@ -474,7 +466,7 @@ public class ChopUtil {
             TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData);
 
             if (!agent.isCreative()) {
-                TreeChop.platform.doItemDamage(tool, level, blockState, pos, agent);
+                tool.hurtAndBreak(1, agent, ignored -> {});
             }
 
             return !felled;

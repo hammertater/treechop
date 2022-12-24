@@ -11,16 +11,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -35,11 +31,6 @@ public class ForgePlatform implements Platform {
     @Override
     public boolean uses(ModLoader loader) {
         return loader == ModLoader.FORGE;
-    }
-
-    @Override
-    public boolean onStartBlockBreak(Player player, ItemStack tool, BlockPos blockPos) {
-        return !tool.getItem().onBlockStartBreak(tool, blockPos, player);
     }
 
     @Override
@@ -85,18 +76,6 @@ public class ForgePlatform implements Platform {
     @Override
     public BlockEntityType<?> getChoppedLogBlockEntity() {
         return ForgeModBlocks.CHOPPED_LOG_ENTITY.get();
-    }
-
-    @Override
-    public boolean doItemDamage(ItemStack stack, Level level, BlockState blockState, BlockPos pos, Player agent) {
-        ItemStack mockItemStack = stack.copy();
-        stack.mineBlock(level, blockState, pos, agent);
-        if (stack.isEmpty() && !mockItemStack.isEmpty()) {
-            ForgeEventFactory.onPlayerDestroyItem(agent, stack, InteractionHand.MAIN_HAND);
-            return true;
-        } else {
-            return false;
-        }
     }
 
     @Override

@@ -7,22 +7,17 @@ import ht.treechop.api.TreeData;
 import ht.treechop.common.registry.FabricModBlocks;
 import ht.treechop.common.util.TreeDataImpl;
 import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FabricPlatform implements Platform {
     @Override
@@ -33,12 +28,6 @@ public class FabricPlatform implements Platform {
     @Override
     public boolean uses(ModLoader loader) {
         return loader == ModLoader.FABRIC;
-    }
-
-    @Override
-    public boolean onStartBlockBreak(Player player, ItemStack tool, BlockPos blockPos) {
-        Level level = player.level;
-        return PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(level, player, blockPos, level.getBlockState(blockPos), level.getBlockEntity(blockPos));
     }
 
     @Override
@@ -82,13 +71,6 @@ public class FabricPlatform implements Platform {
     @Override
     public BlockEntityType<?> getChoppedLogBlockEntity() {
         return FabricModBlocks.CHOPPED_LOG_ENTITY;
-    }
-
-    @Override
-    public boolean doItemDamage(ItemStack tool, Level level, BlockState blockState, BlockPos pos, Player player) {
-        AtomicBoolean broke = new AtomicBoolean(false);
-        tool.hurtAndBreak(1, player, (Player thePlayer) -> broke.set(true));
-        return broke.get();
     }
 
     @Override
