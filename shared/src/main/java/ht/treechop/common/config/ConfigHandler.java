@@ -430,8 +430,8 @@ public class ConfigHandler {
             builder.push("compatibility");
             builder.push("general");
             mustUseCorrectToolForDrops = builder
-                    .comment("Chopping requires using the correct tool for drops")
-                    .define("requireCorrectToolForDrops", false);
+                    .comment("Chopping requires using the correct tool for drops, if any (does nothing in vanilla, but some mods add tool requirements to logs")
+                    .define("requireCorrectToolForDrops", true);
             preventChoppingOnRightClick = builder
                     .comment("Prevent chopping when right-clicking blocks")
                     .define("preventChoppingOnRightClick", false);
