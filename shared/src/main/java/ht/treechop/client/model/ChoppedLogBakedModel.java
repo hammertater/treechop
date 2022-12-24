@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Pair;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.properties.ChoppedLogShape;
-import ht.treechop.common.util.FaceShape;
 import ht.treechop.common.util.Vector3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockModelShaper;
@@ -47,8 +46,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     protected TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, RandomSource rand) {
-        ModelResourceLocation modelLocation = BlockModelShaper.stateToModelLocation(blockState);
-        BakedModel model = Minecraft.getInstance().getModelManager().getModel(modelLocation);
+        BakedModel model = getBlockModel(blockState);
 
         //noinspection ConstantConditions
         return getSpriteForBlockSide(model, blockState, side, rand)
@@ -63,6 +61,12 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
                 .map(BakedQuad::getSprite)
                 .filter(Objects::nonNull)
                 .findFirst();
+    }
+
+    @NotNull
+    public static BakedModel getBlockModel(BlockState blockState) {
+        ModelResourceLocation modelLocation = BlockModelShaper.stateToModelLocation(blockState);
+        return Minecraft.getInstance().getModelManager().getModel(modelLocation);
     }
 
     @Override
@@ -162,15 +166,11 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
                                 null
                         )
                 ),
-                strippedNeighbors.entrySet().stream().map(
+                strippedNeighbors.entrySet().stream().flatMap(
                         entry -> {
                             Direction side = entry.getKey();
                             BlockState strippedNeighbor = entry.getValue();
-                            return ModelUtil.makeQuad(
-                                    getSpriteForBlockSide(strippedNeighbor, side.getOpposite(), random),
-                                    FaceShape.get(side),
-                                    side.getOpposite(),
-                                    null);
+                            return getBlockModel(strippedNeighbor).getQuads(strippedNeighbor, side, random).stream();
                         }
                 )
         ).filter(Objects::nonNull);
