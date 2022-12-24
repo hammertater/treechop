@@ -470,11 +470,13 @@ public class ChopUtil {
         );
 
         if (chopResult != ChopResult.IGNORED) {
-            if (chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get())) {
+            boolean felled = chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
+            TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData);
+
+            if (felled) {
                 if (!agent.isCreative()) {
                     TreeChop.platform.doItemDamage(tool, level, blockState, pos, agent);
                 }
-                TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData);
                 return true;
             }
         }
