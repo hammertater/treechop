@@ -229,6 +229,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue linearM;
         public final ForgeConfigSpec.DoubleValue linearB;
         public final ForgeConfigSpec.EnumValue<ListType> itemsBlacklistOrWhitelist;
+        public final ForgeConfigSpec.BooleanValue mustUseCorrectToolForDrops;
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
         public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
@@ -428,6 +429,9 @@ public class ConfigHandler {
 
             builder.push("compatibility");
             builder.push("general");
+            mustUseCorrectToolForDrops = builder
+                    .comment("Chopping requires using the correct tool for drops")
+                    .define("requireCorrectToolForDrops", false);
             preventChoppingOnRightClick = builder
                     .comment("Prevent chopping when right-clicking blocks")
                     .define("preventChoppingOnRightClick", false);

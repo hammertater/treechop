@@ -389,7 +389,7 @@ public class ChopUtil {
     }
 
     public static boolean canChopWithTool(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState) {
-        return (!blockState.requiresCorrectToolForDrops() || tool.isCorrectToolForDrops(blockState))
+        return (ConfigHandler.COMMON.mustUseCorrectToolForDrops.get() || !blockState.requiresCorrectToolForDrops() || tool.isCorrectToolForDrops(blockState))
                 && ConfigHandler.canChopWithTool(player, tool, level, pos, blockState);
     }
 
