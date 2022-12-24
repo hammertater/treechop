@@ -473,12 +473,11 @@ public class ChopUtil {
             boolean felled = chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
             TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData);
 
-            if (felled) {
-                if (!agent.isCreative()) {
-                    TreeChop.platform.doItemDamage(tool, level, blockState, pos, agent);
-                }
-                return true;
+            if (!agent.isCreative()) {
+                TreeChop.platform.doItemDamage(tool, level, blockState, pos, agent);
             }
+
+            return !felled;
         }
 
         return false;
