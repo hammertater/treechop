@@ -1,6 +1,5 @@
 package ht.treechop.common.properties;
 
-import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.util.DirectionBitMasks;
 import ht.treechop.common.util.FaceShape;
@@ -8,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -128,9 +126,9 @@ public enum ChoppedLogShape implements StringRepresentable {
                 ? Arrays.stream(Direction.values())
                 .filter(direction -> direction.getAxis().isHorizontal() && !isSideOpen(direction))
                 .filter(direction -> {
-                    BlockState blockState = level.getBlockState(pos.relative(direction));
-                    Block block = blockState.getBlock();
-                    return blockState.isSolidRender(level, pos) && !(block instanceof ChoppedLogBlock);
+                    BlockPos neighborPos = pos.relative(direction);
+                    BlockState blockState = level.getBlockState(neighborPos);
+                    return blockState.isCollisionShapeFullBlock(level, neighborPos);
                 })
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)))
                 : Collections.emptySet();

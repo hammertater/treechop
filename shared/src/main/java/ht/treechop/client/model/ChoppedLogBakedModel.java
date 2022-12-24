@@ -34,15 +34,15 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     private static TextureAtlasSprite defaultSprite;
     protected final ResourceLocation defaultTextureRL = new ResourceLocation("block/stripped_oak_log");
 
-    private static BlockState getStrippedNeighbor(BlockAndTintGetter level, BlockPos pos, Direction direction, BlockState fallback) {
+    private static BlockState getStrippedNeighbor(BlockAndTintGetter level, BlockPos pos, Direction direction) {
         BlockPos neighborPos = pos.relative(direction);
-        return ChopUtil.getStrippedState(level, pos, level.getBlockState(neighborPos), fallback);
+        return ChopUtil.getStrippedState(level, pos, level.getBlockState(neighborPos));
     }
 
     protected Map<Direction, BlockState> getStrippedNeighbors(BlockAndTintGetter level, BlockPos pos, ChoppedLogBlock.MyEntity entity, BlockState fallback) {
         return entity.getShape().getSolidSides(level, pos).stream().collect(Collectors.toMap(
                 side -> side,
-                side -> getStrippedNeighbor(level, pos, side, fallback)
+                side -> getStrippedNeighbor(level, pos, side)
         ));
     }
 
