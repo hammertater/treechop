@@ -230,6 +230,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.DoubleValue linearB;
         public final ForgeConfigSpec.EnumValue<ListType> itemsBlacklistOrWhitelist;
         public final ForgeConfigSpec.BooleanValue mustUseCorrectToolForDrops;
+        public final ForgeConfigSpec.BooleanValue mustUseFastBreakingTool;
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
         public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
@@ -430,8 +431,11 @@ public class ConfigHandler {
             builder.push("compatibility");
             builder.push("general");
             mustUseCorrectToolForDrops = builder
-                    .comment("Chopping requires using the correct tool for drops, if any (does nothing in vanilla, but some mods add tool requirements to logs")
-                    .define("requireCorrectToolForDrops", true);
+                    .comment("Only chop when using the correct tool for drops, if any (does nothing in vanilla, but some mods add tool requirements to logs")
+                    .define("choppingRequiresCorrectToolForDrops", true);
+            mustUseFastBreakingTool = builder
+                    .comment("Only chop when using a tool that increases block breaking speed (such as axes for logs)")
+                    .define("choppingRequiresFastBreakingTool", false);
             preventChoppingOnRightClick = builder
                     .comment("Prevent chopping when right-clicking blocks")
                     .define("preventChoppingOnRightClick", false);
