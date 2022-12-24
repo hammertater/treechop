@@ -94,7 +94,7 @@ public class ChopResult {
      * change to chopped state - Felled blocks: harvest by no one, change to felled state - Chopped and felled blocks:
      * harvest by agent, change to felled state
      *
-     * @return whether the block at targetPos needs to be preserved.
+     * @return whether the block at targetPos was broken.
      */
     public boolean apply(BlockPos targetPos, ServerPlayer agent, ItemStack tool, boolean breakLeaves) {
         GameType gameType;
@@ -110,7 +110,7 @@ public class ChopResult {
                 .collect(Collectors.toList());
 
         if (somethingChanged.get()) {
-            return false;
+            return true;
         }
 
         chopBlocks(level, agent, tool, chops.stream(), isFelling());
@@ -128,10 +128,10 @@ public class ChopResult {
             fells.remove(targetPos);
             fellBlocks(level, targetPos, agent, Stream.of(fells, leaves).flatMap(Collection::stream));
 
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     public boolean isFelling() {
