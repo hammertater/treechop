@@ -65,14 +65,17 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
                 .findFirst();
     }
 
+    @Override
     public @NotNull Collection<ResourceLocation> getDependencies() {
         return Collections.emptyList();
     }
 
+    @Override
     public @NotNull Collection<Material> getMaterials(@NotNull Function<ResourceLocation, UnbakedModel> var1, @NotNull Set<Pair<String, String>> var2) {
         return Collections.emptyList();
     }
 
+    @Override
     @Nullable
     public BakedModel bake(@NotNull ModelBakery modelBakery, Function<Material, TextureAtlasSprite> textureGetter, ModelState modelState, ResourceLocation modelId) {
         defaultSprite = textureGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, defaultTextureRL));
