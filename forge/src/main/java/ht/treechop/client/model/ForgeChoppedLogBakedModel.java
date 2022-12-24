@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements IDynamicBakedModel {
-    private static final RandomSource RANDOM = RandomSource.create();
     public static ModelProperty<Map<Direction, BlockState>> STRIPPED_NEIGHBORS = new ModelProperty<>();
     public static ModelProperty<BlockState> STRIPPED_BLOCK_STATE = new ModelProperty<>();
     public static ModelProperty<Integer> CHOP_COUNT = new ModelProperty<>();

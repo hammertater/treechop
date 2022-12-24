@@ -17,6 +17,7 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -47,7 +48,7 @@ public class ChopUtil {
         return isBlockChoppable(level, pos, level.getBlockState(pos));
     }
 
-    public static boolean isBlockChoppable(Level level, BlockPos pos, BlockState blockState) {
+    public static boolean isBlockChoppable(BlockGetter level, BlockPos pos, BlockState blockState) {
         return getChoppableBlock(level, pos, blockState) != null;
     }
 
@@ -332,7 +333,7 @@ public class ChopUtil {
     }
 
     @Nullable
-    public static IChoppableBlock getChoppableBlock(Level level, BlockPos blockPos, BlockState blockState) {
+    public static IChoppableBlock getChoppableBlock(BlockGetter level, BlockPos blockPos, BlockState blockState) {
         IChoppableBlock choppableBlock = getChoppableBlockUnchecked(blockState.getBlock());
         return (choppableBlock != null && choppableBlock.isChoppable(level, blockPos, blockState))
                 ? choppableBlock
@@ -388,7 +389,8 @@ public class ChopUtil {
     }
 
     public static boolean canChopWithTool(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState) {
-        return ConfigHandler.canChopWithTool(player, tool, level, pos, blockState);
+        return (!blockState.requiresCorrectToolForDrops() || tool.isCorrectToolForDrops(blockState))
+                && ConfigHandler.canChopWithTool(player, tool, level, pos, blockState);
     }
 
     public static int getNumChopsByTool(ItemStack tool, BlockState blockState) {
@@ -442,7 +444,6 @@ public class ChopUtil {
     public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) {
         if (!isBlockChoppable(level, pos, blockState)
                 || !ChopUtil.playerWantsToChop(agent)
-                || !agent.hasCorrectToolForDrops(blockState)
                 || !ChopUtil.canChopWithTool(agent, tool, level, pos, blockState)) {
             return false;
         }
