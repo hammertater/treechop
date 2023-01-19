@@ -1,0 +1,12 @@
+modLoader="javafml"
+loaderVersion="[32,)"
+license="All rights reserved"
+
+[[mods]]
+modId="treechoptests"
+version="${file.jarVersion}"
+displayName="Tests"
+logoFile= "logo.png"
+credits="Tests"
+authors="HammerTater"
+description="Tests"

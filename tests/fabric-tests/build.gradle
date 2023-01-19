@@ -27,7 +27,8 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricversion}"
     modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.2.6"
 
-    modImplementation "ht.treechop:fabric:$rootProject.version"
+    modCompileOnly "curse.maven:treechop-421377:4147540"
+    modRuntimeOnly "curse.maven:treechop-421377:4147540"
 }
 
 processResources {
