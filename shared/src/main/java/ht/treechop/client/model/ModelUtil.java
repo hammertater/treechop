@@ -178,6 +178,31 @@ public class ModelUtil {
         vertexData[i + 5] = Float.floatToIntBits((float) vertex.v);
     }
 
+    public static BakedQuad translateQuad(BakedQuad quad, Vector3 translation) {
+        if (quad.getVertices().length != 32) {
+            return quad;
+        }
+
+        int[] vertexData = Arrays.copyOf(quad.getVertices(), 32);
+        translateVertex(vertexData, 0, translation);
+        translateVertex(vertexData, 1, translation);
+        translateVertex(vertexData, 2, translation);
+        translateVertex(vertexData, 3, translation);
+
+        return new BakedQuad(vertexData, quad.getTintIndex(), quad.getDirection(), quad.getSprite(), quad.isShade());
+    }
+
+    private static void translateVertex(int[] vertexData, int index, Vector3 translation) {
+        Vertex vertex = getVertex(vertexData, index);
+        setVertex(vertexData, index, new Vertex(
+                vertex.x + translation.x,
+                vertex.y + translation.y,
+                vertex.z + translation.z,
+                vertex.u,
+                vertex.v
+        ));
+    }
+
     private record Vertex(double x, double y, double z, double u, double v) {
         public Vertex withComponent(Direction.Axis axis, double value) {
             return switch (axis) {

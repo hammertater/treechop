@@ -1,6 +1,7 @@
 package ht.treechop.client.model;
 
 import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Matrix4f;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.properties.ChoppedLogShape;
@@ -15,6 +16,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -152,7 +154,11 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
                         entry -> {
                             Direction side = entry.getKey();
                             BlockState strippedNeighbor = entry.getValue();
-                            return getBlockModel(strippedNeighbor).getQuads(strippedNeighbor, side, random).stream();
+
+                            Vec3i normal = side.getNormal().multiply(16);
+                            Vector3 transform = new Vector3(normal.getX(), normal.getY(), normal.getZ());
+
+                            return getBlockModel(strippedNeighbor).getQuads(strippedNeighbor, side.getOpposite(), random).stream().map(quad -> ModelUtil.translateQuad(quad, transform));
                         }
                 )
         ).filter(Objects::nonNull);
