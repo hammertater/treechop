@@ -120,35 +120,16 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int radius, RandomSource random, Map<Direction, BlockState> strippedNeighbors) {
+        final Direction[] allDirections = { Direction.UP, Direction.DOWN, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, null };
         AABB box = shape.getBoundingBox(radius);
-        float downY = (float) box.minY;
-        float upY = (float) box.maxY;
-        float northZ = (float) box.minZ;
-        float southZ = (float) box.maxZ;
-        float westX = (float) box.minX;
-        float eastX = (float) box.maxX;
+        Vector3 mins = new Vector3(box.minX, box.minY, box.minZ);
+        Vector3 maxes = new Vector3(box.maxX, box.maxY, box.maxZ);
 
-        Vector3 topNorthEast = new Vector3(eastX, upY, northZ);
-        Vector3 topNorthWest = new Vector3(westX, upY, northZ);
-        Vector3 topSouthEast = new Vector3(eastX, upY, southZ);
-        Vector3 topSouthWest = new Vector3(westX, upY, southZ);
-        Vector3 bottomNorthEast = new Vector3(eastX, downY, northZ);
-        Vector3 bottomNorthWest = new Vector3(westX, downY, northZ);
-        Vector3 bottomSouthEast = new Vector3(eastX, downY, southZ);
-        Vector3 bottomSouthWest = new Vector3(westX, downY, southZ);
-
-        //noinspection SuspiciousNameCombination
         return Stream.concat(
-                Stream.of(
-                        Triple.of(bottomSouthEast, bottomNorthWest, Direction.DOWN),
-                        Triple.of(topSouthEast, topNorthWest, Direction.UP),
-                        Triple.of(topNorthEast, bottomNorthWest, Direction.NORTH),
-                        Triple.of(topSouthEast, bottomSouthWest, Direction.SOUTH),
-                        Triple.of(topSouthWest, bottomNorthWest, Direction.WEST),
-                        Triple.of(topSouthEast, bottomNorthEast, Direction.EAST)
-                ).flatMap(
-                        triple -> getBlockQuads(strippedState, triple.getRight(), random).stream()
-                                .map(quad -> ModelUtil.trimQuad(quad, triple.getLeft(), triple.getMiddle()))
+                Arrays.stream(allDirections)
+                .flatMap(
+                        side -> getBlockQuads(strippedState, side, random).stream()
+                                .map(quad -> ModelUtil.trimQuad(quad, mins, maxes))
                 ),
                 strippedNeighbors.entrySet().stream().flatMap(
                         entry -> {

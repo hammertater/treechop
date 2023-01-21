@@ -72,6 +72,7 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
             builder.with(STRIPPED_BLOCK_STATE, strippedState);
             builder.with(RADIUS, entity.getRadius());
             builder.with(CHOPPED_LOG_SHAPE, entity.getShape());
+
             return builder.build();
         } else {
             return ModelData.EMPTY;
@@ -80,25 +81,14 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
 
     @Override
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType renderType) {
-        if (side == null && state != null) {
+        if (side == null) {
             BlockState strippedState = (extraData.has(STRIPPED_BLOCK_STATE))
                     ? extraData.get(STRIPPED_BLOCK_STATE)
                     : Blocks.STRIPPED_OAK_LOG.defaultBlockState();
 
-            Map<Direction, BlockState> strippedNeighbors = extraData.get(STRIPPED_NEIGHBORS);
-            if (strippedNeighbors == null) {
-                strippedNeighbors = Collections.emptyMap();
-            }
-
-            ChoppedLogShape shape = extraData.get(CHOPPED_LOG_SHAPE);
-            if (shape == null) {
-                shape = ChoppedLogShape.PILLAR_Y;
-            }
-
-            Integer radius = extraData.get(RADIUS);
-            if (radius == null) {
-                radius = 8;
-            }
+            Map<Direction, BlockState> strippedNeighbors = or(extraData.get(STRIPPED_NEIGHBORS), Collections.emptyMap());
+            ChoppedLogShape shape = or(extraData.get(CHOPPED_LOG_SHAPE), ChoppedLogShape.PILLAR_Y);
+            int radius = or(extraData.get(RADIUS), 8);
 
             return getQuads(strippedState,
                     shape,
@@ -109,6 +99,10 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
         } else {
             return Collections.emptyList();
         }
+    }
+
+    private <T> T or(T value, T fallback) {
+        return value != null ? value : fallback;
     }
 
 }
