@@ -38,29 +38,16 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
         return ChopUtil.getStrippedState(level, pos, level.getBlockState(neighborPos));
     }
 
-    protected Map<Direction, BlockState> getStrippedNeighbors(BlockAndTintGetter level, BlockPos pos, ChoppedLogBlock.MyEntity entity, BlockState fallback) {
+    protected Map<Direction, BlockState> getStrippedNeighbors(BlockAndTintGetter level, BlockPos pos, ChoppedLogBlock.MyEntity entity) {
         return entity.getShape().getSolidSides(level, pos).stream().collect(Collectors.toMap(
                 side -> side,
                 side -> getStrippedNeighbor(level, pos, side)
         ));
     }
 
-    protected TextureAtlasSprite getSpriteForBlockSide(BlockState blockState, Direction side, RandomSource rand) {
+    protected List<BakedQuad> getBlockQuads(BlockState blockState, Direction side, RandomSource rand) {
         BakedModel model = getBlockModel(blockState);
-
-        //noinspection ConstantConditions
-        return getSpriteForBlockSide(model, blockState, side, rand)
-                .or(() -> getSpriteForBlockSide(model, blockState, null, rand))
-                .or(() -> Optional.ofNullable(model.getParticleIcon()))
-                .orElse(defaultSprite);
-    }
-
-    protected Optional<TextureAtlasSprite> getSpriteForBlockSide(BakedModel model, BlockState blockState, Direction side, RandomSource rand) {
-        //noinspection ConstantConditions
-        return model.getQuads(blockState, side, rand).stream()
-                .map(BakedQuad::getSprite)
-                .filter(Objects::nonNull)
-                .findFirst();
+        return model.getQuads(blockState, side, rand);
     }
 
     @NotNull
@@ -130,8 +117,8 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
         return defaultSprite;
     }
 
-    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int chops, RandomSource random, Map<Direction, BlockState> strippedNeighbors) {
-        AABB box = shape.getBoundingBox(chops);
+    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int radius, RandomSource random, Map<Direction, BlockState> strippedNeighbors) {
+        AABB box = shape.getBoundingBox(radius);
         float downY = (float) box.minY;
         float upY = (float) box.maxY;
         float northZ = (float) box.minZ;
@@ -157,14 +144,9 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
                         Triple.of(topSouthEast, bottomSouthWest, Direction.SOUTH),
                         Triple.of(topSouthWest, bottomNorthWest, Direction.WEST),
                         Triple.of(topSouthEast, bottomNorthEast, Direction.EAST)
-                ).map(
-                        triple -> ModelUtil.makeQuad(
-                                getSpriteForBlockSide(strippedState, triple.getRight(), random),
-                                triple.getLeft(),
-                                triple.getMiddle(),
-                                triple.getRight(),
-                                null
-                        )
+                ).flatMap(
+                        triple -> getBlockQuads(strippedState, triple.getRight(), random).stream()
+                                .map(quad -> ModelUtil.trimQuad(quad, triple.getLeft(), triple.getMiddle()))
                 ),
                 strippedNeighbors.entrySet().stream().flatMap(
                         entry -> {

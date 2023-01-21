@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements IDynamicBakedModel {
     public static ModelProperty<Map<Direction, BlockState>> STRIPPED_NEIGHBORS = new ModelProperty<>();
     public static ModelProperty<BlockState> STRIPPED_BLOCK_STATE = new ModelProperty<>();
-    public static ModelProperty<Integer> CHOP_COUNT = new ModelProperty<>();
+    public static ModelProperty<Integer> RADIUS = new ModelProperty<>();
     public static ModelProperty<ChoppedLogShape> CHOPPED_LOG_SHAPE = new ModelProperty<>();
 
     public static void overrideBlockStateModels(ModelEvent.BakingCompleted event) {
@@ -68,9 +68,9 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
             BlockState strippedState = ChopUtil.getStrippedState(level, pos, entity.getOriginalState());
 
             ModelData.Builder builder = ModelData.builder();
-            builder.with(STRIPPED_NEIGHBORS, getStrippedNeighbors(level, pos, entity, strippedState));
+            builder.with(STRIPPED_NEIGHBORS, getStrippedNeighbors(level, pos, entity));
             builder.with(STRIPPED_BLOCK_STATE, strippedState);
-            builder.with(CHOP_COUNT, entity.getChops() + (ChoppedLogBlock.DEFAULT_UNCHOPPED_RADIUS - entity.getUnchoppedRadius()));
+            builder.with(RADIUS, entity.getRadius());
             builder.with(CHOPPED_LOG_SHAPE, entity.getShape());
             return builder.build();
         } else {
@@ -95,14 +95,14 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
                 shape = ChoppedLogShape.PILLAR_Y;
             }
 
-            Integer chops = extraData.get(CHOP_COUNT);
-            if (chops == null) {
-                chops = 1;
+            Integer radius = extraData.get(RADIUS);
+            if (radius == null) {
+                radius = 8;
             }
 
             return getQuads(strippedState,
                     shape,
-                    chops,
+                    radius,
                     rand,
                     strippedNeighbors
             ).collect(Collectors.toList());

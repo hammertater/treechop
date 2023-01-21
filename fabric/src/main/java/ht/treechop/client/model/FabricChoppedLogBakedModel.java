@@ -29,12 +29,13 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
     public void emitBlockQuads(BlockAndTintGetter level, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, RenderContext context) {
         if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
             BlockState strippedState = ChopUtil.getStrippedState(level, pos, entity.getOriginalState());
-            Map<Direction, BlockState> strippedNeighbors = getStrippedNeighbors(level, pos, entity, strippedState);
+            Map<Direction, BlockState> strippedNeighbors = getStrippedNeighbors(level, pos, entity);
+
             QuadEmitter emitter = context.getEmitter();
             getQuads(
                     strippedState,
                     entity.getShape(),
-                    entity.getChops() + (ChoppedLogBlock.DEFAULT_UNCHOPPED_RADIUS - entity.getUnchoppedRadius()),
+                    entity.getRadius(),
                     randomSupplier.get(),
                     strippedNeighbors
             )

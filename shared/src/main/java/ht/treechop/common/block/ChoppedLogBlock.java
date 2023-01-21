@@ -62,7 +62,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     public ChoppedLogBlock(BlockBehaviour.Properties properties) {
         super(properties
                 .dynamicShape()
-                .isViewBlocking((BlockState blockState, BlockGetter level, BlockPos pos) -> false).requiresCorrectToolForDrops());
+                .isViewBlocking((BlockState blockState, BlockGetter level, BlockPos pos) -> false));
         this.registerDefaultState(
                 this.getStateDefinition().any()
                         .setValue(WATERLOGGED, Boolean.FALSE)
@@ -113,7 +113,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     public VoxelShape getShape(BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
         final double scale = 1.0 / 16.0;
         if (level.getBlockEntity(pos) instanceof MyEntity entity) {
-            AABB box = entity.getShape().getBoundingBox(entity.getChops() + (DEFAULT_UNCHOPPED_RADIUS - entity.getUnchoppedRadius()));
+            AABB box = entity.getShape().getBoundingBox(entity.getRadius());
             return Shapes.box(
                     box.minX * scale,
                     box.minY * scale,
@@ -335,6 +335,10 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
         public int getUnchoppedRadius() {
             return unchoppedRadius;
+        }
+
+        public int getRadius() {
+            return getUnchoppedRadius() - getChops();
         }
 
         public int getMaxNumChops() {
