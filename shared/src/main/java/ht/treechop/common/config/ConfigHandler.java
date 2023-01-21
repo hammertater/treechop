@@ -123,7 +123,7 @@ public class ConfigHandler {
         HashMap<Block, BlockState> map = new HashMap<>();
         choppableBlocks.forEach(block -> {
             Block unstripped = inferUnstripped(block);
-            if (unstripped != Blocks.AIR && AxeAccessor.getStripped(unstripped) == null) {
+            if (unstripped != Blocks.AIR && !AxeAccessor.isStrippable(unstripped)) {
                 map.put(unstripped, block.defaultBlockState());
             }
         });
