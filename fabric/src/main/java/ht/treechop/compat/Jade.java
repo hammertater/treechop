@@ -9,7 +9,6 @@ import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -17,7 +16,6 @@ import net.minecraft.world.phys.Vec2;
 import snownee.jade.api.*;
 import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.IElement;
-import snownee.jade.impl.ui.ItemStackElement;
 
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,17 +37,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
     }
 
     @Override
-    public IElement getIcon(BlockAccessor accessor, IPluginConfig config, IElement currentIcon) {
-        BlockState state = getLogState(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState());
-        return ItemStackElement.of(
-                (state != accessor.getBlockState())
-                        ? state.getBlock().asItem().getDefaultInstance()
-                        : Items.OAK_LOG.getDefaultInstance()
-        );
-    }
-
-    @Override
-    public void appendTooltip(snownee.jade.api.ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+    public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         if (ChopUtil.playerWantsToChop(accessor.getPlayer(), Client.getChopSettings())
                 && ChopUtil.isBlockChoppable(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState())
                 && (config.get(SHOW_TREE_BLOCKS) || config.get(SHOW_NUM_CHOPS_REMAINING))) {

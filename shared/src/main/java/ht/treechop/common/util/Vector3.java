@@ -1,9 +1,7 @@
 package ht.treechop.common.util;
 
-import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3d;
 import com.mojang.math.Vector3f;
-import ht.treechop.client.model.ModelUtil;
 import net.minecraft.core.Position;
 
 public class Vector3 implements Position {

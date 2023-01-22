@@ -1,7 +1,5 @@
 package ht.treechop.common.util;
 
-import net.minecraft.core.Position;
-
 public class Vector2 {
 
     public final double x;

@@ -1,7 +1,6 @@
 package ht.treechop.client.model;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.math.Matrix4f;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.properties.ChoppedLogShape;
@@ -22,7 +21,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;

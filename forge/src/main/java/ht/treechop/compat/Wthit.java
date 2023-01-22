@@ -35,8 +35,7 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
     }
 
     @Override
-    public @Nullable
-    BlockState getOverride(IBlockAccessor accessor, IPluginConfig config) {
+    public @Nullable BlockState getOverride(IBlockAccessor accessor, IPluginConfig config) {
         return getLogState(accessor.getWorld(), accessor.getPosition(), accessor.getBlockState());
     }
 

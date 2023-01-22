@@ -9,7 +9,6 @@ import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -17,38 +16,24 @@ import net.minecraft.world.phys.Vec2;
 import snownee.jade.api.*;
 import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.IElement;
-import snownee.jade.impl.ui.ItemStackElement;
 
-import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @WailaPlugin
 public class Jade implements IWailaPlugin, IBlockComponentProvider {
-    private static final Jade INSTANCE = new Jade();
-    private static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
-    private static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
 
-    public Jade() {
-    }
+    public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
+    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
+    private static final ResourceLocation UID = TreeChop.resource("plugin");
 
     @Override
     public void registerClient(IWailaClientRegistration registrar) {
-        registrar.registerBlockComponent(INSTANCE, Block.class);
+        registrar.registerBlockComponent(this, Block.class);
+        registrar.registerBlockIcon(this, ChoppedLogBlock.class);
         registrar.addConfig(SHOW_TREE_BLOCKS, true);
         registrar.addConfig(SHOW_NUM_CHOPS_REMAINING, true);
-    }
-
-    @Override
-    public @Nullable
-    IElement getIcon(BlockAccessor accessor, IPluginConfig config, IElement currentIcon) {
-        BlockState state = getLogState(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState());
-        return ItemStackElement.of(
-                (state != accessor.getBlockState())
-                        ? state.getBlock().asItem().getDefaultInstance()
-                        : Items.OAK_LOG.getDefaultInstance()
-        );
     }
 
     @Override
@@ -97,6 +82,6 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
 
     @Override
     public ResourceLocation getUid() {
-        return TreeChop.resource("plugin");
+        return UID;
     }
 }
