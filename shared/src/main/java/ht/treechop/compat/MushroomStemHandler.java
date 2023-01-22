@@ -4,28 +4,27 @@ import ht.treechop.api.ISimpleChoppableBlock;
 import ht.treechop.api.IStrippableBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.PipeBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class MushroomStemHandler implements ISimpleChoppableBlock, IStrippableBlock {
     @Override
     public int getRadius(BlockGetter level, BlockPos blockPos, BlockState blockState) {
-        return 2;
+        return 4;
     }
 
     @Override
-    public int getNumChops(BlockGetter level, BlockPos pos, BlockState blockState) {
-        return 0;
-    }
-
-    @Override
-    public BlockState getStrippedState(BlockGetter arg0, BlockPos arg1, BlockState arg2) {
-        return Blocks.STRIPPED_BIRCH_LOG.defaultBlockState();
-    }
-
-    @Override
-    public int getMaxNumChops(BlockGetter level, BlockPos pos, BlockState blockState) {
-        return ISimpleChoppableBlock.super.getMaxNumChops(level, pos, blockState);
+    public BlockState getStrippedState(BlockGetter level, BlockPos pos, BlockState blockState) {
+        if (PipeBlock.PROPERTY_BY_DIRECTION.values().stream().anyMatch(property -> !blockState.hasProperty(property))) {
+            return blockState;
+        } else {
+            return blockState
+                    .setValue(PipeBlock.NORTH, false)
+                    .setValue(PipeBlock.EAST, false)
+                    .setValue(PipeBlock.SOUTH, false)
+                    .setValue(PipeBlock.WEST, false)
+                    .setValue(PipeBlock.UP, false)
+                    .setValue(PipeBlock.DOWN, false);
+        }
     }
 }
