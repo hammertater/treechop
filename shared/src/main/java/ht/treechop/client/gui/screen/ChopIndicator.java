@@ -13,6 +13,7 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -41,18 +42,21 @@ public class ChopIndicator extends GuiComponent {
                 );
                 RenderSystem.setShaderTexture(0, Sprite.TEXTURE_PATH);
 
-                int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset.get();
+                boolean mirror = player.getMainArm() == HumanoidArm.LEFT;
+                int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset.get() * (mirror ? -1 : 1);
                 int indicatorCenterY = windowHeight / 2 + ConfigHandler.CLIENT.indicatorYOffset.get();
 
                 Sprite sprite = ChopUtil.playerWantsToFell(player, Client.getChopSettings()) ? Sprite.CHOP_INDICATOR : Sprite.NO_FELL_INDICATOR;
                 int imageWidth = (int) (sprite.width * IMAGE_SCALE);
                 int imageHeight = (int) (sprite.height * IMAGE_SCALE);
+
                 sprite.blit(
                         poseStack,
                         indicatorCenterX - imageWidth / 2,
                         indicatorCenterY - imageHeight / 2,
                         imageWidth,
-                        imageHeight
+                        imageHeight,
+                        mirror
                 );
 
                 RenderSystem.defaultBlendFunc();

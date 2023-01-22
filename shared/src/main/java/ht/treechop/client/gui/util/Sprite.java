@@ -57,7 +57,13 @@ public enum Sprite {
     }
 
     public void blit(PoseStack poseStack, int x, int y, int width, int height) {
-        GuiComponent.blit(poseStack, x, y, width, height, u, v, this.width, this.height, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        blit(poseStack, x, y, width, height, false);
+    }
+
+    public void blit(PoseStack poseStack, int x, int y, int width, int height, boolean mirror) {
+        float u = mirror ? this.u + this.width : this.u;
+        int uw = mirror ? -this.width : this.width;
+        GuiComponent.blit(poseStack, x, y, width, height, u, v, uw, this.height, TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
 }
