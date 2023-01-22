@@ -2,12 +2,11 @@ package ht.treechop.common.block;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.IChoppableBlock;
-import ht.treechop.api.ICylinderBlock;
-import ht.treechop.api.IFellableBlock;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.properties.ChoppedLogShape;
+import ht.treechop.common.util.ClassUtil;
 import ht.treechop.server.Server;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -43,10 +42,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static ht.treechop.common.chop.ChopUtil.isBlockALog;
 import static ht.treechop.common.chop.ChopUtil.isBlockLeaves;
@@ -188,13 +184,13 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         if (!felling) {
             if (numAddedChops > 0) {
                 if (!blockState.is(this)) {
-                    int chopZeroRadius = (blockState.getBlock() instanceof ICylinderBlock slimBlock)
-                            ? slimBlock.getRadius(level, pos, blockState)
-                            : 8;
+                    int chopZeroRadius = Optional.ofNullable(ClassUtil.getCylinderBlock(blockState.getBlock()))
+                            .map(slimBlock -> slimBlock.getRadius(level, pos, blockState))
+                            .orElse(8);
 
-                    double supportFactor = (blockState.getBlock() instanceof IFellableBlock fellable)
-                            ? fellable.getSupportFactor(level, pos, blockState)
-                            : 1.0;
+                    double supportFactor = Optional.ofNullable(ClassUtil.getFellableBlock(blockState.getBlock()))
+                            .map(fellableBlock -> fellableBlock.getSupportFactor(level, pos, blockState))
+                            .orElse(1.0);
 
                     BlockState newBlockState = (blockState.is(this) ? blockState : getPlacementState(level, pos));
                     if (level.setBlockAndUpdate(pos, newBlockState)
@@ -338,7 +334,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
 
         public int getRadius() {
-            return getUnchoppedRadius() - getChops();
+            return Math.max(getUnchoppedRadius() - getChops(), 1);
         }
 
         public int getMaxNumChops() {

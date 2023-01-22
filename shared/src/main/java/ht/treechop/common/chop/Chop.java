@@ -2,6 +2,7 @@ package ht.treechop.common.chop;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.IChoppableBlock;
+import ht.treechop.common.util.ClassUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +28,7 @@ public class Chop {
 
     public void apply(Level level, Player player, ItemStack tool, boolean felling) {
         BlockState blockState = level.getBlockState(blockPos);
-        IChoppableBlock choppableBlock = ChopUtil.getChoppableBlock(level, blockPos, blockState);
+        IChoppableBlock choppableBlock = ClassUtil.getChoppableBlock(level, blockPos, blockState);
         if (choppableBlock != null) {
             choppableBlock.chop(player, tool, level, blockPos, blockState, numChops, felling);
         } else {
