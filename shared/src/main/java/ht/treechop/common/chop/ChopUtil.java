@@ -369,7 +369,7 @@ public class ChopUtil {
 
     public static boolean canChopWithTool(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState) {
         return (!ConfigHandler.COMMON.mustUseCorrectToolForDrops.get() || !blockState.requiresCorrectToolForDrops() || tool.isCorrectToolForDrops(blockState))
-                && (!ConfigHandler.COMMON.mustUseFastBreakingTool.get() || tool.getDestroySpeed(blockState) > blockState.getDestroySpeed(level, pos))
+                && (!ConfigHandler.COMMON.mustUseFastBreakingTool.get() || tool.getDestroySpeed(blockState) > 1f)
                 && ConfigHandler.canChopWithTool(player, tool, level, pos, blockState);
     }
 
