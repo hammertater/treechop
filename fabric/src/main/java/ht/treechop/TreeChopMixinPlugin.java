@@ -14,7 +14,7 @@ public class TreeChopMixinPlugin implements IMixinConfigPlugin {
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (mixinClassName.equals("ht.treechop.mixin.TheOneProbeMixin")) {
             return isModLoaded("theoneprobe");
-        } else if (mixinClassName.equals("ht.treechop.mixin.TerraformMixin")) {
+        } else if (mixinClassName.equals("ht.treechop.mixin.TerraformBareSmallLogBlockMixin")) {
             return isModLoaded("terraform-wood-api-v1");
         }
 

@@ -6,7 +6,7 @@
   "plugin": "ht.treechop.TreeChopMixinPlugin",
   "mixins": [
     "EntityChopSettingsMixin",
-    "TerraformTreesMixin"
+    "TerraformBareSmallLogBlockMixin"
   ],
   "client": [
     "GuiMixin"
