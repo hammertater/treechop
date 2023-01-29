@@ -469,7 +469,8 @@ public class ChopUtil {
                 return fallback;
             }
         }
-        return strippedState;
+
+        return BlockUtil.copyStateProperties(strippedState, state);
     }
 
 }
