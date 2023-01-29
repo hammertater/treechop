@@ -31,7 +31,7 @@ public class FabricClient extends Client implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         if (FabricLoader.getInstance().isModLoaded("sodium")) {
-            TreeChop.LOGGER.info("Sodium detected! Using alternative block renderer (chopped blocks will not use vanilla Minecraft's ambient occlusion).");
+            TreeChop.LOGGER.info("Sodium detected! Using alternative block renderer.");
             ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ChoppedLogModelProvider(new HiddenChoppedLogBakedModel()));
             BlockEntityRendererRegistry.register(FabricModBlocks.CHOPPED_LOG_ENTITY, FabricChoppedLogEntityRenderer::new);
         } else {
@@ -71,7 +71,7 @@ public class FabricClient extends Client implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(ServerUpdateChopsPacket.ID, (client, handler, buffer, sender) -> {
             ServerUpdateChopsPacket packet = ServerUpdateChopsPacket.decode(buffer);
-            client.execute(() -> ServerUpdateChopsPacket.handle(packet, client.level));
+            client.execute(() -> Client.handleUpdateChopsPacket(packet));
         });
     }
 

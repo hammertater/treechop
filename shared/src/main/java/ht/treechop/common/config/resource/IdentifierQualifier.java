@@ -1,4 +1,4 @@
-package ht.treechop.common.config.item;
+package ht.treechop.common.config.resource;
 
 public class IdentifierQualifier {
     private final String key;

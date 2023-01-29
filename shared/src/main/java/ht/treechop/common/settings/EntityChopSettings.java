@@ -1,6 +1,7 @@
 package ht.treechop.common.settings;
 
 import ht.treechop.TreeChop;
+import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.Optional;
@@ -37,27 +38,36 @@ public class EntityChopSettings extends ChopSettings {
     }
 
     public EntityChopSettings readSaveData(CompoundTag tag) {
-        Optional<Boolean> choppingEnabled = getBoolean(tag, CHOPPING_ENABLED_KEY);
-        Optional<Boolean> fellingEnabled = getBoolean(tag, FELLING_ENABLED_KEY);
-        SneakBehavior sneakBehavior;
-        try {
-            sneakBehavior = SneakBehavior.valueOf(tag.getString(SNEAK_BEHAVIOR_KEY));
-        } catch (IllegalArgumentException e) {
-            TreeChop.LOGGER.warn(String.format("NBT contains bad sneak behavior value \"%s\"; using default value instead", tag.getString(SNEAK_BEHAVIOR_KEY)));
-            sneakBehavior = SneakBehavior.INVERT_CHOPPING;
-        }
-        Optional<Boolean> onlyChopTreesWithLeaves = getBoolean(tag, TREES_MUST_HAVE_LEAVES_KEY);
-        Optional<Boolean> chopInCreativeMode = getBoolean(tag, CHOP_IN_CREATIVE_MODE_KEY);
-        Optional<Boolean> isSynced = getBoolean(tag, IS_SYNCED_KEY);
+        if (tag.contains(IS_SYNCED_KEY)) {
+            Optional<Boolean> choppingEnabled = getBoolean(tag, CHOPPING_ENABLED_KEY);
+            Optional<Boolean> fellingEnabled = getBoolean(tag, FELLING_ENABLED_KEY);
+            Optional<Boolean> onlyChopTreesWithLeaves = getBoolean(tag, TREES_MUST_HAVE_LEAVES_KEY);
+            Optional<Boolean> chopInCreativeMode = getBoolean(tag, CHOP_IN_CREATIVE_MODE_KEY);
+            Optional<Boolean> isSynced = getBoolean(tag, IS_SYNCED_KEY);
 
-        setChoppingEnabled(choppingEnabled.orElse(getChoppingEnabled()));
-        setFellingEnabled(fellingEnabled.orElse(getFellingEnabled()));
-        setSneakBehavior(sneakBehavior);
-        setTreesMustHaveLeaves(onlyChopTreesWithLeaves.orElse(getTreesMustHaveLeaves()));
-        setChopInCreativeMode(chopInCreativeMode.orElse(getChopInCreativeMode()));
+            SneakBehavior defaultSneakBehavior = ConfigHandler.defaultChopSettings.get().getSneakBehavior();
+            String sneakBehaviorId = (tag.contains(SNEAK_BEHAVIOR_KEY)) ? tag.getString(SNEAK_BEHAVIOR_KEY) : "";
+            if (sneakBehaviorId.isEmpty()) {
+                setSneakBehavior(defaultSneakBehavior);
+            } else {
+                SneakBehavior sneakBehavior;
+                try {
+                    sneakBehavior = SneakBehavior.valueOf(sneakBehaviorId);
+                } catch (IllegalArgumentException e) {
+                    TreeChop.LOGGER.warn(String.format("NBT contains bad sneak behavior value \"%s\"; using default value \"%s\"", tag.getString(SNEAK_BEHAVIOR_KEY), defaultSneakBehavior.name()));
+                    sneakBehavior = defaultSneakBehavior;
+                }
+                setSneakBehavior(sneakBehavior);
+            }
 
-        if (isSynced.orElse(false)) {
-            setSynced();
+            setChoppingEnabled(choppingEnabled.orElse(getChoppingEnabled()));
+            setFellingEnabled(fellingEnabled.orElse(getFellingEnabled()));
+            setTreesMustHaveLeaves(onlyChopTreesWithLeaves.orElse(getTreesMustHaveLeaves()));
+            setChopInCreativeMode(chopInCreativeMode.orElse(getChopInCreativeMode()));
+
+            if (isSynced.orElse(false)) {
+                setSynced();
+            }
         }
 
         return this;

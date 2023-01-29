@@ -1,6 +1,5 @@
 package ht.treechop.common.properties;
 
-import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.util.DirectionBitMasks;
 import ht.treechop.common.util.FaceShape;
@@ -8,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -76,9 +74,12 @@ public enum ChoppedLogShape implements StringRepresentable {
     SIDE_U("side_u", DirectionBitMasks.UP),
     SIDE_D("side_d", DirectionBitMasks.DOWN);
 
+    private static final int MIN_RADIUS = 1;
+    public static final int MAX_RADIUS = 8;
+
     private final String name;
     private final byte openSides;
-    private final Map<Integer, AABB> chopsBoxes;
+    private final Map<Integer, AABB> radiusBoxes;
 
     private static final ChoppedLogShape[] openSidesMap
             = new ChoppedLogShape[(DirectionBitMasks.NORTH | DirectionBitMasks.SOUTH | DirectionBitMasks.EAST | DirectionBitMasks.WEST | DirectionBitMasks.UP | DirectionBitMasks.DOWN) + 1];
@@ -101,10 +102,10 @@ public enum ChoppedLogShape implements StringRepresentable {
         this.name = name;
         this.openSides = (byte) openSides;
 
-        this.chopsBoxes = IntStream.rangeClosed(1, 7)
+        this.radiusBoxes = IntStream.range(1, MAX_RADIUS)
                 .boxed()
                 .collect(Collectors.toMap(
-                        chops -> chops,
+                        radius -> radius,
                         this::bakeBoundingBox
                 ));
 
@@ -128,9 +129,9 @@ public enum ChoppedLogShape implements StringRepresentable {
                 ? Arrays.stream(Direction.values())
                 .filter(direction -> direction.getAxis().isHorizontal() && !isSideOpen(direction))
                 .filter(direction -> {
-                    BlockState blockState = level.getBlockState(pos.relative(direction));
-                    Block block = blockState.getBlock();
-                    return blockState.isSolidRender(level, pos) && !(block instanceof ChoppedLogBlock);
+                    BlockPos neighborPos = pos.relative(direction);
+                    BlockState blockState = level.getBlockState(neighborPos);
+                    return blockState.isCollisionShapeFullBlock(level, neighborPos);
                 })
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)))
                 : Collections.emptySet();
@@ -146,7 +147,7 @@ public enum ChoppedLogShape implements StringRepresentable {
         return this.name;
     }
 
-    private AABB bakeBoundingBox(int chops) {
+    private AABB bakeBoundingBox(int radius) {
         boolean down = isSideOpen(Direction.DOWN);
         boolean up = isSideOpen(Direction.UP);
         boolean north = isSideOpen(Direction.NORTH);
@@ -154,12 +155,13 @@ public enum ChoppedLogShape implements StringRepresentable {
         boolean west = isSideOpen(Direction.WEST);
         boolean east = isSideOpen(Direction.EAST);
 
+        int chops = MAX_RADIUS - radius;
         float xCenter = 8 + (west ? chops : 0) - (east ? chops : 0);
         float yCenter = 8 + (down ? chops : 0) - (up ? chops : 0);
         float zCenter = 8 + (north ? chops : 0) - (south ? chops : 0);
-        float xRadius = (west || east) ? 8 - chops : 8;
-        float yRadius = (down || up) ? 8 - chops : 8;
-        float zRadius = (north || south) ? 8 - chops : 8;
+        float xRadius = (west || east) ? radius : MAX_RADIUS;
+        float yRadius = (down || up) ? radius : MAX_RADIUS;
+        float zRadius = (north || south) ? radius : MAX_RADIUS;
 
         return new AABB(
                 xCenter - xRadius,
@@ -171,8 +173,8 @@ public enum ChoppedLogShape implements StringRepresentable {
         );
     }
 
-    public AABB getBoundingBox(int chops) {
-        return chopsBoxes.get(Math.max(1, Math.min(chops, 7)));
+    public AABB getBoundingBox(int radius) {
+        return radiusBoxes.get(Math.max(MIN_RADIUS, Math.min(radius, MAX_RADIUS)));
     }
 
     public boolean isSideOpen(Direction side) {

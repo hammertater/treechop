@@ -1,12 +1,12 @@
-package ht.treechop.common.util;
+package ht.treechop.common.chop;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.IChoppableBlock;
+import ht.treechop.common.util.ClassUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class Chop {
@@ -28,11 +28,11 @@ public class Chop {
 
     public void apply(Level level, Player player, ItemStack tool, boolean felling) {
         BlockState blockState = level.getBlockState(blockPos);
-        Block block = ChopUtil.getChoppedBlock(blockState);
-        if (block instanceof IChoppableBlock choppableBlock) {
+        IChoppableBlock choppableBlock = ClassUtil.getChoppableBlock(level, blockPos, blockState);
+        if (choppableBlock != null) {
             choppableBlock.chop(player, tool, level, blockPos, blockState, numChops, felling);
         } else {
-            TreeChop.LOGGER.warn("Failed to chop block in level {} at position {} for player {}: {} does not implement IChoppableBlock", level.dimension(), blockPos, player.getName(), block.getDescriptionId());
+            TreeChop.LOGGER.warn("Failed to chop block in level {} at position {} for player {}: {} is not choppable", level.dimension(), blockPos, player.getName(), TreeChop.platform.getResourceLocationForBlock(blockState.getBlock()));
         }
     }
 }

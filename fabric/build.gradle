@@ -18,6 +18,7 @@ repositories {
         }
     }
     maven { url "https://maven.bai.lol" }
+    maven { url = 'https://maven.terraformersmc.com/' }
 }
 
 dependencies {
@@ -40,6 +41,9 @@ dependencies {
 
     modRuntimeOnly "curse.maven:sodium-394468:3669187"
     modRuntimeOnly "curse.maven:starlight-521783:3667443"
+//    modRuntimeOnly "curse.maven:terrestria-323974:4166789"
+
+    modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:3.1.0"
 }
 
 processResources {

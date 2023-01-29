@@ -6,13 +6,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.Client;
 import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.settings.ClientChopSettings;
+import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.util.ChopUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -26,14 +27,11 @@ public class ChopIndicator extends GuiComponent {
         HitResult mouseOver = minecraft.hitResult;
         Player player = minecraft.player;
 
-        if (!ConfigHandler.CLIENT.showChoppingIndicators.get()) {
-            return;
-        }
-
         if (Client.isChoppingIndicatorEnabled() &&
+                player != null && !player.isSpectator() &&
                 minecraft.level != null && minecraft.screen == null && mouseOver != null &&
                 mouseOver.getType() == HitResult.Type.BLOCK && mouseOver instanceof BlockHitResult &&
-                ChopUtil.playerWantsToChop(minecraft.player, Client.getChopSettings())
+                ChopUtil.playerWantsToChop(player, Client.getChopSettings())
         ) {
             BlockPos blockPos = ((BlockHitResult) mouseOver).getBlockPos();
             if (blockCanBeChopped(blockPos)) {
@@ -44,18 +42,21 @@ public class ChopIndicator extends GuiComponent {
                 );
                 RenderSystem.setShaderTexture(0, Sprite.TEXTURE_PATH);
 
-                int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset.get();
+                boolean mirror = player.getMainArm() == HumanoidArm.LEFT;
+                int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset.get() * (mirror ? -1 : 1);
                 int indicatorCenterY = windowHeight / 2 + ConfigHandler.CLIENT.indicatorYOffset.get();
 
-                Sprite sprite = ChopUtil.playerWantsToFell(minecraft.player, Client.getChopSettings()) ? Sprite.CHOP_INDICATOR : Sprite.NO_FELL_INDICATOR;
+                Sprite sprite = ChopUtil.playerWantsToFell(player, Client.getChopSettings()) ? Sprite.CHOP_INDICATOR : Sprite.NO_FELL_INDICATOR;
                 int imageWidth = (int) (sprite.width * IMAGE_SCALE);
                 int imageHeight = (int) (sprite.height * IMAGE_SCALE);
+
                 sprite.blit(
                         poseStack,
                         indicatorCenterX - imageWidth / 2,
                         indicatorCenterY - imageHeight / 2,
                         imageWidth,
-                        imageHeight
+                        imageHeight,
+                        mirror
                 );
 
                 RenderSystem.defaultBlendFunc();
@@ -73,12 +74,13 @@ public class ChopIndicator extends GuiComponent {
             return false;
         }
 
-        boolean wantToChop = ChopUtil.canChopWithTool(player.getMainHandItem()) && ChopUtil.playerWantsToChop(minecraft.player, chopSettings);
+        boolean wantToChop = ChopUtil.canChopWithTool(player, level, pos) && ChopUtil.playerWantsToChop(minecraft.player, chopSettings);
         if (wantToChop) {
             if (ChopUtil.playerWantsToFell(player, chopSettings)) {
-                return Client.treeCache.getTree(level, pos).isAProperTree(chopSettings.getTreesMustHaveLeaves());
+                int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
+                return Client.treeCache.getTree(level, pos, maxNumTreeBlocks).isAProperTree(chopSettings.getTreesMustHaveLeaves());
             } else {
-                return ChopUtil.isBlockALog(level, pos);
+                return ChopUtil.isBlockChoppable(level, pos);
             }
         }
 

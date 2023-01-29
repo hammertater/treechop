@@ -1,9 +1,9 @@
 package ht.treechop.common.config;
 
-import ht.treechop.common.config.item.ItemIdentifier;
-import ht.treechop.common.config.item.ItemNamespaceIdentifier;
-import ht.treechop.common.config.item.ItemTagIdentifier;
-import ht.treechop.common.config.item.MalformedItemIdentifier;
+import ht.treechop.common.config.resource.MalformedResourceIdentifier;
+import ht.treechop.common.config.resource.ResourceIdentifier;
+import ht.treechop.common.config.resource.ResourceNamespaceIdentifier;
+import ht.treechop.common.config.resource.ResourceTagIdentifier;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -14,7 +14,7 @@ class ItemIdentifierTest {
 
     @Test
     void fromDefaultNamespace() {
-        ItemIdentifier id = ItemIdentifier.from("log");
+        ResourceIdentifier id = ResourceIdentifier.from("log");
         assertThat(id.getNamespace(), is("minecraft"));
         assertThat(id.getLocalSpace(), is("log"));
         assertThat(id.getQualifiers().size(), is(0));
@@ -22,7 +22,7 @@ class ItemIdentifierTest {
 
     @Test
     void fromExplicitNamespace() {
-        ItemIdentifier id = ItemIdentifier.from("chimney:chute");
+        ResourceIdentifier id = ResourceIdentifier.from("chimney:chute");
         assertThat(id.getNamespace(), is("chimney"));
         assertThat(id.getLocalSpace(), is("chute"));
         assertThat(id.getQualifiers().size(), is(0));
@@ -30,7 +30,7 @@ class ItemIdentifierTest {
 
     @Test
     void fromIdWithQualifier() {
-        ItemIdentifier id = ItemIdentifier.from("chimney:chute?nice");
+        ResourceIdentifier id = ResourceIdentifier.from("chimney:chute?nice");
         assertThat(id.getNamespace(), is("chimney"));
         assertThat(id.getLocalSpace(), is("chute"));
         assertThat(id.getQualifiers().size(), is(1));
@@ -39,8 +39,8 @@ class ItemIdentifierTest {
 
     @Test
     void fromMod() {
-        ItemIdentifier id = ItemIdentifier.from("@chimney");
-        assertTrue(id instanceof ItemNamespaceIdentifier);
+        ResourceIdentifier id = ResourceIdentifier.from("@chimney");
+        assertTrue(id instanceof ResourceNamespaceIdentifier);
         assertThat(id.getNamespace(), is("chimney"));
         assertThat(id.getLocalSpace(), is(""));
         assertThat(id.getQualifiers().size(), is(0));
@@ -48,8 +48,8 @@ class ItemIdentifierTest {
 
     @Test
     void fromModWithQualifier() {
-        ItemIdentifier id = ItemIdentifier.from("@chimney?nice");
-        assertTrue(id instanceof ItemNamespaceIdentifier);
+        ResourceIdentifier id = ResourceIdentifier.from("@chimney?nice");
+        assertTrue(id instanceof ResourceNamespaceIdentifier);
         assertThat(id.getNamespace(), is("chimney"));
         assertThat(id.getLocalSpace(), is(""));
         assertThat(id.getQualifiers().size(), is(1));
@@ -58,14 +58,14 @@ class ItemIdentifierTest {
 
     @Test
     void badModFormat() {
-        ItemIdentifier id = ItemIdentifier.from("@chimney:chute");
-        assertTrue(id instanceof MalformedItemIdentifier);
+        ResourceIdentifier id = ResourceIdentifier.from("@chimney:chute");
+        assertTrue(id instanceof MalformedResourceIdentifier);
     }
 
     @Test
     void fromVanillaTag() {
-        ItemIdentifier id = ItemIdentifier.from("#logs");
-        assertTrue(id instanceof ItemTagIdentifier);
+        ResourceIdentifier id = ResourceIdentifier.from("#logs");
+        assertTrue(id instanceof ResourceTagIdentifier);
         assertThat(id.getNamespace(), is("minecraft"));
         assertThat(id.getLocalSpace(), is("logs"));
         assertThat(id.getQualifiers().size(), is(0));
@@ -73,8 +73,8 @@ class ItemIdentifierTest {
 
     @Test
     void fromVanillaTagWithQualifier() {
-        ItemIdentifier id = ItemIdentifier.from("#logs?nice");
-        assertTrue(id instanceof ItemTagIdentifier);
+        ResourceIdentifier id = ResourceIdentifier.from("#logs?nice");
+        assertTrue(id instanceof ResourceTagIdentifier);
         assertThat(id.getNamespace(), is("minecraft"));
         assertThat(id.getLocalSpace(), is("logs"));
         assertThat(id.getQualifiers().size(), is(1));
@@ -83,8 +83,8 @@ class ItemIdentifierTest {
 
     @Test
     void fromExplicitTag() {
-        ItemIdentifier id = ItemIdentifier.from("#chimney:chutes");
-        assertTrue(id instanceof ItemTagIdentifier);
+        ResourceIdentifier id = ResourceIdentifier.from("#chimney:chutes");
+        assertTrue(id instanceof ResourceTagIdentifier);
         assertThat(id.getNamespace(), is("chimney"));
         assertThat(id.getLocalSpace(), is("chutes"));
         assertThat(id.getQualifiers().size(), is(0));
@@ -92,8 +92,8 @@ class ItemIdentifierTest {
 
     @Test
     void fromExplicitTagWithQualifier() {
-        ItemIdentifier id = ItemIdentifier.from("#chimney:chutes?nice,horse=stallion");
-        assertTrue(id instanceof ItemTagIdentifier);
+        ResourceIdentifier id = ResourceIdentifier.from("#chimney:chutes?nice,horse=stallion");
+        assertTrue(id instanceof ResourceTagIdentifier);
         assertThat(id.getNamespace(), is("chimney"));
         assertThat(id.getLocalSpace(), is("chutes"));
         assertThat(id.getQualifiers().size(), is(2));
@@ -103,8 +103,8 @@ class ItemIdentifierTest {
 
     @Test
     void fromOverride() {
-        ItemIdentifier id = ItemIdentifier.from("#chimney:chutes?chops=3,override=always");
-        assertTrue(id instanceof ItemTagIdentifier);
+        ResourceIdentifier id = ResourceIdentifier.from("#chimney:chutes?chops=3,override=always");
+        assertTrue(id instanceof ResourceTagIdentifier);
         assertThat(id.getNamespace(), is("chimney"));
         assertThat(id.getLocalSpace(), is("chutes"));
         assertThat(id.getQualifiers().size(), is(2));

@@ -14,7 +14,7 @@ public class CarryOn {
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
-        if (ModList.get().isLoaded("carryon")) {
+        if (ModList.get().isLoaded("carryon") && CompatUtil.classExists("tschipp.carryon.common.handler.PickupHandler")) {
             MinecraftForge.EVENT_BUS.register(EventHandler.class);
         }
     }

@@ -1,46 +1,58 @@
 package ht.treechop.common.config;
 
-import ht.treechop.common.config.item.ItemIdentifier;
+import ht.treechop.TreeChop;
+import ht.treechop.api.IChoppingItem;
+import ht.treechop.common.config.resource.ResourceIdentifier;
+import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ConfigHandler {
 
-    public final static Lazy<ChopSettings> defaultChopSettings = new Lazy<>(() -> {
-        ChopSettings chopSettings = new ChopSettings();
-        Permissions permissions = getServerPermissions();
+    public static final Common COMMON;
+    public static final ForgeConfigSpec COMMON_SPEC;
+    public static final Client CLIENT;
+    public static final ForgeConfigSpec CLIENT_SPEC;
+    private static final Signal<Lazy<?>> RELOAD = new Signal<>(Lazy::reset);
+    public final static Lazy<ChopSettings> defaultChopSettings = new Lazy<>(
+            RELOAD,
+            () -> {
+                ChopSettings chopSettings = new ChopSettings();
+                Permissions permissions = getServerPermissions();
 
-        chopSettings.forEach((field, value) -> {
-            if (!permissions.isPermitted(field, value)) {
-                chopSettings.set(field, field.getValues().stream()
-                        .filter(candidate -> permissions.isPermitted(new Setting(field, candidate)))
-                        .findFirst()
-                        .orElse(value)
-                );
-            }
-        });
-
-        return chopSettings;
-    });
-
+                chopSettings.forEach((field, value) -> {
+                    if (!permissions.isPermitted(field, value)) {
+                        chopSettings.set(field, field.getValues().stream()
+                                .filter(candidate -> permissions.isPermitted(new Setting(field, candidate)))
+                                .findFirst()
+                                .orElse(value)
+                        );
+                    }
+                });
+                return chopSettings;
+            });
     public final static Lazy<EntityChopSettings> fakePlayerChopSettings = new Lazy<>(
+            RELOAD,
             () -> {
                 EntityChopSettings chopSettings = new EntityChopSettings() {
                     @Override
@@ -54,140 +66,266 @@ public class ConfigHandler {
                         .setTreesMustHaveLeaves(ConfigHandler.COMMON.fakePlayerTreesMustHaveLeaves.get());
 
                 return chopSettings;
-            }
-    );
+            });
+    private static final Signal<Lazy<?>> UPDATE_TAGS = new Signal<>(Lazy::reset);
+    public static Lazy<Boolean> removeBarkOnInteriorLogs = new Lazy<>(
+            RELOAD,
+            () -> {
+                try {
+                    return ConfigHandler.CLIENT.removeBarkOnInteriorLogs.get();
+                } catch (IllegalStateException e) {
+                    // this config isn't available on server, and that's just fine
+                    return false;
+                }
+            });
+    public static Lazy<Map<Block, BlockState>> inferredStrippedStates = new Lazy<>(
+            UPDATE_TAGS,
+            ConfigHandler::inferStrippedStates);
 
-    public static Lazy<Boolean> removeBarkOnInteriorLogs = new Lazy<>(() -> {
-        try {
-            return ConfigHandler.CLIENT.removeBarkOnInteriorLogs.get();
-        } catch (IllegalStateException e) {
-            // this config isn't available on server, and that's just fine
-            return false;
-        }}
-    );
+    private static org.apache.logging.log4j.Level logLevel = org.apache.logging.log4j.Level.ALL;
 
-    public static Lazy<Map<Block, BlockState>> inferredStrippedStates = new Lazy<>(ConfigHandler::inferStrippedStates);
+    static {
+        final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
+        COMMON_SPEC = specPair.getRight();
+        COMMON = specPair.getLeft();
+    }
+
+    static {
+        final Pair<Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
+        CLIENT_SPEC = specPair.getRight();
+        CLIENT = specPair.getLeft();
+    }
 
     public static void onReload() {
-        fakePlayerChopSettings.reset();
-        removeBarkOnInteriorLogs.reset();
-        inferredStrippedStates.reset();
+        updateLogLevel();
+        RELOAD.run();
         updateTags();
     }
 
     public static void updateTags() {
-        COMMON.itemsBlacklist.reset();
+        UPDATE_TAGS.run();
+    }
+
+    private static void updateLogLevel() {
+        org.apache.logging.log4j.Level newLevel = (COMMON.enableLogging.get()) ? org.apache.logging.log4j.Level.ALL : org.apache.logging.log4j.Level.OFF;
+        if (newLevel != logLevel) {
+            Configurator.setLevel(TreeChop.MOD_ID, org.apache.logging.log4j.Level.ALL);
+            TreeChop.LOGGER.info("Changing log level to {}", newLevel.name());
+            Configurator.setLevel(TreeChop.MOD_ID, newLevel);
+            logLevel = newLevel;
+        }
     }
 
     @NotNull
     private static Map<Block, BlockState> inferStrippedStates() {
-        TagKey<Block> logTag = COMMON.blockTagForDetectingLogs.get();
+        Set<Block> choppableBlocks = COMMON.choppableBlocks.get();
         HashMap<Block, BlockState> map = new HashMap<>();
-        // TODO: can we directly find tag blocks without iterating over the entire registry? (easy in Forge, what about Fabric?)
-        Registry.BLOCK.forEach(block -> {
-            if (block.builtInRegistryHolder().is(logTag)) {
-                Block unstripped = inferUnstripped(block);
-                if (unstripped != Blocks.AIR && AxeAccessor.getStripped(unstripped) == null) {
-                    map.put(unstripped, block.defaultBlockState());
-                }
+        choppableBlocks.forEach(block -> {
+            Block unstripped = inferUnstripped(block);
+            if (unstripped != Blocks.AIR && !AxeAccessor.isStrippable(unstripped)) {
+                map.put(unstripped, block.defaultBlockState());
             }
         });
         return map;
     }
 
     private static Block inferUnstripped(Block block) {
-        final Pattern prefix = Pattern.compile("stripped_(.+)");
-        final Pattern suffix = Pattern.compile("(.+)_stripped$");
-
         ResourceLocation resource = Registry.BLOCK.getKey(block);
-        Block unstripped = inferUnstripped(resource, prefix);
-        if (unstripped == Blocks.AIR) {
-            unstripped = inferUnstripped(resource, suffix);
-        }
-        return unstripped;
+        return inferUnstripped(resource);
     }
 
-    private static Block inferUnstripped(ResourceLocation resource, Pattern pattern) {
+    private static Block inferUnstripped(ResourceLocation resource) {
         if (resource != null) {
-            Matcher match = pattern.matcher(resource.getPath());
-            if (match.find()) {
-                return Registry.BLOCK.get(new ResourceLocation(resource.getNamespace(), match.group(1)));
+            ResourceLocation unstripped = getFilteredResourceLocation(resource, "stripped");
+            if (unstripped != null) {
+                return Registry.BLOCK.get(unstripped);
             }
         }
         return Blocks.AIR;
     }
 
-    private static Stream<Item> getItemsFromIdentifier(String stringId) {
-        ItemIdentifier id = ItemIdentifier.from(stringId);
-        return id.resolve();
+    private static ResourceLocation getFilteredResourceLocation(ResourceLocation resource, String filterTerm) {
+        if (resource != null) {
+            String strippedPath = resource.getPath();
+            String unstrippedPath = Arrays.stream(strippedPath.split("_")).filter(token -> !token.equals(filterTerm)).collect(Collectors.joining("_"));
+            if (!strippedPath.equals(unstrippedPath)) {
+                return new ResourceLocation(resource.getNamespace(), unstrippedPath);
+            }
+        }
+        return null;
     }
 
-    public static boolean canChopWithItem(Item item) {
-        if (COMMON.blacklistOrWhitelist.get() == ListType.BLACKLIST) {
-            return !COMMON.itemsBlacklist.get().contains(item);
-        } else {
-            return COMMON.itemsBlacklist.get().contains(item);
-        }
+    private static Stream<Item> getIdentifiedItems(String stringId) {
+        ResourceIdentifier id = ResourceIdentifier.from(stringId);
+        return id.resolve(Registry.ITEM);
+    }
+
+    private static Stream<Block> getIdentifiedBlocks(String stringId) {
+        ResourceIdentifier id = ResourceIdentifier.from(stringId);
+        return id.resolve(Registry.BLOCK);
+    }
+
+    public static boolean canChopWithTool(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState) {
+        IChoppingItem choppingItem = TreeChop.api.getRegisteredChoppingItemBehavior(tool.getItem());
+        return (choppingItem != null)
+                ? choppingItem.canChop(player, tool, level, pos, blockState)
+                : choppingItemIsBlacklisted(tool.getItem());
+    }
+
+    private static boolean choppingItemIsBlacklisted(Item item) {
+        return COMMON.itemsBlacklistOrWhitelist.get().accepts(COMMON.choppingItemsList.get().contains(item));
     }
 
     public static Permissions getServerPermissions() {
         return new Permissions(ConfigHandler.COMMON.rawPermissions.stream()
-                .filter(settingAndConfig -> settingAndConfig.getRight().get())
-                .map(Pair::getLeft)
+                .filter(settingAndConfig -> settingAndConfig.getValue().get())
+                .map(Pair::getKey)
                 .collect(Collectors.toSet()));
     }
 
+    private static <T> InitializedSupplier<T> defaultValue(T defaultValue) {
+        return new InitializedSupplier<>(() -> defaultValue);
+    }
+
+    public static Stream<Block> getMushroomStems() {
+        return ConfigHandler.getIdentifiedBlocks(getCommonTagId("mushroom_stems"));
+    }
+
+    private static String getCommonTagId(String path) {
+        return String.format("#%s:%s", TreeChop.platform.uses(ModLoader.FORGE) ? "forge" : "c", path);
+    }
+
+    public static class InitializedSupplier<T> implements Supplier<T> {
+        private Supplier<T> supplier;
+
+        public InitializedSupplier(Supplier<T> defaultSupplier) {
+            supplier = defaultSupplier;
+        }
+
+        @Override
+        public T get() {
+            return supplier.get();
+        }
+
+        private void set(ForgeConfigSpec.ConfigValue<T> configValue) {
+            supplier = configValue::get;
+        }
+
+        private void set(Supplier<T> newSupplier) {
+            supplier = newSupplier;
+        }
+    }
+
     public static class Common {
-
         public final ForgeConfigSpec.BooleanValue enabled;
-
-        protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
-
-        public final Lazy<Set<Item>> itemsBlacklist = new Lazy<>(
-                () -> COMMON.itemsToBlacklist.get().stream()
-                        .flatMap(ConfigHandler::getItemsFromIdentifier)
-                        .collect(Collectors.toSet())
-        );
-
+        public final ForgeConfigSpec.BooleanValue enableLogging;
         public final ForgeConfigSpec.BooleanValue dropLootForChoppedBlocks;
-
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
         public final ForgeConfigSpec.BooleanValue breakLeaves;
         public final ForgeConfigSpec.BooleanValue ignorePersistentLeaves;
         public final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
-
-        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLogsHandle;
-        public final Lazy<TagKey<Block>> blockTagForDetectingLogs = new Lazy<>(() -> TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(COMMON.blockTagForDetectingLogsHandle.get())));
-
-        protected final ForgeConfigSpec.ConfigValue<String> blockTagForDetectingLeavesHandle;
-        public final Lazy<TagKey<Block>> blockTagForDetectingLeaves = new Lazy<>(() -> TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(COMMON.blockTagForDetectingLeavesHandle.get())));
-
         public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
         public final ForgeConfigSpec.EnumValue<Rounder> chopCountRounding;
         public final ForgeConfigSpec.BooleanValue canRequireMoreChopsThanBlocks;
         public final ForgeConfigSpec.DoubleValue logarithmicA;
         public final ForgeConfigSpec.DoubleValue linearM;
         public final ForgeConfigSpec.DoubleValue linearB;
-
-        public final ForgeConfigSpec.EnumValue<ListType> blacklistOrWhitelist;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> itemsToBlacklist;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> itemsToOverride;
-
+        public final ForgeConfigSpec.EnumValue<ListType> itemsBlacklistOrWhitelist;
+        public final ForgeConfigSpec.BooleanValue mustUseCorrectToolForDrops;
+        public final ForgeConfigSpec.BooleanValue mustUseFastBreakingTool;
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
-        public final ForgeConfigSpec.BooleanValue compatForProjectMMO;
-        public final ForgeConfigSpec.BooleanValue compatForDynamicTrees;
         public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
+        public final InitializedSupplier<Boolean> compatForMushroomStems = defaultValue(true);
+        public final InitializedSupplier<Boolean> compatForDynamicTrees = defaultValue(true);
+        public final ForgeConfigSpec.BooleanValue verboseAPI;
+        protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksList;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksExceptionsList;
+        public final Lazy<Set<Block>> choppableBlocks = new Lazy<>(
+                UPDATE_TAGS,
+                () -> {
+                    Set<Block> exceptions = COMMON.choppableBlocksExceptionsList.get().stream()
+                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                            .collect(Collectors.toSet());
+
+                    Set<Block> blocks = COMMON.choppableBlocksList.get().stream()
+                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                            .filter(block -> !exceptions.contains(block))
+                            .collect(Collectors.toSet());
+
+                    TreeChop.api.getChoppableBlockOverrides().forEach(blockIsChoppable -> {
+                        if (blockIsChoppable.getValue()) {
+                            blocks.add(blockIsChoppable.getKey());
+                        } else {
+                            blocks.remove(blockIsChoppable.getKey());
+                        }
+                    });
+
+                    return blocks;
+                }
+        );
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksList;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksExceptionsList;
+        public final Lazy<Set<Block>> leavesBlocks = new Lazy<>(
+                UPDATE_TAGS,
+                () -> {
+                    Set<Block> exceptions = COMMON.leavesBlocksExceptionsList.get().stream()
+                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                            .collect(Collectors.toSet());
+
+                    Set<Block> blocks = COMMON.leavesBlocksList.get().stream()
+                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                            .filter(block -> !exceptions.contains(block))
+                            .collect(Collectors.toSet());
+
+                    TreeChop.api.getLeavesBlockOverrides().forEach(blockIsLeaves -> {
+                        if (blockIsLeaves.getValue()) {
+                            blocks.add(blockIsLeaves.getKey());
+                        } else {
+                            blocks.remove(blockIsLeaves.getKey());
+                        }
+                    });
+
+                    return blocks;
+                }
+        );
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppingItemsToBlacklistOrWhitelist;
+        public final Lazy<Set<Item>> choppingItemsList = new Lazy<>(
+                UPDATE_TAGS,
+                () -> {
+                    Set<Item> items = COMMON.choppingItemsToBlacklistOrWhitelist.get().stream()
+                            .flatMap(ConfigHandler::getIdentifiedItems)
+                            .collect(Collectors.toSet());
+
+                    ListType blackListOrWhiteList = COMMON.itemsBlacklistOrWhitelist.get();
+                    TreeChop.api.getChoppingItemOverrides()
+                            .forEach(itemCanChop -> {
+                                if (blackListOrWhiteList.accepts(itemCanChop.getValue())) {
+                                    items.add(itemCanChop.getKey());
+                                } else {
+                                    items.remove(itemCanChop.getKey());
+                                }
+                            });
+
+                    return items;
+                }
+        );
 
         public Common(ForgeConfigSpec.Builder builder) {
-            builder.push("permissions");
+            builder.push("mod");
             enabled = builder
-                    .comment("Whether this mod is enabled or not")
+                    .comment("Set to false to disable TreeChop without having to uninstall the mod")
                     .define("enabled", true);
+            enableLogging = builder
+                    .comment("Let TreeChop print to the log")
+                    .define("printDebugInfo", true);
+            builder.pop();
 
+            builder.push("permissions");
             for (SettingsField field : SettingsField.values()) {
                 String fieldName = field.getConfigKey();
                 for (Object value : field.getValues()) {
@@ -196,13 +334,12 @@ public class ConfigHandler {
                     rawPermissions.add(Pair.of(new Setting(field, value), configHandle));
                 }
             }
-
             builder.pop();
 
             builder.push("general");
             dropLootForChoppedBlocks = builder
-                    .comment("Whether to drop loot for blocks that have been chopped")
-                    .define("loseLootForChoppedBlocks", true);
+                    .comment("If false, log items will be destroyed when chopping")
+                    .define("dropLootForChoppedBlocks", true);
             builder.pop();
 
             builder.push("treeDetection");
@@ -213,20 +350,56 @@ public class ConfigHandler {
                     .comment("Maximum number of leaves blocks that can destroyed when a tree is felled")
                     .defineInRange("maxLeavesBlocks", 1024, 1, 8096);
             breakLeaves = builder
-                    .comment("Whether to destroy leaves when a tree is felled")
+                    .comment("Destroy leaves when a tree is felled")
                     .define("breakLeaves", true);
             ignorePersistentLeaves = builder
-                    .comment("Whether non-decayable leaves are ignored when detecting leaves")
+                    .comment("Non-decayable leaves are ignored when detecting leaves")
                     .define("ignorePersistentLeaves", true);
             maxBreakLeavesDistance = builder
                     .comment("Maximum distance from log blocks to destroy non-standard leaves blocks (e.g. mushroom caps) when felling")
                     .defineInRange("maxBreakLeavesDistance", 7, 0, 16);
-            blockTagForDetectingLogsHandle = builder
-                    .comment("The tag that blocks must have to be considered choppable (default: treechop:choppables)")
-                    .define("blockTagForDetectingLogs", "treechop:choppables");
-            blockTagForDetectingLeavesHandle = builder
-                    .comment("The tag that blocks must have to be considered leaves (default: treechop:leaves_like)")
-                    .define("blockTagForDetectingLeaves", "treechop:leaves_like");
+
+            builder.push("logs");
+            choppableBlocksList = builder
+                    .comment(String.join("\n",
+                            "Blocks that should be considered choppable",
+                            "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
+                    .defineList("blocks",
+                            List.of("#treechop:choppables",
+                                    "#minecraft:logs",
+                                    getCommonTagId("mushroom_stems")),
+                            always -> true);
+            choppableBlocksExceptionsList = builder
+                    .comment(String.join("\n",
+                            "Blocks that should never be chopped, even if included in the list above",
+                            "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
+                    .defineList("exceptions",
+                            List.of("minecraft:bamboo",
+                                    "#dynamictrees:branches",
+                                    "dynamictrees:trunk_shell"),
+                            always -> true);
+            builder.pop();
+
+            builder.push("leaves");
+            leavesBlocksList = builder
+                    .comment(String.join("\n",
+                            "Blocks that should be considered leaves",
+                            "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
+                    .defineList("blocks",
+                            List.of("#treechop:leaves_like",
+                                    "#minecraft:leaves",
+                                    "#minecraft:wart_blocks",
+                                    getCommonTagId("mushroom_caps"),
+                                    "minecraft:shroomlight"),
+                            always -> true);
+            leavesBlocksExceptionsList = builder
+                    .comment(String.join("\n",
+                            "Blocks that should never be considered leaves, even if included in the list above",
+                            "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
+                    .defineList("exceptions",
+                            List.of(),
+                            always -> true);
+            builder.pop();
             builder.pop();
 
             builder.push("chopCounting");
@@ -237,7 +410,7 @@ public class ConfigHandler {
                     .comment("How to round the number of chops needed to fell a tree; this is more meaningful for smaller trees")
                     .defineEnum("rounding", Rounder.NEAREST);
             canRequireMoreChopsThanBlocks = builder
-                    .comment("Whether felling a tree can require more chops than the number of blocks in the tree")
+                    .comment("Felling a tree can require more chops than the number of blocks in the tree")
                     .define("canRequireMoreChopsThanBlocks", false);
 
             builder.comment("See https://github.com/hammertater/treechop/#logarithmic").push("logarithmic");
@@ -258,18 +431,24 @@ public class ConfigHandler {
 
             builder.push("compatibility");
             builder.push("general");
+            mustUseCorrectToolForDrops = builder
+                    .comment("Only chop when using the correct tool for drops, if any (does nothing in vanilla, but some mods add tool requirements to logs")
+                    .define("choppingRequiresCorrectToolForDrops", true);
+            mustUseFastBreakingTool = builder
+                    .comment("Only chop when using a tool that increases block breaking speed (such as axes for logs)")
+                    .define("choppingRequiresFastBreakingTool", false);
             preventChoppingOnRightClick = builder
-                    .comment("Whether to prevent chopping during right-click actions")
+                    .comment("Prevent chopping when right-clicking blocks")
                     .define("preventChoppingOnRightClick", false);
             preventChopRecursion = builder
-                    .comment("Whether to prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")
+                    .comment("Prevent infinite loops when chopping; fixes crashes when using modded items that break multiple blocks")
                     .define("preventChopRecursion", true);
 
             builder.push("blacklist");
-            blacklistOrWhitelist = builder
+            itemsBlacklistOrWhitelist = builder
                     .comment("Whether the listed items should be blacklisted or whitelisted")
                     .defineEnum("blacklistOrWhitelist", ListType.BLACKLIST);
-            itemsToBlacklist = builder
+            choppingItemsToBlacklistOrWhitelist = builder
                     .comment(String.join("\n",
                             "List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not chop when used to break a log",
                             "- Items in this list that have special support for TreeChop will not be blacklisted; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#blacklist"))
@@ -283,21 +462,6 @@ public class ConfigHandler {
                                     "practicaltools:golden_greataxe",
                                     "practicaltools:diamond_greataxe",
                                     "practicaltools:netherite_greataxe"),
-                            always -> true);
-            builder.pop();
-
-            builder.push("overrides");
-            itemsToOverride = builder
-                    .comment(String.join("\n",
-                            "List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not perform their default behavior when chopping",
-                            "- Add \"?chops=N\" to specify the number of chops to be performed when breaking a log with the item (defaults to 1)",
-                            "- Add \"?override=always\" to disable default behavior even when chopping is disabled",
-                            "- Add \"?override=never\" to never disable default behavior",
-                            "- Items in this list that have special support for TreeChop will not be overridden; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#overrides",
-                            "- This might not work as expected for some items; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#caveats"))
-                    .defineList("items",
-                            Arrays.asList(
-                                    "silentgear:saw?chops=3,override=always"),
                             always -> true);
             builder.pop();
 
@@ -315,18 +479,24 @@ public class ConfigHandler {
 
             builder.pop();
 
-            builder.push("specific");
-            compatForProjectMMO = builder
-                    .comment(String.join("\n",
-                            "Whether to enable compatibility with ProjectMMO; for example, award XP for chopping",
-                            "See https://www.curseforge.com/minecraft/mc-mods/project-mmo"))
-                    .define("projectMMO", true);
-            compatForDynamicTrees = builder
-                    .comment(String.join("\n",
-                            "Whether to prevent conflicts with DynamicTrees",
-                            "See https://www.curseforge.com/minecraft/mc-mods/dynamictrees"))
-                    .define("dynamicTrees", true);
+            compatForMushroomStems.set(builder
+                    .comment(String.format("Better chopping behavior for block with the %s tag", getCommonTagId("mushroom_stems")))
+                    .define("mushroomStems", true));
+
+            if (TreeChop.platform.uses(ModLoader.FORGE)) {
+                compatForDynamicTrees.set(builder
+                        .comment(String.join("\n",
+                                "Prevent conflicts with DynamicTrees",
+                                "See https://www.curseforge.com/minecraft/mc-mods/dynamictrees"))
+                        .define("dynamicTrees", true));
+            }
+
+            builder.push("API");
+            verboseAPI = builder
+                    .comment("Log information about TreeChop API usage. May be useful for debugging mod compatibility issues.")
+                    .define("verbose", false);
             builder.pop();
+
             builder.pop();
         }
 
@@ -336,15 +506,6 @@ public class ConfigHandler {
                     .map(WordUtils::capitalize)
                     .collect(Collectors.joining());
         }
-    }
-
-    public static final Common COMMON;
-    public static final ForgeConfigSpec COMMON_SPEC;
-
-    static {
-        final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
-        COMMON_SPEC = specPair.getRight();
-        COMMON = specPair.getLeft();
     }
 
     public static class Client {
@@ -376,21 +537,21 @@ public class ConfigHandler {
                     .comment("Default setting for the effect that sneaking has on chopping (can be cycled in-game)")
                     .defineEnum("sneakBehavior", SneakBehavior.INVERT_CHOPPING);
             treesMustHaveLeaves = builder
-                    .comment("Whether to ignore trees without connected leaves")
+                    .comment("Ignore trees without connected leaves (can be toggled in-game)")
                     .define("treesMustHaveLeaves", true);
             chopInCreativeMode = builder
-                    .comment("Whether to enable chopping when in creative mode (even when false, sneaking can still enable chopping)")
+                    .comment("Enable chopping in creative mode (even when false, sneaking can still enable chopping) (can be toggled in-game)")
                     .define("chopInCreativeMode", false);
             builder.pop();
 
             builder.push("visuals");
             removeBarkOnInteriorLogs = builder
-                    .comment("Whether to replace the interior sides of logs with a chopped texture instead of bark")
+                    .comment("Visually replace the interior sides of logs with a chopped texture instead of bark")
                     .define("removeBarkOnInteriorLogs", true);
 
             builder.push("choppingIndicator");
             showChoppingIndicators = builder
-                    .comment("Whether to show an on-screen icon indicating whether targeted blocks can be chopped")
+                    .comment("Show an on-screen indicator when a block will be chopped instead of broken (can be toggled in-game)")
                     .define("enabled", true);
             indicatorXOffset = builder
                     .comment("Horizontal location of the indicator relative to the player's crosshairs; positive values move the indicator to the right")
@@ -403,13 +564,13 @@ public class ConfigHandler {
 
             builder.push("settingsScreen");
             showFellingOptions = builder
-                    .comment("Whether to show in-game options for enabling and disable felling")
+                    .comment("Show in-game options for enabling and disable felling (can be toggled in-game)")
                     .define("showFellingOptions", false);
             showFeedbackMessages = builder
-                    .comment("Whether to show chat confirmations when using hotkeys to change chop settings")
+                    .comment("Show chat confirmations when using hotkeys to change chop settings (can be toggled in-game)")
                     .define("showFeedbackMessages", true);
             showTooltips = builder
-                    .comment("Whether to show tooltips in the settings screen")
+                    .comment("Show tooltips in the settings screen (can be toggled in-game)")
                     .define("showTooltips", true);
             builder.pop();
 
@@ -427,15 +588,6 @@ public class ConfigHandler {
             chopSettings.setChopInCreativeMode(ConfigHandler.CLIENT.chopInCreativeMode.get());
             return chopSettings;
         }
-    }
-
-    public static final Client CLIENT;
-    public static final ForgeConfigSpec CLIENT_SPEC;
-
-    static {
-        final Pair<Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
-        CLIENT_SPEC = specPair.getRight();
-        CLIENT = specPair.getLeft();
     }
 
 }

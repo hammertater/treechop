@@ -18,12 +18,9 @@ public abstract class AxeAccessor extends AxeItem {
         return STRIPPABLES.containsValue(block);
     }
 
-    public static Block getStripped(Block block) {
-        return STRIPPABLES.get(block);
-    }
-
     public static BlockState getStripped(BlockState blockState) {
         Block stripped = STRIPPABLES.get(blockState.getBlock());
-        return (stripped == null) ? null : stripped.defaultBlockState();
+        return (stripped == null) ? null : BlockUtil.copyStateProperties(stripped.defaultBlockState(), blockState);
     }
+
 }

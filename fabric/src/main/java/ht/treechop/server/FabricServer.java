@@ -7,6 +7,7 @@ import ht.treechop.common.settings.EntityChopSettings;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
@@ -36,8 +37,13 @@ public class FabricServer extends Server implements DedicatedServerModInitialize
     private void registerPackets() {
         ServerPlayNetworking.registerGlobalReceiver(ClientRequestSettingsPacket.ID, (server, player, handler, buffer, sender) -> {
             ClientRequestSettingsPacket packet = ClientRequestSettingsPacket.decode(buffer);
-            server.execute(() -> ClientRequestSettingsPacket.handle(packet, player, reply -> sendTo(player, reply)));
+            server.execute(() -> ClientRequestSettingsPacket.handle(packet, player, reply -> replyTo(sender, reply)));
         });
+    }
+
+    private void replyTo(PacketSender sender, CustomPacket packet) {
+        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        sender.sendPacket(packet.getId(), packet.encode(buffer));
     }
 
     @Override

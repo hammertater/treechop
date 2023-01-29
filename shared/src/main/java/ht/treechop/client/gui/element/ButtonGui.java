@@ -5,6 +5,7 @@ import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.widget.SpriteButtonWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
 

@@ -29,32 +29,38 @@ public abstract class BlockImitator extends Block {
 
     @Override
     public void animateTick(BlockState blockState, Level level, BlockPos pos, Random random) {
-        getImitatedBlockState(level, pos).getBlock().animateTick(blockState, level, pos, random);
+        BlockState imitatedBlockState = getImitatedBlockState(level, pos);
+        imitatedBlockState.getBlock().animateTick(imitatedBlockState, level, pos, random);
     }
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState blockState, Entity entity) {
-        getImitatedBlockState(level, pos).getBlock().stepOn(level, pos, blockState, entity);
+        BlockState imitatedBlockState = getImitatedBlockState(level, pos);
+        imitatedBlockState.getBlock().stepOn(level, pos, imitatedBlockState, entity);
     }
 
     @Override
     public void fallOn(Level level, BlockState blockState, BlockPos pos, Entity entity, float speed) {
-        getImitatedBlockState(level, pos).getBlock().fallOn(level, blockState, pos, entity, speed);
+        BlockState imitatedBlockState = getImitatedBlockState(level, pos);
+        imitatedBlockState.getBlock().fallOn(level, imitatedBlockState, pos, entity, speed);
     }
 
     @Override
     public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState blockState) {
-        return getImitatedBlockState(level, pos).getBlock().getCloneItemStack(level, pos, blockState);
+        BlockState imitatedBlockState = getImitatedBlockState(level, pos);
+        return imitatedBlockState.getBlock().getCloneItemStack(level, pos, imitatedBlockState);
     }
 
     @Override
     public void handlePrecipitation(BlockState blockState, Level level, BlockPos pos, Biome.Precipitation precipitation) {
-        getImitatedBlockState(level, pos).getBlock().handlePrecipitation(blockState, level, pos, precipitation);
+        BlockState imitatedBlockState = getImitatedBlockState(level, pos);
+        imitatedBlockState.getBlock().handlePrecipitation(imitatedBlockState, level, pos, precipitation);
     }
 
     @Override
     public int getLightBlock(BlockState blockState, BlockGetter level, BlockPos pos) {
-        return getImitatedBlockState(level, pos).getBlock().getLightBlock(blockState, level, pos);
+        BlockState imitatedBlockState = getImitatedBlockState(level, pos);
+        return imitatedBlockState.getBlock().getLightBlock(imitatedBlockState, level, pos);
     }
 
     @Override

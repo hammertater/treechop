@@ -1,6 +1,5 @@
-package ht.treechop.common.util;
+package ht.treechop.common.chop;
 
-import ht.treechop.common.block.ChoppedLogBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,75 +24,22 @@ import java.util.stream.Stream;
 
 public class ChopResult {
     public static final ChopResult IGNORED = new ChopResult(null, Collections.emptyList(), Collections.emptyList());
-
+    public static final int MAX_NUM_FELLING_EFFECTS = 32;
     private final Level level;
     private final Collection<Chop> chops;
     private final Collection<BlockPos> fells;
-    private final boolean felling;
-
-    public static final int MAX_NUM_FELLING_EFFECTS = 32;;
 
     public ChopResult(Level level, Collection<Chop> chops, Collection<BlockPos> fells) {
         this.level = level;
         this.chops = chops;
         this.fells = fells;
-        this.felling = !fells.isEmpty();
     }
 
-    /**
-     *  Applies the results of chopping to the level, spawning the appropriate drops.
-     * - Chopped blocks: harvest by agent, change to chopped state
-     * - Felled blocks: harvest by no one, change to felled state
-     * - Chopped and felled blocks: harvest by agent, change to felled state
-     * @return whether the block at targetPos needs to be preserved.
-     */
-    public boolean apply(BlockPos targetPos, ServerPlayer agent, ItemStack tool, boolean breakLeaves) {
-        GameType gameType;
-        gameType = agent.gameMode.getGameModeForPlayer();
-
-        AtomicBoolean somethingChanged = new AtomicBoolean(false);
-        List<BlockPos> logs = Stream.concat(chops.stream().map(Chop::getBlockPos), fells.stream())
-                .filter(pos -> !somethingChanged.get() && !agent.blockActionRestricted(level, pos, gameType))
-                .peek(pos -> {
-                    BlockState blockState = level.getBlockState(pos);
-                    somethingChanged.compareAndSet(false, blockState.isAir());
-                })
-                .collect(Collectors.toList());
-
-        if (somethingChanged.get()) {
-            return false;
-        }
-
-        chopBlocks(level, agent, tool, chops.stream());
-
-        if (felling) {
-            List<BlockPos> leaves = breakLeaves
-                    ? ChopUtil.getTreeLeaves(level, logs).stream()
-                    .filter(pos -> !agent.blockActionRestricted(level, pos, agent.gameMode.getGameModeForPlayer()))
-                    .collect(Collectors.toList())
-                    : Collections.emptyList();
-
-            logs.remove(targetPos);
-            playBlockBreakEffects(level, logs, leaves);
-
-            fells.remove(targetPos);
-            fellBlocks(level, targetPos, agent, Stream.of(fells, leaves).flatMap(Collection::stream));
-
-            return false;
-        } else {
-            if (chops.stream().noneMatch(chop -> chop.getBlockPos().equals(targetPos)) && level.getBlockEntity(targetPos) instanceof ChoppedLogBlock.MyEntity entity) {
-                entity.syncWithClients();
-            }
-        }
-
-        return true;
-    }
-
-    private void chopBlocks(Level level, Player player, ItemStack tool, Stream<Chop> chops) {
+    private static void chopBlocks(Level level, Player player, ItemStack tool, Stream<Chop> chops, boolean felling) {
         chops.forEach(chop -> chop.apply(level, player, tool, felling));
     }
 
-    private void fellBlocks(Level level, BlockPos targetPos, Entity agent, Stream<BlockPos> blocks) {
+    private static void fellBlocks(Level level, BlockPos targetPos, Entity agent, Stream<BlockPos> blocks) {
         AtomicInteger xpAccumulator = new AtomicInteger(0);
         Consumer<BlockPos> blockBreaker;
 
@@ -108,7 +54,7 @@ public class ChopResult {
         ChopUtil.dropExperience(level, targetPos, xpAccumulator.get());
     }
 
-    private void playBlockBreakEffects(Level level, List<BlockPos> logs, List<BlockPos> leaves) {
+    private static void playBlockBreakEffects(Level level, List<BlockPos> logs, List<BlockPos> leaves) {
         int numLogsAndLeaves = logs.size() + leaves.size();
         int numEffects = Math.min((int) Math.ceil(Math.sqrt(numLogsAndLeaves)), MAX_NUM_FELLING_EFFECTS) - 1;
         int numLeavesEffects = Math.max(1, (int) Math.ceil(numEffects * ((double) leaves.size() / (double) numLogsAndLeaves)));
@@ -118,9 +64,9 @@ public class ChopResult {
         Collections.shuffle(leaves);
 
         Stream.concat(
-                logs.stream().limit(numLogsEffects),
-                leaves.stream().limit(numLeavesEffects)
-        )
+                        logs.stream().limit(numLogsEffects),
+                        leaves.stream().limit(numLeavesEffects)
+                )
                 .forEach(pos -> level.levelEvent(2001, pos, Block.getId(level.getBlockState(pos))));
     }
 
@@ -143,7 +89,52 @@ public class ChopResult {
         }
     }
 
+    /**
+     * Applies the results of chopping to the level, spawning the appropriate drops. - Chopped blocks: harvest by agent,
+     * change to chopped state - Felled blocks: harvest by no one, change to felled state - Chopped and felled blocks:
+     * harvest by agent, change to felled state
+     *
+     * @return whether the block at targetPos was broken.
+     */
+    public boolean apply(BlockPos targetPos, ServerPlayer agent, ItemStack tool, boolean breakLeaves) {
+        GameType gameType;
+        gameType = agent.gameMode.getGameModeForPlayer();
+
+        AtomicBoolean somethingChanged = new AtomicBoolean(false);
+        List<BlockPos> logs = Stream.concat(chops.stream().map(Chop::getBlockPos), fells.stream())
+                .filter(pos -> !somethingChanged.get() && !agent.blockActionRestricted(level, pos, gameType))
+                .peek(pos -> {
+                    BlockState blockState = level.getBlockState(pos);
+                    somethingChanged.compareAndSet(false, blockState.isAir());
+                })
+                .collect(Collectors.toList());
+
+        if (somethingChanged.get()) {
+            return true;
+        }
+
+        chopBlocks(level, agent, tool, chops.stream(), isFelling());
+
+        if (isFelling()) {
+            List<BlockPos> leaves = breakLeaves
+                    ? ChopUtil.getTreeLeaves(level, logs).stream()
+                    .filter(pos -> !agent.blockActionRestricted(level, pos, agent.gameMode.getGameModeForPlayer()))
+                    .collect(Collectors.toList())
+                    : Collections.emptyList();
+
+            logs.remove(targetPos);
+            playBlockBreakEffects(level, logs, leaves);
+
+            fells.remove(targetPos);
+            fellBlocks(level, targetPos, agent, Stream.of(fells, leaves).flatMap(Collection::stream));
+
+            return true;
+        }
+
+        return false;
+    }
+
     public boolean isFelling() {
-        return fells.size() > 0;
+        return !fells.isEmpty();
     }
 }

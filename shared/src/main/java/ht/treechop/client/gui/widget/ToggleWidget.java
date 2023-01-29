@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.gui.util.Sprite;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import org.apache.commons.lang3.tuple.Pair;
 

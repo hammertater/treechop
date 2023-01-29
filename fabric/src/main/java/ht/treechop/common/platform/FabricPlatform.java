@@ -1,36 +1,41 @@
 package ht.treechop.common.platform;
 
 import ht.treechop.api.ChopData;
+import ht.treechop.api.ChopDataImmutable;
 import ht.treechop.api.TreeChopEvents;
 import ht.treechop.api.TreeData;
 import ht.treechop.common.registry.FabricModBlocks;
-import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import ht.treechop.common.util.TreeDataImpl;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 public class FabricPlatform implements Platform {
+    @Override
+    public boolean isDedicatedServer() {
+        return FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
+    }
 
     @Override
-    public boolean onStartBlockBreak(Player player, ItemStack tool, BlockPos blockPos) {
-        Level level = player.level;
-        return PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(level, player, blockPos, level.getBlockState(blockPos), level.getBlockEntity(blockPos));
+    public boolean uses(ModLoader loader) {
+        return loader == ModLoader.FABRIC;
     }
 
     @Override
     public TreeData detectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, boolean overrideLeaves) {
-        TreeData treeData = new TreeData(overrideLeaves);
+        TreeData treeData = new TreeDataImpl(overrideLeaves);
         boolean canceled = !TreeChopEvents.DETECT_TREE.invoker().onDetectTree(level, player, blockPos, blockState, overrideLeaves);
         if (canceled) {
-            return TreeData.empty();
+            return TreeDataImpl.empty();
         }
         return treeData;
     }
@@ -38,7 +43,7 @@ public class FabricPlatform implements Platform {
     // Returns true if chopping should continue
     @Override
     public boolean startChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData, Object trigger) {
-        return !TreeChopEvents.BEFORE_CHOP.invoker().beforeChop(
+        return TreeChopEvents.BEFORE_CHOP.invoker().beforeChop(
                 level,
                 agent,
                 pos,
@@ -48,8 +53,8 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData) {
-        TreeChopEvents.BEFORE_CHOP.invoker().beforeChop(
+    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData) {
+        TreeChopEvents.AFTER_CHOP.invoker().afterChop(
                 level,
                 agent,
                 pos,
@@ -69,9 +74,12 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public boolean doItemDamage(ItemStack tool, Level level, BlockState blockState, BlockPos pos, Player player) {
-        AtomicBoolean broke = new AtomicBoolean(false);
-        tool.hurtAndBreak(1, player, (Player thePlayer) -> broke.set(true));
-        return broke.get();
+    public ResourceLocation getResourceLocationForBlock(Block block) {
+        return Registry.BLOCK.getKey(block);
+    }
+
+    @Override
+    public ResourceLocation getResourceLocationForItem(Item item) {
+        return Registry.ITEM.getKey(item);
     }
 }

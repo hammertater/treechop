@@ -6,9 +6,9 @@ import net.minecraft.core.Position;
 
 public class Vector3 implements Position {
 
-    private final double x;
-    private final double y;
-    private final double z;
+    public final double x;
+    public final double y;
+    public final double z;
 
     public Vector3(double x, double y, double z) {
         this.x = x;
@@ -94,6 +94,63 @@ public class Vector3 implements Position {
 
     public Vector3d asVector3d() {
         return new Vector3d(this.x(), this.y(), this.z());
+    }
+
+    public Vector3 clamp(Vector3 min, Vector3 max) {
+        return new Vector3(
+                clamp(x, min.x, max.x),
+                clamp(y, min.y, max.y),
+                clamp(z, min.z, max.z)
+        );
+    }
+
+    private double clamp(double value, double min, double max) {
+        return Double.max(Double.min(value, max), min);
+    }
+
+    public Vector3 subtract(Vector3 other) {
+        return new Vector3(x - other.x, y - other.y, z - other.z);
+    }
+
+    public double length() {
+        return Math.sqrt(length2());
+    }
+
+    private double length2() {
+        return x * x + y * y + z * z;
+    }
+
+    public double dot(Vector3 vector) {
+        return dot(vector.x, vector.y, vector.z);
+    }
+
+    public double dot(double x, double y, double z) {
+        return this.x * x + this.y * y + this.z * z;
+    }
+
+    public Vector3 cross(Vector3 vector) {
+        return cross(vector.x, vector.y, vector.z);
+    }
+
+    private Vector3 cross(double x, double y, double z) {
+        return new Vector3(
+                this.y * z - this.z * y,
+                this.z * x - this.x * z,
+                this.x * y - this.y * x
+        );
+    }
+
+    @Override
+    public String toString() {
+        return "Vector3{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
+    }
+
+    public Vector3 normalize() {
+        return scale(1 / length());
     }
 
 }

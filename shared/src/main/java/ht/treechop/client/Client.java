@@ -3,16 +3,23 @@ package ht.treechop.client;
 import ht.treechop.TreeChop;
 import ht.treechop.client.gui.screen.ClientSettingsScreen;
 import ht.treechop.client.settings.ClientChopSettings;
+import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ClientRequestSettingsPacket;
 import ht.treechop.common.network.CustomPacket;
+import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
+import ht.treechop.common.util.TreeCache;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 
 public abstract class Client {
+    protected static final Permissions serverPermissions = new Permissions();
+    public static TreeCache treeCache = new TreeCache();
+    protected static Client instance;
     protected static final ClientChopSettings chopSettings = new ClientChopSettings() {
         @Override
         public ChopSettings set(SettingsField field, Object value) {
@@ -20,10 +27,6 @@ public abstract class Client {
             return super.set(field, value);
         }
     };
-    protected static final Permissions serverPermissions = new Permissions();
-    protected static Client instance;
-
-    public static TreeCache treeCache = new TreeCache();
 
     public static void requestSetting(SettingsField field, Object value) {
         Client.instance().sendToServer(new ClientRequestSettingsPacket(field, value));
@@ -83,6 +86,14 @@ public abstract class Client {
         TreeChop.LOGGER.info("Sending chop settings sync request");
         chopSettings.copyFrom(ConfigHandler.CLIENT.getChopSettings());
         Client.instance().sendToServer(new ClientRequestSettingsPacket(chopSettings));
+    }
+
+    public static void handleUpdateChopsPacket(ServerUpdateChopsPacket message) {
+        ServerUpdateChopsPacket.handle(message);
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level != null && level.getBlockEntity(message.getPos()) instanceof ChoppedLogBlock.MyEntity entity) {
+            entity.update(level);
+        }
     }
 
     abstract void sendToServer(CustomPacket packet);

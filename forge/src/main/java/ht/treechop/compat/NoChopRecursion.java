@@ -16,7 +16,7 @@ import java.util.Map;
 @EventBusSubscriber(modid = TreeChop.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class NoChopRecursion {
 
-    static private Map<Player, Long> lastChopTickByPlayers = new HashMap<>();
+    static private final Map<Player, Long> lastChopTickByPlayers = new HashMap<>();
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {

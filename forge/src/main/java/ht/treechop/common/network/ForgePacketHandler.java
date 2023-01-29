@@ -1,8 +1,9 @@
 package ht.treechop.common.network;
 
 import ht.treechop.TreeChop;
+import ht.treechop.client.SafeClient;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
@@ -10,10 +11,10 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-// See https://github.com/Vazkii/Botania/blob/7e1d89a1d6deda7286744e3b7c55369b2cf5e533/src/main/java/vazkii/botania/common/network/PacketHandler.java
-public final class ForgePacketHandler implements PacketHandler {
+public abstract class ForgePacketHandler {
     private static final String PROTOCOL = "7";
     public static final SimpleChannel HANDLER = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(TreeChop.MOD_ID + "-channel"),
@@ -22,37 +23,73 @@ public final class ForgePacketHandler implements PacketHandler {
             PROTOCOL::equals
     );
 
-    @SuppressWarnings("UnusedAssignment")
-    public static void init() {
-        int id = 0;
+    public static void registerPackets() {
+        registerClientToServerPacket(
+                ClientRequestSettingsPacket.ID,
+                ClientRequestSettingsPacket.class,
+                ClientRequestSettingsPacket::encode,
+                ClientRequestSettingsPacket::decode,
+                ClientRequestSettingsPacket::handle
+        );
 
-        // Client-to-server messages
-        HANDLER.registerMessage(id++, ClientRequestSettingsPacket.class, ClientRequestSettingsPacket::encode, ClientRequestSettingsPacket::decode, (packet, context) -> ClientRequestSettingsPacket.handle(packet, context.get().getSender(), reply -> HANDLER.sendTo(reply, context.get().getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT)));
+        registerServerToClientPacket(
+                ServerConfirmSettingsPacket.ID,
+                ServerConfirmSettingsPacket.class,
+                ServerConfirmSettingsPacket::encode,
+                ServerConfirmSettingsPacket::decode,
+                ServerConfirmSettingsPacket::handle
+        );
 
-        // Server-to-client messages
-        HANDLER.registerMessage(id++, ServerConfirmSettingsPacket.class, ServerConfirmSettingsPacket::encode, ServerConfirmSettingsPacket::decode, PacketProcessor.toClient((message, sender) -> ServerConfirmSettingsPacket.handle(message)));
+        registerServerToClientPacket(
+                ServerPermissionsPacket.ID,
+                ServerPermissionsPacket.class,
+                ServerPermissionsPacket::encode,
+                ServerPermissionsPacket::decode,
+                ServerPermissionsPacket::handle
+        );
 
-        HANDLER.registerMessage(id++, ServerPermissionsPacket.class, ServerPermissionsPacket::encode, ServerPermissionsPacket::decode, PacketProcessor.toClient((message, sender) -> ServerPermissionsPacket.handle(message)));
-
-        HANDLER.registerMessage(id++, ServerUpdateChopsPacket.class, ServerUpdateChopsPacket::encode, ServerUpdateChopsPacket::decode, PacketProcessor.toClient((message, sender) -> ServerUpdateChopsPacket.handle(message, sender.level)));
+        registerServerToClientPacket(
+                ServerUpdateChopsPacket.ID,
+                ServerUpdateChopsPacket.class,
+                ServerUpdateChopsPacket::encode,
+                ServerUpdateChopsPacket::decode,
+                SafeClient::handleUpdateChopsPacket
+        );
     }
 
-    record PacketProcessor<T> (BiConsumer<T, ServerPlayer> handler, LogicalSide receiverSide) implements BiConsumer<T, Supplier<NetworkEvent.Context>> {
-        public static <T> PacketProcessor<T> toServer(BiConsumer<T, ServerPlayer> handler) {
-            return new PacketProcessor<>(handler, LogicalSide.SERVER);
-        }
+    private static <T> void registerClientToServerPacket(ResourceLocation id, Class<T> packetClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, MessageFromClientHandler<T> handler) {
+        HANDLER.registerMessage(id.hashCode(), packetClass, encoder, decoder, ClientPacketProcessor.replyChannel(handler));
+    }
 
-        public static <T> PacketProcessor<T> toClient(BiConsumer<T, ServerPlayer> handler) {
-            return new PacketProcessor<>(handler, LogicalSide.CLIENT);
+    private static <T> void registerServerToClientPacket(ResourceLocation id, Class<T> packetClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, MessageFromServerHandler<T> handler) {
+        HANDLER.registerMessage(id.hashCode(), packetClass, encoder, decoder, ServerPacketProcessor.replyChannel(handler));
+    }
+
+    private record ClientPacketProcessor<T> (MessageFromClientHandler<T> handler) implements BiConsumer<T, Supplier<NetworkEvent.Context>> {
+        public static <T> ClientPacketProcessor<T> replyChannel(MessageFromClientHandler<T> handler) {
+            return new ClientPacketProcessor<>(handler);
         }
 
         @Override
         public void accept(T message, Supplier<NetworkEvent.Context> context) {
-            if (context.get().getDirection().getReceptionSide() == receiverSide) {
-                context.get().enqueueWork(() -> handler.accept(message, context.get().getSender()));
+            if (context.get().getDirection().getReceptionSide() == LogicalSide.SERVER) {
+                context.get().enqueueWork(() -> handler.accept(message, context.get().getSender(), reply -> HANDLER.sendTo(reply, context.get().getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT)));
             }
             context.get().setPacketHandled(true);
+        }
+    }
 
+    private record ServerPacketProcessor<T> (MessageFromServerHandler<T> handler) implements BiConsumer<T, Supplier<NetworkEvent.Context>> {
+        public static <T> ServerPacketProcessor<T> replyChannel(MessageFromServerHandler<T> handler) {
+            return new ServerPacketProcessor<>(handler);
+        }
+
+        @Override
+        public void accept(T message, Supplier<NetworkEvent.Context> context) {
+            if (context.get().getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+                context.get().enqueueWork(() -> handler.accept(message));
+            }
+            context.get().setPacketHandled(true);
         }
     }
 }

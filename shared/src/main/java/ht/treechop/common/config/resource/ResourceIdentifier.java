@@ -1,7 +1,7 @@
-package ht.treechop.common.config.item;
+package ht.treechop.common.config.resource;
 
 import ht.treechop.TreeChop;
-import net.minecraft.world.item.Item;
+import net.minecraft.core.DefaultedRegistry;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class ItemIdentifier {
+public abstract class ResourceIdentifier {
 
     private static final Pattern PATTERN = Pattern.compile("^\\s*([#@])?([a-z0-9_\\-.]*(?=:))?:?([a-z0-9_\\-./]*)?(.*)?");
     private static final Pattern QUALIFIERS_PATTERN = Pattern.compile("^\\?(.*)$");
@@ -23,7 +23,7 @@ public abstract class ItemIdentifier {
     private final List<IdentifierQualifier> qualifiers;
     private final String string;
 
-    public ItemIdentifier(String nameSpace, String localSpace, List<IdentifierQualifier> qualifiers, String string) {
+    public ResourceIdentifier(String nameSpace, String localSpace, List<IdentifierQualifier> qualifiers, String string) {
         this.nameSpace = nameSpace;
         this.localSpace = localSpace;
         this.qualifiers = qualifiers;
@@ -31,9 +31,10 @@ public abstract class ItemIdentifier {
     }
 
     /**
-     * @param string by mod ("@mod"), tag ("#mod:tag"), or single identifier ("mod:item") with optional qualifiers ("mod:item=2")
+     * @param string by mod ("@mod"), tag ("#mod:tag"), or single identifier ("mod:id") with optional qualifiers
+     *               ("mod:id=2")
      */
-    public static ItemIdentifier from(String string) {
+    public static ResourceIdentifier from(String string) {
         Matcher matcher = PATTERN.matcher(string);
         if (matcher.find()) {
             String searchSpace = Optional.ofNullable(matcher.group(1)).orElse("");
@@ -42,18 +43,18 @@ public abstract class ItemIdentifier {
             List<IdentifierQualifier> qualifiers = parseQualifiers(Optional.ofNullable(matcher.group(4)).orElse(""));
 
             if (searchSpace.equals("#")) {
-                return new ItemTagIdentifier(either(namespace, DEFAULT_NAMESPACE), localSpace, qualifiers, string);
+                return new ResourceTagIdentifier(either(namespace, DEFAULT_NAMESPACE), localSpace, qualifiers, string);
             } else if (searchSpace.equals("@")) {
                 if (namespace.equals("")) {
-                    return new ItemNamespaceIdentifier(localSpace, qualifiers, string);
+                    return new ResourceNamespaceIdentifier(localSpace, qualifiers, string);
                 } else {
-                    return new MalformedItemIdentifier(string, "unqualified identifier does not match \"@mod\"");
+                    return new MalformedResourceIdentifier(string, "unqualified identifier does not match \"@mod\"");
                 }
             } else {
-                return new SingleItemIdentifier(either(namespace, DEFAULT_NAMESPACE), localSpace, qualifiers, string);
+                return new SingleResourceIdentifier(either(namespace, DEFAULT_NAMESPACE), localSpace, qualifiers, string);
             }
         } else {
-            return new MalformedItemIdentifier(string, "unqualified identifier does not match \"@mod\", \"#mod:tag\", or \"mod:item\"");
+            return new MalformedResourceIdentifier(string, "unqualified identifier does not match \"@mod\", \"#mod:tag\", or \"mod:id\"");
         }
     }
 
@@ -61,7 +62,7 @@ public abstract class ItemIdentifier {
         Matcher matcher = QUALIFIERS_PATTERN.matcher(qualifiersString);
         if (matcher.find()) {
             return Arrays.stream(matcher.group(1).split(","))
-                    .map(ItemIdentifier::parseQualifier)
+                    .map(ResourceIdentifier::parseQualifier)
                     .collect(Collectors.toList());
         } else {
             return Collections.emptyList();
@@ -81,6 +82,10 @@ public abstract class ItemIdentifier {
         return string.equals("") ? fallbackIfEmpty : string;
     }
 
+    private static void parsingError(String idString, String message) {
+        TreeChop.LOGGER.warn("Configuration issue: failed to parse \"{}\": {} (to silence this warning, find and delete \"{}\" in treechop-common.toml)", idString, message, idString);
+    }
+
     public String getNamespace() {
         return nameSpace;
     }
@@ -97,15 +102,11 @@ public abstract class ItemIdentifier {
         return string;
     }
 
-    public String getItemID() {
+    public String getResourceLocation() {
         return String.format("%s:%s", getNamespace(), getLocalSpace());
     }
 
-    public abstract Stream<Item> resolve();
-
-    private static void parsingError(String idString, String message) {
-        TreeChop.LOGGER.warn("Configuration issue: failed to parse \"{}\": {} (to silence this warning, find and delete \"{}\" in treechop-common.toml)", idString, message, idString);
-    }
+    public abstract <R extends DefaultedRegistry<T>, T> Stream<T> resolve(R registry);
 
     public void parsingError(String message) {
         parsingError(getString(), message);
