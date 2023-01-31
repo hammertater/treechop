@@ -93,7 +93,7 @@ dependencies {
     implementation project(":shared")
 
     compileOnly fg.deobf("curse.maven:dynamictrees-252818:3831578")
-    runtimeOnly fg.deobf("curse.maven:dynamictrees-252818:3831578")
+//    runtimeOnly fg.deobf("curse.maven:dynamictrees-252818:3831578")
 
     compileOnly fg.deobf("curse.maven:pmmo-353935:3809102") // https://github.com/Harmonised7/project_mmo
 //    runtimeOnly fg.deobf("curse.maven:pmmo-353935:3809102")
@@ -102,7 +102,7 @@ dependencies {
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3674344")
 
     compileOnly fg.deobf("curse.maven:the-one-probe-245211:3965688")
-    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:3965688")
+//    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:3965688")
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
     testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"

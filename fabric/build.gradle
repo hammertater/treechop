@@ -36,11 +36,11 @@ dependencies {
 //    modRuntimeOnly "curse.maven:jade-324717:3922834"
 
     modCompileOnly "mcp.mobius.waila:wthit-api:fabric-4.13.3"
-    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-4.13.3"
-    modRuntimeOnly "lol.bai:badpackets:fabric-0.1.2"
+//    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-4.13.3"
+//    modRuntimeOnly "lol.bai:badpackets:fabric-0.1.2"
 
-    modRuntimeOnly "curse.maven:sodium-394468:3669187"
-    modRuntimeOnly "curse.maven:starlight-521783:3667443"
+//    modRuntimeOnly "curse.maven:sodium-394468:3669187"
+//    modRuntimeOnly "curse.maven:starlight-521783:3667443"
 //    modRuntimeOnly "curse.maven:terrestria-323974:4166789"
 
     modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:3.1.0"
