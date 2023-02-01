@@ -50,15 +50,18 @@ public class ForgeCommon {
 
     @SubscribeEvent
     public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-        final ResourceLocation loc = new ResourceLocation(TreeChop.MOD_ID + "chop_settings_capability");
+        final ResourceLocation loc = TreeChop.resource("chop_settings_capability");
 
-        Entity entity = event.getObject();
-        if (!event.getCapabilities().containsKey(loc)) {
-            if (entity instanceof FakePlayer) {
-                event.addCapability(loc, new ChopSettingsProvider(ConfigHandler.fakePlayerChopSettings.get()));
-            } else {
-                event.addCapability(loc, new ChopSettingsProvider());
+        try {
+            if (!event.getCapabilities().containsKey(loc)) {
+                if (event.getObject() instanceof FakePlayer) {
+                    event.addCapability(loc, new ChopSettingsProvider(ConfigHandler.fakePlayerChopSettings.get()));
+                } else {
+                    event.addCapability(loc, new ChopSettingsProvider());
+                }
             }
+        } catch (IllegalStateException e) {
+            // Ignore, Forge is being a pieca junk
         }
     }
 
