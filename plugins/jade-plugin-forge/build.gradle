@@ -84,7 +84,8 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${mcversion}-${forgeversion}"
 
-    implementation fg.deobf("ht.treechop:forge:$rootProject.version")
+//    implementation fg.deobf("ht.treechop:forge:$rootProject.version")
+    implementation fg.deobf("curse.maven:treechop-421377:4374845")
     implementation fg.deobf("curse.maven:jade-324717:3970956")
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
