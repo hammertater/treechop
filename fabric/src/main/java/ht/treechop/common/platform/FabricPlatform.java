@@ -53,13 +53,14 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData) {
+    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData, boolean felled) {
         TreeChopEvents.AFTER_CHOP.invoker().afterChop(
                 level,
                 agent,
                 pos,
                 blockState,
-                chopData
+                chopData,
+                felled
         );
     }
 

@@ -26,9 +26,9 @@ public final class TreeChopEvents {
     );
 
     public static final Event<AfterChop> AFTER_CHOP = EventFactory.createArrayBacked(AfterChop.class,
-            (listeners) -> (world, player, pos, state, chopData) -> {
+            (listeners) -> (world, player, pos, state, chopData, felled) -> {
                 for (AfterChop event : listeners) {
-                    event.afterChop(world, player, pos, state, chopData);
+                    event.afterChop(world, player, pos, state, chopData, felled);
                 }
             }
     );
@@ -65,7 +65,7 @@ public final class TreeChopEvents {
         /**
          * Signals that a block has been chopped.
          */
-        void afterChop(Level world, Player player, BlockPos pos, BlockState state, ChopDataImmutable chopData);
+        void afterChop(Level world, Player player, BlockPos pos, BlockState state, ChopDataImmutable chopData, boolean felled);
     }
 
     @FunctionalInterface
