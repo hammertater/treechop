@@ -5,10 +5,7 @@ import ht.treechop.api.*;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.EntityChopSettings;
-import ht.treechop.common.util.AxeAccessor;
-import ht.treechop.common.util.BlockNeighbors;
-import ht.treechop.common.util.ClassUtil;
-import ht.treechop.common.util.TreeDataImpl;
+import ht.treechop.common.util.*;
 import ht.treechop.server.Server;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -472,7 +469,8 @@ public class ChopUtil {
                 return fallback;
             }
         }
-        return strippedState;
+
+        return BlockUtil.copyStateProperties(strippedState, state);
     }
 
 }
