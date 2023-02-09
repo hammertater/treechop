@@ -109,8 +109,8 @@ dependencies {
     compileOnly fg.deobf("curse.maven:the-one-probe-245211:3965693")
 //    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:3965693")
 
-    compileOnly fg.deobf("curse.maven:project-mmo-353935:4379871") // https://github.com/Caltinor/Project-MMO-2.0
-    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4379871")
+    compileOnly fg.deobf("curse.maven:project-mmo-353935:4383165") // https://github.com/Caltinor/Project-MMO-2.0
+//    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4383165")
 
     compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:4160388")

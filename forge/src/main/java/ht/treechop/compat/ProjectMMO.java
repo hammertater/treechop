@@ -51,8 +51,10 @@ public class ProjectMMO {
 
     public static void awardXPOnChop(ChopEvent.FinishChopEvent event) {
         try {
-            Map<String, Long> awardMap = APIUtils.getXpAwardMap(event.getLevel(), event.getChoppedBlockPos(), EventType.BLOCK_BREAK, event.getPlayer());
-            awardMap.forEach((skill, amount) -> APIUtils.addXp(skill, event.getPlayer(), amount));
+            if (!event.getFelled()) {
+                Map<String, Long> awardMap = APIUtils.getXpAwardMap(event.getLevel(), event.getChoppedBlockPos(), EventType.BLOCK_BREAK, event.getPlayer());
+                awardMap.forEach((skill, amount) -> APIUtils.addXp(skill, event.getPlayer(), amount));
+            }
         } catch (NoSuchMethodError e) {
             crank(e);
         }
