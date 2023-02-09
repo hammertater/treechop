@@ -26,6 +26,8 @@ import java.util.function.Function;
 @EventBusSubscriber(modid = TreeChop.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class ProjectMMO {
 
+    private static boolean broke = false;
+
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
         if (ModList.get().isLoaded("pmmo")) {
@@ -34,8 +36,16 @@ public class ProjectMMO {
                 APIUtils.registerBlockXpGainTooltipData(TreeChop.resource("chopped_log"), EventType.BLOCK_BREAK, TREE_XP);
                 MinecraftForge.EVENT_BUS.addListener(ProjectMMO::awardXPOnChop);
             } catch (NoSuchMethodError e) {
-                // Ignore
+                crank(e);
             }
+        }
+    }
+
+    private static void crank(NoSuchMethodError e) {
+        if (!broke) {
+            TreeChop.LOGGER.error("Something went wrong with Project MMO compatibility!");
+            e.printStackTrace();
+            broke = true;
         }
     }
 
@@ -44,7 +54,7 @@ public class ProjectMMO {
             Map<String, Long> awardMap = APIUtils.getXpAwardMap(event.getLevel(), event.getChoppedBlockPos(), EventType.BLOCK_BREAK, event.getPlayer());
             awardMap.forEach((skill, amount) -> APIUtils.addXp(skill, event.getPlayer(), amount));
         } catch (NoSuchMethodError e) {
-            // Ignore
+            crank(e);
         }
     }
 
@@ -67,8 +77,8 @@ public class ProjectMMO {
                 return APIUtils.getXpAwardMap(ObjectType.BLOCK, EventType.BLOCK_BREAK, resource, choppedLog.getLevel().isClientSide ? LogicalSide.CLIENT : LogicalSide.SERVER, null);
             }
         } catch (NoSuchMethodError e) {
-            // Ignore
+            crank(e);
         }
-    	return new HashMap<>();
+        return new HashMap<>();
     };
 }
