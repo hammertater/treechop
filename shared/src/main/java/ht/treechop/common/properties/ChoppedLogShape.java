@@ -174,7 +174,8 @@ public enum ChoppedLogShape implements StringRepresentable {
     }
 
     public AABB getBoundingBox(int radius) {
-        return radiusBoxes.get(Math.max(MIN_RADIUS, Math.min(radius, MAX_RADIUS)));
+        final AABB defaultBox = new AABB(0, 0, 0, 16, 16, 16);
+        return radiusBoxes.getOrDefault(Math.max(MIN_RADIUS, Math.min(radius, MAX_RADIUS)), defaultBox);
     }
 
     public boolean isSideOpen(Direction side) {
