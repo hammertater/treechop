@@ -18,7 +18,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -27,8 +26,8 @@ public class FabricChoppedLogEntityRenderer extends FabricChoppedLogBakedModel i
     protected final TextureAtlasSprite defaultSprite;
     private final RandomSource random = RandomSource.create();
     private final BlockRenderDispatcher blockRenderer;
-    private List<BakedQuad> quads = Collections.emptyList();
 
+    @SuppressWarnings("deprecation")
     public FabricChoppedLogEntityRenderer(BlockEntityRendererProvider.Context context) {
         this.defaultSprite = Minecraft.getInstance().getModelManager()
                 .getAtlas(TextureAtlas.LOCATION_BLOCKS)
