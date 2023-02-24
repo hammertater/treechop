@@ -257,7 +257,15 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     }
 
     public boolean propagatesSkylightDown(BlockState blockState, @NotNull BlockGetter level, @NotNull BlockPos pos) {
-        return !blockState.getValue(WATERLOGGED) && super.propagatesSkylightDown(blockState, level, pos);
+        if (blockState.getValue(WATERLOGGED)) {
+            return false;
+        } else if (getImitatedBlockState(level, pos).propagatesSkylightDown(level, pos)) {
+            return true;
+        }else if (level.getBlockEntity(pos) instanceof MyEntity entity) {
+            return entity.getShape().isSideOpen(Direction.UP) && entity.getShape().isSideOpen(Direction.DOWN);
+        } else {
+            return false;
+        }
     }
 
     @SuppressWarnings("deprecation")
