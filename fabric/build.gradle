@@ -39,7 +39,7 @@ dependencies {
     modCompileOnly "curse.maven:jade-324717:3952631"
 //    modRuntimeOnly "curse.maven:jade-324717:3952631"
 
-//    modRuntimeOnly "curse.maven:sodium-394468:3957319"
+//    modRuntimeOnly "curse.maven:sodium-394468:3957319" // Doesn't wanna work in IntelliJ
 //    modRuntimeOnly "curse.maven:indium-459496:3957480"
 //    modRuntimeOnly "curse.maven:irisshaders-455508:3981799"
 
