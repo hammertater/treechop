@@ -30,7 +30,7 @@ public class FabricClient extends Client implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        if (FabricLoader.getInstance().isModLoaded("sodium")) {
+        if (FabricLoader.getInstance().isModLoaded("sodium") && !FabricLoader.getInstance().isModLoaded("indium")) {
             TreeChop.LOGGER.info("Sodium detected! Using alternative block renderer.");
             ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ChoppedLogModelProvider(new HiddenChoppedLogBakedModel()));
             BlockEntityRendererRegistry.register(FabricModBlocks.CHOPPED_LOG_ENTITY, FabricChoppedLogEntityRenderer::new);
