@@ -96,7 +96,7 @@ public class ModelUtil {
 
     private static int[] trimQuadVertices(int[] vertexData, Vector3 mins, Vector3 maxes) {
         if (vertexData.length != 32) {
-            return null;
+            return vertexData;
         }
 
         Vertex oldV1 = getVertex(vertexData, 0);
@@ -207,14 +207,6 @@ public class ModelUtil {
     }
 
     private record Vertex(double x, double y, double z, double u, double v) {
-        public Vertex withComponent(Direction.Axis axis, double value) {
-            return switch (axis) {
-                case X -> new Vertex(value, y, z, u, v);
-                case Y -> new Vertex(x, value, z, u, v);
-                case Z -> new Vertex(x, y, value, u, v);
-            };
-        }
-
         public Vector3 xyz() {
             return new Vector3(x, y, z);
         }

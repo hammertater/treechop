@@ -47,7 +47,7 @@ public class FabricChoppedLogEntityRenderer extends FabricChoppedLogBakedModel i
                     pos,
                     poseStack,
                     multiBufferSource.getBuffer(RenderType.solid()),
-                    false,
+                    true,
                     random,
                     0L,
                     overlay);
