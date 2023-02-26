@@ -2,6 +2,7 @@ package ht.treechop.client;
 
 import ht.treechop.TreeChop;
 import ht.treechop.client.model.*;
+import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.network.ServerConfirmSettingsPacket;
 import ht.treechop.common.network.ServerPermissionsPacket;
@@ -31,6 +32,7 @@ public class FabricClient extends Client implements ClientModInitializer {
     public void onInitializeClient() {
         if (FabricLoader.getInstance().isModLoaded("sodium") && !FabricLoader.getInstance().isModLoaded("indium")) {
             TreeChop.LOGGER.info("Sodium detected! Using alternative block renderer.");
+            ConfigHandler.removeBarkOnInteriorLogs.override(false);
             ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ChoppedLogModelProvider(new HiddenChoppedLogBakedModel()));
             BlockEntityRendererRegistry.register(FabricModBlocks.CHOPPED_LOG_ENTITY, FabricChoppedLogEntityRenderer::new);
         } else {
