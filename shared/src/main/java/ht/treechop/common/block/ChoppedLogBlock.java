@@ -126,7 +126,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     @SuppressWarnings("deprecation")
     @Override
     public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
+        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity && entity.getOriginalState().isSolidRender(level, pos)) {
             return entity.getShape().getOcclusionShape();
         } else {
             return Shapes.empty();

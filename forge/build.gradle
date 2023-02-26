@@ -115,6 +115,10 @@ dependencies {
     compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 
+    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4205732")
+    compileOnly fg.deobf("curse.maven:regions-unexplored-659110:4406301")
+    runtimeOnly fg.deobf("curse.maven:regions-unexplored-659110:4406301")
+
 //    runtimeOnly fg.deobf("curse.maven:structure-gel-api-378802:4029363")
 //    runtimeOnly fg.deobf("curse.maven:blue-skies-312918:3966273")
 //    runtimeOnly fg.deobf("curse.maven:caupona-656147:4036587")
