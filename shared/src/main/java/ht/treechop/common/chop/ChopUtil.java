@@ -417,7 +417,7 @@ public class ChopUtil {
             return false;
         }
 
-        ChopDataImpl chopData = new ChopDataImpl(
+        ChopData chopData = new ChopDataImpl(
                 ChopUtil.getNumChopsByTool(tool, blockState),
                 ChopUtil.playerWantsToFell(agent)
         );
