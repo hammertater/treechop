@@ -439,10 +439,7 @@ public class ChopUtil {
         if (chopResult != ChopResult.IGNORED) {
             boolean felled = chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
             TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData, felled);
-
-            if (!agent.isCreative()) {
-                tool.hurtAndBreak(1, agent, ignored -> {});
-            }
+            tool.mineBlock(level, blockState, pos, agent);
 
             return !felled;
         }
