@@ -58,8 +58,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     public ChoppedLogBlock(BlockBehaviour.Properties properties) {
         super(properties
                 .dynamicShape()
-                .isViewBlocking((BlockState blockState, BlockGetter level, BlockPos pos) -> false)
-                .noOcclusion());
+                .isViewBlocking((BlockState blockState, BlockGetter level, BlockPos pos) -> false));
         this.registerDefaultState(
                 this.getStateDefinition().any()
                         .setValue(WATERLOGGED, Boolean.FALSE)
@@ -130,14 +129,14 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
             return entity.getShape().getOcclusionShape();
         } else {
-            return Shapes.block();
+            return Shapes.empty();
         }
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public boolean useShapeForLightOcclusion(BlockState blockState) {
-        return true;
+        return false;
     }
 
     @Override
@@ -254,18 +253,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
 
         return super.updateShape(blockState, side, neighborState, level, pos, neighborPos);
-    }
-
-    public boolean propagatesSkylightDown(BlockState blockState, @NotNull BlockGetter level, @NotNull BlockPos pos) {
-        if (blockState.getValue(WATERLOGGED)) {
-            return false;
-        } else if (getImitatedBlockState(level, pos).propagatesSkylightDown(level, pos)) {
-            return true;
-        }else if (level.getBlockEntity(pos) instanceof MyEntity entity) {
-            return entity.getShape().isSideOpen(Direction.UP) && entity.getShape().isSideOpen(Direction.DOWN);
-        } else {
-            return false;
-        }
     }
 
     @SuppressWarnings("deprecation")

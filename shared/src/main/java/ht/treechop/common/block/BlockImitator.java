@@ -23,11 +23,6 @@ public abstract class BlockImitator extends Block {
     public abstract BlockState getImitatedBlockState(BlockGetter level, BlockPos pos);
 
     @Override
-    public boolean propagatesSkylightDown(BlockState blockState, BlockGetter level, BlockPos pos) {
-        return getImitatedBlockState(level, pos).propagatesSkylightDown(level, pos);
-    }
-
-    @Override
     public void animateTick(BlockState blockState, Level level, BlockPos pos, RandomSource random) {
         BlockState imitatedBlockState = getImitatedBlockState(level, pos);
         imitatedBlockState.getBlock().animateTick(imitatedBlockState, level, pos, random);
@@ -59,13 +54,12 @@ public abstract class BlockImitator extends Block {
 
     @Override
     public int getLightBlock(BlockState blockState, BlockGetter level, BlockPos pos) {
-        BlockState imitatedBlockState = getImitatedBlockState(level, pos);
-        return imitatedBlockState.getBlock().getLightBlock(imitatedBlockState, level, pos);
+        return super.getLightBlock(blockState, level, pos);
     }
 
     @Override
     public float getShadeBrightness(BlockState blockState, BlockGetter level, BlockPos pos) {
-        return getImitatedBlockState(level, pos).getShadeBrightness(level, pos);
+        return super.getShadeBrightness(blockState, level, pos);
     }
 
     @Override
