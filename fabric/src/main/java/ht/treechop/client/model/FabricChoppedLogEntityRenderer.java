@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.common.block.FabricChoppedLogBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -31,7 +30,7 @@ public class FabricChoppedLogEntityRenderer extends FabricChoppedLogBakedModel i
     public FabricChoppedLogEntityRenderer(BlockEntityRendererProvider.Context context) {
         this.defaultSprite = Minecraft.getInstance().getModelManager()
                 .getAtlas(TextureAtlas.LOCATION_BLOCKS)
-                .getSprite(defaultTextureRL);
+                .getSprite(DEFAULT_TEXTURE_RESOURCE);
         this.blockRenderer = context.getBlockRenderDispatcher();
     }
 
@@ -46,7 +45,7 @@ public class FabricChoppedLogEntityRenderer extends FabricChoppedLogBakedModel i
                     entity.getBlockState(),
                     pos,
                     poseStack,
-                    multiBufferSource.getBuffer(RenderType.solid()),
+                    multiBufferSource.getBuffer(RENDER_TYPE),
                     true,
                     random,
                     0L,

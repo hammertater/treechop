@@ -54,7 +54,7 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
 
     @Override
     public @NotNull ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
-        return ChunkRenderTypeSet.of(RenderType.translucent());
+        return ChunkRenderTypeSet.of(RENDER_TYPE);
     }
 
     @Override

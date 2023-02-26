@@ -11,6 +11,7 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
@@ -26,8 +27,6 @@ public class FabricClient extends Client implements ClientModInitializer {
         Client.instance = new FabricClient();
     }
 
-    public static ChoppedLogBakedModel choppedLogModel = new FabricChoppedLogBakedModel();
-
     @Override
     public void onInitializeClient() {
         if (FabricLoader.getInstance().isModLoaded("sodium") && !FabricLoader.getInstance().isModLoaded("indium")) {
@@ -35,7 +34,8 @@ public class FabricClient extends Client implements ClientModInitializer {
             ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ChoppedLogModelProvider(new HiddenChoppedLogBakedModel()));
             BlockEntityRendererRegistry.register(FabricModBlocks.CHOPPED_LOG_ENTITY, FabricChoppedLogEntityRenderer::new);
         } else {
-            ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ChoppedLogModelProvider(choppedLogModel));
+            ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> new ChoppedLogModelProvider(new FabricChoppedLogBakedModel()));
+            BlockRenderLayerMap.INSTANCE.putBlock(FabricModBlocks.CHOPPED_LOG, ChoppedLogBakedModel.RENDER_TYPE);
         }
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> syncOnJoin());
