@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     private static TextureAtlasSprite defaultSprite;
     protected static final ResourceLocation DEFAULT_TEXTURE_RESOURCE = new ResourceLocation("block/stripped_oak_log");
-    public static final RenderType RENDER_TYPE = RenderType.translucent();
+    public static final RenderType RENDER_TYPE = RenderType.cutout(); // Don't use translucent, looks nuts with shaders
 
     private static BlockState getStrippedNeighbor(BlockAndTintGetter level, BlockPos pos, Direction direction) {
         BlockPos neighborPos = pos.relative(direction);

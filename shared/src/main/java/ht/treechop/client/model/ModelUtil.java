@@ -1,6 +1,5 @@
 package ht.treechop.client.model;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.math.Vector3f;
 import ht.treechop.common.util.Vector3;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -95,14 +94,12 @@ public class ModelUtil {
     }
 
     private static int[] trimQuadVertices(int[] vertexData, Vector3 mins, Vector3 maxes) {
-        if (vertexData.length != 32) {
-            return vertexData;
-        }
+        int vertexSize = vertexData.length / 4;
 
-        Vertex oldV1 = getVertex(vertexData, 0);
-        Vertex oldV2 = getVertex(vertexData, 1);
-        Vertex oldV3 = getVertex(vertexData, 2);
-        Vertex oldV4 = getVertex(vertexData, 3);
+        Vertex oldV1 = getVertex(vertexData, 0, vertexSize);
+        Vertex oldV2 = getVertex(vertexData, 1, vertexSize);
+        Vertex oldV3 = getVertex(vertexData, 2, vertexSize);
+        Vertex oldV4 = getVertex(vertexData, 3, vertexSize);
 
 //        mins = new Vector3(0, 0, 0);
 //        maxes = new Vector3(16, 16, 16);
@@ -111,11 +108,11 @@ public class ModelUtil {
         Vertex newV3 = lerpVertexUVsInTriangle(oldV3.xyz().clamp(mins, maxes), oldV1, oldV2, oldV3);
         Vertex newV4 = lerpVertexUVsInTriangle(oldV4.xyz().clamp(mins, maxes), oldV1, oldV2, oldV3);
 
-        int[] newVertexData = Arrays.copyOf(vertexData, 32);
-        setVertex(newVertexData, 0, newV1);
-        setVertex(newVertexData, 1, newV2);
-        setVertex(newVertexData, 2, newV3);
-        setVertex(newVertexData, 3, newV4);
+        int[] newVertexData = Arrays.copyOf(vertexData, vertexData.length);
+        setVertex(newVertexData, 0, vertexSize, newV1);
+        setVertex(newVertexData, 1, vertexSize, newV2);
+        setVertex(newVertexData, 2, vertexSize, newV3);
+        setVertex(newVertexData, 3, vertexSize, newV4);
 
         return newVertexData;
     }
@@ -156,9 +153,8 @@ public class ModelUtil {
         return new Vector3(w1, w2, w3);
     }
 
-    private static final int VERTEX_SIZE = DefaultVertexFormat.BLOCK.getIntegerSize();
-    private static Vertex getVertex(int[] vertexData, int index) {
-        int i = index * VERTEX_SIZE;
+    private static Vertex getVertex(int[] vertexData, int index, int vertexSize) {
+        int i = index * vertexSize;
 
         float x = Float.intBitsToFloat(vertexData[i]) * 16;
         float y = Float.intBitsToFloat(vertexData[i + 1]) * 16;
@@ -170,8 +166,8 @@ public class ModelUtil {
         return new Vertex(x, y, z, u, v);
     }
 
-    private static void setVertex(int[] vertexData, int index, Vertex vertex) {
-        int i = index * VERTEX_SIZE;
+    private static void setVertex(int[] vertexData, int index, int vertexSize, Vertex vertex) {
+        int i = index * vertexSize;
 
         vertexData[i] = Float.floatToIntBits((float) vertex.x  / 16f);
         vertexData[i + 1] = Float.floatToIntBits((float) vertex.y / 16f);
@@ -182,11 +178,7 @@ public class ModelUtil {
     }
 
     public static BakedQuad translateQuad(BakedQuad quad, Vector3 translation) {
-        if (quad.getVertices().length != 32) {
-            return quad;
-        }
-
-        int[] vertexData = Arrays.copyOf(quad.getVertices(), 32);
+        int[] vertexData = Arrays.copyOf(quad.getVertices(), quad.getVertices().length);
         translateVertex(vertexData, 0, translation);
         translateVertex(vertexData, 1, translation);
         translateVertex(vertexData, 2, translation);
@@ -196,8 +188,9 @@ public class ModelUtil {
     }
 
     private static void translateVertex(int[] vertexData, int index, Vector3 translation) {
-        Vertex vertex = getVertex(vertexData, index);
-        setVertex(vertexData, index, new Vertex(
+        int vertexSize = vertexData.length / 4;
+        Vertex vertex = getVertex(vertexData, index, vertexSize);
+        setVertex(vertexData, index, vertexSize, new Vertex(
                 vertex.x + translation.x,
                 vertex.y + translation.y,
                 vertex.z + translation.z,
