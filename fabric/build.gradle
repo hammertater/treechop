@@ -28,7 +28,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabricloaderversion}"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricversion}"
-    modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.2.6"
+    modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.2.11"
 
     implementation project(":shared")
 
@@ -38,9 +38,6 @@ dependencies {
 
     modCompileOnly "curse.maven:jade-324717:3952631"
 //    modRuntimeOnly "curse.maven:jade-324717:3952631"
-
-    modCompileOnly "curse.maven:regions-unexplored-659110:4406264"
-    modRuntimeOnly "curse.maven:regions-unexplored-659110:4406264"
 
 //    modRuntimeOnly "curse.maven:sodium-394468:4381988" // Doesn't wanna work in IntelliJ
 //    modRuntimeOnly "curse.maven:indium-459496:3957480"
