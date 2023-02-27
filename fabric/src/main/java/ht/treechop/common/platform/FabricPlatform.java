@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -82,5 +83,10 @@ public class FabricPlatform implements Platform {
     @Override
     public ResourceLocation getResourceLocationForItem(Item item) {
         return Registry.ITEM.getKey(item);
+    }
+
+    @Override
+    public BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+        return null;
     }
 }
