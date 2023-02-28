@@ -104,6 +104,12 @@ dependencies {
     compileOnly fg.deobf("curse.maven:the-one-probe-245211:3965688")
 //    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:3965688")
 
+    compileOnly fg.deobf("curse.maven:mantle-74924:4353120")
+    compileOnly fg.deobf("curse.maven:tinkers-construct-74072:4395997")
+
+//    runtimeOnly fg.deobf("curse.maven:mantle-74924:4353120")
+//    runtimeOnly fg.deobf("curse.maven:tinkers-construct-74072:4395997")
+
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
     testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
