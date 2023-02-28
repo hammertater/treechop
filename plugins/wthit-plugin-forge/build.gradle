@@ -67,9 +67,10 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${mcversion}-${forgeversion}"
 
-    implementation fg.deobf("ht.treechop:forge:$rootProject.version")
+//    implementation fg.deobf("ht.treechop:forge:$rootProject.version")
+    implementation fg.deobf("curse.maven:treechop-421377:4388478")
 
-    implementation fg.deobf("curse.maven:wthit-455982:3947976")
+    implementation fg.deobf("curse.maven:wthit-455982:4368794")
     runtimeOnly fg.deobf("curse.maven:badpackets-615134:3773642")
 
 //    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-4.13.3")

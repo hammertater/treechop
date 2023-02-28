@@ -111,10 +111,12 @@ public class ChopEvent extends Event {
      */
     public static class FinishChopEvent extends ChopEvent {
         private final ChopDataImmutable chopData;
+        private final boolean felled;
 
-        public FinishChopEvent(Level level, Player player, BlockPos choppedBlockPos, BlockState choppedBlockState, ChopDataImmutable chopData) {
+        public FinishChopEvent(Level level, Player player, BlockPos choppedBlockPos, BlockState choppedBlockState, ChopDataImmutable chopData, boolean felled) {
             super(level, player, choppedBlockPos, choppedBlockState);
             this.chopData = chopData;
+            this.felled = felled;
         }
 
         public int getNumChops() {
@@ -123,6 +125,10 @@ public class ChopEvent extends Event {
 
         public boolean getFelling() {
             return chopData.getFelling();
+        }
+
+        public boolean getFelled() {
+            return felled;
         }
     }
 

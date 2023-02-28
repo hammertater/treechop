@@ -516,7 +516,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue treesMustHaveLeaves;
         public final ForgeConfigSpec.BooleanValue chopInCreativeMode;
         public final ForgeConfigSpec.BooleanValue showChoppingIndicators;
-        public final ForgeConfigSpec.BooleanValue removeBarkOnInteriorLogs;
+        private final ForgeConfigSpec.BooleanValue removeBarkOnInteriorLogs;
         public final ForgeConfigSpec.IntValue indicatorXOffset;
         public final ForgeConfigSpec.IntValue indicatorYOffset;
         public final ForgeConfigSpec.BooleanValue showFellingOptions;

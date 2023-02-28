@@ -4,7 +4,8 @@ import ht.treechop.TreeChop;
 import ht.treechop.api.TreeData;
 import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.util.ChopUtil;
+import ht.treechop.common.chop.ChopUtil;
+import ht.treechop.common.config.ConfigHandler;
 import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.component.ItemComponent;
 import mcp.mobius.waila.api.component.PairComponent;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 
 @WailaPlugin(id = TreeChop.MOD_ID)
 @Mod(TreeChopWthitPlugin.MOD_ID)
-public class TreeChopWthitPlugin implements IWailaPlugin, IComponentProvider {
+public class TreeChopWthitPlugin implements IWailaPlugin, IBlockComponentProvider {
     public static final String MOD_ID = "treechopwthit";
     public static final String TREECHOP_ID = "treechop";
     private static final TreeChopWthitPlugin INSTANCE = new TreeChopWthitPlugin();
@@ -54,7 +55,8 @@ public class TreeChopWthitPlugin implements IWailaPlugin, IComponentProvider {
             Level level = accessor.getWorld();
             AtomicInteger numChops = new AtomicInteger(0);
 
-            TreeData tree = Client.treeCache.getTree(level, accessor.getPosition());
+            int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
+            TreeData tree = Client.treeCache.getTree(level, accessor.getPosition(), maxNumTreeBlocks);
             if (tree.isAProperTree(Client.getChopSettings().getTreesMustHaveLeaves())) {
                 tree.getLogBlocks().ifPresent(
                         treeBlocks -> {

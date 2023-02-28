@@ -11,8 +11,18 @@ import java.util.List;
 import java.util.Random;
 
 public class HiddenChoppedLogBakedModel extends ChoppedLogBakedModel {
+    private final List<BakedQuad> quads;
+
+    public HiddenChoppedLogBakedModel() {
+        this(Collections.emptyList());
+    }
+
+    public HiddenChoppedLogBakedModel(List<BakedQuad> quads) {
+        this.quads = quads;
+    }
+
     @Override
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, @NotNull Random random) {
-        return Collections.emptyList();
+        return quads;
     }
 }

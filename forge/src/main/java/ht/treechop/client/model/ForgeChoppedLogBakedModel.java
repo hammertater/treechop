@@ -9,6 +9,7 @@ import ht.treechop.common.registry.ForgeModBlocks;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
@@ -56,7 +57,7 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
 
     @Override
     public List<Pair<BakedModel, RenderType>> getLayerModels(ItemStack itemStack, boolean fabulous) {
-        return Collections.singletonList(Pair.of(this, RenderType.translucent()));
+        return Collections.singletonList(Pair.of(this, RENDER_TYPE));
     }
 
     @Override
@@ -82,13 +83,10 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
         }
     }
 
-    @NotNull
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull Random rand, @NotNull IModelData extraData) {
         if (side == null) {
-            BlockState strippedState = (extraData.hasProperty(STRIPPED_BLOCK_STATE))
-                    ? extraData.getData(STRIPPED_BLOCK_STATE)
-                    : Blocks.STRIPPED_OAK_LOG.defaultBlockState();
+            BlockState strippedState = or(extraData.getData(STRIPPED_BLOCK_STATE), Blocks.STRIPPED_OAK_LOG.defaultBlockState());
 
             Map<Direction, BlockState> strippedNeighbors = or(extraData.getData(STRIPPED_NEIGHBORS), Collections.emptyMap());
             ChoppedLogShape shape = or(extraData.getData(CHOPPED_LOG_SHAPE), ChoppedLogShape.PILLAR_Y);
@@ -105,7 +103,15 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
         }
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
+    public @NotNull TextureAtlasSprite getParticleIcon(@NotNull IModelData data) {
+        BlockState strippedState = or(data.getData(STRIPPED_BLOCK_STATE), Blocks.STRIPPED_OAK_LOG.defaultBlockState());
+        return getBlockModel(strippedState).getParticleIcon();
+    }
+
     private <T> T or(T value, T fallback) {
         return value != null ? value : fallback;
     }
+
 }

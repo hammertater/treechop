@@ -126,17 +126,17 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     @SuppressWarnings("deprecation")
     @Override
     public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
+        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity && entity.getOriginalState().isSolidRender(level, pos)) {
             return entity.getShape().getOcclusionShape();
         } else {
-            return Shapes.block();
+            return Shapes.empty();
         }
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public boolean useShapeForLightOcclusion(BlockState blockState) {
-        return true;
+        return false;
     }
 
     @Override
@@ -253,10 +253,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
 
         return super.updateShape(blockState, side, neighborState, level, pos, neighborPos);
-    }
-
-    public boolean propagatesSkylightDown(BlockState blockState, @NotNull BlockGetter level, @NotNull BlockPos pos) {
-        return !blockState.getValue(WATERLOGGED) && super.propagatesSkylightDown(blockState, level, pos);
     }
 
     @SuppressWarnings("deprecation")

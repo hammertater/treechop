@@ -6,6 +6,7 @@ import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.Vector3;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
@@ -30,7 +31,8 @@ import java.util.stream.Stream;
 
 public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     private static TextureAtlasSprite defaultSprite;
-    protected final ResourceLocation defaultTextureRL = new ResourceLocation("block/stripped_oak_log");
+    protected static final ResourceLocation DEFAULT_TEXTURE_RESOURCE = new ResourceLocation("block/stripped_oak_log");
+    public static final RenderType RENDER_TYPE = RenderType.cutout(); // Don't use translucent, looks nuts with shaders
 
     private static BlockState getStrippedNeighbor(BlockAndTintGetter level, BlockPos pos, Direction direction) {
         BlockPos neighborPos = pos.relative(direction);
@@ -38,13 +40,17 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     protected Map<Direction, BlockState> getStrippedNeighbors(BlockAndTintGetter level, BlockPos pos, ChoppedLogBlock.MyEntity entity) {
-        return entity.getShape().getSolidSides(level, pos).stream().collect(Collectors.toMap(
-                side -> side,
-                side -> getStrippedNeighbor(level, pos, side)
-        ));
+        if (entity.getOriginalState().isSolidRender(level, pos)) {
+            return entity.getShape().getSolidSides(level, pos).stream().collect(Collectors.toMap(
+                    side -> side,
+                    side -> getStrippedNeighbor(level, pos, side)
+            ));
+        } else {
+            return Collections.emptyMap();
+        }
     }
 
-    protected List<BakedQuad> getBlockQuads(BlockState blockState, Direction side, Random rand) {
+    protected List<BakedQuad> getBlockQuads(BlockState blockState, Direction side, RandomSource rand) {
         BakedModel model = getBlockModel(blockState);
         return model.getQuads(blockState, side, rand);
     }
@@ -68,12 +74,12 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     @Override
     @Nullable
     public BakedModel bake(@NotNull ModelBakery modelBakery, Function<Material, TextureAtlasSprite> textureGetter, ModelState modelState, ResourceLocation modelId) {
-        defaultSprite = textureGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, defaultTextureRL));
+        defaultSprite = textureGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, DEFAULT_TEXTURE_RESOURCE));
         return this;
     }
 
     @Override
-    public @NotNull List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, @NotNull Random Random) {
+    public @NotNull List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, @NotNull RandomSource randomSource) {
         return Collections.emptyList();
     }
 
@@ -116,7 +122,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
         return defaultSprite;
     }
 
-    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int radius, Random random, Map<Direction, BlockState> strippedNeighbors) {
+    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int radius, RandomSource random, Map<Direction, BlockState> strippedNeighbors) {
         final Direction[] allDirections = { Direction.UP, Direction.DOWN, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, null };
         AABB box = shape.getBoundingBox(radius);
         Vector3 mins = new Vector3(box.minX, box.minY, box.minZ);

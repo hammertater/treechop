@@ -8,15 +8,24 @@ import ht.treechop.common.platform.Platform;
 import ht.treechop.common.registry.ForgeModBlocks;
 import ht.treechop.common.util.TreeDataImpl;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.ToolAction;
+import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -59,13 +68,14 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData) {
+    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData, boolean felled) {
         MinecraftForge.EVENT_BUS.post(new ChopEvent.FinishChopEvent(
                 level,
                 agent,
                 pos,
                 blockState,
-                chopData));
+                chopData,
+                felled));
     }
 
     @Override
@@ -86,5 +96,18 @@ public class ForgePlatform implements Platform {
     @Override
     public ResourceLocation getResourceLocationForItem(Item item) {
         return ForgeRegistries.ITEMS.getKey(item);
+    }
+
+    @Override
+    public BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+        try {
+            if (level instanceof Level realLevel) {
+                BlockHitResult fakeHitResult = BlockHitResult.miss(Vec3.ZERO, Direction.DOWN, pos);
+                return state.getToolModifiedState(new UseOnContext(realLevel, null, InteractionHand.MAIN_HAND, ItemStack.EMPTY, fakeHitResult), ToolActions.AXE_STRIP, true);
+            }
+        } catch (NullPointerException e) {
+            // Do nothing
+        }
+        return null;
     }
 }

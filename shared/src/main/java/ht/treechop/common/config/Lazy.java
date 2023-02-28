@@ -6,6 +6,7 @@ public class Lazy<T> implements Supplier<T> {
     private final Supplier<T> supplier;
     private T cache;
     private boolean available = false;
+    private boolean locked = false;
 
     public Lazy(Signal<Lazy<?>> resetSignal, Supplier<T> supplier) {
         resetSignal.add(this);
@@ -22,6 +23,14 @@ public class Lazy<T> implements Supplier<T> {
     }
 
     public void reset() {
-        available = false;
+        if (!locked) {
+            available = false;
+        }
+    }
+
+    public void override(T override) {
+        this.cache = override;
+        available = true;
+        locked = true;
     }
 }

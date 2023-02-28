@@ -3,6 +3,7 @@ package ht.treechop.common.chop;
 import ht.treechop.TreeChop;
 import ht.treechop.api.*;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.platform.Platform;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.EntityChopSettings;
 import ht.treechop.common.util.*;
@@ -417,7 +418,7 @@ public class ChopUtil {
             return false;
         }
 
-        ChopDataImpl chopData = new ChopDataImpl(
+        ChopData chopData = new ChopDataImpl(
                 ChopUtil.getNumChopsByTool(tool, blockState),
                 ChopUtil.playerWantsToFell(agent)
         );
@@ -438,11 +439,8 @@ public class ChopUtil {
 
         if (chopResult != ChopResult.IGNORED) {
             boolean felled = chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
-            TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData);
-
-            if (!agent.isCreative()) {
-                tool.hurtAndBreak(1, agent, ignored -> {});
-            }
+            TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData, felled);
+            tool.mineBlock(level, blockState, pos, agent);
 
             return !felled;
         }
@@ -460,13 +458,15 @@ public class ChopUtil {
     public static BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state, BlockState fallback) {
         BlockState strippedState = (AxeAccessor.isStripped(state.getBlock())) ? state : AxeAccessor.getStripped(state);
         if (strippedState == null) {
-            IStrippableBlock strippableBlock = ClassUtil.getStrippableBlock(state.getBlock());
-            strippedState = (strippableBlock != null)
-                    ? strippableBlock.getStrippedState(level, pos, state)
-                    : ConfigHandler.inferredStrippedStates.get().get(state.getBlock());
-
+            strippedState = TreeChop.platform.getStrippedState(level, pos, state);
             if (strippedState == null) {
-                return fallback;
+                IStrippableBlock strippableBlock = ClassUtil.getStrippableBlock(state.getBlock());
+                strippedState = (strippableBlock != null)
+                        ? strippableBlock.getStrippedState(level, pos, state)
+                        : ConfigHandler.inferredStrippedStates.get().get(state.getBlock());
+                if (strippedState == null) {
+                    strippedState = fallback;
+                }
             }
         }
 
