@@ -239,8 +239,11 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
+        public final InitializedSupplier<Boolean> compatForCarryOn = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForMushroomStems = defaultValue(true);
-        public final InitializedSupplier<Boolean> compatForDynamicTrees = defaultValue(true);
+        public final InitializedSupplier<Boolean> compatForProjectMMO = defaultValue(true);
+        public final InitializedSupplier<Boolean> compatForTheOneProbe = defaultValue(true);
+        public final InitializedSupplier<Boolean> compatForTinkersConstruct = defaultValue(true);
         public final ForgeConfigSpec.BooleanValue verboseAPI;
         protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksList;
@@ -483,11 +486,26 @@ public class ConfigHandler {
                     .define("mushroomStems", true));
 
             if (TreeChop.platform.uses(ModLoader.FORGE)) {
-                compatForDynamicTrees.set(builder
-                        .comment(String.join("\n",
-                                "Prevent conflicts with DynamicTrees",
-                                "See https://www.curseforge.com/minecraft/mc-mods/dynamictrees"))
-                        .define("dynamicTrees", true));
+                compatForCarryOn.set(builder
+                        .comment("https://www.curseforge.com/minecraft/mc-mods/carry-on",
+                                "https://modrinth.com/mod/carry-on",
+                                "Small fixes.")
+                        .define("carryOn", true));
+                compatForProjectMMO.set(builder
+                        .comment("https://www.curseforge.com/minecraft/mc-mods/project-mmo",
+                                "https://modrinth.com/mod/project-mmo",
+                                "Award woodcutting XP for chopping.")
+                        .define("projectMMO", true));
+                compatForTheOneProbe.set(builder
+                        .comment("https://www.curseforge.com/minecraft/mc-mods/the-one-probe",
+                                "https://modrinth.com/mod/the-one-probe",
+                                "Shows the number of chops required to fell a tree and what loot will drop.")
+                        .define("theOneProbe", true));
+                compatForTinkersConstruct.set(builder
+                        .comment("https://www.curseforge.com/minecraft/mc-mods/tinkers-construct",
+                                "https://modrinth.com/mod/tinkers-construct",
+                                "Makes AOE tools do more chops.")
+                        .define("tinkersConstruct", true));
             }
 
             builder.push("API");

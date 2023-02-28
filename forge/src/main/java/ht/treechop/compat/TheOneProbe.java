@@ -1,6 +1,7 @@
 package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
+import ht.treechop.common.config.ConfigHandler;
 import mcjty.theoneprobe.api.ITheOneProbe;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
@@ -13,6 +14,8 @@ import java.util.function.Function;
 public class TheOneProbe {
     @SubscribeEvent
     public static void enqueueModComms(InterModEnqueueEvent event) {
-        InterModComms.sendTo("theoneprobe", "getTheOneProbe", () -> (Function<Object, Void>) probe -> TheOneProbeInfoProvider.register((ITheOneProbe) probe));
+        if (ConfigHandler.COMMON.compatForTheOneProbe.get()) {
+            InterModComms.sendTo("theoneprobe", "getTheOneProbe", () -> (Function<Object, Void>) probe -> TheOneProbeInfoProvider.register((ITheOneProbe) probe));
+        }
     }
 }

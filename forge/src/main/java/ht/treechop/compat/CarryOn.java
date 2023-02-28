@@ -2,6 +2,7 @@ package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.ChopEvent;
+import ht.treechop.common.config.ConfigHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
@@ -14,7 +15,7 @@ public class CarryOn {
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
-        if (ModList.get().isLoaded("carryon") && CompatUtil.classExists("tschipp.carryon.common.handler.PickupHandler")) {
+        if (ConfigHandler.COMMON.compatForCarryOn.get() && ModList.get().isLoaded("carryon") && CompatUtil.classExists("tschipp.carryon.common.handler.PickupHandler")) {
             MinecraftForge.EVENT_BUS.register(EventHandler.class);
         }
     }

@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.mojang.realmsclient.util.JsonUtils;
 import ht.treechop.TreeChop;
 import ht.treechop.api.ChopEvent;
+import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -24,7 +25,7 @@ public class TinkersConstruct {
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
-        if (ModList.get().isLoaded("tconstruct")) {
+        if (ConfigHandler.COMMON.compatForTinkersConstruct.get() && ModList.get().isLoaded("tconstruct")) {
             MinecraftForge.EVENT_BUS.register(EventHandler.class);
         }
     }

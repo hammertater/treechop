@@ -7,6 +7,7 @@ import ht.treechop.TreeChop;
 import ht.treechop.api.ChopEvent;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.block.ChoppedLogBlock.MyEntity;
+import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -30,7 +31,7 @@ public class ProjectMMO {
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
-        if (ModList.get().isLoaded("pmmo")) {
+        if (ConfigHandler.COMMON.compatForProjectMMO.get() && ModList.get().isLoaded("pmmo")) {
             try {
                 //This registers custom configuration behavior for the block which is checked before a standard configuration
                 APIUtils.registerBlockXpGainTooltipData(TreeChop.resource("chopped_log"), EventType.BLOCK_BREAK, TREE_XP);
