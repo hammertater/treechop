@@ -13,7 +13,7 @@ import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraftforge.api.ModLoadingContext;
-import net.minecraftforge.api.fml.event.config.ModConfigEvents;
+import net.minecraftforge.api.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.config.ModConfig;
 
 public class TreeChopFabric extends TreeChop implements ModInitializer {
@@ -27,7 +27,12 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
 
         CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> ConfigHandler.updateTags());
 
-        ModConfigEvents.reloading(TreeChop.MOD_ID).register(TreeChopFabric::onReload);
+        ModConfigEvent.RELOADING.register((ModConfig config) -> {
+            if (config.getModId().equals(TreeChop.MOD_ID)) {
+                TreeChopFabric.onReload(config);
+            }
+        });
+
         ModLoadingContext.registerConfig(TreeChop.MOD_ID, ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
         ModLoadingContext.registerConfig(TreeChop.MOD_ID, ModConfig.Type.CLIENT, ConfigHandler.CLIENT_SPEC);
 

@@ -50,7 +50,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
         }
     }
 
-    protected List<BakedQuad> getBlockQuads(BlockState blockState, Direction side, RandomSource rand) {
+    protected List<BakedQuad> getBlockQuads(BlockState blockState, Direction side, Random rand) {
         BakedModel model = getBlockModel(blockState);
         return model.getQuads(blockState, side, rand);
     }
@@ -79,7 +79,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     @Override
-    public @NotNull List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, @NotNull RandomSource randomSource) {
+    public @NotNull List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, @NotNull Random randomSource) {
         return Collections.emptyList();
     }
 
@@ -122,7 +122,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
         return defaultSprite;
     }
 
-    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int radius, RandomSource random, Map<Direction, BlockState> strippedNeighbors) {
+    protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int radius, Random random, Map<Direction, BlockState> strippedNeighbors) {
         final Direction[] allDirections = { Direction.UP, Direction.DOWN, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, null };
         AABB box = shape.getBoundingBox(radius);
         Vector3 mins = new Vector3(box.minX, box.minY, box.minZ);

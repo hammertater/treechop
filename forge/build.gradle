@@ -95,8 +95,8 @@ dependencies {
     compileOnly fg.deobf("curse.maven:dynamictrees-252818:3831578")
 //    runtimeOnly fg.deobf("curse.maven:dynamictrees-252818:3831578")
 
-    compileOnly fg.deobf("curse.maven:pmmo-353935:4383163") // https://github.com/Harmonised7/project_mmo
-    runtimeOnly fg.deobf("curse.maven:pmmo-353935:4383163")
+    compileOnly fg.deobf("curse.maven:pmmo-353935:4401568") // https://github.com/Harmonised7/project_mmo
+//    runtimeOnly fg.deobf("curse.maven:pmmo-353935:4401568")
 
     compileOnly fg.deobf("curse.maven:carry-on-274259:3674344")
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:3674344")

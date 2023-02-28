@@ -16,7 +16,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Consumer;
@@ -61,5 +63,10 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
 
     @Override
     public void emitItemQuads(ItemStack stack, Supplier<Random> randomSupplier, RenderContext context) {
+    }
+
+    @Override
+    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, Random random) {
+        return null;
     }
 }

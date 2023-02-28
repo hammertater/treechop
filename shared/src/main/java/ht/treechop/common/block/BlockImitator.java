@@ -23,7 +23,7 @@ public abstract class BlockImitator extends Block {
     public abstract BlockState getImitatedBlockState(BlockGetter level, BlockPos pos);
 
     @Override
-    public void animateTick(BlockState blockState, Level level, BlockPos pos, RandomSource random) {
+    public void animateTick(BlockState blockState, Level level, BlockPos pos, Random random) {
         BlockState imitatedBlockState = getImitatedBlockState(level, pos);
         imitatedBlockState.getBlock().animateTick(imitatedBlockState, level, pos, random);
     }

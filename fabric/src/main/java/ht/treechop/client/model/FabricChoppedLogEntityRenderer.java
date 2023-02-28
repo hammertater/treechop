@@ -18,8 +18,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.Random;
+import java.util.function.Supplier;
 
 public class FabricChoppedLogEntityRenderer extends FabricChoppedLogBakedModel implements BlockEntityRenderer<FabricChoppedLogBlock.MyEntity> {
     protected final TextureAtlasSprite defaultSprite;
