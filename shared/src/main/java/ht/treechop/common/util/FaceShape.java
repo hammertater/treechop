@@ -1,6 +1,9 @@
 package ht.treechop.common.util;
 
+import ht.tuber.math.Box3;
+import ht.tuber.math.Vector3;
 import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
 
 import java.util.EnumMap;
 
@@ -62,11 +65,6 @@ public enum FaceShape {
         fromDirections.put(Direction.EAST, EAST);
     }
 
-    private final Vector3 corner1;
-    private final Vector3 corner3;
-    private final Vector3 corner4;
-    private final Vector3 corner2;
-
     FaceShape(Direction direction, Vector3 corner1, Vector3 corner2, Vector3 corner3, Vector3 corner4) {
         this.direction = direction;
 
@@ -74,38 +72,24 @@ public enum FaceShape {
                 .scale(-0.01);
         Vector3 pushedCorner1 = corner1.add(depthVector);
         this.faceBox = new Box3(pushedCorner1, corner3);
-
-        this.corner1 = corner1.scale(16);
-        this.corner2 = corner2.scale(16);
-        this.corner3 = corner3.scale(16);
-        this.corner4 = corner4.scale(16);
     }
 
     public static FaceShape get(Direction direction) {
         return fromDirections.get(direction);
     }
 
-    public Box3 getBox() {
-        return faceBox;
+    public AABB toAABB() {
+        return new AABB(
+                faceBox.getMinX(),
+                faceBox.getMinY(),
+                faceBox.getMinZ(),
+                faceBox.getMaxX(),
+                faceBox.getMaxY(),
+                faceBox.getMaxZ()
+        );
     }
 
     public Direction getDirection() {
         return direction;
-    }
-
-    public Vector3 getCorner1() {
-        return corner1;
-    }
-
-    public Vector3 getCorner3() {
-        return corner3;
-    }
-
-    public Vector3 getCorner4() {
-        return corner4;
-    }
-
-    public Vector3 getCorner2() {
-        return corner2;
     }
 }

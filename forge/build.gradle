@@ -95,6 +95,7 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     implementation project(":shared")
+    implementation project(":tuber")
 
     // compile against the API
     compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-5.13.4")

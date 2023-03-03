@@ -1,8 +1,4 @@
-package ht.treechop.common.util;
-
-import com.mojang.math.Vector3d;
-import com.mojang.math.Vector3f;
-import net.minecraft.world.phys.AABB;
+package ht.tuber.math;
 
 public class Box3 {
 
@@ -35,14 +31,6 @@ public class Box3 {
         );
     }
 
-    public Box3(Vector3d first, Vector3d second) {
-        this(new Vector3(first.x, first.y, first.z), new Vector3(first.x, first.y, first.z));
-    }
-
-    public Box3(Vector3f first, Vector3f second) {
-        this(new Vector3(first), new Vector3(second));
-    }
-
     public double getMinX() {
         return x1;
     }
@@ -65,17 +53,6 @@ public class Box3 {
 
     public double getMaxZ() {
         return z2;
-    }
-
-    public AABB asAxisAlignedBB() {
-        return new AABB(
-                this.x1,
-                this.y1,
-                this.z1,
-                this.x2,
-                this.y2,
-                this.z2
-        );
     }
 
 }

@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.properties.ChoppedLogShape;
-import ht.treechop.common.util.Vector3;
+import ht.tuber.math.Vector3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockModelShaper;

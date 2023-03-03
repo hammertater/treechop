@@ -1,7 +1,7 @@
 package ht.treechop.client.model;
 
 import com.mojang.math.Vector3f;
-import ht.treechop.common.util.Vector3;
+import ht.tuber.math.Vector3;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.client.renderer.block.model.BlockFaceUV;
@@ -35,8 +35,8 @@ public class ModelUtil {
     }
 
     private static float[] getUVsForQuad(Vector3 posFrom, Vector3 posTo, Direction orientation) {
-        Vector3f posFrom3f = posFrom.asVector3f();
-        Vector3f posTo3f = posTo.asVector3f();
+        Vector3f posFrom3f = toVector3f(posFrom);
+        Vector3f posTo3f = toVector3f(posTo);
         return switch (orientation) {
             case UP, DOWN -> new float[]{posFrom3f.x(), posFrom3f.z(), posTo3f.x(), posTo3f.z()};
             case EAST, WEST -> new float[]{posFrom3f.z(), posFrom3f.y(), posTo3f.z(), posTo3f.y()};
@@ -54,8 +54,8 @@ public class ModelUtil {
             int uvRotation
     ) {
         return new FaceBakery().bakeQuad(
-                posFrom.asVector3f(),
-                posTo.asVector3f(),
+                toVector3f(posFrom),
+                toVector3f(posTo),
                 new BlockElementFace(culling, -1, "", new BlockFaceUV(uvs, uvRotation)),
                 sprite,
                 orientation,
@@ -203,5 +203,9 @@ public class ModelUtil {
         public Vector3 xyz() {
             return new Vector3(x, y, z);
         }
+    }
+
+    private static Vector3f toVector3f(Vector3 vec) {
+        return new Vector3f((float)vec.x, (float)vec.y, (float)vec.z);
     }
 }

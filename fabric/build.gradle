@@ -31,6 +31,7 @@ dependencies {
     modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.2.11"
 
     implementation project(":shared")
+    implementation project(":tuber")
 
     modCompileOnly "mcp.mobius.waila:wthit-api:fabric-5.9.0"
 //    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-5.9.0"

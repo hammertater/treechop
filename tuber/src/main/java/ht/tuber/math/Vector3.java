@@ -1,10 +1,6 @@
-package ht.treechop.common.util;
+package ht.tuber.math;
 
-import com.mojang.math.Vector3d;
-import com.mojang.math.Vector3f;
-import net.minecraft.core.Position;
-
-public class Vector3 implements Position {
+public class Vector3 {
 
     public final double x;
     public final double y;
@@ -14,14 +10,6 @@ public class Vector3 implements Position {
         this.x = x;
         this.y = y;
         this.z = z;
-    }
-
-    public Vector3(Vector3f vector3f) {
-        this(vector3f.x(), vector3f.y(), vector3f.z());
-    }
-
-    public Vector3(Position position) {
-        this(position.x(), position.y(), position.z());
     }
 
     public double x() {
@@ -86,14 +74,6 @@ public class Vector3 implements Position {
 
     public Vector3 add(Number amount) {
         return add(amount.doubleValue());
-    }
-
-    public Vector3f asVector3f() {
-        return new Vector3f((float)this.x(), (float)this.y(), (float)this.z());
-    }
-
-    public Vector3d asVector3d() {
-        return new Vector3d(this.x(), this.y(), this.z());
     }
 
     public Vector3 clamp(Vector3 min, Vector3 max) {

@@ -1,4 +1,4 @@
-package ht.treechop.common.util;
+package ht.tuber.math;
 
 public class Vector2 {
 

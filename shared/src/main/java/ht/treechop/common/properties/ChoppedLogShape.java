@@ -114,7 +114,7 @@ public enum ChoppedLogShape implements StringRepresentable {
                 Shapes.empty(),
                 Arrays.stream(Direction.values())
                         .filter(direction -> direction.getAxis().isHorizontal() && !isSideOpen(direction))
-                        .map(direction -> Shapes.create(FaceShape.get(direction).getBox().asAxisAlignedBB()))
+                        .map(direction -> Shapes.create(FaceShape.get(direction).toAABB()))
                         .toArray(VoxelShape[]::new)
         );
         int x = 0;
