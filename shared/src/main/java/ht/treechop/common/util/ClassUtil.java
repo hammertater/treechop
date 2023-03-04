@@ -1,12 +1,10 @@
 package ht.treechop.common.util;
 
 import ht.treechop.TreeChop;
-import ht.treechop.api.IChoppableBlock;
-import ht.treechop.api.ICylinderBlock;
-import ht.treechop.api.IFellableBlock;
-import ht.treechop.api.IStrippableBlock;
+import ht.treechop.api.*;
 import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -64,6 +62,14 @@ public class ClassUtil {
             return strippableBlock;
         } else {
             return null;
+        }
+    }
+
+    public static IChoppingItem getChoppingItem(Item item) {
+        if (item instanceof IChoppingItem choppingItem) {
+            return choppingItem;
+        } else {
+            return TreeChop.api.getRegisteredChoppingItemBehavior(item);
         }
     }
 }
