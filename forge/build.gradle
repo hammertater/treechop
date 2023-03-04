@@ -130,6 +130,9 @@ dependencies {
 //    runtimeOnly fg.deobf("curse.maven:mutil-351914:3941314")
 //    runtimeOnly fg.deobf("curse.maven:tetra-289712:4379764")
 
+    runtimeOnly fg.deobf("curse.maven:silent-lib-242998:3968715")
+    runtimeOnly fg.deobf("curse.maven:silent-gear-297039:4397693")
+
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
     testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"

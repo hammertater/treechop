@@ -235,8 +235,16 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
+        public final InitializedSupplier<Boolean> compatForCarryOn = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForMushroomStems = defaultValue(true);
-        public final InitializedSupplier<Boolean> compatForDynamicTrees = defaultValue(true);
+        public final InitializedSupplier<Boolean> compatForProjectMMO = defaultValue(true);
+        public final InitializedSupplier<Boolean> compatForTheOneProbe = defaultValue(true);
+        public final InitializedSupplier<Boolean> compatForSilentGear = defaultValue(true);
+        public final InitializedSupplier<Integer> silentGearSawChops = defaultValue(5);
+        public final InitializedSupplier<Boolean> compatForTinkersConstruct = defaultValue(true);
+        public final InitializedSupplier<Integer> tinkersConstructTreeAOEChops = defaultValue(5);
+        public final InitializedSupplier<Integer> tinkersConstructWoodAOEChops = defaultValue(5);
+        public final InitializedSupplier<Double> tinkersConstructExpandedMultiplier = defaultValue(2.0);
         public final ForgeConfigSpec.BooleanValue verboseAPI;
         protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksList;
@@ -370,7 +378,9 @@ public class ConfigHandler {
                             "Blocks that should never be chopped, even if included in the list above",
                             "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
                     .defineList("exceptions",
-                            List.of("minecraft:bamboo"),
+                            List.of("minecraft:bamboo",
+                                    "#dynamictrees:branches",
+                                    "dynamictrees:trunk_shell"),
                             always -> true);
             builder.pop();
 
@@ -448,7 +458,6 @@ public class ConfigHandler {
                             "- Items in this list that have special support for TreeChop will not be blacklisted; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#blacklist"))
                     .defineList("items",
                             Arrays.asList(
-                                    "#tconstruct:modifiable/harvest",
                                     "botania:terra_axe",
                                     "mekanism:atomic_disassembler",
                                     "@lumberjack",
@@ -478,11 +487,53 @@ public class ConfigHandler {
                     .define("mushroomStems", true));
 
             if (TreeChop.platform.uses(ModLoader.FORGE)) {
-                compatForDynamicTrees.set(builder
-                        .comment(String.join("\n",
-                                "Prevent conflicts with DynamicTrees",
-                                "See https://www.curseforge.com/minecraft/mc-mods/dynamictrees"))
-                        .define("dynamicTrees", true));
+                compatForCarryOn.set(builder
+                        .comment("https://www.curseforge.com/minecraft/mc-mods/carry-on",
+                                "https://modrinth.com/mod/carry-on",
+                                "Small fixes.")
+                        .define("carryOn", true));
+                compatForProjectMMO.set(builder
+                        .comment("https://www.curseforge.com/minecraft/mc-mods/project-mmo",
+                                "https://modrinth.com/mod/project-mmo",
+                                "Award woodcutting XP for chopping.")
+                        .define("projectMMO", true));
+                compatForTheOneProbe.set(builder
+                        .comment("https://www.curseforge.com/minecraft/mc-mods/the-one-probe",
+                                "https://modrinth.com/mod/the-one-probe",
+                                "Shows the number of chops required to fell a tree and what loot will drop.")
+                        .define("theOneProbe", true));
+
+                builder.push("silentgear");
+                compatForSilentGear.set(builder
+                        .comment("https://www.curseforge.com/minecraft/mc-mods/tinkers-construct",
+                                "https://modrinth.com/mod/tinkers-construct",
+                                "Makes saws do more chops.")
+                        .define("enabled", true));
+                silentGearSawChops.set(builder
+                        .comment("Number of chops a saw should perform on a single block break")
+                        .defineInRange("sawChops", 5, 1, 10000)
+                );
+                builder.pop();
+
+                builder.push("tinkersConstruct");
+                compatForTinkersConstruct.set(builder
+                        .comment("https://www.curseforge.com/minecraft/mc-mods/tinkers-construct",
+                                "https://modrinth.com/mod/tinkers-construct",
+                                "Makes AOE tools do more chops.")
+                        .define("enabled", true));
+                tinkersConstructTreeAOEChops.set(builder
+                        .comment("Number of chops that tree breaking tools (like broad axes) should perform on a single block break")
+                        .defineInRange("treeBreakingTools", 5, 1, 10000)
+                );
+                tinkersConstructWoodAOEChops.set(builder
+                        .comment("Number of chops that wood breaking tools (like hand axes) should perform on a single block break")
+                        .defineInRange("woodBreakingTools", 1, 1, 10000)
+                );
+                tinkersConstructExpandedMultiplier.set(builder
+                        .comment("The chop count multiplier for each level of the expanded upgrade")
+                        .defineInRange("expandedMultiplier", 2.0, 1.0, 10000.0)
+                );
+                builder.pop();
             }
 
             builder.push("API");

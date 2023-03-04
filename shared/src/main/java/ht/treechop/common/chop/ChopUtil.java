@@ -372,7 +372,8 @@ public class ChopUtil {
     }
 
     public static int getNumChopsByTool(ItemStack tool, BlockState blockState) {
-        if (tool.getItem() instanceof IChoppingItem choppingItem) {
+        IChoppingItem choppingItem = ClassUtil.getChoppingItem(tool.getItem());
+        if (choppingItem != null) {
             return choppingItem.getNumChops(tool, blockState);
         } else {
             return 1;
