@@ -246,6 +246,9 @@ public class ConfigHandler {
         public final InitializedSupplier<Boolean> compatForSilentGear = defaultValue(true);
         public final InitializedSupplier<Integer> silentGearSawChops = defaultValue(5);
         public final InitializedSupplier<Boolean> compatForTinkersConstruct = defaultValue(true);
+        public final InitializedSupplier<Integer> tinkersConstructTreeAOEChops = defaultValue(5);
+        public final InitializedSupplier<Integer> tinkersConstructWoodAOEChops = defaultValue(5);
+        public final InitializedSupplier<Double> tinkersConstructExpandedMultiplier = defaultValue(2.0);
         public final ForgeConfigSpec.BooleanValue verboseAPI;
         protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksList;
@@ -521,7 +524,20 @@ public class ConfigHandler {
                         .comment("https://www.curseforge.com/minecraft/mc-mods/tinkers-construct",
                                 "https://modrinth.com/mod/tinkers-construct",
                                 "Makes AOE tools do more chops.")
-                        .define("tinkersConstruct", true));
+                        .define("enabled", true));
+                tinkersConstructTreeAOEChops.set(builder
+                        .comment("Number of chops that tree breaking tools (like broad axes) should perform on a single block break")
+                        .defineInRange("treeBreakingTools", 5, 1, 10000)
+                );
+                tinkersConstructWoodAOEChops.set(builder
+                        .comment("Number of chops that wood breaking tools (like hand axes) should perform on a single block break")
+                        .defineInRange("woodBreakingTools", 1, 1, 10000)
+                );
+                tinkersConstructExpandedMultiplier.set(builder
+                        .comment("The chop count multiplier for each level of the expanded upgrade")
+                        .defineInRange("expandedMultiplier", 2.0, 1.0, 10000.0)
+                );
+                builder.pop();
             }
 
             builder.push("API");

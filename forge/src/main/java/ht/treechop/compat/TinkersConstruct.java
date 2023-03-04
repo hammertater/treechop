@@ -2,7 +2,6 @@ package ht.treechop.compat;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.realmsclient.util.JsonUtils;
 import ht.treechop.TreeChop;
 import ht.treechop.api.ChopEvent;
 import ht.treechop.common.config.ConfigHandler;
@@ -31,6 +30,18 @@ public class TinkersConstruct {
     }
 
     private static class EventHandler {
+        private static double treeAoeChops() {
+            return ConfigHandler.COMMON.tinkersConstructTreeAOEChops.get();
+        }
+
+        private static double woodAoeChops() {
+            return ConfigHandler.COMMON.tinkersConstructWoodAOEChops.get();
+        }
+
+        private static double expandedMultiplier() {
+            return ConfigHandler.COMMON.tinkersConstructExpandedMultiplier.get();
+        }
+
         @SubscribeEvent
         public static void onChop(ChopEvent.StartChopEvent event) {
             ItemStack tool = event.getPlayer().getMainHandItem();
@@ -45,12 +56,13 @@ public class TinkersConstruct {
 
         private static int getNumChops(ToolStack toolStack) {
             final ModifierId expandedId = new ModifierId("tconstruct", "expanded");
-            int level = toolStack.getModifierLevel(expandedId);
+            double level = toolStack.getModifierLevel(expandedId);
 
-            return switch (getAoeId(toolStack)) {
-                case "tconstruct:tree" -> 5 * (1 + level);
-                default -> 1 + level;
-            };
+            if ("tconstruct:tree".equals(getAoeId(toolStack))) {
+                return (int) (treeAoeChops() * (1.0 + level * expandedMultiplier()));
+            } else {
+                return (int) (woodAoeChops() * (1.0 + level * expandedMultiplier()));
+            }
         }
 
         private static String getAoeId(ToolStack toolStack) {
@@ -58,11 +70,11 @@ public class TinkersConstruct {
                 JsonElement genericData = IAreaOfEffectIterator.LOADER.serialize(toolStack.getDefinition().getData().getAOE());
                 if (genericData.isJsonObject()) {
                     JsonObject data = genericData.getAsJsonObject();
-                    String aoeId = JsonUtils.getStringOr("type", data, "");
+                    String aoeId = getJsonStringOrEmpty(data, "type");
                     if (aoeId.equals("tconstruct:fallback")) {
                         data = data.getAsJsonObject("if_matches");
                         if (data != null) {
-                            return JsonUtils.getStringOr("type", data, "");
+                            return getJsonStringOrEmpty(data, "type");
                         }
                     } else {
                         return aoeId;
@@ -72,6 +84,11 @@ public class TinkersConstruct {
             }
 
             return "";
+        }
+
+        private static String getJsonStringOrEmpty(JsonObject json, String field) {
+            JsonElement element = json.get(field);
+            return (element != null) ? element.getAsString() : "";
         }
     }
 }
