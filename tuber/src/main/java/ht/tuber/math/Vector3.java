@@ -1,5 +1,7 @@
 package ht.tuber.math;
 
+import java.util.Objects;
+
 public class Vector3 {
 
     public final double x;
@@ -120,6 +122,10 @@ public class Vector3 {
         );
     }
 
+    public Vector3 normalize() {
+        return scale(1 / length());
+    }
+
     @Override
     public String toString() {
         return "Vector3{" +
@@ -129,8 +135,17 @@ public class Vector3 {
                 '}';
     }
 
-    public Vector3 normalize() {
-        return scale(1 / length());
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof Vector3 vec) {
+            return x == vec.x && y == vec.y && z == vec.z;
+        } else {
+            return false;
+        }
+    }
 }

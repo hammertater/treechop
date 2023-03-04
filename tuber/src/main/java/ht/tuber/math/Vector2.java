@@ -1,5 +1,7 @@
 package ht.tuber.math;
 
+import java.util.Objects;
+
 public class Vector2 {
 
     public final double x;
@@ -79,5 +81,19 @@ public class Vector2 {
 
     public double dot(double x, double y) {
         return this.x * x + this.y * y;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof Vector2 vec) {
+            return x == vec.x && y == vec.y;
+        } else {
+            return false;
+        }
     }
 }

@@ -1,9 +1,7 @@
 package ht.tuber.graph;
 
-import java.util.List;
+import java.util.stream.Stream;
 
 public interface DirectedGraph<T> {
-    T get(T node);
-
-    List<T> getNeighbors(T node);
+    Stream<T> getNeighbors(T node);
 }

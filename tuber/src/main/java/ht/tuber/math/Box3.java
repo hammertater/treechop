@@ -1,5 +1,7 @@
 package ht.tuber.math;
 
+import java.util.Objects;
+
 public class Box3 {
 
     public static final Box3 ZERO = new Box3(0, 0, 0, 0, 0, 0);
@@ -53,6 +55,21 @@ public class Box3 {
 
     public double getMaxZ() {
         return z2;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x1, y1, z1, x2, y2, z2);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof Box3 box) {
+            return x1 == box.x1 && y1 == box.y1 && z1 == box.z1 &&
+                    x2 == box.x2 && y2 == box.y2 && z2 == box.z2;
+        } else {
+            return false;
+        }
     }
 
 }
