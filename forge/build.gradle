@@ -104,6 +104,10 @@ dependencies {
     compileOnly fg.deobf("curse.maven:the-one-probe-245211:3965688")
 //    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:3965688")
 
+    runtimeOnly fg.deobf("curse.maven:silent-lib-242998:3708359")
+    compileOnly fg.deobf("curse.maven:silent-gear-297039:4361861")
+    runtimeOnly fg.deobf("curse.maven:silent-gear-297039:4361861")
+
     compileOnly fg.deobf("curse.maven:mantle-74924:4353120")
     compileOnly fg.deobf("curse.maven:tinkers-construct-74072:4395997")
 

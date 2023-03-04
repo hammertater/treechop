@@ -243,6 +243,8 @@ public class ConfigHandler {
         public final InitializedSupplier<Boolean> compatForMushroomStems = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForProjectMMO = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForTheOneProbe = defaultValue(true);
+        public final InitializedSupplier<Boolean> compatForSilentGear = defaultValue(true);
+        public final InitializedSupplier<Integer> silentGearSawChops = defaultValue(5);
         public final InitializedSupplier<Boolean> compatForTinkersConstruct = defaultValue(true);
         public final ForgeConfigSpec.BooleanValue verboseAPI;
         protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
@@ -501,6 +503,20 @@ public class ConfigHandler {
                                 "https://modrinth.com/mod/the-one-probe",
                                 "Shows the number of chops required to fell a tree and what loot will drop.")
                         .define("theOneProbe", true));
+
+                builder.push("silentgear");
+                compatForSilentGear.set(builder
+                        .comment("https://www.curseforge.com/minecraft/mc-mods/tinkers-construct",
+                                "https://modrinth.com/mod/tinkers-construct",
+                                "Makes saws do more chops.")
+                        .define("enabled", true));
+                silentGearSawChops.set(builder
+                        .comment("Number of chops a saw should perform on a single block break")
+                        .defineInRange("sawChops", 5, 1, 10000)
+                );
+                builder.pop();
+
+                builder.push("tinkersConstruct");
                 compatForTinkersConstruct.set(builder
                         .comment("https://www.curseforge.com/minecraft/mc-mods/tinkers-construct",
                                 "https://modrinth.com/mod/tinkers-construct",
