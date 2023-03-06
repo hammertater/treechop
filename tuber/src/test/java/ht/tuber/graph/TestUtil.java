@@ -8,8 +8,17 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public class TestUtil {
+
+    public static List<Vector2> fourNeighbors = List.of(
+            pos(1, 0),
+            pos(0, 1),
+            pos(-1, 0),
+            pos(0, -1)
+    );;
+
     public static Map<Vector2, TestBlock> getTestWorld() {
         return Map.of(
+                pos(0, -1), TestBlock.DIRT,
                 pos(0, 0), TestBlock.LOG,
                 pos(0, 1), TestBlock.LOG,
                 pos(0, 2), TestBlock.LEAVES
@@ -17,19 +26,7 @@ public class TestUtil {
     }
 
     public static DirectedGraph<Vector2> getTestGraph() {
-        final List<Vector2> neighborOffsets = List.of(
-                pos(1, 0),
-                pos(0, 1),
-                pos(-1, 0),
-                pos(0, -1)
-        );
-
-        return new DirectedGraph<Vector2>() {
-            @Override
-            public Stream<Vector2> getNeighbors(Vector2 node) {
-                return neighborOffsets.stream().map(node::add);
-            }
-        };
+        return node -> fourNeighbors.stream().map(node::add);
     }
 
     public static Vector2 pos(double x, double y) {
