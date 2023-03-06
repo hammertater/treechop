@@ -6,6 +6,7 @@ import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ForgePacketHandler;
 import ht.treechop.common.registry.ForgeModBlocks;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -37,7 +38,7 @@ public class TreeChopForge extends TreeChop {
 
         // Listeners for the Forge bus
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
-        forgeBus.addListener(event -> ConfigHandler.updateTags());
+        forgeBus.addListener((TagsUpdatedEvent event) -> ConfigHandler.updateTags());
 
         ForgePacketHandler.registerPackets();
     }
