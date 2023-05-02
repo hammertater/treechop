@@ -21,16 +21,22 @@ public class SupportGraph<T> extends AbstractGraph<T> {
 
         while (!nextNodes.isEmpty()) {
             T lowerNode = nextNodes.poll();
-            int hops = nodeValues.get(lowerNode) + 1;
+            int lowerHops = nodeValues.get(lowerNode);
+            int nextHops = lowerHops + 1;
 
             sourceGraph.getNeighbors(lowerNode).forEach(upperNode -> {
-                int upperHops = nodeValues.getOrDefault(upperNode, hops + 1);
-                if (upperHops >= hops) {
+                Integer upperValue = nodeValues.putIfAbsent(upperNode, nextHops);
+                int upperHops = upperValue == null ? nextHops : upperValue;
+
+                if (upperHops >= lowerHops) {
                     supportGraph.add(lowerNode, upperNode);
 
-                    if (upperHops > hops) {
-                        nodeValues.put(upperNode, hops);
+                    if (upperHops > lowerHops) {
                         nextNodes.add(upperNode);
+
+                        if (upperHops > nextHops) {
+                            nodeValues.put(upperNode, nextHops);
+                        }
                     }
                 }
             });
@@ -39,14 +45,18 @@ public class SupportGraph<T> extends AbstractGraph<T> {
         return supportGraph;
     }
 
-    public Stream<T> getSupport(T node) {
-        return getLocalSupport(node).distinct();
-    }
+    public Stream<T> getSupport(T base) {
+        Queue<T> nextNodes = new LinkedList<>(List.of(base));
+        Set<T> visited = new HashSet<>();
 
-    private Stream<T> getLocalSupport(T node) {
         return Stream.concat(
-                Stream.of(node),
-                getNeighbors(node).flatMap(this::getSupport)
-        );
+                Stream.of(base),
+                Stream.iterate(nextNodes.poll(), Objects::nonNull, ignored -> nextNodes.poll())
+                        .filter(node -> !visited.contains(node))
+                        .flatMap(node -> {
+                            visited.add(node);
+                            return getNeighbors(node).peek(nextNodes::add);
+                        })
+        ).distinct();
     }
 }
