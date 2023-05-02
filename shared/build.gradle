@@ -28,7 +28,3 @@ dependencies {
 test {
     useJUnitPlatform()
 }
-
-tasks.withType(JavaCompile) {
-    source(project(":tuber").sourceSets.main.allSource)
-}

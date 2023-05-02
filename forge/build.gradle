@@ -148,6 +148,7 @@ test {
 }
 
 tasks.withType(JavaCompile) {
+    source(project(":tuber").sourceSets.main.allSource)
     source(project(":shared").sourceSets.main.allSource)
 }
 
