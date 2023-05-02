@@ -6,7 +6,7 @@ import ht.treechop.api.ChopEvent;
 import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.common.registry.ForgeModBlocks;
-import ht.treechop.common.util.TreeDataImpl;
+import ht.treechop.common.util.FullTreeData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +24,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -43,11 +42,11 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public TreeDataImpl detectTreeEvent(Level level, ServerPlayer agent, BlockPos blockPos, BlockState blockState, boolean overrideLeaves) {
-        TreeDataImpl treeData = new TreeDataImpl(overrideLeaves);
+    public FullTreeData detectTreeEvent(Level level, ServerPlayer agent, BlockPos blockPos, BlockState blockState, boolean overrideLeaves) {
+        FullTreeData treeData = new FullTreeData(overrideLeaves);
         boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.DetectTreeEvent(level, agent, blockPos, blockState, treeData));
         if (canceled) {
-            return TreeDataImpl.empty();
+            return FullTreeData.empty();
         }
         return treeData;
     }

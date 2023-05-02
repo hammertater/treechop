@@ -3,7 +3,6 @@ package ht.treechop.common.chop;
 import ht.treechop.TreeChop;
 import ht.treechop.api.*;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.platform.Platform;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.EntityChopSettings;
 import ht.treechop.common.util.*;
@@ -171,12 +170,12 @@ public class ChopUtil {
     }
 
     public static TreeData getTreeBlocks(Level level, BlockPos blockPos, int maxNumTreeBlocks) {
-        return getTreeBlocks(level, blockPos, pos -> ChopUtil.isBlockALog(level, pos), maxNumTreeBlocks);
+        return getTreeBlocks(level, blockPos, pos -> isBlockALog(level, pos), maxNumTreeBlocks);
     }
 
     public static TreeData getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition, int maxNumTreeBlocks) {
         if (!logCondition.test(blockPos)) {
-            return new TreeDataImpl();
+            return new FullTreeData();
         }
 
         TreeData detectData = TreeChop.platform.detectTreeEvent(level, null, blockPos, level.getBlockState(blockPos), false);
@@ -207,7 +206,7 @@ public class ChopUtil {
 
         if (currentNumChops + numChops < numChopsToFell) {
             Set<BlockPos> nearbyChoppableBlocks;
-            nearbyChoppableBlocks = ChopUtil.getConnectedBlocks(
+            nearbyChoppableBlocks = getConnectedBlocks(
                     Collections.singletonList(target),
                     pos -> BlockNeighbors.ADJACENTS_AND_DIAGONALS.asStream(pos)
                             .filter(checkPos -> Math.abs(checkPos.getY() - target.getY()) < 4 && isBlockChoppable(level, checkPos)),
@@ -220,7 +219,7 @@ public class ChopUtil {
                 List<BlockPos> choppedLogsSortedByY = nearbyChoppableBlocks.stream()
                         .filter(pos1 -> level.getBlockState(pos1).getBlock() instanceof IChoppableBlock)
                         .sorted(Comparator.comparingInt(Vec3i::getY))
-                        .collect(Collectors.toList());
+                        .toList();
 
                 // Consume nearby chopped blocks that contributed even if they're at a lower Y, but prefer higher ones
                 for (BlockPos pos : choppedLogsSortedByY) {
@@ -414,14 +413,14 @@ public class ChopUtil {
 
     public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) {
         if (!isBlockChoppable(level, pos, blockState)
-                || !ChopUtil.playerWantsToChop(agent)
-                || !ChopUtil.canChopWithTool(agent, tool, level, pos, blockState)) {
+                || !playerWantsToChop(agent)
+                || !canChopWithTool(agent, tool, level, pos, blockState)) {
             return false;
         }
 
         ChopData chopData = new ChopDataImpl(
-                ChopUtil.getNumChopsByTool(tool, blockState),
-                ChopUtil.playerWantsToFell(agent)
+                getNumChopsByTool(tool, blockState),
+                playerWantsToFell(agent)
         );
 
         boolean doChop = TreeChop.platform.startChopEvent(agent, level, pos, blockState, chopData, trigger);
@@ -429,7 +428,7 @@ public class ChopUtil {
             return false;
         }
 
-        ChopResult chopResult = ChopUtil.getChopResult(
+        ChopResult chopResult = getChopResult(
                 level,
                 pos,
                 agent,

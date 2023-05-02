@@ -8,21 +8,21 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
-public class TreeDataImpl implements TreeData {
+public class FullTreeData implements TreeData {
     private boolean hasLeaves;
     private Set<BlockPos> logBlocks;
 
-    public TreeDataImpl() {
+    public FullTreeData() {
         logBlocks = null;
     }
 
-    public TreeDataImpl(boolean overrideLeaves) {
+    public FullTreeData(boolean overrideLeaves) {
         this();
         this.hasLeaves = overrideLeaves;
     }
 
-    public static TreeDataImpl empty() {
-        return new TreeDataImpl();
+    public static FullTreeData empty() {
+        return new FullTreeData();
     }
 
     @Override

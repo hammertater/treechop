@@ -5,7 +5,7 @@ import ht.treechop.api.ChopDataImmutable;
 import ht.treechop.api.TreeChopEvents;
 import ht.treechop.api.TreeData;
 import ht.treechop.common.registry.FabricModBlocks;
-import ht.treechop.common.util.TreeDataImpl;
+import ht.treechop.common.util.FullTreeData;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
@@ -32,11 +32,11 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public TreeData detectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, boolean overrideLeaves) {
-        TreeData treeData = new TreeDataImpl(overrideLeaves);
+    public FullTreeData detectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, boolean overrideLeaves) {
+        FullTreeData treeData = new FullTreeData(overrideLeaves);
         boolean canceled = !TreeChopEvents.DETECT_TREE.invoker().onDetectTree(level, player, blockPos, blockState, overrideLeaves);
         if (canceled) {
-            return TreeDataImpl.empty();
+            return FullTreeData.empty();
         }
         return treeData;
     }

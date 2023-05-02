@@ -1,6 +1,6 @@
 package ht.treechop.api;
 
-import ht.treechop.common.util.TreeDataImpl;
+import ht.treechop.common.util.FullTreeData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -53,9 +53,9 @@ public class ChopEvent extends Event {
      */
     @Cancelable
     public static class DetectTreeEvent extends ChopEvent {
-        private final TreeDataImpl treeData;
+        private final FullTreeData treeData;
 
-        public DetectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, TreeDataImpl treeData) {
+        public DetectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, FullTreeData treeData) {
             super(level, player, blockPos, blockState);
             this.treeData = treeData;
         }

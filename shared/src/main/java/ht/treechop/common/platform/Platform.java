@@ -2,7 +2,7 @@ package ht.treechop.common.platform;
 
 import ht.treechop.api.ChopData;
 import ht.treechop.api.ChopDataImmutable;
-import ht.treechop.api.TreeData;
+import ht.treechop.common.util.FullTreeData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -20,7 +20,7 @@ public interface Platform {
 
     boolean uses(ModLoader loader);
 
-    TreeData detectTreeEvent(Level level, ServerPlayer agent, BlockPos blockPos, BlockState blockState, boolean overrideLeaves);
+    FullTreeData detectTreeEvent(Level level, ServerPlayer agent, BlockPos blockPos, BlockState blockState, boolean overrideLeaves);
 
     boolean startChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData, Object trigger);
 
