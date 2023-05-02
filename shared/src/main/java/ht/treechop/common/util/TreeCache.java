@@ -14,7 +14,7 @@ public class TreeCache {
     public TreeData getTree(Level level, BlockPos pos, int maxNumTreeBlocks) {
         TreeData tree = singleBlockCache.get(level, pos);
         if (tree == null) {
-            tree = ChopUtil.getTreeBlocks(level, pos, maxNumTreeBlocks);
+            tree = ChopUtil.getTree(level, pos, maxNumTreeBlocks);
             singleBlockCache.put(level, pos, tree);
         }
 

@@ -3,6 +3,7 @@ package ht.treechop.common.chop;
 import ht.treechop.TreeChop;
 import ht.treechop.api.*;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.events.TreeEvents;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.EntityChopSettings;
 import ht.treechop.common.util.*;
@@ -156,10 +157,7 @@ public class ChopUtil {
 
     private static ChopResult getChopResult(Level level, BlockPos blockPos, Player agent, int numChops, Predicate<BlockPos> logCondition) {
         int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
-        TreeData tree = getTreeBlocks(level, blockPos, logCondition, maxNumTreeBlocks);
-        if (tree.getLogBlocksOrEmpty().size() >= maxNumTreeBlocks) {
-            TreeChop.LOGGER.warn("Max tree size {} reached (not including leaves)", maxNumTreeBlocks);
-        }
+        TreeData tree = getTree(level, blockPos, logCondition, maxNumTreeBlocks);
 
         if (tree.isAProperTree(getPlayerChopSettings(agent).getTreesMustHaveLeaves())) {
             Set<BlockPos> supportedBlocks = tree.getLogBlocks().orElse(Collections.emptySet());
@@ -169,30 +167,12 @@ public class ChopUtil {
         }
     }
 
-    public static TreeData getTreeBlocks(Level level, BlockPos blockPos, int maxNumTreeBlocks) {
-        return getTreeBlocks(level, blockPos, pos -> isBlockALog(level, pos), maxNumTreeBlocks);
+    public static TreeData getTree(Level level, BlockPos blockPos, int maxNumTreeBlocks) {
+        return getTree(level, blockPos, pos -> isBlockALog(level, pos), maxNumTreeBlocks);
     }
 
-    public static TreeData getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition, int maxNumTreeBlocks) {
-        if (!logCondition.test(blockPos)) {
-            return new FullTreeData();
-        }
-
-        TreeData detectData = TreeChop.platform.detectTreeEvent(level, null, blockPos, level.getBlockState(blockPos), false);
-        if (detectData.getLogBlocks().isPresent()) {
-            return detectData;
-        }
-
-        Set<BlockPos> supportedBlocks = getConnectedBlocks(
-                Collections.singletonList(blockPos),
-                somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)
-                        .peek(pos -> detectData.setLeaves(detectData.hasLeaves() || isBlockLeaves(level, pos)))
-                        .filter(logCondition),
-                maxNumTreeBlocks
-        );
-
-        detectData.setLogBlocks(supportedBlocks);
-        return detectData;
+    public static TreeData getTree(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition, int maxNumTreeBlocks) {
+        return TreeEvents.detectTree(level, blockPos, logCondition, maxNumTreeBlocks);
     }
 
     private static ChopResult getChopResult(Level level, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
@@ -418,34 +398,7 @@ public class ChopUtil {
             return false;
         }
 
-        ChopData chopData = new ChopDataImpl(
-                getNumChopsByTool(tool, blockState),
-                playerWantsToFell(agent)
-        );
-
-        boolean doChop = TreeChop.platform.startChopEvent(agent, level, pos, blockState, chopData, trigger);
-        if (!doChop) {
-            return false;
-        }
-
-        ChopResult chopResult = getChopResult(
-                level,
-                pos,
-                agent,
-                chopData.getNumChops(),
-                chopData.getFelling(),
-                logPos -> isBlockALog(level, logPos)
-        );
-
-        if (chopResult != ChopResult.IGNORED) {
-            boolean felled = chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
-            TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData, felled);
-            tool.mineBlock(level, blockState, pos, agent);
-
-            return !felled;
-        }
-
-        return false;
+        return TreeEvents.chopTree(agent, level, pos, blockState, tool, trigger);
     }
 
     public static BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state) {

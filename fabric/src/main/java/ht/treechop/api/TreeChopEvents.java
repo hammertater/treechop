@@ -50,7 +50,7 @@ public final class TreeChopEvents {
     @FunctionalInterface
     public interface BeforeChop {
         /**
-         * Signals that a block is about to be chopped. Fires after a player breaks a choppable block (see {@link
+         * Signals that a block is about to be chopped. Fires after a block is chopped (see {@link
          * TreeChopAPI#isBlockChoppable}), but before it is replaced by a chopped block (usually a {@code
          * treechop:chopped_log}).
          *
