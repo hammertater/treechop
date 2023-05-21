@@ -13,7 +13,7 @@
     "sources": "https://github.com/hammertater/treechop"
   },
 
-  "license": "CC0-1.0",
+  "license": "MIT (https://github.com/hammertater/treechop/blob/main/LICENSE)",
   "icon": "logo.png",
 
   "environment": "*",
