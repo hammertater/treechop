@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -62,6 +64,10 @@ public class ChopUtil {
         }
     }
 
+    public static boolean isBlockGround(Level level, BlockPos pos, BlockState state) {
+        return state.is(BlockTags.DIRT);
+    }
+
     public static Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks, AtomicInteger iterationCounter) {
         Set<BlockPos> connectedBlocks = new HashSet<>();
         List<BlockPos> newConnectedBlocks = new LinkedList<>(startingPoints);
@@ -102,7 +108,7 @@ public class ChopUtil {
                     return ((isBlockLeaves(blockState) && !(blockState.getBlock() instanceof LeavesBlock))
                             ? BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS // Red mushroom caps can be connected diagonally downward
                             : BlockNeighbors.ADJACENTS)
-                            .asStream(pos1)
+                            .stream(pos1)
                             .filter(pos2 -> markLeavesToDestroyAndKeepLooking(level, pos2, iterationCounter, leaves, maxDistance));
                 },
                 maxNumLeavesBlocks,
@@ -134,7 +140,7 @@ public class ChopUtil {
     }
 
     public static int numChopsToFell(int supportSize) {
-        return ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(supportSize);
+        return ConfigHandler.COMMON.chopCountingAlgorithm.get().numChopsToFell(supportSize);
     }
 
     public static int numChopsToFell(Level level, Set<BlockPos> supportedBlocks) {
@@ -160,8 +166,7 @@ public class ChopUtil {
         TreeData tree = getTree(level, blockPos, logCondition, maxNumTreeBlocks);
 
         if (tree.isAProperTree(getPlayerChopSettings(agent).getTreesMustHaveLeaves())) {
-            Set<BlockPos> supportedBlocks = tree.getLogBlocks().orElse(Collections.emptySet());
-            return getChopResult(level, blockPos, supportedBlocks, numChops);
+            return getChopResult(level, blockPos, tree, numChops);
         } else {
             return ChopResult.IGNORED;
         }
@@ -175,20 +180,22 @@ public class ChopUtil {
         return TreeEvents.detectTree(level, blockPos, logCondition, maxNumTreeBlocks);
     }
 
-    private static ChopResult getChopResult(Level level, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
-        if (supportedBlocks.isEmpty()) {
+    private static ChopResult getChopResult(Level level, BlockPos target, TreeData tree, int numChops) {
+        if (tree.streamLogBlocks().findFirst().isEmpty()) {
             return ChopResult.IGNORED;
         }
 
-        BlockState blockState = level.getBlockState(target);
-        int currentNumChops = getNumChops(level, target, blockState);
+        Set<BlockPos> supportedBlocks = tree.getLogBlocks().orElse(Collections.emptySet());
+
         int numChopsToFell = numChopsToFell(level, supportedBlocks);
 
-        if (currentNumChops + numChops < numChopsToFell) {
+        TreeChopCounter chopCounter = new TreeChopCounter(level, target, tree, ConfigHandler.COMMON.chopCountingAlgorithm.get());
+
+        if (chopCounter.isEnoughToFell(numChops)) {
             Set<BlockPos> nearbyChoppableBlocks;
             nearbyChoppableBlocks = getConnectedBlocks(
                     Collections.singletonList(target),
-                    pos -> BlockNeighbors.ADJACENTS_AND_DIAGONALS.asStream(pos)
+                    pos -> BlockNeighbors.ADJACENTS_AND_DIAGONALS.stream(pos)
                             .filter(checkPos -> Math.abs(checkPos.getY() - target.getY()) < 4 && isBlockChoppable(level, checkPos)),
                     64
             );
@@ -425,5 +432,4 @@ public class ChopUtil {
 
         return BlockUtil.copyStateProperties(strippedState, state);
     }
-
 }

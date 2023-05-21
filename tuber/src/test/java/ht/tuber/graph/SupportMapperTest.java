@@ -1,7 +1,6 @@
 package ht.tuber.graph;
 
 import ht.tuber.math.Vector3;
-import ht.tuber.test.SupportMapper;
 import ht.tuber.test.TestBlock;
 import org.junit.jupiter.api.Test;
 
@@ -14,16 +13,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SupportMapperTest {
 
     private static SupportMapper<Vector3, TestBlock> makeTreeMapper(Vector3 startingPoint) {
-        return world -> {
+        return blockGetter -> {
             Set<Vector3> groundedBlocks = new HashSet<>();
 
             DirectedGraph<Vector3> graph = pos -> TestUtil.allNeighbors.stream().map(pos::add).peek(neighbor -> {
-                if (world.get(neighbor) == ht.tuber.test.TestBlock.DIRT) {
+                if (blockGetter.apply(neighbor) == ht.tuber.test.TestBlock.DIRT) {
                     groundedBlocks.add(pos);
                 }
             });
 
-            FloodFill<Vector3> flood = new FloodFillImpl<>(graph, pos -> world.get(pos) == ht.tuber.test.TestBlock.LOG);
+            FloodFill<Vector3> flood = new FloodFillImpl<>(graph, pos -> blockGetter.apply(pos) == ht.tuber.test.TestBlock.LOG);
             Set<Vector3> fill = flood.fill(startingPoint).collect(Collectors.toSet());
 
             DirectedGraph<Vector3> treeBlocks = GraphUtil.filter(graph, fill::contains);
@@ -40,7 +39,7 @@ class SupportMapperTest {
                 pos(0, 2, 0), ht.tuber.test.TestBlock.LOG
         );
 
-        SupportGraph<Vector3> gradient = makeTreeMapper(pos(0,0,0)).filter(world);
+        SupportGraph<Vector3> gradient = makeTreeMapper(pos(0,0,0)).filter(world::get);
 
         assertEquals(3, gradient.getSupport(pos(0,0, 0)).count());
         assertEquals(2, gradient.getSupport(pos(0,1, 0)).count());
@@ -56,7 +55,7 @@ class SupportMapperTest {
                 pos(1, 0, 0), ht.tuber.test.TestBlock.LOG
         );
 
-        SupportGraph<Vector3> gradient = makeTreeMapper(pos(0,0,0)).filter(world);
+        SupportGraph<Vector3> gradient = makeTreeMapper(pos(0,0,0)).filter(world::get);
 
         assertEquals(2, gradient.getSupport(pos(0,0, 0)).count());
         assertEquals(2, gradient.getSupport(pos(1,0, 0)).count());
@@ -87,7 +86,7 @@ class SupportMapperTest {
 //        long timePassed = (System.nanoTime() - startTime) / 1000000;
 //        long avgTime = timePassed / n;
 
-        SupportGraph<Vector3> gradient = makeTreeMapper(pos(0,0,0)).filter(world);
+        SupportGraph<Vector3> gradient = makeTreeMapper(pos(0,0,0)).filter(world::get);
 
         assertEquals(width * length * height, gradient.getSupport(pos(0, 0, 0)).count());
     }

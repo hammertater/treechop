@@ -14,7 +14,6 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
@@ -35,12 +34,12 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     protected static final ResourceLocation DEFAULT_TEXTURE_RESOURCE = new ResourceLocation("block/stripped_oak_log");
     public static final RenderType RENDER_TYPE = RenderType.cutout(); // Don't use translucent, looks nuts with shaders
 
-    private static BlockState getStrippedNeighbor(BlockAndTintGetter level, BlockPos pos, Direction direction) {
-        BlockPos neighborPos = pos.relative(direction);
+    private static BlockState getStrippedNeighbor(BlockAndTintGetter level, net.minecraft.core.BlockPos pos, Direction direction) {
+        net.minecraft.core.BlockPos neighborPos = pos.relative(direction);
         return ChopUtil.getStrippedState(level, pos, level.getBlockState(neighborPos));
     }
 
-    protected Map<Direction, BlockState> getStrippedNeighbors(BlockAndTintGetter level, BlockPos pos, ChoppedLogBlock.MyEntity entity) {
+    protected Map<Direction, BlockState> getStrippedNeighbors(BlockAndTintGetter level, net.minecraft.core.BlockPos pos, ChoppedLogBlock.MyEntity entity) {
         if (entity.getOriginalState().isSolidRender(level, pos)) {
             return entity.getShape().getSolidSides(level, pos).stream().collect(Collectors.toMap(
                     side -> side,

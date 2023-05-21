@@ -33,7 +33,7 @@ public class TreeEvents {
 
         Set<BlockPos> supportedBlocks = ChopUtil.getConnectedBlocks(
                 Collections.singletonList(blockPos),
-                somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)
+                somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.stream(somePos)
                         .peek(pos -> detectData.setLeaves(detectData.hasLeaves() || ChopUtil.isBlockLeaves(level, pos)))
                         .filter(logCondition),
                 maxNumTreeBlocks
