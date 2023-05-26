@@ -471,7 +471,7 @@ public class ChopUtil {
             }
         }
 
-        return BlockUtil.copyStateProperties(strippedState, state);
+        return BlockUtil.copyStateProperties(state, strippedState);
     }
 
 }
