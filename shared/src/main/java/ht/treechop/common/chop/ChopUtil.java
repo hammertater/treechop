@@ -462,16 +462,14 @@ public class ChopUtil {
             strippedState = TreeChop.platform.getStrippedState(level, pos, state);
             if (strippedState == null) {
                 IStrippableBlock strippableBlock = ClassUtil.getStrippableBlock(state.getBlock());
-                strippedState = (strippableBlock != null)
+
+                return (strippableBlock != null)
                         ? strippableBlock.getStrippedState(level, pos, state)
-                        : ConfigHandler.inferredStrippedStates.get().get(state.getBlock());
-                if (strippedState == null) {
-                    strippedState = fallback;
-                }
+                        : BlockUtil.copyStateProperties(ConfigHandler.inferredStrippedStates.get().get(state.getBlock()), state);
             }
         }
 
-        return BlockUtil.copyStateProperties(state, strippedState);
+        return fallback;
     }
 
 }
