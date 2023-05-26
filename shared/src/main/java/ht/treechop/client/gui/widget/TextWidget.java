@@ -28,11 +28,11 @@ public class TextWidget extends AbstractWidget {
 
     @SuppressWarnings({"SuspiciousNameCombination"})
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks, int xOffset) {
-        drawString(poseStack, font, getMessage(), x + xOffset, y, 0xFFFFFF);
+        drawString(poseStack, font, getMessage(), getX() + xOffset, getY(), 0xFFFFFF);
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput out) {
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 }

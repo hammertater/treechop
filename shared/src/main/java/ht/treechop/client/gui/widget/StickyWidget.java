@@ -50,17 +50,17 @@ public class StickyWidget extends AbstractWidget {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.enableDepthTest();
-            this.blit(poseStack, this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
-            this.blit(poseStack, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+            this.blit(poseStack, getX(), getY(), 0, 46 + i * 20, this.width / 2, this.height);
+            this.blit(poseStack, getX() + this.width / 2, getY(), 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
             this.renderBg(poseStack, minecraft, mouseX, mouseY);
         }
 
         int j = getFGColor();
-        drawCenteredString(poseStack, font, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | (int)Math.ceil(this.alpha * 255.0F) << 24);
+        drawCenteredString(poseStack, font, this.getMessage(), getX() + this.width / 2, getY() + (this.height - 8) / 2, j | (int)Math.ceil(this.alpha * 255.0F) << 24);
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput out) {
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 

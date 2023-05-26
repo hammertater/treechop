@@ -74,8 +74,8 @@ public abstract class NestedGui extends AbstractWidget implements ContainerEvent
         this.box = box;
         width = box.getWidth();
         height = box.getHeight();
-        x = box.getLeft();
-        y = box.getTop();
+        setX(box.getLeft());
+        setY(box.getTop());
     }
 
     public Optional<GuiEventListener> getChildAt(double x, double y) {

@@ -10,8 +10,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly "net.minecraftforge:forgeconfigapiport-fabric:4.1.4"
-//    compileOnly "org.spongepowered:forgeconfigapiport-fabric:4.1.4"
+    compileOnly "fuzs.forgeconfigapiport:forgeconfigapiport-common:5.0.11"
 }
 
 minecraft {

@@ -50,7 +50,7 @@ public class EmptyGui extends NestedGui {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput p_169152_) {
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 }

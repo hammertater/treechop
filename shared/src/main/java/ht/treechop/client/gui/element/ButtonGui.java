@@ -27,8 +27,8 @@ public class ButtonGui extends NestedGui {
 
     @Override
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        this.widget.x = getBox().getCenterX() - this.widget.getWidth() / 2;
-        this.widget.y = getBox().getCenterY() - this.widget.getHeight() / 2;
+        this.widget.setX(getBox().getCenterX() - this.widget.getWidth() / 2);
+        this.widget.setY(getBox().getCenterY() - this.widget.getHeight() / 2);
         this.widget.render(poseStack, mouseX, mouseY, partialTicks);
     }
 
@@ -43,7 +43,7 @@ public class ButtonGui extends NestedGui {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput p_169152_) {
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 }

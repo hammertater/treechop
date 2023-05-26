@@ -57,8 +57,8 @@ public class LabeledGui extends NestedGui {
     @Override
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         int center = getBox().getCenterX() + (leftColumnWidth - rightcolumnWidth) / 2;
-        this.label.x = center - COLUMN_PADDING + (rightAlignLabels ? 0 : -leftColumnWidth);
-        this.label.y = getBox().getCenterY() - 3;
+        this.label.setX(center - COLUMN_PADDING + (rightAlignLabels ? 0 : -leftColumnWidth));
+        this.label.setY(getBox().getCenterY() - 3);
         this.label.render(poseStack, mouseX, mouseY, partialTicks, rightAlignLabels);
         this.gui.setBox(center + COLUMN_PADDING, getBox().getTop(), rightcolumnWidth, getBox().getHeight());
         this.gui.render(
@@ -76,7 +76,7 @@ public class LabeledGui extends NestedGui {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput p_169152_) {
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 }

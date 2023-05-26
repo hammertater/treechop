@@ -30,8 +30,8 @@ public class ToggleGui extends NestedGui {
 
     @Override
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        widget.x = getBox().getLeft();
-        widget.y = getBox().getTop();
+        widget.setX(getBox().getLeft());
+        widget.setY(getBox().getTop());
         widget.render(poseStack, mouseX, mouseY, partialTicks);
 
         if (widget.isHoveredOrFocused()) {
@@ -50,7 +50,7 @@ public class ToggleGui extends NestedGui {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput p_169152_) {
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 }

@@ -59,8 +59,8 @@ public class ExclusiveButtonsGui extends NestedGui {
         int maxY = y;
 
         for (AbstractWidget widget : widgets) {
-            widget.x = maxX;
-            widget.y = y;
+            widget.setX(maxX);
+            widget.setY(y);
             widget.render(poseStack, mouseX, mouseY, partialTicks);
 
             maxX = Math.max(maxX, maxX + widget.getWidth());
@@ -84,7 +84,7 @@ public class ExclusiveButtonsGui extends NestedGui {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput out) {
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 

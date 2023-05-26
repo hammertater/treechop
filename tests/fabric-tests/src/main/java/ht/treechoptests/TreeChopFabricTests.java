@@ -11,8 +11,8 @@ import net.minecraft.world.item.CreativeModeTab;
 public class TreeChopFabricTests implements ModInitializer {
     @Override
     public void onInitialize() {
-        Registry.register(Registry.BLOCK, resource("test"), FabricModBlocks.TEST_BLOCK);
-        Registry.register(Registry.ITEM, resource("test"), new BlockItem(FabricModBlocks.TEST_BLOCK, new FabricItemSettings().group(CreativeModeTab.TAB_MISC)));
+        Registry.register(BuiltInRegistries.BLOCK, resource("test"), FabricModBlocks.TEST_BLOCK);
+        Registry.register(BuiltInRegistries.ITEM, resource("test"), new BlockItem(FabricModBlocks.TEST_BLOCK, new FabricItemSettings().group(CreativeModeTab.TAB_MISC)));
     }
 
     public static ResourceLocation resource(String path) {

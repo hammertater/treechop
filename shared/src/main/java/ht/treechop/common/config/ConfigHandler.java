@@ -7,7 +7,7 @@ import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -130,7 +130,7 @@ public class ConfigHandler {
     }
 
     private static Block inferUnstripped(Block block) {
-        ResourceLocation resource = Registry.BLOCK.getKey(block);
+        ResourceLocation resource = BuiltInRegistries.BLOCK.getKey(block);
         return inferUnstripped(resource);
     }
 
@@ -138,7 +138,7 @@ public class ConfigHandler {
         if (resource != null) {
             ResourceLocation unstripped = getFilteredResourceLocation(resource, "stripped");
             if (unstripped != null) {
-                return Registry.BLOCK.get(unstripped);
+                return BuiltInRegistries.BLOCK.get(unstripped);
             }
         }
         return Blocks.AIR;
@@ -157,12 +157,12 @@ public class ConfigHandler {
 
     private static Stream<Item> getIdentifiedItems(String stringId) {
         ResourceIdentifier id = ResourceIdentifier.from(stringId);
-        return id.resolve(Registry.ITEM);
+        return id.resolve(BuiltInRegistries.ITEM);
     }
 
     private static Stream<Block> getIdentifiedBlocks(String stringId) {
         ResourceIdentifier id = ResourceIdentifier.from(stringId);
-        return id.resolve(Registry.BLOCK);
+        return id.resolve(BuiltInRegistries.BLOCK);
     }
 
     public static boolean canChopWithTool(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState) {
@@ -484,34 +484,34 @@ public class ConfigHandler {
 
             compatForMushroomStems.set(builder
                     .comment(String.format("Better chopping behavior for block with the %s tag", getCommonTagId("mushroom_stems")))
-                    .define("mushroomStems", true));
+                    .define("mushroomStems", true)::get);
 
             if (TreeChop.platform.uses(ModLoader.FORGE)) {
                 compatForCarryOn.set(builder
                         .comment("https://www.curseforge.com/minecraft/mc-mods/carry-on",
                                 "https://modrinth.com/mod/carry-on",
                                 "Small fixes.")
-                        .define("carryOn", true));
+                        .define("carryOn", true)::get);
                 compatForProjectMMO.set(builder
                         .comment("https://www.curseforge.com/minecraft/mc-mods/project-mmo",
                                 "https://modrinth.com/mod/project-mmo",
                                 "Award woodcutting XP for chopping.")
-                        .define("projectMMO", true));
+                        .define("projectMMO", true)::get);
                 compatForTheOneProbe.set(builder
                         .comment("https://www.curseforge.com/minecraft/mc-mods/the-one-probe",
                                 "https://modrinth.com/mod/the-one-probe",
                                 "Shows the number of chops required to fell a tree and what loot will drop.")
-                        .define("theOneProbe", true));
+                        .define("theOneProbe", true)::get);
 
                 builder.push("silentgear");
                 compatForSilentGear.set(builder
                         .comment("https://www.curseforge.com/minecraft/mc-mods/tinkers-construct",
                                 "https://modrinth.com/mod/tinkers-construct",
                                 "Makes saws do more chops.")
-                        .define("enabled", true));
+                        .define("enabled", true)::get);
                 silentGearSawChops.set(builder
                         .comment("Number of chops a saw should perform on a single block break")
-                        .defineInRange("sawChops", 5, 1, 10000)
+                        .defineInRange("sawChops", 5, 1, 10000)::get
                 );
                 builder.pop();
 
@@ -520,18 +520,18 @@ public class ConfigHandler {
                         .comment("https://www.curseforge.com/minecraft/mc-mods/tinkers-construct",
                                 "https://modrinth.com/mod/tinkers-construct",
                                 "Makes AOE tools do more chops.")
-                        .define("enabled", true));
+                        .define("enabled", true)::get);
                 tinkersConstructTreeAOEChops.set(builder
                         .comment("Number of chops that tree breaking tools (like broad axes) should perform on a single block break")
-                        .defineInRange("treeBreakingTools", 5, 1, 10000)
+                        .defineInRange("treeBreakingTools", 5, 1, 10000)::get
                 );
                 tinkersConstructWoodAOEChops.set(builder
                         .comment("Number of chops that wood breaking tools (like hand axes) should perform on a single block break")
-                        .defineInRange("woodBreakingTools", 1, 1, 10000)
+                        .defineInRange("woodBreakingTools", 1, 1, 10000)::get
                 );
                 tinkersConstructExpandedMultiplier.set(builder
                         .comment("The chop count multiplier for each level of the expanded upgrade")
-                        .defineInRange("expandedMultiplier", 2.0, 1.0, 10000.0)
+                        .defineInRange("expandedMultiplier", 2.0, 1.0, 10000.0)::get
                 );
                 builder.pop();
             }

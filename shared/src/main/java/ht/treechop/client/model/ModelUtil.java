@@ -1,6 +1,5 @@
 package ht.treechop.client.model;
 
-import com.mojang.math.Vector3f;
 import ht.tuber.math.Vector3;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockElementFace;
@@ -10,6 +9,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Vector3f;
 
 import java.util.Arrays;
 

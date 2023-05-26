@@ -1,7 +1,8 @@
 package ht.treechop.api;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -32,7 +33,7 @@ public interface ISimpleChoppableBlock extends IChoppableBlock, ICylinderBlock {
     @Override
     default void chop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState, int numChops, boolean felling) {
         final ResourceLocation CHOPPED_LOG = new ResourceLocation("treechop", "chopped_log");
-        Block choppedLog = Registry.BLOCK.get(CHOPPED_LOG);
+        Block choppedLog = BuiltInRegistries.BLOCK.get(CHOPPED_LOG);
         if (choppedLog instanceof IChoppableBlock choppableBlock) {
             choppableBlock.chop(player, tool, level, pos, blockState, numChops, felling);
         }

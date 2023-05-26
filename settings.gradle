@@ -11,5 +11,5 @@ pluginManagement {
 rootProject.name = "${modname}"
 
 include "tuber", "shared", "forge", "fabric"
-include 'tests:fabric-tests'
-include 'tests:forge-tests'
+//include 'tests:fabric-tests'
+//include 'tests:forge-tests'

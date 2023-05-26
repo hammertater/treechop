@@ -65,14 +65,13 @@ public class ClientSettingsScreen extends Screen {
         ));
 
         final int doneButtonWidth = 200;
-        doneButton = addRenderableWidget(new Button(
-                (width - doneButtonWidth) / 2,
-                getDoneButtonTop(),
-                doneButtonWidth,
-                GUIUtil.BUTTON_HEIGHT,
-                Component.translatable("gui.done"),
-                button -> onClose()
-        ));
+        doneButton = addRenderableWidget(new Button.Builder(Component.translatable("gui.done"), button -> onClose())
+                        .bounds((width - doneButtonWidth) / 2,
+                                getDoneButtonTop(),
+                                doneButtonWidth,
+                                GUIUtil.BUTTON_HEIGHT)
+                        .build()
+        );
     }
 
     private void addBufferRows(List<NestedGui> rows) {
@@ -288,7 +287,7 @@ public class ClientSettingsScreen extends Screen {
 
         renderBackground(poseStack);
 
-        doneButton.y = getDoneButtonTop();
+        doneButton.setY(getDoneButtonTop());
 
         int listTop = getListTop();
         int listBottom = getListBottom();

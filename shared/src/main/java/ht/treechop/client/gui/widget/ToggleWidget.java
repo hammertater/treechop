@@ -55,11 +55,11 @@ public class ToggleWidget extends AbstractWidget {
 
         State state = stateSupplier.get();
         Sprite sprite = isHoveredOrFocused() ? spriteForHoveredState.get(state) : spriteForState.get(state);
-        sprite.blit(poseStack, x, y);
+        sprite.blit(poseStack, getX(), getY());
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput out) {
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 

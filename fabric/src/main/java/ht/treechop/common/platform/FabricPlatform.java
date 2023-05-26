@@ -10,6 +10,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -77,12 +78,12 @@ public class FabricPlatform implements Platform {
 
     @Override
     public ResourceLocation getResourceLocationForBlock(Block block) {
-        return Registry.BLOCK.getKey(block);
+        return BuiltInRegistries.BLOCK.getKey(block);
     }
 
     @Override
     public ResourceLocation getResourceLocationForItem(Item item) {
-        return Registry.ITEM.getKey(item);
+        return BuiltInRegistries.ITEM.getKey(item);
     }
 
     @Override

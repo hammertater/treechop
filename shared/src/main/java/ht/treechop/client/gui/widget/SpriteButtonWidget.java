@@ -35,11 +35,11 @@ public class SpriteButtonWidget extends AbstractWidget {
     public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         Sprite.setRenderState(this.alpha);
         Sprite sprite = isHoveredOrFocused() ? highlightedSprite : this.sprite;
-        sprite.blit(poseStack, x, y);
+        sprite.blit(poseStack, getX(), getY());
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput out) {
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 }
