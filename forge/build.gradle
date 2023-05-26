@@ -104,16 +104,16 @@ dependencies {
 //    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-5.13.4")
 //    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.3.3")
 
-    compileOnly fg.deobf("curse.maven:jade-324717:4096513")
-//    runtimeOnly fg.deobf("curse.maven:jade-324717:4096513")
+    compileOnly fg.deobf("curse.maven:jade-324717:4434045")
+    runtimeOnly fg.deobf("curse.maven:jade-324717:4434045")
 
-    compileOnly fg.deobf("curse.maven:the-one-probe-245211:3965693")
-//    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:3965693")
+    compileOnly fg.deobf("curse.maven:the-one-probe-245211:4159743")
+//    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:4159743")
 
-    compileOnly fg.deobf("curse.maven:project-mmo-353935:4383165") // https://github.com/Caltinor/Project-MMO-2.0
-//    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4383165")
+//    compileOnly fg.deobf("curse.maven:project-mmo-353935:4525556") // https://github.com/Caltinor/Project-MMO-2.0
+//    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4525556")
 
-    compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
+//    compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 
 //    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4205732")
@@ -130,8 +130,8 @@ dependencies {
 //    runtimeOnly fg.deobf("curse.maven:mutil-351914:3941314")
 //    runtimeOnly fg.deobf("curse.maven:tetra-289712:4379764")
 
-    runtimeOnly fg.deobf("curse.maven:silent-lib-242998:3968715")
-    runtimeOnly fg.deobf("curse.maven:silent-gear-297039:4397693")
+    runtimeOnly fg.deobf("curse.maven:silent-lib-242998:4432418")
+    runtimeOnly fg.deobf("curse.maven:silent-gear-297039:4450590")
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
     testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"
