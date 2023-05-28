@@ -41,13 +41,13 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+        changeBlockName(tooltip, accessor);
+
         if (ChopUtil.playerWantsToChop(accessor.getPlayer(), Client.getChopSettings())
                 && ChopUtil.isBlockChoppable(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState())
                 && (config.get(SHOW_TREE_BLOCKS) || config.get(SHOW_NUM_CHOPS_REMAINING))) {
             Level level = accessor.getLevel();
             AtomicInteger numChops = new AtomicInteger(0);
-
-            changeBlockName(tooltip, accessor);
 
             int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
             TreeData tree = Client.treeCache.getTree(level, accessor.getPosition(), maxNumTreeBlocks);

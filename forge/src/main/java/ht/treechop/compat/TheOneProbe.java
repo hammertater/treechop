@@ -13,6 +13,10 @@ import java.util.function.Function;
 public class TheOneProbe {
     @SubscribeEvent
     public static void enqueueModComms(InterModEnqueueEvent event) {
-        InterModComms.sendTo("theoneprobe", "getTheOneProbe", () -> (Function<Object, Void>) probe -> TheOneProbeInfoProvider.register((ITheOneProbe) probe));
+        InterModComms.sendTo(
+                "theoneprobe",
+                "getTheOneProbe",
+                () -> (Function<Object, Void>) probe -> TheOneProbeInfoProvider.register((ITheOneProbe) probe)
+        );
     }
 }

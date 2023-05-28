@@ -6,10 +6,14 @@ import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
-import ht.treechop.common.settings.SyncedChopData;
 import ht.treechop.common.util.TreeCache;
 import ht.treechop.server.Server;
 import mcjty.theoneprobe.api.*;
+import mcjty.theoneprobe.apiimpl.elements.ElementHorizontal;
+import mcjty.theoneprobe.apiimpl.elements.ElementItemLabel;
+import mcjty.theoneprobe.apiimpl.elements.ElementText;
+import mcjty.theoneprobe.apiimpl.elements.ElementVertical;
+import mcjty.theoneprobe.apiimpl.styles.TextStyle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -46,6 +50,8 @@ public class TheOneProbeInfoProvider implements IProbeInfoProvider {
 
     @Override
     public void addProbeInfo(ProbeMode probeMode, IProbeInfo builder, Player player, Level level, BlockState blockState, IProbeHitData iProbeHitData) {
+        changeBlockName(builder, level, iProbeHitData.getPos());
+
         BlockPos blockPos = iProbeHitData.getPos();
         ChopSettings chopSettings = Server.instance().getPlayerChopData(player).getSettings();
 
@@ -80,6 +86,21 @@ public class TheOneProbeInfoProvider implements IProbeInfoProvider {
                             }
                         });
             }
+        }
+    }
+
+    private void changeBlockName(IProbeInfo builder, Level level, BlockPos pos) {
+        try {
+            if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity choppedEntity) {
+                if (builder.getElements().get(0) instanceof ElementHorizontal iconAndBlockInfo) {
+                    if (iconAndBlockInfo.getElements().get(1) instanceof ElementVertical blockNameAndMod) {
+                        if (blockNameAndMod.getElements().get(0) instanceof ElementItemLabel label) {
+                            blockNameAndMod.getElements().set(0, new ElementText(WailaUtil.getPrefixedBlockName(choppedEntity), new TextStyle().height(label.getHeight())));
+                        }
+                    }
+                }
+            }
+        } catch (NoSuchMethodError | NoClassDefFoundError | NullPointerException ignored) {
         }
     }
 }
