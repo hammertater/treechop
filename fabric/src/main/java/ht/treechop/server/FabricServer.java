@@ -3,7 +3,7 @@ package ht.treechop.server;
 import ht.treechop.common.network.ClientRequestSettingsPacket;
 import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.settings.ChoppingEntity;
-import ht.treechop.common.settings.EntityChopSettings;
+import ht.treechop.common.settings.SyncedChopData;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -29,8 +29,8 @@ public class FabricServer extends Server implements DedicatedServerModInitialize
         Server.instance = instance;
 
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
-            EntityChopSettings chopSettings = instance.getPlayerChopSettings(oldPlayer);
-            ((ChoppingEntity) newPlayer).setChopSettings(chopSettings);
+            SyncedChopData chopSettings = instance.getPlayerChopData(oldPlayer);
+            ((ChoppingEntity) newPlayer).setChopData(chopSettings);
         });
     }
 
@@ -60,11 +60,11 @@ public class FabricServer extends Server implements DedicatedServerModInitialize
     }
 
     @Override
-    public EntityChopSettings getPlayerChopSettings(Player player) {
+    public SyncedChopData getPlayerChopData(Player player) {
         ChoppingEntity chopper = (ChoppingEntity) player;
-        if (chopper.getChopSettings() == null) {
-            chopper.setChopSettings(new EntityChopSettings(getDefaultPlayerSettings()));
+        if (chopper.getChopData() == null) {
+            chopper.setChopData(new SyncedChopData(getDefaultPlayerSettings()));
         }
-        return chopper.getChopSettings();
+        return chopper.getChopData();
     }
 }

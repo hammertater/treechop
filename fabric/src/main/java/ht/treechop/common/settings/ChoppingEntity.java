@@ -1,7 +1,7 @@
 package ht.treechop.common.settings;
 
 public interface ChoppingEntity {
-    EntityChopSettings getChopSettings();
+    SyncedChopData getChopData();
 
-    EntityChopSettings setChopSettings(EntityChopSettings settings);
+    SyncedChopData setChopData(SyncedChopData settings);
 }

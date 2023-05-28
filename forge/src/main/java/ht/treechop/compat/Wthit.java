@@ -17,9 +17,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static ht.treechop.compat.WailaUtil.getLogState;
 
 public class Wthit implements IWailaPlugin, IBlockComponentProvider {
     public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
@@ -31,17 +32,19 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
         registrar.addConfig(SHOW_TREE_BLOCKS, true);
         registrar.addConfig(SHOW_NUM_CHOPS_REMAINING, true);
         registrar.addComponent(INSTANCE, TooltipPosition.BODY, Block.class);
-        registrar.addOverride(INSTANCE, ChoppedLogBlock.class);
+        registrar.addComponent(INSTANCE, TooltipPosition.HEAD, ChoppedLogBlock.class);
     }
 
     @Override
-    public @Nullable BlockState getOverride(IBlockAccessor accessor, IPluginConfig config) {
-        return getLogState(accessor.getWorld(), accessor.getPosition(), accessor.getBlockState());
+    public void appendHead(ITooltip tooltip, IBlockAccessor accessor, IPluginConfig config) {
+        if (accessor.getBlockEntity() instanceof ChoppedLogBlock.MyEntity entity) {
+            changeBlockName(tooltip, entity);
+        }
     }
 
     @Override
     public void appendBody(ITooltip tooltip, IBlockAccessor accessor, IPluginConfig config) {
-        if (ChopUtil.playerWantsToChop(accessor.getPlayer())
+        if (ChopUtil.playerWantsToChop(accessor.getPlayer(), Client.getChopSettings())
                 && ChopUtil.isBlockChoppable(accessor.getWorld(), accessor.getPosition(), accessor.getBlockState())
                 && (config.getBoolean(SHOW_TREE_BLOCKS) || config.getBoolean(SHOW_NUM_CHOPS_REMAINING))) {
             Level level = accessor.getWorld();
@@ -75,11 +78,9 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
         }
     }
 
-    private BlockState getLogState(Level level, BlockPos pos, BlockState state) {
-        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
-            return entity.getOriginalState();
-        } else {
-            return state;
-        }
+    private static void changeBlockName(ITooltip tooltip, ChoppedLogBlock.MyEntity entity) {
+        String prefixedBlockName = WailaUtil.getPrefixedBlockName(entity).getString();
+        Component newNameComponent = IWailaConfig.get().getFormatter().blockName(prefixedBlockName);
+        tooltip.setLine(WailaConstants.OBJECT_NAME_TAG, newNameComponent);
     }
 }

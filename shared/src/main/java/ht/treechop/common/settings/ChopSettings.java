@@ -13,12 +13,6 @@ import java.util.stream.Collectors;
 
 public class ChopSettings {
 
-    protected static final String FELLING_ENABLED_KEY = "fellingEnabled";
-    protected static final String CHOPPING_ENABLED_KEY = "choppingEnabled";
-    protected static final String SNEAK_BEHAVIOR_KEY = "sneakBehavior";
-    protected static final String TREES_MUST_HAVE_LEAVES_KEY = "treesMustHaveLeaves";
-    protected static final String CHOP_IN_CREATIVE_MODE_KEY = "chopInCreativeMode";
-    protected static final String IS_SYNCED_KEY = "isSynced";
     private final EnumMap<SettingsField, Object> fieldValues = new EnumMap<>(SettingsField.class);
 
     public ChopSettings() {
@@ -91,6 +85,10 @@ public class ChopSettings {
         return type.cast(value);
     }
 
+    public Setting getSetting(SettingsField field) {
+        return new Setting(field, get(field));
+    }
+
     public Object get(SettingsField field) {
         return fieldValues.get(field);
     }
@@ -120,15 +118,5 @@ public class ChopSettings {
         return Arrays.stream(SettingsField.values())
                 .map(field -> new Setting(field, get(field)))
                 .collect(Collectors.toList());
-    }
-
-    public Setting getSetting(SettingsField field) {
-        return new Setting(field, get(field));
-    }
-
-    protected Optional<Boolean> getBoolean(CompoundTag CompoundTag, String key) {
-        return (CompoundTag.contains(key))
-                ? Optional.of(CompoundTag.getBoolean(key))
-                : Optional.empty();
     }
 }

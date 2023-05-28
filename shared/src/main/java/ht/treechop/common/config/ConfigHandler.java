@@ -51,22 +51,12 @@ public class ConfigHandler {
                 });
                 return chopSettings;
             });
-    public final static Lazy<EntityChopSettings> fakePlayerChopSettings = new Lazy<>(
+    public final static Lazy<ChopSettings> fakePlayerChopSettings = new Lazy<>(
             RELOAD,
-            () -> {
-                EntityChopSettings chopSettings = new EntityChopSettings() {
-                    @Override
-                    public boolean isSynced() {
-                        return true;
-                    }
-                };
-
-                chopSettings.setChoppingEnabled(ConfigHandler.COMMON.fakePlayerChoppingEnabled.get())
-                        .setFellingEnabled(ConfigHandler.COMMON.fakePlayerFellingEnabled.get())
-                        .setTreesMustHaveLeaves(ConfigHandler.COMMON.fakePlayerTreesMustHaveLeaves.get());
-
-                return chopSettings;
-            });
+            () -> new ChopSettings()
+                    .setChoppingEnabled(ConfigHandler.COMMON.fakePlayerChoppingEnabled.get())
+                    .setFellingEnabled(ConfigHandler.COMMON.fakePlayerFellingEnabled.get())
+                    .setTreesMustHaveLeaves(ConfigHandler.COMMON.fakePlayerTreesMustHaveLeaves.get()));
     private static final Signal<Lazy<?>> UPDATE_TAGS = new Signal<>(Lazy::reset);
     public static Lazy<Boolean> removeBarkOnInteriorLogs = new Lazy<>(
             RELOAD,

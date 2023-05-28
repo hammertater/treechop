@@ -14,15 +14,15 @@ import javax.annotation.Nullable;
 
 public class ChopSettingsProvider implements ICapabilitySerializable<Tag> {
 
-    private final ChopSettingsCapability chopSettings = new ChopSettingsCapability();
-    private final LazyOptional<ChopSettingsCapability> lazyChopSettings = LazyOptional.of(() -> chopSettings);
+    private final ChopSettingsCapability chopData = new ChopSettingsCapability();
+    private final LazyOptional<ChopSettingsCapability> lazyChopSettings = LazyOptional.of(() -> chopData);
 
     public ChopSettingsProvider() {
     }
 
     public ChopSettingsProvider(ChopSettings defaults) {
         super();
-        chopSettings.copyFrom(defaults);
+        chopData.getSettings().copyFrom(defaults);
     }
 
     @Nonnull

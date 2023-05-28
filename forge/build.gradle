@@ -98,14 +98,14 @@ dependencies {
     implementation project(":tuber")
 
     // compile against the API
-    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-5.13.4")
+    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-6.4.1")
 
 //    // run against the full jar
-//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-5.13.4")
-//    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.3.3")
+    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-6.4.1")
+    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.3.4")
 
     compileOnly fg.deobf("curse.maven:jade-324717:4434045")
-    runtimeOnly fg.deobf("curse.maven:jade-324717:4434045")
+//    runtimeOnly fg.deobf("curse.maven:jade-324717:4434045")
 
     compileOnly fg.deobf("curse.maven:the-one-probe-245211:4159743")
 //    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:4159743")

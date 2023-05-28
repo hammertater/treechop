@@ -1,7 +1,9 @@
 package ht.treechop.common.capabilities;
 
 import ht.treechop.TreeChop;
-import ht.treechop.common.settings.EntityChopSettings;
+import ht.treechop.common.settings.ChopSettings;
+import ht.treechop.common.settings.SyncedChopData;
+import ht.treechop.server.Server;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
@@ -11,21 +13,21 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
-public class ChopSettingsCapability extends EntityChopSettings implements INBTSerializable<CompoundTag> {
+public class ChopSettingsCapability extends SyncedChopData implements INBTSerializable<CompoundTag> {
 
     public static final Capability<ChopSettingsCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
 
-
     public ChopSettingsCapability() {
+        super(Server.getDefaultPlayerSettings());
     }
 
-    public static LazyOptional<ChopSettingsCapability> forPlayer(Player player) {
-        LazyOptional<ChopSettingsCapability> lazyCapability = player.getCapability(CAPABILITY);
+    public static LazyOptional<SyncedChopData> forPlayer(Player player) {
+        LazyOptional<SyncedChopData> lazyCapability = player.getCapability(CAPABILITY).cast();
         if (!lazyCapability.isPresent() && !(player instanceof FakePlayer)) {
-            TreeChop.LOGGER.warn("Player " + player + " is missing chop settings");
+            TreeChop.LOGGER.warn("Player " + player + " is missing TreeChop data");
         }
 
-        return player.getCapability(CAPABILITY);
+        return player.getCapability(CAPABILITY).cast();
     }
 
     @Override

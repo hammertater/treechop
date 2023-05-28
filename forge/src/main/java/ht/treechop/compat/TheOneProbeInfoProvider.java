@@ -5,8 +5,10 @@ import ht.treechop.api.TreeData;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.settings.EntityChopSettings;
+import ht.treechop.common.settings.ChopSettings;
+import ht.treechop.common.settings.SyncedChopData;
 import ht.treechop.common.util.TreeCache;
+import ht.treechop.server.Server;
 import mcjty.theoneprobe.api.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -45,7 +47,7 @@ public class TheOneProbeInfoProvider implements IProbeInfoProvider {
     @Override
     public void addProbeInfo(ProbeMode probeMode, IProbeInfo builder, Player player, Level level, BlockState blockState, IProbeHitData iProbeHitData) {
         BlockPos blockPos = iProbeHitData.getPos();
-        EntityChopSettings chopSettings = ChopUtil.getPlayerChopSettings(player);
+        ChopSettings chopSettings = Server.instance().getPlayerChopData(player).getSettings();
 
         if (ChopUtil.playerWantsToChop(player, chopSettings)
                 && ChopUtil.isBlockChoppable(level, blockPos, blockState)

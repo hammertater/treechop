@@ -3,9 +3,8 @@ package ht.treechop.common.chop;
 import ht.treechop.TreeChop;
 import ht.treechop.api.*;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.platform.Platform;
 import ht.treechop.common.settings.ChopSettings;
-import ht.treechop.common.settings.EntityChopSettings;
+import ht.treechop.common.settings.SyncedChopData;
 import ht.treechop.common.util.*;
 import ht.treechop.server.Server;
 import net.minecraft.core.BlockPos;
@@ -149,20 +148,20 @@ public class ChopUtil {
         return numChopsToFell(treeSize);
     }
 
-    public static ChopResult getChopResult(Level level, BlockPos blockPos, Player agent, int numChops, boolean fellIfPossible, Predicate<BlockPos> logCondition) {
+    public static ChopResult getChopResult(Level level, BlockPos blockPos, ChopSettings chopSettings, int numChops, boolean fellIfPossible, Predicate<BlockPos> logCondition) {
         return fellIfPossible
-                ? getChopResult(level, blockPos, agent, numChops, logCondition)
+                ? getChopResult(level, blockPos, chopSettings, numChops, logCondition)
                 : tryToChopWithoutFelling(level, blockPos, numChops);
     }
 
-    private static ChopResult getChopResult(Level level, BlockPos blockPos, Player agent, int numChops, Predicate<BlockPos> logCondition) {
+    private static ChopResult getChopResult(Level level, BlockPos blockPos, ChopSettings chopSettings, int numChops, Predicate<BlockPos> logCondition) {
         int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
         TreeData tree = getTreeBlocks(level, blockPos, logCondition, maxNumTreeBlocks);
         if (tree.getLogBlocksOrEmpty().size() >= maxNumTreeBlocks) {
             TreeChop.LOGGER.warn("Max tree size {} reached (not including leaves)", maxNumTreeBlocks);
         }
 
-        if (tree.isAProperTree(getPlayerChopSettings(agent).getTreesMustHaveLeaves())) {
+        if (tree.isAProperTree(chopSettings.getTreesMustHaveLeaves())) {
             Set<BlockPos> supportedBlocks = tree.getLogBlocks().orElse(Collections.emptySet());
             return getChopResult(level, blockPos, supportedBlocks, numChops);
         } else {
@@ -380,11 +379,6 @@ public class ChopUtil {
         }
     }
 
-    public static boolean playerWantsToChop(Player player) {
-        ChopSettings chopSettings = getPlayerChopSettings(player);
-        return playerWantsToChop(player, chopSettings);
-    }
-
     public static boolean playerWantsToChop(Player player, ChopSettings chopSettings) {
         if (ConfigHandler.COMMON.enabled.get() && (player != null && !player.isCreative() || chopSettings.getChopInCreativeMode())) {
             return chopSettings.getChoppingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeChopBehavior(player);
@@ -393,17 +387,8 @@ public class ChopUtil {
         }
     }
 
-    public static boolean playerWantsToFell(Player player) {
-        ChopSettings chopSettings = getPlayerChopSettings(player);
-        return playerWantsToFell(player, chopSettings);
-    }
-
     public static boolean playerWantsToFell(Player player, ChopSettings chopSettings) {
         return chopSettings.getFellingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeFellBehavior(player);
-    }
-
-    public static EntityChopSettings getPlayerChopSettings(Player player) {
-        return Server.instance().getPlayerChopSettings(player);
     }
 
     public static void dropExperience(Level level, BlockPos pos, int amount) {
@@ -413,15 +398,16 @@ public class ChopUtil {
     }
 
     public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) {
+        ChopSettings chopSettings = Server.instance().getPlayerChopData(agent).getSettings();
         if (!isBlockChoppable(level, pos, blockState)
-                || !ChopUtil.playerWantsToChop(agent)
+                || !ChopUtil.playerWantsToChop(agent, chopSettings)
                 || !ChopUtil.canChopWithTool(agent, tool, level, pos, blockState)) {
             return false;
         }
 
         ChopData chopData = new ChopDataImpl(
                 ChopUtil.getNumChopsByTool(tool, blockState),
-                ChopUtil.playerWantsToFell(agent)
+                ChopUtil.playerWantsToFell(agent, chopSettings)
         );
 
         boolean doChop = TreeChop.platform.startChopEvent(agent, level, pos, blockState, chopData, trigger);
@@ -432,7 +418,7 @@ public class ChopUtil {
         ChopResult chopResult = ChopUtil.getChopResult(
                 level,
                 pos,
-                agent,
+                chopSettings,
                 chopData.getNumChops(),
                 chopData.getFelling(),
                 logPos -> isBlockALog(level, logPos)
@@ -462,14 +448,15 @@ public class ChopUtil {
             strippedState = TreeChop.platform.getStrippedState(level, pos, state);
             if (strippedState == null) {
                 IStrippableBlock strippableBlock = ClassUtil.getStrippableBlock(state.getBlock());
-
-                return (strippableBlock != null)
-                        ? strippableBlock.getStrippedState(level, pos, state)
-                        : BlockUtil.copyStateProperties(ConfigHandler.inferredStrippedStates.get().get(state.getBlock()), state);
+                if (strippableBlock != null) {
+                    return strippableBlock.getStrippedState(level, pos, state);
+                } else {
+                    strippedState = ConfigHandler.inferredStrippedStates.get().get(state.getBlock());
+                }
             }
         }
 
-        return fallback;
+        return (strippedState != null) ? BlockUtil.copyStateProperties(strippedState, state) : fallback;
     }
 
 }

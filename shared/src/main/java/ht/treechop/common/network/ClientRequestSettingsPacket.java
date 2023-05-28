@@ -4,7 +4,7 @@ import ht.treechop.TreeChop;
 import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
-import ht.treechop.common.settings.EntityChopSettings;
+import ht.treechop.common.settings.SyncedChopData;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.server.Server;
@@ -55,20 +55,20 @@ public class ClientRequestSettingsPacket implements CustomPacket {
     }
 
     public static void handle(ClientRequestSettingsPacket message, ServerPlayer player, PacketChannel replyChannel) {
-        processSettingsRequest(Server.instance().getPlayerChopSettings(player), message, player, replyChannel);
+        processSettingsRequest(Server.instance().getPlayerChopData(player), message, player, replyChannel);
     }
 
-    private static void processSettingsRequest(EntityChopSettings chopSettings, ClientRequestSettingsPacket message, ServerPlayer player, PacketChannel replyChannel) {
-        List<Setting> settings = (message.event == Event.FIRST_TIME_SYNC && chopSettings.isSynced())
-                ? chopSettings.getAll()
+    private static void processSettingsRequest(SyncedChopData chopData, ClientRequestSettingsPacket message, ServerPlayer player, PacketChannel replyChannel) {
+        List<Setting> settings = (message.event == Event.FIRST_TIME_SYNC && chopData.isSynced())
+                ? chopData.getSettings().getAll()
                 : message.settings;
 
         List<ConfirmedSetting> confirmedSettings = settings.stream()
-                .map(setting -> processSingleSettingRequest(setting, player, chopSettings, message.event))
+                .map(setting -> processSingleSettingRequest(setting, player, chopData.getSettings(), message.event))
                 .collect(Collectors.toList());;
 
-        if (!chopSettings.isSynced()) {
-            chopSettings.setSynced();
+        if (!chopData.isSynced()) {
+            chopData.setSynced();
         }
 
         replyChannel.send(new ServerConfirmSettingsPacket(confirmedSettings));
