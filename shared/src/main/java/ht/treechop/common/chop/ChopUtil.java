@@ -2,7 +2,9 @@ package ht.treechop.common.chop;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.*;
+import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.platform.Platform;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.SyncedChopData;
 import ht.treechop.common.util.*;
@@ -209,8 +211,12 @@ public class ChopUtil {
             nearbyChoppableBlocks = ChopUtil.getConnectedBlocks(
                     Collections.singletonList(target),
                     pos -> BlockNeighbors.ADJACENTS_AND_DIAGONALS.asStream(pos)
-                            .filter(checkPos -> Math.abs(checkPos.getY() - target.getY()) < 4 && isBlockChoppable(level, checkPos)),
-                    64
+                            .filter(checkPos ->
+                                    (level.getBlockState(checkPos).is(TreeChop.platform.getChoppedLogBlock())
+                                            || Math.abs(checkPos.getY() - target.getY()) < 4)
+                                    && isBlockChoppable(level, checkPos)
+                            ),
+                    256
             );
 
             int totalNumChops = getNumChops(level, nearbyChoppableBlocks) + numChops;
@@ -219,7 +225,7 @@ public class ChopUtil {
                 List<BlockPos> choppedLogsSortedByY = nearbyChoppableBlocks.stream()
                         .filter(pos1 -> level.getBlockState(pos1).getBlock() instanceof IChoppableBlock)
                         .sorted(Comparator.comparingInt(Vec3i::getY))
-                        .collect(Collectors.toList());
+                        .toList();
 
                 // Consume nearby chopped blocks that contributed even if they're at a lower Y, but prefer higher ones
                 for (BlockPos pos : choppedLogsSortedByY) {
@@ -389,12 +395,6 @@ public class ChopUtil {
 
     public static boolean playerWantsToFell(Player player, ChopSettings chopSettings) {
         return chopSettings.getFellingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeFellBehavior(player);
-    }
-
-    public static void dropExperience(Level level, BlockPos pos, int amount) {
-        if (level instanceof ServerLevel serverLevel && level.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
-            ExperienceOrb.award(serverLevel, Vec3.atCenterOf(pos), amount);
-        }
     }
 
     public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) {
