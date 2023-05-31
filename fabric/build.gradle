@@ -61,6 +61,7 @@ processResources {
 tasks.withType(JavaCompile).configureEach {
     it.options.release = 17
     source(project(":shared").sourceSets.main.allSource)
+    source(project(":tuber").sourceSets.main.allSource)
 }
 
 java {
