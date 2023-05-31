@@ -57,7 +57,7 @@ public class WailaUtil {
             tree.getLogBlocks().ifPresent(
                     treeBlocks -> {
                         if (showNumChops) {
-                            treeBlocks.forEach((BlockPos pos2) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos2)));
+                            ChopUtil.collectChoppedBlocks(level, pos).forEach((BlockPos pos2) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos2)));
                             addNumChops.accept(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(level, treeBlocks)));
                         }
 
