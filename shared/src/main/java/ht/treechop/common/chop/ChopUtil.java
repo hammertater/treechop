@@ -2,32 +2,28 @@ package ht.treechop.common.chop;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.*;
-import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.platform.Platform;
 import ht.treechop.common.settings.ChopSettings;
-import ht.treechop.common.settings.SyncedChopData;
 import ht.treechop.common.util.*;
 import ht.treechop.server.Server;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -207,25 +203,18 @@ public class ChopUtil {
         int numChopsToFell = numChopsToFell(level, supportedBlocks);
 
         if (currentNumChops + numChops < numChopsToFell) {
-            Set<BlockPos> nearbyChoppableBlocks;
-            nearbyChoppableBlocks = ChopUtil.getConnectedBlocks(
-                    Collections.singletonList(target),
-                    pos -> BlockNeighbors.ADJACENTS_AND_DIAGONALS.asStream(pos)
-                            .filter(checkPos ->
-                                    (level.getBlockState(checkPos).is(TreeChop.platform.getChoppedLogBlock())
-                                            || Math.abs(checkPos.getY() - target.getY()) < 4)
-                                    && isBlockChoppable(level, checkPos)
-                            ),
-                    256
-            );
+            Set<BlockPos> nearbyUnchoppedBlocks = new HashSet<>();
+            Set<BlockPos> nearbyChoppableBlocks = collectChoppedBlocks(level, target, blockPos -> {
+                if (isBlockChoppable(level, blockPos)) {
+                    nearbyUnchoppedBlocks.add(blockPos);
+                }
+            });
 
             int totalNumChops = getNumChops(level, nearbyChoppableBlocks) + numChops;
 
             if (totalNumChops >= numChopsToFell) {
                 List<BlockPos> choppedLogsSortedByY = nearbyChoppableBlocks.stream()
-                        .filter(pos1 -> level.getBlockState(pos1).getBlock() instanceof IChoppableBlock)
-                        .sorted(Comparator.comparingInt(Vec3i::getY))
-                        .toList();
+                        .sorted(Comparator.comparingInt(Vec3i::getY)).toList();
 
                 // Consume nearby chopped blocks that contributed even if they're at a lower Y, but prefer higher ones
                 for (BlockPos pos : choppedLogsSortedByY) {
@@ -237,7 +226,7 @@ public class ChopUtil {
                 }
             } else {
                 nearbyChoppableBlocks.remove(target);
-                return gatherChops(level, target, numChops, nearbyChoppableBlocks);
+                return gatherChops(level, target, numChops, Stream.concat(nearbyChoppableBlocks.stream(), nearbyUnchoppedBlocks.stream()));
             }
         }
 
@@ -245,17 +234,38 @@ public class ChopUtil {
         return new ChopResult(level, Collections.singletonList(chop), supportedBlocks);
     }
 
+    @NotNull
+    public static Set<BlockPos> collectChoppedBlocks(Level level, BlockPos target) {
+        return collectChoppedBlocks(level, target, x -> {});
+    }
+
+    @NotNull
+    private static Set<BlockPos> collectChoppedBlocks(Level level, BlockPos target, Consumer<BlockPos> neighborPeeker) {
+        return ChopUtil.getConnectedBlocks(
+                Collections.singletonList(target),
+                pos -> BlockNeighbors.ADJACENTS_AND_DIAGONALS.asStream(pos)
+                        .filter(checkPos -> {
+                            if (getNumChops(level, checkPos) > 0) {
+                                return true;
+                            }
+                            neighborPeeker.accept(checkPos);
+                            return false;
+                        }),
+                64
+        );
+    }
+
     /**
      * Adds chops to the targeted block without destroying it. Overflow chops spill to nearby blocks.
      *
      * @param nearbyChoppableBlocks must not include {@code target}
      */
-    private static ChopResult gatherChops(Level level, BlockPos target, int numChops, Set<BlockPos> nearbyChoppableBlocks) {
+    private static ChopResult gatherChops(Level level, BlockPos target, int numChops, Stream<BlockPos> nearbyChoppableBlocks) {
         List<Chop> chops = new Stack<>();
         int numChopsLeft = gatherChopAndGetNumChopsRemaining(level, target, numChops, chops);
 
         if (numChopsLeft > 0) {
-            List<BlockPos> sortedChoppableBlocks = nearbyChoppableBlocks.stream()
+            List<BlockPos> sortedChoppableBlocks = nearbyChoppableBlocks
                     .filter(pos -> {
                         BlockState blockState = level.getBlockState(pos);
                         if (blockState.getBlock() instanceof IChoppableBlock) {
