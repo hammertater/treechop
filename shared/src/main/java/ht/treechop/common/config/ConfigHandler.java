@@ -231,6 +231,7 @@ public class ConfigHandler {
         public final InitializedSupplier<Boolean> compatForTheOneProbe = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForSilentGear = defaultValue(true);
         public final InitializedSupplier<Integer> silentGearSawChops = defaultValue(5);
+        public final InitializedSupplier<Boolean> compatForTerraformers = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForTinkersConstruct = defaultValue(true);
         public final InitializedSupplier<Integer> tinkersConstructTreeAOEChops = defaultValue(5);
         public final InitializedSupplier<Integer> tinkersConstructWoodAOEChops = defaultValue(5);
@@ -492,6 +493,10 @@ public class ConfigHandler {
                                 "https://modrinth.com/mod/the-one-probe",
                                 "Shows the number of chops required to fell a tree and what loot will drop.")
                         .define("theOneProbe", true)::get);
+                compatForTerraformers.set(builder
+                        .comment("https://github.com/TerraformersMC",
+                                "Fixes starting chop radius for small logs from Terraformers mods (Terrestria, etc.)")
+                        .define("terraformers", true)::get);
 
                 builder.push("silentgear");
                 compatForSilentGear.set(builder
