@@ -20,19 +20,13 @@ public class SpriteButtonWidget extends AbstractWidget {
         this.active = true;
     }
 
-    @SuppressWarnings("NullableProblems")
-    @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        super.render(poseStack, mouseX, mouseY, partialTicks);
-    }
-
     public void onClick(double mouseX, double mouseY) {
         onPress.run();
     }
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         Sprite.setRenderState(this.alpha);
         Sprite sprite = isHoveredOrFocused() ? highlightedSprite : this.sprite;
         sprite.blit(poseStack, getX(), getY());

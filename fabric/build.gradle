@@ -28,16 +28,16 @@ dependencies {
     implementation project(":shared")
     implementation project(":tuber")
 
-    implementation 'com.electronwill.night-config:core:3.6.3'
-    implementation 'com.electronwill.night-config:toml:3.6.3'
-    modImplementation "curse.maven:forgeconfigfabric-547434:3823451"
+    implementation 'com.electronwill.night-config:core:3.6.5'
+    implementation 'com.electronwill.night-config:toml:3.6.5'
+    modImplementation "curse.maven:forgeconfigfabric-547434:4451343"
 
-    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-6.4.1"
-    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-6.4.1"
-    modRuntimeOnly "lol.bai:badpackets:fabric-0.3.4"
+    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-7.3.1"
+//    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-7.3.1"
+//    modRuntimeOnly "lol.bai:badpackets:fabric-0.4.1"
 
-    modCompileOnly "curse.maven:jade-324717:4434061"
-//    modRuntimeOnly "curse.maven:jade-324717:4434061"
+    modCompileOnly "curse.maven:jade-324717:4538658"
+    modRuntimeOnly "curse.maven:jade-324717:4538658"
 
 //    modRuntimeOnly "maven.modrinth:sodium:mc1.19.3-0.4.9" // Doesn't wanna work in IntelliJ
 //    modRuntimeOnly "curse.maven:indium-459496:3957480"
@@ -46,7 +46,7 @@ dependencies {
 //    modCompileOnly "curse.maven:carry-on-274259:4160654"
 //    modRuntimeOnly "curse.maven:carry-on-274259:4160654"
 
-    modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:5.0.0-beta.1"
+    modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:6.1.0"
 }
 
 processResources {

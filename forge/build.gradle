@@ -98,19 +98,19 @@ dependencies {
     implementation project(":tuber")
 
     // compile against the API
-    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-6.4.1")
+    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-7.3.1")
 
 //    // run against the full jar
-    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-6.4.1")
-    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.3.4")
+    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-7.3.1")
+    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.4.1")
 
-    compileOnly fg.deobf("curse.maven:jade-324717:4434045")
-//    runtimeOnly fg.deobf("curse.maven:jade-324717:4434045")
+    compileOnly fg.deobf("curse.maven:jade-324717:4538674")
+//    runtimeOnly fg.deobf("curse.maven:jade-324717:4538674")
 
-    compileOnly fg.deobf("curse.maven:the-one-probe-245211:4159743")
-//    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:4159743")
+    compileOnly fg.deobf("curse.maven:the-one-probe-245211:4442439")
+//    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:4442439")
 
-//    compileOnly fg.deobf("curse.maven:project-mmo-353935:4525556") // https://github.com/Caltinor/Project-MMO-2.0
+    compileOnly fg.deobf("curse.maven:project-mmo-353935:4525556") // https://github.com/Caltinor/Project-MMO-2.0
 //    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4525556")
 
 //    compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
@@ -130,8 +130,8 @@ dependencies {
 //    runtimeOnly fg.deobf("curse.maven:mutil-351914:3941314")
 //    runtimeOnly fg.deobf("curse.maven:tetra-289712:4379764")
 
-    runtimeOnly fg.deobf("curse.maven:silent-lib-242998:4432418")
-    runtimeOnly fg.deobf("curse.maven:silent-gear-297039:4450590")
+    runtimeOnly fg.deobf("curse.maven:silent-lib-242998:4540305")
+    runtimeOnly fg.deobf("curse.maven:silent-gear-297039:4543014")
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
     testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"
@@ -149,6 +149,7 @@ test {
 
 tasks.withType(JavaCompile) {
     source(project(":shared").sourceSets.main.allSource)
+    source(project(":tuber").sourceSets.main.allSource)
 }
 
 processResources {

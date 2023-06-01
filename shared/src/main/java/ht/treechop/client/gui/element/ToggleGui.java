@@ -29,7 +29,7 @@ public class ToggleGui extends NestedGui {
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         widget.setX(getBox().getLeft());
         widget.setY(getBox().getTop());
         widget.render(poseStack, mouseX, mouseY, partialTicks);

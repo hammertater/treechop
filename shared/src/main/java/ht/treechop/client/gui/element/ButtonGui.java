@@ -26,7 +26,7 @@ public class ButtonGui extends NestedGui {
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         this.widget.setX(getBox().getCenterX() - this.widget.getWidth() / 2);
         this.widget.setY(getBox().getCenterY() - this.widget.getHeight() / 2);
         this.widget.render(poseStack, mouseX, mouseY, partialTicks);

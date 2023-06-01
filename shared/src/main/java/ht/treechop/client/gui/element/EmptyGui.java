@@ -43,7 +43,7 @@ public class EmptyGui extends NestedGui {
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
     }
 
     public void setColumnWidths(int biggestLeftColumnWidth, int biggestRightColumnWidth) {

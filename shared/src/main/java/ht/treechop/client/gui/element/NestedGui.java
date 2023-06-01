@@ -21,8 +21,6 @@ public abstract class NestedGui extends AbstractWidget implements ContainerEvent
         super(x, y, width, height, message);
     }
 
-    public abstract void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks);
-
     public abstract int getMinimumWidth();
 
     public abstract int getMinimumHeight();

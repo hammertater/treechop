@@ -36,7 +36,7 @@ public class ForgeServer extends Server {
 
     @Override
     public void sendTo(ServerPlayer player, CustomPacket packet) {
-        ForgePacketHandler.HANDLER.sendTo(packet, player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        ForgePacketHandler.HANDLER.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
     @Override

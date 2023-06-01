@@ -40,7 +40,7 @@ public class RowsGui extends NestedGui {
         return rows;
     }
 
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         int rowLeft = getBox().getLeft();
         int rowTop = getBox().getTop();
         int rowWidth = getBox().getWidth();

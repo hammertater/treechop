@@ -5,6 +5,7 @@ import ht.treechop.client.gui.util.Sprite;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.EnumMap;
@@ -34,9 +35,8 @@ public class ToggleWidget extends AbstractWidget {
         onPress.run();
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
-    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         Sprite.setRenderState(this.alpha);
 
         final EnumMap<State, Sprite> spriteForState = new EnumMap<State, Sprite>(Stream.of(
