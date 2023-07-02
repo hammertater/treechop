@@ -9,7 +9,6 @@ import ht.treechop.common.util.TreeDataImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -33,13 +32,9 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public TreeData detectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, boolean overrideLeaves) {
-        TreeData treeData = new TreeDataImpl(overrideLeaves);
-        boolean canceled = !TreeChopEvents.DETECT_TREE.invoker().onDetectTree(level, player, blockPos, blockState, overrideLeaves);
-        if (canceled) {
-            return TreeDataImpl.empty();
-        }
-        return treeData;
+    public TreeData detectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, TreeData treeData) {
+        TreeData result = TreeChopEvents.DETECT_TREE.invoker().onDetectTree(level, player, blockPos, blockState, treeData);
+        return (result == null) ? TreeDataImpl.empty() : result;
     }
 
     // Returns true if chopping should continue
