@@ -33,7 +33,7 @@ public class ConfigHandler {
     public static final ForgeConfigSpec COMMON_SPEC;
     public static final Client CLIENT;
     public static final ForgeConfigSpec CLIENT_SPEC;
-    private static final Signal<Lazy<?>> RELOAD = new Signal<>(Lazy::reset);
+    public static final Signal<Lazy<?>> RELOAD = new Signal<>(Lazy::reset);
     public final static Lazy<ChopSettings> defaultChopSettings = new Lazy<>(
             RELOAD,
             () -> {

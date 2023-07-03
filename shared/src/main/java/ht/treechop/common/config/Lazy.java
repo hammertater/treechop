@@ -8,9 +8,13 @@ public class Lazy<T> implements Supplier<T> {
     private boolean available = false;
     private boolean locked = false;
 
-    public Lazy(Signal<Lazy<?>> resetSignal, Supplier<T> supplier) {
-        resetSignal.add(this);
+    public Lazy(Supplier<T> supplier) {
         this.supplier = supplier;
+    }
+
+    public Lazy(Signal<Lazy<?>> resetSignal, Supplier<T> supplier) {
+        this(supplier);
+        resetSignal.add(this);
     }
 
     @Override
