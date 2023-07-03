@@ -24,6 +24,10 @@ public enum ChopCountingAlgorithm implements StringRepresentable {
             }
     );
 
+    private static final int CACHE_SIZE = 1024;
+    private static final int[] cache = new int[CACHE_SIZE];
+    private static int numCached = 1;
+
     private final Function<Integer, Double> preciseCalculation;
 
     ChopCountingAlgorithm(Function<Integer, Double> preciseCalculation) {
@@ -31,15 +35,25 @@ public enum ChopCountingAlgorithm implements StringRepresentable {
     }
 
     public int calculate(int numBlocks) {
-        if (numBlocks == 1) {
-            return 1;
+        if (numBlocks < CACHE_SIZE) {
+            if (numCached < numBlocks) {
+                Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
+                boolean canRequireMoreChopsThanBlocks = ConfigHandler.COMMON.canRequireMoreChopsThanBlocks.get();
+                for (; numCached <= numBlocks; ++numCached) {
+                    cache[numCached] = recalculate(numCached, this, rounder, canRequireMoreChopsThanBlocks);
+                }
+            }
+            return cache[numBlocks];
         } else {
             Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
-            int unboundedCount = Math.max(1, rounder.round(preciseCalculation.apply(numBlocks)));
-            return ConfigHandler.COMMON.canRequireMoreChopsThanBlocks.get()
-                    ? unboundedCount
-                    : Math.min(numBlocks, unboundedCount);
+            boolean canRequireMoreChopsThanBlocks = ConfigHandler.COMMON.canRequireMoreChopsThanBlocks.get();
+            return recalculate(numBlocks, this, rounder, canRequireMoreChopsThanBlocks);
         }
+    }
+
+    private int recalculate(int numBlocks, ChopCountingAlgorithm algo, Rounder rounder, boolean canRequireMoreChopsThanBlocks) {
+        int count = Math.max(1, rounder.round(algo.preciseCalculation.apply(numBlocks)));
+        return canRequireMoreChopsThanBlocks ? count : Math.min(numBlocks, count);
     }
 
     @Override
