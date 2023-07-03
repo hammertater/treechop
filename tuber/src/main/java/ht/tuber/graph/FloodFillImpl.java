@@ -1,6 +1,7 @@
 package ht.tuber.graph;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -8,11 +9,18 @@ public class FloodFillImpl<T> implements FloodFill<T> {
     private final DirectedGraph<T> graph;
     private final Predicate<T> filter;
     private final Set<T> memory = new HashSet<>();
-    private final Queue<T> nextNodes = new ArrayDeque<>();
+    private final Queue<T> nextNodes;
 
     public FloodFillImpl(DirectedGraph<T> graph, Predicate<T> filter) {
         this.graph = graph;
         this.filter = filter;
+        this.nextNodes = new LinkedList<>();
+    }
+
+    public FloodFillImpl(DirectedGraph<T> graph, Predicate<T> filter, Function<T, Integer> heuristic) {
+        this.graph = graph;
+        this.filter = filter;
+        this.nextNodes = new PriorityQueue<>(Comparator.comparing(heuristic));
     }
 
     @Override
