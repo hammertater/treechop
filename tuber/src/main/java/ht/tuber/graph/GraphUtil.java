@@ -5,6 +5,23 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class GraphUtil {
+
+    public static <T> Stream<T> fill(DirectedGraph<T> graph, T start, Predicate<T> condition) {
+        return fill(filter(graph, condition), start);
+    }
+
+    public static <T> Stream<T> fill(DirectedGraph<T> graph, Collection<T> start, Predicate<T> condition) {
+        return fill(filter(graph, condition), start);
+    }
+
+    public static <T> Stream<T> fill(DirectedGraph<T> graph, T start) {
+        return fill(graph, Collections.singleton(start));
+    }
+
+    public static <T> Stream<T> fill(DirectedGraph<T> graph, Collection<T> start) {
+        return new FloodFillImpl<>(graph).fill(start);
+    }
+
     public static <T> DirectedGraph<T> filter(DirectedGraph<T> graph, Predicate<T> condition) {
         return new FilteredGraph<>(graph, condition);
     }
