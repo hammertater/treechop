@@ -1,7 +1,6 @@
 package ht.treechop.common.capabilities;
 
 import ht.treechop.TreeChop;
-import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.SyncedChopData;
 import ht.treechop.server.Server;
 import net.minecraft.nbt.CompoundTag;

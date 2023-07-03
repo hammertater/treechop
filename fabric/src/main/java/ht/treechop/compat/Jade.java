@@ -1,23 +1,18 @@
 package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
-import ht.treechop.api.TreeData;
 import ht.treechop.client.Client;
 import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.chop.ChopUtil;
-import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.registry.FabricModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 import snownee.jade.api.*;
 import snownee.jade.api.config.IPluginConfig;
@@ -27,8 +22,6 @@ import snownee.jade.impl.ui.TextElement;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @WailaPlugin
 public class Jade implements IWailaPlugin, IBlockComponentProvider {

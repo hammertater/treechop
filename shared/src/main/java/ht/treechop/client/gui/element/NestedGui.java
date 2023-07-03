@@ -1,6 +1,5 @@
 package ht.treechop.client.gui.element;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.gui.util.IPositionalGui;
 import ht.treechop.client.gui.util.ScreenBox;
 import net.minecraft.client.gui.components.AbstractWidget;

@@ -1,13 +1,11 @@
 package ht.treechop.common.settings;
 
 import ht.treechop.TreeChop;
-import net.minecraft.nbt.CompoundTag;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
