@@ -2,7 +2,6 @@ package ht.tuber.graph;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class FloodFillImpl<T> implements FloodFill<T> {
@@ -10,14 +9,20 @@ public class FloodFillImpl<T> implements FloodFill<T> {
     private final Set<T> memory = new HashSet<>();
     private final Queue<T> nextNodes;
 
-    public FloodFillImpl(DirectedGraph<T> graph) {
-        this.graph = graph;
-        this.nextNodes = new LinkedList<>();
-    }
-
-    public FloodFillImpl(DirectedGraph<T> graph, Function<T, Integer> heuristic) {
+    public FloodFillImpl(Collection<T> starts, DirectedGraph<T> graph, Function<T, Integer> heuristic) {
         this.graph = graph;
         this.nextNodes = new PriorityQueue<>(Comparator.comparing(heuristic));
+        starts.forEach(this::visitNode);
+    }
+
+    @Override
+    public Stream<T> fill() {
+        return Stream.iterate(nextNodes.poll(), Objects::nonNull, ignored -> nextNodes.poll())
+                .peek(node -> graph.getNeighbors(node).forEach(neighbor -> {
+                    if (!memory.contains(neighbor)) {
+                        visitNode(neighbor);
+                    }
+                }));
     }
 
     @Override
@@ -28,17 +33,15 @@ public class FloodFillImpl<T> implements FloodFill<T> {
     @Override
     public Stream<T> fill(Collection<T> starts) {
         starts.forEach(this::visitNode);
-
-        return Stream.iterate(nextNodes.poll(), Objects::nonNull, ignored -> nextNodes.poll())
-                .peek(node -> graph.getNeighbors(node).forEach(neighbor -> {
-                    if (!memory.contains(neighbor)) {
-                        visitNode(neighbor);
-                    }
-                }));
+        return fill();
     }
 
     private void visitNode(T node) {
         memory.add(node);
         nextNodes.add(node);
+    }
+
+    public Stream<T> getNextNodes() {
+        return nextNodes.stream();
     }
 }

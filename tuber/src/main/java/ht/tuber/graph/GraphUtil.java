@@ -1,25 +1,26 @@
 package ht.tuber.graph;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class GraphUtil {
 
-    public static <T> Stream<T> fill(DirectedGraph<T> graph, T start, Predicate<T> condition) {
-        return fill(filter(graph, condition), start);
+    public static <T> FloodFill<T> flood(DirectedGraph<T> graph, T start, Function<T, Integer> heuristic) {
+        return flood(graph, Collections.singletonList(start), heuristic);
     }
 
-    public static <T> Stream<T> fill(DirectedGraph<T> graph, Collection<T> start, Predicate<T> condition) {
-        return fill(filter(graph, condition), start);
+    public static <T> FloodFill<T> flood(DirectedGraph<T> graph, Collection<T> start, Function<T, Integer> heuristic) {
+        return new FloodFillImpl<>(start, graph, heuristic);
     }
 
-    public static <T> Stream<T> fill(DirectedGraph<T> graph, T start) {
-        return fill(graph, Collections.singleton(start));
+    public static <T> FloodFill<T> flood(DirectedGraph<T> graph, T start) {
+        return flood(graph, Collections.singleton(start), a -> 0);
     }
 
-    public static <T> Stream<T> fill(DirectedGraph<T> graph, Collection<T> start) {
-        return new FloodFillImpl<>(graph).fill(start);
+    public static <T> FloodFill<T> flood(DirectedGraph<T> graph, Collection<T> start) {
+        return flood(graph, start, a -> 0);
     }
 
     public static <T> DirectedGraph<T> filter(DirectedGraph<T> graph, Predicate<T> condition) {

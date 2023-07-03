@@ -2,6 +2,7 @@ package ht.tuber.graph;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,8 +15,8 @@ class FloodFillImplTest {
     void fill() {
         DirectedGraph<Integer> world = node -> Stream.of(1, 2, 3);
 
-        FloodFill<Integer> flood = new FloodFillImpl<>(world);
-        Set<Integer> result = flood.fill(1).collect(Collectors.toSet());
+        FloodFill<Integer> flood = new FloodFillImpl<>(List.of(1), world, a -> 0);
+        Set<Integer> result = flood.fill().collect(Collectors.toSet());
 
         assertTrue(result.contains(1));
         assertTrue(result.contains(2));
@@ -26,8 +27,8 @@ class FloodFillImplTest {
     void fillAscending() {
         DirectedGraph<Integer> world = node -> Stream.of(1, 2, 3);
 
-        FloodFill<Integer> flood = new FloodFillImpl<>(world, a -> a);
-        Object[] result = flood.fill(1).toArray();
+        FloodFill<Integer> flood = new FloodFillImpl<>(List.of(1), world, a -> a);
+        Object[] result = flood.fill().toArray();
 
         assertArrayEquals(new Integer[]{1, 2, 3}, result);
     }
@@ -36,8 +37,8 @@ class FloodFillImplTest {
     void fillDescending() {
         DirectedGraph<Integer> world = node -> Stream.of(1, 2, 3);
 
-        FloodFill<Integer> flood = new FloodFillImpl<>(world, a -> -a);
-        Object[] result = flood.fill(1).toArray();
+        FloodFill<Integer> flood = new FloodFillImpl<>(List.of(1), world, a -> -a);
+        Object[] result = flood.fill().toArray();
 
         assertArrayEquals(new Integer[]{1, 3, 2}, result);
     }

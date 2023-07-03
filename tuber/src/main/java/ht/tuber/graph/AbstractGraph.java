@@ -1,11 +1,14 @@
 package ht.tuber.graph;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
-public abstract class AbstractGraph<T> implements DirectedGraph<T> {
+public abstract class AbstractGraph<T> implements PartialDirectedGraph<T> {
 
-    private final Map<T, List<T>> nodesAndEdges;
+    protected final Map<T, List<T>> nodesAndEdges;
 
     public AbstractGraph() {
         this(new HashMap<>());
@@ -15,29 +18,21 @@ public abstract class AbstractGraph<T> implements DirectedGraph<T> {
         this.nodesAndEdges = nodesAndEdges;
     }
 
-    @Override
-    public Stream<T> getNeighbors(T node) {
-        List<T> neighbors = nodesAndEdges.get(node);
-        return  (neighbors != null) ? neighbors.stream() : Stream.empty();
-    }
-
-//    public AbstractGraph<T> reduce(HashSet<T> nodes) {
-//        HashMap<T, List<T>> newGraphData = new HashMap<>();
-//
-//        nodes.forEach(node -> {
-//            List<T> neighbors = nodesAndEdges.get(node);
-//            if (neighbors != null) {
-//                newGraphData.put(node, neighbors.stream().filter(nodes::contains).toList());
-//            }
-//        });
-//
-//        return new AbstractGraph<>(newGraphData);
-//    }
-
     protected void add(T lower, T upper) {
         List<T> neighbors = nodesAndEdges.computeIfAbsent(lower, k -> new ArrayList<>());
         if (!neighbors.contains(upper)) {
             neighbors.add(upper);
         }
+    }
+
+    @Override
+    public boolean contains(T node) {
+        return nodesAndEdges.containsKey(node);
+    }
+
+    @Override
+    public Stream<T> getNeighbors(T node) {
+        List<T> neighbors = nodesAndEdges.get(node);
+        return  (neighbors != null) ? neighbors.stream() : Stream.empty();
     }
 }

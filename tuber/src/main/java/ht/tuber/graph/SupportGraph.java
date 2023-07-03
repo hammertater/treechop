@@ -1,8 +1,7 @@
 package ht.tuber.graph;
 
-import ht.tuber.math.Vector2;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Stream;
 
 public class SupportGraph<T> extends AbstractGraph<T> {
@@ -55,4 +54,13 @@ public class SupportGraph<T> extends AbstractGraph<T> {
         );
     }
 
+    @Override
+    public boolean contains(T node) {
+        return false;
+    }
+
+    @Override
+    public Stream<T> getNeighbors(T node) {
+        return null;
+    }
 }
