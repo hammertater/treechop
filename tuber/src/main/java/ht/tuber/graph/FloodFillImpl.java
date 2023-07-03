@@ -7,19 +7,16 @@ import java.util.stream.Stream;
 
 public class FloodFillImpl<T> implements FloodFill<T> {
     private final DirectedGraph<T> graph;
-    private final Predicate<T> filter;
     private final Set<T> memory = new HashSet<>();
     private final Queue<T> nextNodes;
 
-    public FloodFillImpl(DirectedGraph<T> graph, Predicate<T> filter) {
+    public FloodFillImpl(DirectedGraph<T> graph) {
         this.graph = graph;
-        this.filter = filter;
         this.nextNodes = new LinkedList<>();
     }
 
-    public FloodFillImpl(DirectedGraph<T> graph, Predicate<T> filter, Function<T, Integer> heuristic) {
+    public FloodFillImpl(DirectedGraph<T> graph, Function<T, Integer> heuristic) {
         this.graph = graph;
-        this.filter = filter;
         this.nextNodes = new PriorityQueue<>(Comparator.comparing(heuristic));
     }
 
@@ -42,8 +39,6 @@ public class FloodFillImpl<T> implements FloodFill<T> {
 
     private void visitNode(T node) {
         memory.add(node);
-        if (filter.test(node)) {
-            nextNodes.add(node);
-        }
+        nextNodes.add(node);
     }
 }
