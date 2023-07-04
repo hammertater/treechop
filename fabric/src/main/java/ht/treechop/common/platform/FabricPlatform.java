@@ -33,8 +33,7 @@ public class FabricPlatform implements Platform {
 
     @Override
     public TreeData detectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, TreeData treeData) {
-        TreeData result = TreeChopEvents.DETECT_TREE.invoker().onDetectTree(level, player, blockPos, blockState, treeData);
-        return (result == null) ? TreeDataImpl.empty() : result;
+        return TreeChopEvents.DETECT_TREE.invoker().onDetectTree(level, player, blockPos, blockState, treeData);
     }
 
     // Returns true if chopping should continue

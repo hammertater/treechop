@@ -77,8 +77,7 @@ public class ChopIndicator extends GuiComponent {
         boolean wantToChop = ChopUtil.canChopWithTool(player, level, pos) && ChopUtil.playerWantsToChop(minecraft.player, chopSettings);
         if (wantToChop) {
             if (ChopUtil.playerWantsToFell(player, chopSettings)) {
-                int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
-                return Client.treeCache.getTree(level, pos, maxNumTreeBlocks).isAProperTree(chopSettings.getTreesMustHaveLeaves());
+                return Client.treeCache.getTree(level, pos).isAProperTree(chopSettings.getTreesMustHaveLeaves());
             } else {
                 return ChopUtil.isBlockChoppable(level, pos);
             }

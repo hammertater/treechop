@@ -2,6 +2,7 @@ package ht.treechop.common.chop;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.*;
+import ht.treechop.common.config.ChopCounting;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.util.*;
@@ -131,7 +132,7 @@ public class ChopUtil {
     }
 
     public static int numChopsToFell(int supportSize) {
-        return ConfigHandler.COMMON.chopCountingAlgorithm.get().calculate(supportSize);
+        return ChopCounting.calculate(supportSize);
     }
 
     public static int numChopsToFell(Level level, Set<BlockPos> supportedBlocks) {
@@ -146,18 +147,14 @@ public class ChopUtil {
         return numChopsToFell(treeSize);
     }
 
-    public static ChopResult getChopResult(Level level, BlockPos blockPos, ChopSettings chopSettings, int numChops, boolean fellIfPossible, Predicate<BlockPos> logCondition) {
+    public static ChopResult getChopResult(Level level, BlockPos blockPos, ChopSettings chopSettings, int numChops, boolean fellIfPossible) {
         return fellIfPossible
-                ? getChopResult(level, blockPos, chopSettings, numChops, logCondition)
+                ? getChopResult(level, blockPos, chopSettings, numChops)
                 : tryToChopWithoutFelling(level, blockPos, numChops);
     }
 
-    private static ChopResult getChopResult(Level level, BlockPos blockPos, ChopSettings chopSettings, int numChops, Predicate<BlockPos> logCondition) {
-        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
-        TreeData tree = getTreeBlocks(level, blockPos, logCondition, maxNumTreeBlocks);
-        if (tree.getLogBlocksOrEmpty().size() >= maxNumTreeBlocks) {
-            TreeChop.LOGGER.warn("Max tree size {} reached (not including leaves)", maxNumTreeBlocks);
-        }
+    private static ChopResult getChopResult(Level level, BlockPos blockPos, ChopSettings chopSettings, int numChops) {
+        TreeData tree = getTree(level, blockPos);
 
         if (tree.isAProperTree(chopSettings.getTreesMustHaveLeaves())) {
             Set<BlockPos> supportedBlocks = tree.getLogBlocks().orElse(Collections.emptySet());
@@ -167,30 +164,29 @@ public class ChopUtil {
         }
     }
 
-    public static TreeData getTreeBlocks(Level level, BlockPos blockPos, int maxNumTreeBlocks) {
-        return getTreeBlocks(level, blockPos, pos -> ChopUtil.isBlockALog(level, pos), maxNumTreeBlocks);
+    public static TreeData getTree(Level level, BlockPos blockPos) {
+        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
+        return getTree(level, blockPos, maxNumTreeBlocks);
     }
 
-    public static TreeData getTreeBlocks(Level level, BlockPos blockPos, Predicate<BlockPos> logCondition, int maxNumTreeBlocks) {
-        if (!logCondition.test(blockPos)) {
-            return new TreeDataImpl();
+    public static TreeData getTree(Level level, BlockPos blockPos, int maxNumTreeBlocks) {
+        return getTree(level, blockPos, pos -> ChopUtil.isBlockALog(level, pos), pos -> isBlockLeaves(level, pos), maxNumTreeBlocks);
+    }
+
+    public static TreeData getTree(Level level, BlockPos blockPos, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumTreeBlocks) {
+        if (!logFilter.test(blockPos)) {
+            return TreeDataImpl.empty();
         }
 
-        TreeData detectData = TreeChop.platform.detectTreeEvent(level, null, blockPos, level.getBlockState(blockPos), false);
-        if (detectData.getLogBlocks().isPresent()) {
-            return detectData;
-        }
-
-        Set<BlockPos> supportedBlocks = getConnectedBlocks(
-                Collections.singletonList(blockPos),
-                somePos -> BlockNeighbors.HORIZONTAL_AND_ABOVE.asStream(somePos)
-                        .peek(pos -> detectData.setLeaves(detectData.hasLeaves() || isBlockLeaves(level, pos)))
-                        .filter(logCondition),
+        TreeData treeData = new LazyTreeData(
+                blockPos,
+                BlockNeighbors.HORIZONTAL_AND_ABOVE::asStream,
+                logFilter,
+                leavesFilter,
                 maxNumTreeBlocks
         );
 
-        detectData.setLogBlocks(supportedBlocks);
-        return detectData;
+        return TreeChop.platform.detectTreeEvent(level, null, blockPos, level.getBlockState(blockPos), treeData);
     }
 
     private static ChopResult getChopResult(Level level, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
@@ -430,8 +426,7 @@ public class ChopUtil {
                 pos,
                 chopSettings,
                 chopData.getNumChops(),
-                chopData.getFelling(),
-                logPos -> isBlockALog(level, logPos)
+                chopData.getFelling()
         );
 
         if (chopResult != ChopResult.IGNORED) {

@@ -2,6 +2,7 @@ package ht.treechop.common.util;
 
 import ht.treechop.api.TreeData;
 import ht.treechop.common.chop.ChopUtil;
+import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -11,18 +12,24 @@ import net.minecraft.world.level.block.state.BlockState;
 public class TreeCache {
     private final SingleBlockCache<TreeData> singleBlockCache = new SingleBlockCache<>();
 
-    public TreeData getTree(Level level, BlockPos pos, int maxNumTreeBlocks) {
-        TreeData tree = singleBlockCache.get(level, pos);
-        if (tree == null) {
-            tree = ChopUtil.getTreeBlocks(level, pos, maxNumTreeBlocks);
-            singleBlockCache.put(level, pos, tree);
-        }
-
-        return tree;
+    public TreeData getTree(Level level, BlockPos pos) {
+        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
+        return getTree(level, pos, maxNumTreeBlocks);
     }
 
     public void invalidate() {
         singleBlockCache.invalidate();
+    }
+
+    public TreeData getTree(Level level, BlockPos pos, int maxNumTreeBlocks) {
+        // TODO: maxNumTreeBlocks
+        TreeData tree = singleBlockCache.get(level, pos);
+        if (tree == null) {
+            tree = ChopUtil.getTree(level, pos, maxNumTreeBlocks);
+            singleBlockCache.put(level, pos, tree);
+        }
+
+        return tree;
     }
 
     private static class SingleBlockCache<T> {

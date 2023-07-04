@@ -1,6 +1,5 @@
 package ht.treechop.api;
 
-import ht.treechop.common.util.TreeDataImpl;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -8,6 +7,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
+
+import java.util.Optional;
 
 /**
  * All events triggered by TreeChop extend {@code ChopEvent}. Listeners can alter how and when chopping occurs.
@@ -53,15 +54,24 @@ public class ChopEvent extends Event {
      */
     @Cancelable
     public static class DetectTreeEvent extends ChopEvent {
-        private final TreeDataImpl treeData;
+        private TreeData treeData;
 
-        public DetectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, TreeDataImpl treeData) {
+        public DetectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, TreeData treeData) {
             super(level, player, blockPos, blockState);
             this.treeData = treeData;
         }
 
+        @Deprecated
         public void overrideTreeHasLeaves(boolean hasLeaves) {
             treeData.setLeaves(hasLeaves);
+        }
+
+        public Optional<TreeData> getTreeData() {
+            return Optional.ofNullable(treeData);
+        }
+
+        public void setTreeData(TreeData treeData) {
+            this.treeData = treeData;
         }
     }
 

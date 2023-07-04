@@ -8,31 +8,30 @@ public class FloodFillImpl<T> implements FloodFill<T> {
     private final DirectedGraph<T> graph;
     private final Set<T> memory = new HashSet<>();
     private final Queue<T> nextNodes;
+    private T nextNode;
 
     public FloodFillImpl(Collection<T> starts, DirectedGraph<T> graph, Function<T, Integer> heuristic) {
         this.graph = graph;
         this.nextNodes = new PriorityQueue<>(Comparator.comparing(heuristic));
-        starts.forEach(this::visitNode);
+        addNodes(starts);
     }
 
     @Override
     public Stream<T> fill() {
-        return Stream.iterate(nextNodes.poll(), Objects::nonNull, ignored -> nextNodes.poll())
-                .peek(node -> graph.getNeighbors(node).forEach(neighbor -> {
-                    if (!memory.contains(neighbor)) {
-                        visitNode(neighbor);
-                    }
-                }));
-    }
-
-    @Override
-    public Stream<T> fill(T start) {
-        return fill(List.of(start));
+        return Stream.iterate(nextNode, Objects::nonNull, ignored -> nextNode)
+                .peek(node -> {
+                    graph.getNeighbors(node).forEach(neighbor -> {
+                        if (!memory.contains(neighbor)) {
+                            visitNode(neighbor);
+                        }
+                    });
+                    nextNode = nextNodes.poll();
+                });
     }
 
     @Override
     public Stream<T> fill(Collection<T> starts) {
-        starts.forEach(this::visitNode);
+        addNodes(starts);
         return fill();
     }
 
@@ -43,5 +42,13 @@ public class FloodFillImpl<T> implements FloodFill<T> {
 
     public Stream<T> getNextNodes() {
         return nextNodes.stream();
+    }
+
+    private void addNodes(Collection<T> nodes) {
+        nodes.forEach(this::visitNode);
+        if (nextNode != null) {
+            nextNodes.add(nextNode);
+        }
+        nextNode = nextNodes.poll();
     }
 }
