@@ -17,6 +17,7 @@ repositories {
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
     maven { url "https://maven.bai.lol" }
     maven { url = "https://maven.terraformersmc.com/" }
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
 }
 
 dependencies {
@@ -28,9 +29,7 @@ dependencies {
     implementation project(":shared")
     implementation project(":tuber")
 
-    implementation 'com.electronwill.night-config:core:3.6.5'
-    implementation 'com.electronwill.night-config:toml:3.6.5'
-    modImplementation "curse.maven:forgeconfigfabric-547434:4451343"
+    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:6.0.2"
 
     modCompileOnly "mcp.mobius.waila:wthit-api:fabric-7.3.1"
     modRuntimeOnly "mcp.mobius.waila:wthit:fabric-7.3.1"

@@ -6,7 +6,6 @@ plugins {
 repositories {
     mavenCentral()
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
-
 }
 
 dependencies {
