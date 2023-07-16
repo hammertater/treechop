@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
+@Deprecated
 public class TreeDataImpl extends AbstractTreeData {
     private boolean hasLeaves;
     private Set<BlockPos> logBlocks;
@@ -28,6 +29,11 @@ public class TreeDataImpl extends AbstractTreeData {
     @Override
     public void setLogBlocks(Set<BlockPos> logBlocks) {
         this.logBlocks = logBlocks;
+    }
+
+    @Override
+    public int getChops() {
+        return 0;
     }
 
     @Override

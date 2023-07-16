@@ -9,6 +9,7 @@ import ht.tuber.graph.GraphUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,16 +18,17 @@ import java.util.stream.Stream;
 
 public class LazyTreeData extends AbstractTreeData {
 
+    private final int chops;
     private Set<BlockPos> logs;
     private final Set<BlockPos> leaves;
     private FloodFill<BlockPos> generator;
     private boolean overrideLeaves = false;
 
-    public LazyTreeData(BlockPos origin, DirectedGraph<BlockPos> graph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumTreeBlocks) {
+    public LazyTreeData(Collection<BlockPos> origin, DirectedGraph<BlockPos> graph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumTreeBlocks, int chops) {
         leaves = new HashSet<>();
         logs = new HashSet<>();
+        this.chops = chops;
 
-        //  Find ground
         DirectedGraph<BlockPos> world = GraphUtil.filter(graph, pos -> check(pos, logFilter, leavesFilter));
         generator = GraphUtil.flood(world, origin, Vec3i::getY);
     }
@@ -84,5 +86,10 @@ public class LazyTreeData extends AbstractTreeData {
         } else {
             return generator.fill().allMatch(ignored -> ChopCounting.calculate(logs.size()) <= numChops);
         }
+    }
+
+    @Override
+    public int getChops() {
+        return chops;
     }
 }

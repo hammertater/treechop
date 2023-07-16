@@ -14,6 +14,8 @@ public interface TreeDataImmutable {
     @Deprecated
     Set<BlockPos> getLogBlocksOrEmpty();
 
+    int getChops();
+
     Stream<BlockPos> streamLogs();
 
     Stream<BlockPos> streamLeaves();

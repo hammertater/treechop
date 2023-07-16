@@ -7,6 +7,8 @@ import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.util.*;
 import ht.treechop.server.Server;
+import ht.tuber.graph.DirectedGraph;
+import ht.tuber.graph.GraphUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -19,6 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -147,18 +150,23 @@ public class ChopUtil {
         return numChopsToFell(treeSize);
     }
 
-    public static ChopResult getChopResult(Level level, BlockPos blockPos, ChopSettings chopSettings, int numChops, boolean fellIfPossible) {
+    public static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean fellIfPossible) {
         return fellIfPossible
-                ? getChopResult(level, blockPos, chopSettings, numChops)
-                : tryToChopWithoutFelling(level, blockPos, numChops);
+                ? getChopResult(level, origin, chopSettings, numChops)
+                : tryToChopWithoutFelling(level, origin, numChops);
     }
 
-    private static ChopResult getChopResult(Level level, BlockPos blockPos, ChopSettings chopSettings, int numChops) {
-        TreeData tree = getTree(level, blockPos);
+    private static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops) {
+        DirectedGraph<BlockPos> world = BlockNeighbors.HORIZONTAL_AND_ABOVE::asStream;
+
+        Set<BlockPos> base = findChoppedBlocks(level, origin);
+        int baseChops = base.stream().map(pos -> getNumChops(level, pos)).reduce(Integer::sum).orElse(0);
+
+        Predicate<BlockPos> logFilter = pos -> ChopUtil.isBlockALog(level, pos);
+        TreeData tree = getTree(level, origin, base, world, logFilter, pos -> isBlockLeaves(level, pos), ConfigHandler.COMMON.maxNumTreeBlocks.get(), baseChops);
 
         if (tree.isAProperTree(chopSettings.getTreesMustHaveLeaves())) {
-            Set<BlockPos> supportedBlocks = tree.getLogBlocks().orElse(Collections.emptySet());
-            return getChopResult(level, blockPos, supportedBlocks, numChops);
+            return getChopResult(level, origin, tree, base, world, logFilter, numChops);
         } else {
             return ChopResult.IGNORED;
         }
@@ -170,64 +178,53 @@ public class ChopUtil {
     }
 
     public static TreeData getTree(Level level, BlockPos blockPos, int maxNumTreeBlocks) {
-        return getTree(level, blockPos, pos -> ChopUtil.isBlockALog(level, pos), pos -> isBlockLeaves(level, pos), maxNumTreeBlocks);
+        Set<BlockPos> base = findChoppedBlocks(level, blockPos);
+        int baseChops = base.stream().map(pos -> getNumChops(level, pos)).reduce(Integer::sum).orElse(0);
+        return getTree(level, blockPos, base, BlockNeighbors.HORIZONTAL_AND_ABOVE::asStream, pos -> ChopUtil.isBlockALog(level, pos), pos -> isBlockLeaves(level, pos), maxNumTreeBlocks, baseChops);
     }
 
-    public static TreeData getTree(Level level, BlockPos blockPos, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumTreeBlocks) {
-        if (!logFilter.test(blockPos)) {
+    public static TreeData getTree(Level level, BlockPos origin, Set<BlockPos> base, DirectedGraph<BlockPos> world, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumTreeBlocks, int numChops) {
+        if (base.isEmpty()) {
             return TreeDataImpl.empty();
+        } else {
+            TreeData treeData = new LazyTreeData(
+                    base,
+                    world,
+                    logFilter,
+                    leavesFilter,
+                    maxNumTreeBlocks,
+                    numChops
+            );
+
+            return TreeChop.platform.detectTreeEvent(level, null, origin, level.getBlockState(origin), treeData);
         }
-
-        TreeData treeData = new LazyTreeData(
-                blockPos,
-                BlockNeighbors.HORIZONTAL_AND_ABOVE::asStream,
-                logFilter,
-                leavesFilter,
-                maxNumTreeBlocks
-        );
-
-        return TreeChop.platform.detectTreeEvent(level, null, blockPos, level.getBlockState(blockPos), treeData);
     }
 
-    private static ChopResult getChopResult(Level level, BlockPos target, Set<BlockPos> supportedBlocks, int numChops) {
-        if (supportedBlocks.isEmpty()) {
+    @NotNull
+    private static Set<BlockPos> findChoppedBlocks(Level level, BlockPos blockPos) {
+        DirectedGraph<BlockPos> adjacentWorld = BlockNeighbors.ADJACENTS_AND_DIAGONALS::asStream;
+        Set<BlockPos> base = new HashSet<>();
+        base.add(blockPos);
+
+        GraphUtil.flood(
+                GraphUtil.filter(adjacentWorld, pos -> getNumChops(level, pos) > 0),
+                blockPos,
+                Vec3i::getY
+        ).fill().forEach(base::add);
+
+        return base;
+    }
+
+    private static ChopResult getChopResult(Level level, BlockPos origin, TreeData tree, Set<BlockPos> base, DirectedGraph<BlockPos> world, Predicate<BlockPos> logFilter, int numChops) {
+        if (tree.streamLogs().findFirst().isEmpty()) {
             return ChopResult.IGNORED;
         }
 
-        BlockState blockState = level.getBlockState(target);
-        int currentNumChops = getNumChops(level, target, blockState);
-        int numChopsToFell = numChopsToFell(level, supportedBlocks);
-
-        if (currentNumChops + numChops < numChopsToFell) {
-            Set<BlockPos> nearbyUnchoppedBlocks = new HashSet<>();
-            Set<BlockPos> nearbyChoppableBlocks = collectChoppedBlocks(level, target, blockPos -> {
-                if (isBlockChoppable(level, blockPos)) {
-                    nearbyUnchoppedBlocks.add(blockPos);
-                }
-            });
-
-            int totalNumChops = getNumChops(level, nearbyChoppableBlocks) + numChops;
-
-            if (totalNumChops >= numChopsToFell) {
-                List<BlockPos> choppedLogsSortedByY = nearbyChoppableBlocks.stream()
-                        .sorted(Comparator.comparingInt(Vec3i::getY)).toList();
-
-                // Consume nearby chopped blocks that contributed even if they're at a lower Y, but prefer higher ones
-                for (BlockPos pos : choppedLogsSortedByY) {
-                    int chops = getNumChops(level, pos);
-                    supportedBlocks.add(pos);
-                    if (chops > numChopsToFell) {
-                        break;
-                    }
-                }
-            } else {
-                nearbyChoppableBlocks.remove(target);
-                return gatherChops(level, target, numChops, Stream.concat(nearbyChoppableBlocks.stream(), nearbyUnchoppedBlocks.stream()));
-            }
+        if (tree.readyToFell(tree.getChops() + numChops)) {
+            return new ChopResult(level, Collections.emptyList(), tree.getLogBlocksOrEmpty());
+        } else {
+            return new ChopResult(level, spillChops(level, origin, base, world, logFilter, numChops), Collections.emptyList());
         }
-
-        Chop chop = new Chop(target, numChops);
-        return new ChopResult(level, Collections.singletonList(chop), supportedBlocks);
     }
 
     @NotNull
@@ -251,53 +248,21 @@ public class ChopUtil {
         );
     }
 
-    /**
-     * Adds chops to the targeted block without destroying it. Overflow chops spill to nearby blocks.
-     *
-     * @param nearbyChoppableBlocks must not include {@code target}
-     */
-    private static ChopResult gatherChops(Level level, BlockPos target, int numChops, Stream<BlockPos> nearbyChoppableBlocks) {
+    private static List<Chop> spillChops(Level level, BlockPos origin, Set<BlockPos> base, DirectedGraph<BlockPos> treeGraph, Predicate<BlockPos> logFilter, int numChops) {
         List<Chop> chops = new Stack<>();
-        int numChopsLeft = gatherChopAndGetNumChopsRemaining(level, target, numChops, chops);
+        AtomicInteger chopsLeft = new AtomicInteger(numChops);
 
-        if (numChopsLeft > 0) {
-            List<BlockPos> sortedChoppableBlocks = nearbyChoppableBlocks
-                    .filter(pos -> {
-                        BlockState blockState = level.getBlockState(pos);
-                        if (blockState.getBlock() instanceof IChoppableBlock) {
-                            return getNumChops(level, pos, blockState) < getMaxNumChops(level, pos, blockState);
-                        } else {
-                            return pos.getY() >= target.getY();
-                        }
+        if (chopsLeft.get() > 0) {
+            GraphUtil.flood(GraphUtil.filter(treeGraph, logFilter), base, a -> chopDistance(origin, a) * 32 + RandomUtils.nextInt(0, 32))
+                    .fill()
+                    .takeWhile(pos -> {
+                        chopsLeft.set(gatherChopAndGetNumChopsRemaining(level, pos, chopsLeft.get(), chops));
+                        return chopsLeft.get() > 0;
                     })
-                    .sorted(Comparator.comparingInt(a -> chopDistance(target, a)))
-                    .collect(Collectors.toList());
-
-            if (sortedChoppableBlocks.size() > 0) {
-                int nextChoiceDistance = chopDistance(target, sortedChoppableBlocks.get(0));
-                int candidateStartIndex = 0;
-                for (int i = 0, n = sortedChoppableBlocks.size(); i <= n; ++i) {
-                    if (i == n || chopDistance(target, sortedChoppableBlocks.get(i)) > nextChoiceDistance) {
-                        List<BlockPos> candidates = sortedChoppableBlocks.subList(candidateStartIndex, i);
-                        Collections.shuffle(candidates);
-
-                        for (BlockPos nextTarget : candidates) {
-                            numChopsLeft = gatherChopAndGetNumChopsRemaining(level, nextTarget, numChopsLeft, chops);
-                            if (numChopsLeft <= 0) {
-                                break;
-                            }
-                        }
-
-                        if (numChopsLeft <= 0) {
-                            break;
-                        }
-                        candidateStartIndex = i;
-                    }
-                }
-            }
+                    .count();
         }
 
-        return new ChopResult(level, chops, Collections.emptyList());
+        return chops;
     }
 
     private static int gatherChopAndGetNumChopsRemaining(Level level, BlockPos targetPos, int numChops, List<Chop> choppedBlocks) {
