@@ -82,7 +82,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
                     }
                 }
             }
-        } catch (NullPointerException ignored) {
+        } catch (NullPointerException | ClassNotFoundException ignored) {
         }
     }
 

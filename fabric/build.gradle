@@ -32,11 +32,11 @@ dependencies {
     modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:6.0.2"
 
     modCompileOnly "mcp.mobius.waila:wthit-api:fabric-7.3.1"
-    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-7.3.1"
-    modRuntimeOnly "lol.bai:badpackets:fabric-0.4.1"
+//    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-7.3.1"
+//    modRuntimeOnly "lol.bai:badpackets:fabric-0.4.1"
 
-    modCompileOnly "curse.maven:jade-324717:4538658"
-//    modRuntimeOnly "curse.maven:jade-324717:4538658"
+    modCompileOnly "curse.maven:jade-324717:4649113"
+    modRuntimeOnly "curse.maven:jade-324717:4649113"
 
 //    modRuntimeOnly "maven.modrinth:sodium:mc1.19.3-0.4.9" // Doesn't wanna work in IntelliJ
 //    modRuntimeOnly "curse.maven:indium-459496:3957480"
