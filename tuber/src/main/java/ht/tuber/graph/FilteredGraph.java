@@ -5,23 +5,19 @@ import java.util.stream.Stream;
 
 public class FilteredGraph<T> implements DirectedGraph<T> {
     private final DirectedGraph<T> source;
-    private final Predicate<T> condition;
-    private final boolean onlyFilterNeighbors;
+    private final Predicate<T> originFilter;
+    private final Predicate<T> neighborFilter;
 
-    public FilteredGraph(DirectedGraph<T> graph, Predicate<T> condition) {
-        this(graph, condition, false);
-    }
-
-    public FilteredGraph(DirectedGraph<T> graph, Predicate<T> condition, boolean onlyFilterNeighbors) {
+    public FilteredGraph(DirectedGraph<T> graph, Predicate<T> originFilter, Predicate<T> neighborFilter) {
         this.source = graph;
-        this.condition = condition;
-        this.onlyFilterNeighbors = onlyFilterNeighbors;
+        this.originFilter = originFilter;
+        this.neighborFilter = neighborFilter;
     }
 
     @Override
     public Stream<T> getNeighbors(T node) {
-        if (onlyFilterNeighbors || condition.test(node)) {
-            return source.getNeighbors(node).filter(condition);
+        if (originFilter.test(node)) {
+            return source.getNeighbors(node).filter(neighborFilter);
         } else {
             return Stream.empty();
         }

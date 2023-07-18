@@ -34,7 +34,12 @@ public class LazyTreeData extends AbstractTreeData {
         }
     };
 
-    private final Set<BlockPos> leaves = new HashSet<>();
+    private final Set<BlockPos> leaves = new HashSet<>() {
+        @Override
+        public boolean add(BlockPos blockPos) {
+            return super.add(blockPos);
+        }
+    };
 
     private FloodFill<BlockPos> generator;
 
@@ -42,23 +47,24 @@ public class LazyTreeData extends AbstractTreeData {
         this.level = level;
         this.chops = chops;
 
-        DirectedGraph<BlockPos> world = GraphUtil.filter(graph, pos -> check(pos, logFilter, leavesFilter));
+        DirectedGraph<BlockPos> world = GraphUtil.filter(
+                graph,
+                this::gatherLog,
+                pos -> check(pos, logFilter, leavesFilter)
+        );
         generator = GraphUtil.flood(world, origin, Vec3i::getY);
     }
 
+    private boolean gatherLog(BlockPos pos) {
+        logs.add(pos);
+        return true;
+    }
+
     private boolean check(BlockPos pos, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter) {
-        if (logFilter.test(pos)) {
-            logs.add(pos);
-            if (leavesFilter.test(pos)) {
-                setLeaves(true);
-            }
-            return true;
-        } else {
-            if (leavesFilter.test(pos)) {
-                leaves.add(pos);
-            }
-            return false;
+        if (leavesFilter.test(pos)) {
+            leaves.add(pos);
         }
+        return logFilter.test(pos);
     }
 
     @Override

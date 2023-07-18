@@ -24,11 +24,19 @@ public class GraphUtil {
     }
 
     public static <T> DirectedGraph<T> filter(DirectedGraph<T> graph, Predicate<T> condition) {
-        return new FilteredGraph<>(graph, condition);
+        return new FilteredGraph<>(graph, condition, condition);
+    }
+
+    public static <T> DirectedGraph<T> filter(DirectedGraph<T> graph, Predicate<T> originFilter, Predicate<T> neighborFilter) {
+        return new FilteredGraph<>(graph, originFilter, neighborFilter);
+    }
+
+    public static <T> DirectedGraph<T> filterSources(DirectedGraph<T> graph, Predicate<T> condition) {
+        return new FilteredGraph<>(graph, condition, a -> true);
     }
 
     public static <T> DirectedGraph<T> filterNeighbors(DirectedGraph<T> graph, Predicate<T> condition) {
-        return new FilteredGraph<>(graph, condition, true);
+        return new FilteredGraph<>(graph, a -> true, condition);
     }
 
     public static <T> Stream<Link<T>> supportStream(DirectedGraph<T> sourceGraph, T bases) {
