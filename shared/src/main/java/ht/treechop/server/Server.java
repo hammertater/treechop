@@ -3,6 +3,7 @@ package ht.treechop.server;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.settings.ChopSettings;
+import ht.treechop.common.settings.ChoppingEntity;
 import ht.treechop.common.settings.SyncedChopData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -17,7 +18,13 @@ public abstract class Server {
         return new ChopSettings(ConfigHandler.defaultChopSettings.get());
     }
 
-    public abstract SyncedChopData getPlayerChopData(Player player);
+    public SyncedChopData getPlayerChopData(Player player) {
+        ChoppingEntity chopper = (ChoppingEntity) player;
+        if (chopper.getChopData() == null) {
+            chopper.setChopData(new SyncedChopData(getDefaultPlayerSettings()));
+        }
+        return chopper.getChopData();
+    }
 
     public abstract void broadcast(ServerLevel level, BlockPos pos, CustomPacket packet);
 

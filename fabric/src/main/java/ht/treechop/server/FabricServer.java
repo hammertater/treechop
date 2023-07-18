@@ -58,13 +58,4 @@ public class FabricServer extends Server implements DedicatedServerModInitialize
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         ServerPlayNetworking.send(player, packet.getId(), packet.encode(buffer));
     }
-
-    @Override
-    public SyncedChopData getPlayerChopData(Player player) {
-        ChoppingEntity chopper = (ChoppingEntity) player;
-        if (chopper.getChopData() == null) {
-            chopper.setChopData(new SyncedChopData(getDefaultPlayerSettings()));
-        }
-        return chopper.getChopData();
-    }
 }

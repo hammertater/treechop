@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+    compileOnly "org.spongepowered:mixin:0.8.5"
     compileOnly "fuzs.forgeconfigapiport:forgeconfigapiport-common:6.0.2"
 }
 
