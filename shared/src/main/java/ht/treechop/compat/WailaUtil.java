@@ -5,6 +5,7 @@ import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.Lazy;
 import ht.treechop.common.settings.ChopSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.locale.Language;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -49,31 +51,27 @@ public class WailaUtil {
                                    boolean showNumChops,
                                    Consumer<Component> addNumChops,
                                    Consumer<ItemStack> addTreeBlockStack) {
-        AtomicInteger numChops = new AtomicInteger(0);
 
         int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
         TreeData tree = Client.treeCache.getTree(level, pos, maxNumTreeBlocks);
-        if (tree.isAProperTree(Client.getChopSettings().getTreesMustHaveLeaves())) {
-            tree.getLogBlocks().ifPresent(
-                    treeBlocks -> {
-                        if (showNumChops) {
-                            ChopUtil.collectChoppedBlocks(level, pos).forEach((BlockPos pos2) -> numChops.getAndAdd(ChopUtil.getNumChops(level, pos2)));
-                            addNumChops.accept(Component.translatable("treechop.waila.x_out_of_y_chops", numChops.get(), ChopUtil.numChopsToFell(level, treeBlocks)));
-                        }
 
-                        if (showTreeBlocks) {
-                            treeBlocks.stream()
-                                    .collect(Collectors.groupingBy((BlockPos pos2) -> {
-                                        BlockState state = level.getBlockState(pos2);
-                                        return getLogState(level, pos2, state).getBlock();
-                                    }, Collectors.counting()))
-                                    .forEach((block, count) -> {
-                                        ItemStack stack = block.asItem().getDefaultInstance();
-                                        stack.setCount(count.intValue());
-                                        addTreeBlockStack.accept(stack);
-                                    });
-                        }
-                    });
+        if (tree.isAProperTree(Client.getChopSettings().getTreesMustHaveLeaves())) {
+            if (showNumChops) {
+                addNumChops.accept(Component.translatable("treechop.waila.x_out_of_y_chops", tree.getChops(), ChopUtil.numChopsToFell(level, tree.streamLogs())));
+            }
+
+            if (showTreeBlocks) {
+                tree.streamLogs()
+                        .collect(Collectors.groupingBy((BlockPos pos2) -> {
+                            BlockState state = level.getBlockState(pos2);
+                            return getLogState(level, pos2, state).getBlock();
+                            }, Collectors.counting()))
+                        .forEach((block, count) -> {
+                            ItemStack stack = block.asItem().getDefaultInstance();
+                            stack.setCount(count.intValue());
+                            addTreeBlockStack.accept(stack);
+                        });
+            }
         }
     }
 }

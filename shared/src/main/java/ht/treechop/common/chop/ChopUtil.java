@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -63,31 +62,9 @@ public class ChopUtil {
         }
     }
 
-    public static Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks, AtomicInteger iterationCounter) {
-        Set<BlockPos> connectedBlocks = new HashSet<>();
-        List<BlockPos> newConnectedBlocks = new LinkedList<>(startingPoints);
-        iterationCounter.set(0);
-        do {
-            connectedBlocks.addAll(newConnectedBlocks);
-            if (connectedBlocks.size() >= maxNumBlocks) {
-                break;
-            }
-
-            newConnectedBlocks = newConnectedBlocks.stream()
-                    .flatMap(blockPos -> searchOffsetsSupplier.apply(blockPos)
-                            .filter(pos1 -> !connectedBlocks.contains(pos1))
-                    )
-                    .limit(maxNumBlocks - connectedBlocks.size())
-                    .collect(Collectors.toList());
-
-            iterationCounter.incrementAndGet();
-        } while (!newConnectedBlocks.isEmpty());
-
-        return connectedBlocks;
-    }
-
-    public static Set<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, Function<BlockPos, Stream<BlockPos>> searchOffsetsSupplier, int maxNumBlocks) {
-        return getConnectedBlocks(startingPoints, searchOffsetsSupplier, maxNumBlocks, new AtomicInteger());
+    public static Stream<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, DirectedGraph<BlockPos> world, int maxNumBlocks, AtomicInteger iterationCounter) {
+        return GraphUtil.flood(world, startingPoints, null)
+                .fill();
     }
 
     public static List<BlockPos> getTreeLeaves(Level level, Collection<BlockPos> treeBlocks) {
@@ -138,9 +115,8 @@ public class ChopUtil {
         return ChopCounting.calculate(supportSize);
     }
 
-    public static int numChopsToFell(Level level, Set<BlockPos> supportedBlocks) {
-        int treeSize = Math.max(supportedBlocks.stream()
-                        .map(pos -> (level.getBlockState(pos).getBlock() instanceof IFellableBlock block)
+    public static int numChopsToFell(Level level, Stream<BlockPos> logs) {
+        int treeSize = Math.max(logs.map(pos -> (level.getBlockState(pos).getBlock() instanceof IFellableBlock block)
                                 ? block.getSupportFactor(level, pos, level.getBlockState(pos))
                                 : 1.0)
                         .reduce(Double::sum)
@@ -170,11 +146,6 @@ public class ChopUtil {
         } else {
             return ChopResult.IGNORED;
         }
-    }
-
-    public static TreeData getTree(Level level, BlockPos blockPos) {
-        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
-        return getTree(level, blockPos, maxNumTreeBlocks);
     }
 
     public static TreeData getTree(Level level, BlockPos blockPos, int maxNumTreeBlocks) {
@@ -221,31 +192,10 @@ public class ChopUtil {
         }
 
         if (tree.readyToFell(tree.getChops() + numChops)) {
-            return new ChopResult(level, Collections.emptyList(), tree.getLogBlocksOrEmpty());
+            return new FellTreeResult(level, tree);
         } else {
-            return new ChopResult(level, spillChops(level, origin, base, world, logFilter, numChops), Collections.emptyList());
+            return new ChopTreeResult(level, spillChops(level, origin, base, world, logFilter, numChops));
         }
-    }
-
-    @NotNull
-    public static Set<BlockPos> collectChoppedBlocks(Level level, BlockPos target) {
-        return collectChoppedBlocks(level, target, x -> {});
-    }
-
-    @NotNull
-    private static Set<BlockPos> collectChoppedBlocks(Level level, BlockPos target, Consumer<BlockPos> neighborPeeker) {
-        return ChopUtil.getConnectedBlocks(
-                Collections.singletonList(target),
-                pos -> BlockNeighbors.ADJACENTS_AND_DIAGONALS.asStream(pos)
-                        .filter(checkPos -> {
-                            if (getNumChops(level, checkPos) > 0) {
-                                return true;
-                            }
-                            neighborPeeker.accept(checkPos);
-                            return false;
-                        }),
-                64
-        );
     }
 
     private static List<Chop> spillChops(Level level, BlockPos origin, Set<BlockPos> base, DirectedGraph<BlockPos> treeGraph, Predicate<BlockPos> logFilter, int numChops) {
@@ -328,7 +278,7 @@ public class ChopUtil {
 
     private static ChopResult tryToChopWithoutFelling(Level level, BlockPos blockPos, int numChops) {
         return (isBlockChoppable(level, blockPos))
-                ? new ChopResult(level, Collections.singletonList(new Chop(blockPos, numChops)), Collections.emptyList())
+                ? new ChopTreeResult(level, Collections.singletonList(new Chop(blockPos, numChops)))
                 : ChopResult.IGNORED;
     }
 
@@ -395,10 +345,11 @@ public class ChopUtil {
         );
 
         if (chopResult != ChopResult.IGNORED) {
-            boolean felled = chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
-            TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData, felled);
+            chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
+            TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData, chopResult);
             tool.mineBlock(level, blockState, pos, agent);
 
+            boolean felled = chopResult instanceof FellTreeResult;
             return !felled;
         }
 

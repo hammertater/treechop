@@ -4,6 +4,8 @@ import ht.treechop.api.ChopData;
 import ht.treechop.api.ChopDataImmutable;
 import ht.treechop.api.ChopEvent;
 import ht.treechop.api.TreeData;
+import ht.treechop.common.chop.ChopResult;
+import ht.treechop.common.chop.FellTreeResult;
 import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.common.registry.ForgeModBlocks;
@@ -65,14 +67,15 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData, boolean felled) {
+    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData, ChopResult chopResult) {
         MinecraftForge.EVENT_BUS.post(new ChopEvent.FinishChopEvent(
                 level,
                 agent,
                 pos,
                 blockState,
                 chopData,
-                felled));
+                chopResult instanceof FellTreeResult
+        ));
     }
 
     @Override

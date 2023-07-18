@@ -27,6 +27,10 @@ public class GraphUtil {
         return new FilteredGraph<>(graph, condition);
     }
 
+    public static <T> DirectedGraph<T> filterNeighbors(DirectedGraph<T> graph, Predicate<T> condition) {
+        return new FilteredGraph<>(graph, condition, true);
+    }
+
     public static <T> Stream<Link<T>> supportStream(DirectedGraph<T> sourceGraph, T bases) {
         return supportStream(sourceGraph, Collections.singleton(bases));
     }

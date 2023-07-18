@@ -4,8 +4,9 @@ import ht.treechop.api.ChopData;
 import ht.treechop.api.ChopDataImmutable;
 import ht.treechop.api.TreeChopEvents;
 import ht.treechop.api.TreeData;
+import ht.treechop.common.chop.ChopResult;
+import ht.treechop.common.chop.FellTreeResult;
 import ht.treechop.common.registry.FabricModBlocks;
-import ht.treechop.common.util.TreeDataImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
@@ -49,14 +50,14 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData, boolean felled) {
+    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData, ChopResult chopResult) {
         TreeChopEvents.AFTER_CHOP.invoker().afterChop(
                 level,
                 agent,
                 pos,
                 blockState,
                 chopData,
-                felled
+                chopResult instanceof FellTreeResult
         );
     }
 
