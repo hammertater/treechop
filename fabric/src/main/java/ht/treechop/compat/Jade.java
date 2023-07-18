@@ -69,6 +69,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
         final ResourceLocation OBJECT_NAME_COMPONENT_KEY = new ResourceLocation("jade", "object_name");
         try {
             if (accessor.getBlockEntity() instanceof ChoppedLogBlock.MyEntity choppedEntity) {
+                Class.forName("snownee.jade.impl.ui.TextElement");
                 if (tooltip.get(OBJECT_NAME_COMPONENT_KEY).get(0) instanceof TextElement textElement) {
                     if (textElement.text instanceof MutableComponent textComponent) {
                         String choppedLogName = FabricModBlocks.CHOPPED_LOG.getName().getString();
