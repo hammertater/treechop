@@ -109,19 +109,33 @@ public class ChopUtil {
         return false;
     }
 
-    public static int numChopsToFell(int supportSize) {
-        return ChopCounting.calculate(supportSize);
+    public static boolean enoughChopsToFell(int chops, double support) {
+        return ChopCounting.calculate((int) support) <= chops;
     }
 
     public static int numChopsToFell(Level level, Stream<BlockPos> logs) {
-        int treeSize = Math.max(logs.map(pos -> (level.getBlockState(pos).getBlock() instanceof IFellableBlock block)
-                                ? block.getSupportFactor(level, pos, level.getBlockState(pos))
-                                : 1.0)
+        int support = Math.max(
+                logs.map(pos -> getSupportFactor(level, pos))
                         .reduce(Double::sum)
                         .orElse(1.0).intValue(),
-                1);
+                1
+        );
 
-        return numChopsToFell(treeSize);
+        return ChopCounting.calculate(support);
+    }
+
+    public static Optional<Double> getSupportFactor(Level level, Stream<BlockPos> blocks) {
+        return blocks.map(pos -> ChopUtil.getSupportFactor(level, pos)).reduce(Double::sum);
+    }
+
+    public static double getSupportFactor(Level level, BlockPos pos) {
+        return getSupportFactor(level, pos, level.getBlockState(pos));
+    }
+
+    private static double getSupportFactor(Level level, BlockPos pos, BlockState state) {
+        return (level.getBlockState(pos).getBlock() instanceof IFellableBlock block)
+                ? block.getSupportFactor(level, pos, state)
+                : 1.0;
     }
 
     public static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean fellIfPossible) {
@@ -154,9 +168,10 @@ public class ChopUtil {
 
     public static TreeData getTree(Level level, BlockPos origin, Set<BlockPos> base, DirectedGraph<BlockPos> world, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumTreeBlocks, int numChops) {
         if (base.isEmpty()) {
-            return TreeDataImpl.empty();
+            return TreeDataImpl.empty(level);
         } else {
             TreeData treeData = new LazyTreeData(
+                    level,
                     base,
                     world,
                     logFilter,

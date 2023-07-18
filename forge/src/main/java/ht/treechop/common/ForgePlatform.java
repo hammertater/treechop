@@ -48,7 +48,7 @@ public class ForgePlatform implements Platform {
         ChopEvent.DetectTreeEvent event = new ChopEvent.DetectTreeEvent(level, agent, blockPos, blockState, treeData);
         boolean canceled = MinecraftForge.EVENT_BUS.post(event);
         treeData = event.getTreeData().orElse(null);
-        return (canceled || treeData == null) ? TreeDataImpl.empty() : treeData;
+        return (canceled || treeData == null) ? TreeDataImpl.empty(level) : treeData;
     }
 
     @Override

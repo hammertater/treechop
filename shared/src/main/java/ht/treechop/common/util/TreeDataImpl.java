@@ -1,8 +1,9 @@
 package ht.treechop.common.util;
 
 import ht.treechop.api.AbstractTreeData;
-import ht.treechop.common.config.ChopCounting;
+import ht.treechop.common.chop.ChopUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,25 +11,28 @@ import java.util.stream.Stream;
 
 @Deprecated
 public class TreeDataImpl extends AbstractTreeData {
+    private final Level level;
+    private int chopsToFell;
     private boolean hasLeaves;
-    private Set<BlockPos> logBlocks;
+    private Set<BlockPos> logBlocks = new HashSet<>();
 
-    public TreeDataImpl() {
-        logBlocks = new HashSet<>();
-    }
-
-    public TreeDataImpl(boolean overrideLeaves) {
-        this();
+    public TreeDataImpl(Level level, boolean overrideLeaves) {
+        this.level = level;
         this.hasLeaves = overrideLeaves;
     }
 
-    public static TreeDataImpl empty() {
-        return new TreeDataImpl();
+    public TreeDataImpl(Level level) {
+        this(level, false);
+    }
+
+    public static TreeDataImpl empty(Level level) {
+        return new TreeDataImpl(level);
     }
 
     @Override
     public void setLogBlocks(Set<BlockPos> logBlocks) {
         this.logBlocks = logBlocks;
+        this.chopsToFell = ChopUtil.numChopsToFell(level, logBlocks.stream());
     }
 
     @Override
@@ -53,7 +57,7 @@ public class TreeDataImpl extends AbstractTreeData {
 
     @Override
     public boolean readyToFell(int numChops) {
-        return numChops >= ChopCounting.calculate(logBlocks.size());
+        return ChopUtil.enoughChopsToFell(numChops, chopsToFell);
     }
 
     @Override

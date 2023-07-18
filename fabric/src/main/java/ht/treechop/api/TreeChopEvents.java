@@ -39,7 +39,7 @@ public final class TreeChopEvents {
                 for (DetectTree listener : listeners) {
                     treeData = listener.onDetectTree(world, player, pos, state, treeData);
                     if (treeData == null) {
-                        return TreeDataImpl.empty();
+                        return TreeDataImpl.empty(world);
                     }
                 }
                 return treeData;

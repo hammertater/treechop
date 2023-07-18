@@ -1,13 +1,13 @@
 package ht.treechop.common.chop;
 
 import ht.treechop.api.AbstractTreeData;
-import ht.treechop.common.config.ChopCounting;
 import ht.tuber.graph.DirectedGraph;
 import ht.tuber.graph.FloodFill;
 import ht.tuber.graph.FloodFillImpl;
 import ht.tuber.graph.GraphUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.Level;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,15 +18,28 @@ import java.util.stream.Stream;
 
 public class LazyTreeData extends AbstractTreeData {
 
+    private final Level level;
     private final int chops;
-    private Set<BlockPos> logs;
-    private final Set<BlockPos> leaves;
-    private FloodFill<BlockPos> generator;
+    private double mass = 0;
     private boolean overrideLeaves = false;
 
-    public LazyTreeData(Collection<BlockPos> origin, DirectedGraph<BlockPos> graph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumTreeBlocks, int chops) {
-        leaves = new HashSet<>();
-        logs = new HashSet<>();
+    private Set<BlockPos> logs = new HashSet<>() {
+        @Override
+        public boolean add(BlockPos blockPos) {
+            if (super.add(blockPos)) {
+                mass += ChopUtil.getSupportFactor(level, blockPos);
+                return true;
+            }
+            return false;
+        }
+    };
+
+    private final Set<BlockPos> leaves = new HashSet<>();
+
+    private FloodFill<BlockPos> generator;
+
+    public LazyTreeData(Level level, Collection<BlockPos> origin, DirectedGraph<BlockPos> graph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumTreeBlocks, int chops) {
+        this.level = level;
         this.chops = chops;
 
         DirectedGraph<BlockPos> world = GraphUtil.filter(graph, pos -> check(pos, logFilter, leavesFilter));
@@ -60,6 +73,7 @@ public class LazyTreeData extends AbstractTreeData {
     @Override
     public void setLogBlocks(Set<BlockPos> logBlocks) {
         logs = logBlocks;
+        mass = ChopUtil.getSupportFactor(level, logs.stream()).orElse(1.0);
         generator = new FloodFillImpl<>(List.of(), a -> Stream.empty(), a -> 0);
     }
 
@@ -81,10 +95,10 @@ public class LazyTreeData extends AbstractTreeData {
 
     @Override
     public boolean readyToFell(int numChops) {
-        if (ChopCounting.calculate(logs.size()) > numChops) {
+        if (!ChopUtil.enoughChopsToFell(numChops, mass)) {
             return false;
         } else {
-            return generator.fill().allMatch(ignored -> ChopCounting.calculate(logs.size()) <= numChops);
+            return generator.fill().allMatch(ignored -> ChopUtil.enoughChopsToFell(numChops, mass));
         }
     }
 
