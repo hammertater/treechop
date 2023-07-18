@@ -27,9 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ChopUtil {
@@ -135,7 +133,7 @@ public class ChopUtil {
     private static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops) {
         DirectedGraph<BlockPos> world = BlockNeighbors.HORIZONTAL_AND_ABOVE::asStream;
 
-        Set<BlockPos> base = findChoppedBlocks(level, origin);
+        Set<BlockPos> base = getTreeBase(level, origin);
         int baseChops = base.stream().map(pos -> getNumChops(level, pos)).reduce(Integer::sum).orElse(0);
 
         Predicate<BlockPos> logFilter = pos -> ChopUtil.isBlockALog(level, pos);
@@ -149,7 +147,7 @@ public class ChopUtil {
     }
 
     public static TreeData getTree(Level level, BlockPos blockPos, int maxNumTreeBlocks) {
-        Set<BlockPos> base = findChoppedBlocks(level, blockPos);
+        Set<BlockPos> base = getTreeBase(level, blockPos);
         int baseChops = base.stream().map(pos -> getNumChops(level, pos)).reduce(Integer::sum).orElse(0);
         return getTree(level, blockPos, base, BlockNeighbors.HORIZONTAL_AND_ABOVE::asStream, pos -> ChopUtil.isBlockALog(level, pos), pos -> isBlockLeaves(level, pos), maxNumTreeBlocks, baseChops);
     }
@@ -172,16 +170,19 @@ public class ChopUtil {
     }
 
     @NotNull
-    private static Set<BlockPos> findChoppedBlocks(Level level, BlockPos blockPos) {
-        DirectedGraph<BlockPos> adjacentWorld = BlockNeighbors.ADJACENTS_AND_DIAGONALS::asStream;
+    private static Set<BlockPos> getTreeBase(Level level, BlockPos blockPos) {
         Set<BlockPos> base = new HashSet<>();
-        base.add(blockPos);
 
-        GraphUtil.flood(
-                GraphUtil.filter(adjacentWorld, pos -> getNumChops(level, pos) > 0),
-                blockPos,
-                Vec3i::getY
-        ).fill().forEach(base::add);
+        if (isBlockChoppable(level, blockPos)) {
+            DirectedGraph<BlockPos> adjacentWorld = BlockNeighbors.ADJACENTS_AND_DIAGONALS::asStream;
+            base.add(blockPos);
+
+            GraphUtil.flood(
+                    GraphUtil.filterNeighbors(adjacentWorld, pos -> getNumChops(level, pos) > 0),
+                    blockPos,
+                    Vec3i::getY
+            ).fill().forEach(base::add);
+        }
 
         return base;
     }
