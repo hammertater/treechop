@@ -60,55 +60,6 @@ public class ChopUtil {
         }
     }
 
-    public static Stream<BlockPos> getConnectedBlocks(Collection<BlockPos> startingPoints, DirectedGraph<BlockPos> world, int maxNumBlocks, AtomicInteger iterationCounter) {
-        return GraphUtil.flood(world, startingPoints, null)
-                .fill();
-    }
-
-    public static List<BlockPos> getTreeLeaves(Level level, Collection<BlockPos> treeBlocks) {
-        AtomicInteger iterationCounter = new AtomicInteger();
-        Set<BlockPos> leaves = new HashSet<>();
-        int maxDistance = ConfigHandler.COMMON.maxBreakLeavesDistance.get();
-
-        int maxNumLeavesBlocks = ConfigHandler.COMMON.maxNumLeavesBlocks.get();
-        getConnectedBlocks(
-                treeBlocks,
-                pos1 -> {
-                    BlockState blockState = level.getBlockState(pos1);
-                    return ((isBlockLeaves(blockState) && !(blockState.getBlock() instanceof LeavesBlock))
-                            ? BlockNeighbors.ADJACENTS_AND_BELOW_ADJACENTS // Red mushroom caps can be connected diagonally downward
-                            : BlockNeighbors.ADJACENTS)
-                            .asStream(pos1)
-                            .filter(pos2 -> markLeavesToDestroyAndKeepLooking(level, pos2, iterationCounter, leaves, maxDistance));
-                },
-                maxNumLeavesBlocks,
-                iterationCounter
-        );
-
-        if (leaves.size() >= maxNumLeavesBlocks) {
-            TreeChop.LOGGER.warn(String.format("Max number of leaves reached: %d >= %d blocks", leaves.size(), maxNumLeavesBlocks));
-        }
-
-        return new ArrayList<>(leaves);
-    }
-
-    private static boolean markLeavesToDestroyAndKeepLooking(Level level, BlockPos pos, AtomicInteger iterationCounter, Set<BlockPos> leavesToDestroy, int maxDistance) {
-        BlockState blockState = level.getBlockState(pos);
-        if (isBlockLeaves(blockState)) {
-            if (blockState.getBlock() instanceof LeavesBlock) {
-                if (iterationCounter.get() + 1 > blockState.getValue(LeavesBlock.DISTANCE)) {
-                    return false;
-                }
-            } else if (iterationCounter.get() >= maxDistance) {
-                return false;
-            }
-
-            leavesToDestroy.add(pos);
-            return true;
-        }
-        return false;
-    }
-
     public static boolean enoughChopsToFell(int chops, double support) {
         return ChopCounting.calculate((int) support) <= chops;
     }
