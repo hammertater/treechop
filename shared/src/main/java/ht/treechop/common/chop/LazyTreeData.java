@@ -1,6 +1,8 @@
 package ht.treechop.common.chop;
 
 import ht.treechop.api.AbstractTreeData;
+import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.util.BlockNeighbors;
 import ht.tuber.graph.DirectedGraph;
 import ht.tuber.graph.FloodFill;
 import ht.tuber.graph.FloodFillImpl;
@@ -8,11 +10,12 @@ import ht.tuber.graph.GraphUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -43,16 +46,17 @@ public class LazyTreeData extends AbstractTreeData {
 
     private FloodFill<BlockPos> generator;
 
-    public LazyTreeData(Level level, Collection<BlockPos> origin, DirectedGraph<BlockPos> graph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumTreeBlocks, int chops) {
+    public LazyTreeData(Level level, Collection<BlockPos> base, DirectedGraph<BlockPos> logGraph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumTreeBlocks, int chops) {
         this.level = level;
         this.chops = chops;
+        logs.addAll(base);
 
         DirectedGraph<BlockPos> world = GraphUtil.filter(
-                graph,
+                logGraph,
                 this::gatherLog,
                 pos -> check(pos, logFilter, leavesFilter)
         );
-        generator = GraphUtil.flood(world, origin, Vec3i::getY);
+        generator = GraphUtil.flood(world, base, Vec3i::getY);
     }
 
     private boolean gatherLog(BlockPos pos) {
@@ -95,8 +99,33 @@ public class LazyTreeData extends AbstractTreeData {
 
     @Override
     public Stream<BlockPos> streamLeaves() {
-        generator.fill().forEach(a -> {}); // TODO: don't do this
-        return leaves.stream();
+        streamLogs().forEach(a -> {}); // TODO: don't do this? Makes sure all log-adjacent leaves are discovered
+
+        List<BlockPos> allLeaves = new LinkedList<>();
+        forEachLeaves(allLeaves, allLeaves::add); // TODO: yikes; defeats the purpose of streaming
+
+        return allLeaves.stream();
+    }
+
+    private void forEachLeaves(List<BlockPos> firstLeaves, Consumer<BlockPos> forEach) {
+        leaves.stream().filter(pos -> leavesHasExactDistance(level.getBlockState(pos), 1)).forEach(forEach);
+
+        AtomicInteger distance = new AtomicInteger();
+        DirectedGraph<BlockPos> distancedLeavesGraph = GraphUtil.filterNeighbors(
+                BlockNeighbors.ADJACENTS::asStream,
+                pos -> {
+                    BlockState state = level.getBlockState(pos);
+                    return ChopUtil.isBlockLeaves(state) && (leavesHasAtLeastDistance(state, distance.get()));
+                }
+        );
+
+        FloodFillImpl<BlockPos> flood = new FloodFillImpl<>(firstLeaves, distancedLeavesGraph, a -> 0);
+
+        int maxDistance = ConfigHandler.COMMON.maxBreakLeavesDistance.get();
+        for (int i = 2; i < maxDistance; ++i) {
+            distance.set(i);
+            flood.fillOnce(forEach);
+        }
     }
 
     @Override
@@ -111,5 +140,29 @@ public class LazyTreeData extends AbstractTreeData {
     @Override
     public int getChops() {
         return chops;
+    }
+
+    public Level getLevel() {
+        return level;
+    }
+
+    public Collection<BlockPos> getIncompleteLogs() {
+        return logs;
+    }
+
+    public Collection<BlockPos> getIncompleteLeaves() {
+        return leaves;
+    }
+
+    private boolean leavesHasExactDistance(BlockState state, int distance) {
+        return (state.getOptionalValue(LeavesBlock.PERSISTENT).orElse(true))
+                ? true
+                : state.getOptionalValue(LeavesBlock.DISTANCE).orElse(distance) == distance;
+    }
+
+    private boolean leavesHasAtLeastDistance(BlockState state, int distance) {
+        return (state.getOptionalValue(LeavesBlock.PERSISTENT).orElse(true))
+                ? true
+                : state.getOptionalValue(LeavesBlock.DISTANCE).orElse(distance) >= distance;
     }
 }

@@ -1,11 +1,6 @@
 package ht.treechop.common.chop;
 
 import ht.treechop.api.TreeData;
-import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.util.BlockNeighbors;
-import ht.tuber.graph.DirectedGraph;
-import ht.tuber.graph.FloodFillImpl;
-import ht.tuber.graph.GraphUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -67,16 +61,6 @@ public class FellTreeResult implements ChopResult {
     }
 
     private void breakLeaves(ServerPlayer player, ServerLevel level, GameType gameType, Consumer<BlockPos> blockBreaker) {
-        AtomicInteger distance = new AtomicInteger();
-
-        DirectedGraph<BlockPos> leavesGraph = GraphUtil.filterNeighbors(
-                BlockNeighbors.ADJACENTS::asStream,
-                pos -> {
-                    BlockState state = level.getBlockState(pos);
-                    return ChopUtil.isBlockLeaves(state) && (leavesHasAtLeastDistance(state, distance.get()));
-                }
-        );
-
         Consumer<BlockPos> leavesBreaker = pos -> {
             if (!player.blockActionRestricted(level, pos, gameType)) {
                 BlockState state = level.getBlockState(pos);
@@ -88,18 +72,7 @@ public class FellTreeResult implements ChopResult {
             }
         };
 
-        List<BlockPos> leaves = tree.streamLeaves().filter(pos -> leavesHasExactDistance(level.getBlockState(pos), 1)).toList();
-        leaves.forEach(leavesBreaker);
-
-//        leaves = GraphUtil.flood(leavesGraph, leaves).fill().peek(leavesBreaker).toList();
-
-        FloodFillImpl<BlockPos> flood = new FloodFillImpl<>(leaves, leavesGraph, a -> 0);
-
-        int maxDistance = ConfigHandler.COMMON.maxBreakLeavesDistance.get();
-        for (int i = 2; i < maxDistance; ++i) {
-            distance.set(i);
-            flood.fillOnce(leavesBreaker);
-        }
+        tree.streamLeaves().forEach(leavesBreaker);
     }
 
     private static void playBlockBreakEffects(Level level, List<BlockPos> logs, List<BlockPos> leaves) {
@@ -140,18 +113,6 @@ public class FellTreeResult implements ChopResult {
     private void decayLeavesInsteadOfBreaking(ServerLevel level, BlockPos pos, BlockState state) {
         BlockState decayingState = state.setValue(LeavesBlock.PERSISTENT, false).setValue(LeavesBlock.DISTANCE, LeavesBlock.DECAY_DISTANCE);
         decayingState.randomTick(level, pos, level.random);
-    }
-
-    private boolean leavesHasExactDistance(BlockState state, int distance) {
-        return state.hasProperty(LeavesBlock.DISTANCE)
-                ? state.getValue(LeavesBlock.DISTANCE) == distance
-                : true;
-    }
-
-    private boolean leavesHasAtLeastDistance(BlockState state, int distance) {
-        return state.hasProperty(LeavesBlock.DISTANCE)
-                ? state.getValue(LeavesBlock.DISTANCE) >= distance
-                : true;
     }
 
     private static boolean isVanillaLeaves(BlockState blockState) {

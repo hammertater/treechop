@@ -7,6 +7,7 @@ import ht.treechop.common.FabricCommon;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.platform.FabricPlatform;
 import ht.treechop.common.registry.FabricModBlocks;
+import ht.treechop.compat.FabricMushroomCapDetection;
 import ht.treechop.compat.TreeChopFabricAPITest;
 import ht.treechop.server.FabricServer;
 import net.fabricmc.api.ModInitializer;
@@ -38,7 +39,9 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
         FabricServer.initialize();
         FabricLoader.getInstance().getObjectShare().put("treechop:api_provider", (ITreeChopAPIProvider) TreeChopFabricAPI::new);
 
+        // Compat
         TreeChopFabricAPITest.init();
+        FabricMushroomCapDetection.init();
     }
 
     private static void onReload(ModConfig config) {

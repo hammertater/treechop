@@ -2,6 +2,7 @@ package ht.treechop.common.chop;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.*;
+import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ChopCounting;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.ChopSettings;
@@ -170,7 +171,7 @@ public class ChopUtil {
         AtomicInteger chopsLeft = new AtomicInteger(numChops);
 
         if (chopsLeft.get() > 0) {
-            GraphUtil.flood(GraphUtil.filter(treeGraph, logFilter), base, a -> chopDistance(origin, a) * 32 + RandomUtils.nextInt(0, 32))
+            GraphUtil.flood(GraphUtil.filter(treeGraph, logFilter), base, a -> blockDistance(origin, a) * 32 + RandomUtils.nextInt(0, 32))
                     .fill()
                     .takeWhile(pos -> {
                         chopsLeft.set(gatherChopAndGetNumChopsRemaining(level, pos, chopsLeft.get(), chops));
@@ -249,8 +250,12 @@ public class ChopUtil {
                 : ChopResult.IGNORED;
     }
 
-    public static int chopDistance(BlockPos a, BlockPos b) {
+    public static int blockDistance(BlockPos a, BlockPos b) {
         return a.distManhattan(b);
+    }
+
+    public static int horizontalBlockDistance(BlockPos a, BlockPos b) {
+        return new Vec3i(a.getX(), 0, a.getZ()).distManhattan(new Vec3i(b.getX(), 0, b.getZ()));
     }
 
     public static boolean canChopWithTool(Player player, Level level, BlockPos pos) {
@@ -345,6 +350,18 @@ public class ChopUtil {
         }
 
         return (strippedState != null) ? BlockUtil.copyStateProperties(strippedState, state) : fallback;
+    }
+
+    public static Block getLogBlock(Level level, BlockPos pos) {
+        return getLogBlock(level, pos, level.getBlockState(pos));
+    }
+
+    public static Block getLogBlock(Level level, BlockPos pos, BlockState state) {
+        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
+            return entity.getOriginalState().getBlock();
+        } else {
+            return state.getBlock();
+        }
     }
 
 }

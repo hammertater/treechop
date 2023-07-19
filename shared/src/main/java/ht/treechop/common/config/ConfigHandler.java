@@ -181,6 +181,10 @@ public class ConfigHandler {
         return ConfigHandler.getIdentifiedBlocks(getCommonTagId("mushroom_stems"));
     }
 
+    public static Stream<Block> getMushroomCaps() {
+        return ConfigHandler.getIdentifiedBlocks(getCommonTagId("mushroom_caps"));
+    }
+
     private static String getCommonTagId(String path) {
         return String.format("#%s:%s", TreeChop.platform.uses(ModLoader.FORGE) ? "forge" : "c", path);
     }
