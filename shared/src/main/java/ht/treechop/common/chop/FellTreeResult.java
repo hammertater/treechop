@@ -1,7 +1,10 @@
 package ht.treechop.common.chop;
 
+import com.ibm.icu.impl.Pair;
 import ht.treechop.api.TreeData;
+import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -15,10 +18,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 public class FellTreeResult implements ChopResult {
     public static final int MAX_NUM_FELLING_EFFECTS = 32;
@@ -56,11 +60,27 @@ public class FellTreeResult implements ChopResult {
     }
 
     private void breakLogs(ServerPlayer player, ServerLevel level, GameType gameType, Consumer<BlockPos> blockBreaker, BlockPos targetPos) {
-        tree.streamLogs().filter(pos -> !pos.equals(targetPos) && !player.blockActionRestricted(level, targetPos, gameType))
-                .forEach(blockBreaker);
+        final long maxNumEffects = 4;
+        AtomicInteger i = new AtomicInteger(0);
+        PriorityQueue<Pair<BlockPos, BlockState>> effects = new PriorityQueue<>(Comparator.comparing(pair -> pair.first.getY()));
+
+        tree.streamLogs()
+                .filter(pos -> !pos.equals(targetPos) && !player.blockActionRestricted(level, targetPos, gameType))
+                .forEach(pos -> {
+                    collectSomeBlocks(effects, pos, level.getBlockState(pos), i, 3);
+                    blockBreaker.accept(pos);
+                });
+
+        effects.stream()
+                .limit(maxNumEffects)
+                .forEach(posState -> playBlockBreakEffects(level, posState.first, posState.second));
     }
 
     private void breakLeaves(ServerPlayer player, ServerLevel level, GameType gameType, Consumer<BlockPos> blockBreaker) {
+        final long maxNumEffects = 8;
+        AtomicInteger i = new AtomicInteger(0);
+        PriorityQueue<Pair<BlockPos, BlockState>> effects = new PriorityQueue<>(Comparator.comparing(pair -> pair.first.getY()));
+
         Consumer<BlockPos> leavesBreaker = pos -> {
             if (!player.blockActionRestricted(level, pos, gameType)) {
                 BlockState state = level.getBlockState(pos);
@@ -69,26 +89,26 @@ public class FellTreeResult implements ChopResult {
                 } else {
                     blockBreaker.accept(pos);
                 }
+
+                collectSomeBlocks(effects, pos, state, i, 8);
             }
         };
 
         tree.streamLeaves().forEach(leavesBreaker);
+
+        effects.stream()
+                .limit(maxNumEffects)
+                .forEach(posState -> playBlockBreakEffects(level, posState.first, posState.second));
     }
 
-    private static void playBlockBreakEffects(Level level, List<BlockPos> logs, List<BlockPos> leaves) {
-        int numLogsAndLeaves = logs.size() + leaves.size();
-        int numEffects = Math.min((int) Math.ceil(Math.sqrt(numLogsAndLeaves)), MAX_NUM_FELLING_EFFECTS) - 1;
-        int numLeavesEffects = Math.max(1, (int) Math.ceil(numEffects * ((double) leaves.size() / (double) numLogsAndLeaves)));
-        int numLogsEffects = Math.max(1, numEffects - numLeavesEffects);
+    private static void collectSomeBlocks(Queue<Pair<BlockPos, BlockState>> collection, BlockPos pos, BlockState state, AtomicInteger counter, int period) {
+        if (counter.getAndIncrement() % period == 0) {
+            collection.add(Pair.of(pos, state));
+        }
+    }
 
-        Collections.shuffle(logs);
-        Collections.shuffle(leaves);
-
-        Stream.concat(
-                        logs.stream().limit(numLogsEffects),
-                        leaves.stream().limit(numLeavesEffects)
-                )
-                .forEach(pos -> level.levelEvent(2001, pos, Block.getId(level.getBlockState(pos))));
+    private static void playBlockBreakEffects(Level level, BlockPos pos, BlockState state) {
+        level.levelEvent(2001, pos, Block.getId(state));
     }
 
     private static void harvestWorldBlock(
