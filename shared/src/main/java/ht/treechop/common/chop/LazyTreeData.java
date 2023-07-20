@@ -23,6 +23,7 @@ public class LazyTreeData extends AbstractTreeData {
 
     private final Level level;
     private final int chops;
+    private final int maxNumLogs;
     private double mass = 0;
     private boolean overrideLeaves = false;
 
@@ -46,9 +47,10 @@ public class LazyTreeData extends AbstractTreeData {
 
     private FloodFill<BlockPos> generator;
 
-    public LazyTreeData(Level level, Collection<BlockPos> base, DirectedGraph<BlockPos> logGraph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumTreeBlocks, int chops) {
+    public LazyTreeData(Level level, Collection<BlockPos> base, DirectedGraph<BlockPos> logGraph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumLogs, int chops) {
         this.level = level;
         this.chops = chops;
+        this.maxNumLogs = maxNumLogs;
         logs.addAll(base);
 
         DirectedGraph<BlockPos> world = GraphUtil.filter(
@@ -94,7 +96,7 @@ public class LazyTreeData extends AbstractTreeData {
 
     @Override
     public Stream<BlockPos> streamLogs() {
-        return Stream.concat(logs.stream(), generator.fill());
+        return Stream.concat(logs.stream(), generator.fill()).limit(maxNumLogs);
     }
 
     @Override
