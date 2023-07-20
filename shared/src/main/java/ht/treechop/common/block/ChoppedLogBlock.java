@@ -419,11 +419,11 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         public void setLevel(@NotNull Level level) {
             super.setLevel(level);
             if (level.isClientSide()) {
-                update(level);
+                update();
             }
         }
 
-        public void update(@NotNull Level level) {
+        public void update() {
             CompoundTag update = ServerUpdateChopsPacket.getPendingUpdate(level, worldPosition);
             if (update != null) {
                 load(update);
