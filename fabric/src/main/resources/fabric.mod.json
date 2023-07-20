@@ -32,6 +32,7 @@
     ]
   },
   "mixins": [
+    "treechop.mixins.json",
     "treechop.fabric.mixins.json"
   ],
 

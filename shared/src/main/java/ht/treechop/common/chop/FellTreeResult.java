@@ -77,7 +77,7 @@ public class FellTreeResult implements ChopResult {
     }
 
     private void breakLeaves(ServerPlayer player, ServerLevel level, GameType gameType, Consumer<BlockPos> blockBreaker) {
-        final long maxNumEffects = 8;
+        final long maxNumEffects = 5;
         AtomicInteger i = new AtomicInteger(0);
         PriorityQueue<Pair<BlockPos, BlockState>> effects = new PriorityQueue<>(Comparator.comparing(pair -> pair.first.getY()));
 
@@ -90,7 +90,9 @@ public class FellTreeResult implements ChopResult {
                     blockBreaker.accept(pos);
                 }
 
-                collectSomeBlocks(effects, pos, state, i, 8);
+                if (player.distanceToSqr(pos.getCenter()) > 9.0) {
+                    collectSomeBlocks(effects, pos, state, i, 8);
+                }
             }
         };
 
