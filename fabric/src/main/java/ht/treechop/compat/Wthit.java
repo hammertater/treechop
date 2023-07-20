@@ -47,12 +47,10 @@ public class Wthit implements IWailaPlugin, IBlockComponentProvider {
     public void appendBody(ITooltip tooltip, IBlockAccessor accessor, IPluginConfig config) {
         Level level = accessor.getWorld();
         BlockPos pos = accessor.getPosition();
-        LocalPlayer player = Minecraft.getInstance().player;
-        ClientChopSettings chopSettings = Client.getChopSettings();
         boolean showNumBlocks = config.getBoolean(SHOW_TREE_BLOCKS);
         boolean showChopsRemaining = config.getBoolean(SHOW_NUM_CHOPS_REMAINING);
 
-        if (WailaUtil.playerWantsTreeInfo(level, pos, player, chopSettings, showNumBlocks, showChopsRemaining)) {
+        if (WailaUtil.playerWantsTreeInfo(level, pos, showNumBlocks, showChopsRemaining)) {
             Optional<ITooltipLine> line = Optional.empty();
             WailaUtil.addTreeInfo(
                     level,

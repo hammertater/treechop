@@ -1,5 +1,6 @@
 package ht.treechop.compat;
 
+import ht.treechop.TreeChop;
 import ht.treechop.api.TreeData;
 import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
@@ -7,6 +8,7 @@ import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.config.Lazy;
 import ht.treechop.common.settings.ChopSettings;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -36,6 +38,14 @@ public class WailaUtil {
             return entity.getOriginalState();
         } else {
             return state;
+        }
+    }
+
+    public static boolean playerWantsTreeInfo(Level level, BlockPos pos, boolean showTreeBlocks, boolean showNumChops) {
+        if (!TreeChop.platform.isDedicatedServer()) {
+            return playerWantsTreeInfo(level, pos, Client.getPlayer(), Client.getChopSettings(), showTreeBlocks, showNumChops);
+        } else {
+            return false;
         }
     }
 

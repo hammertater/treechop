@@ -16,6 +16,7 @@ import ht.treechop.common.util.TreeCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 
 public abstract class Client {
     protected static final Permissions serverPermissions = new Permissions();
@@ -102,6 +103,10 @@ public abstract class Client {
         if (level != null && level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
             entity.update();
         }
+    }
+
+    public static Player getPlayer() {
+        return Minecraft.getInstance().player;
     }
 
     abstract void sendToServer(CustomPacket packet);

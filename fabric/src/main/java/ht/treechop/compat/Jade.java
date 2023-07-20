@@ -5,8 +5,6 @@ import ht.treechop.client.Client;
 import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.registry.FabricModBlocks;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -44,12 +42,10 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
 
         Level level = accessor.getLevel();
         BlockPos pos = accessor.getPosition();
-        LocalPlayer player = Minecraft.getInstance().player;
-        ClientChopSettings chopSettings = Client.getChopSettings();
         boolean showNumBlocks = config.get(SHOW_TREE_BLOCKS);
         boolean showChopsRemaining = config.get(SHOW_NUM_CHOPS_REMAINING);
 
-        if (WailaUtil.playerWantsTreeInfo(level, pos, player, chopSettings, showNumBlocks, showChopsRemaining)) {
+        if (WailaUtil.playerWantsTreeInfo(level, pos, showNumBlocks, showChopsRemaining)) {
             Optional<LinkedList<IElement>> tiles = Optional.empty();
             WailaUtil.addTreeInfo(
                     level,
