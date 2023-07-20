@@ -101,11 +101,11 @@ dependencies {
     compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-7.3.1")
 
 //    // run against the full jar
-    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-7.3.1")
-    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.4.1")
+//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-7.3.1")
+//    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.4.1")
 
     compileOnly fg.deobf("curse.maven:jade-324717:4538674")
-//    runtimeOnly fg.deobf("curse.maven:jade-324717:4538674")
+    runtimeOnly fg.deobf("curse.maven:jade-324717:4538674")
 
     compileOnly fg.deobf("curse.maven:the-one-probe-245211:4442439")
 //    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:4442439")
