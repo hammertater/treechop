@@ -1,6 +1,7 @@
 package ht.treechop.client.gui.element;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -40,7 +41,7 @@ public class RowsGui extends NestedGui {
         return rows;
     }
 
-    public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         int rowLeft = getBox().getLeft();
         int rowTop = getBox().getTop();
         int rowWidth = getBox().getWidth();
@@ -48,7 +49,7 @@ public class RowsGui extends NestedGui {
         for (NestedGui row : rows) {
             int rowHeight = row.getMinimumHeight();
             row.setBox(rowLeft, rowTop, rowWidth, rowHeight);
-            row.render(poseStack, mouseX, mouseY, partialTicks);
+            row.render(gui, mouseX, mouseY, partialTicks);
             rowTop += rowHeight + rowSeparation;
         }
     }

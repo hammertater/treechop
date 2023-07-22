@@ -1,7 +1,8 @@
 package ht.treechop.client.gui.widget;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import ht.treechop.client.gui.util.Sprite;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -26,10 +27,10 @@ public class SpriteButtonWidget extends AbstractWidget {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         Sprite.setRenderState(this.alpha);
         Sprite sprite = isHoveredOrFocused() ? highlightedSprite : this.sprite;
-        sprite.blit(poseStack, getX(), getY());
+        sprite.blit(gui, getX(), getY());
     }
 
     @Override

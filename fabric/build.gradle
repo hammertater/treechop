@@ -29,14 +29,14 @@ dependencies {
     implementation project(":shared")
     implementation project(":tuber")
 
-    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:6.0.2"
+    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:8.0.0"
 
-    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-7.3.1"
-//    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-7.3.1"
-//    modRuntimeOnly "lol.bai:badpackets:fabric-0.4.1"
+    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-8.2.0"
+    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-8.2.0"
+    modRuntimeOnly "lol.bai:badpackets:fabric-0.4.1"
 
-    modCompileOnly "curse.maven:jade-324717:4649113"
-    modRuntimeOnly "curse.maven:jade-324717:4649113"
+    modCompileOnly "curse.maven:jade-324717:4653227"
+//    modRuntimeOnly "curse.maven:jade-324717:4653227"
 
 //    modRuntimeOnly "maven.modrinth:sodium:mc1.19.3-0.4.9" // Doesn't wanna work in IntelliJ
 //    modRuntimeOnly "curse.maven:indium-459496:3957480"

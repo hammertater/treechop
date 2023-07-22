@@ -1,6 +1,7 @@
 package ht.treechop.client.gui.element;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -43,7 +44,7 @@ public class EmptyGui extends NestedGui {
     }
 
     @Override
-    public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics poseStack, int mouseX, int mouseY, float partialTicks) {
     }
 
     public void setColumnWidths(int biggestLeftColumnWidth, int biggestRightColumnWidth) {

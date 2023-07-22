@@ -1,8 +1,9 @@
 package ht.treechop.client.gui.element;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.widget.SpriteButtonWidget;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -26,10 +27,10 @@ public class ButtonGui extends NestedGui {
     }
 
     @Override
-    public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         this.widget.setX(getBox().getCenterX() - this.widget.getWidth() / 2);
         this.widget.setY(getBox().getCenterY() - this.widget.getHeight() / 2);
-        this.widget.render(poseStack, mouseX, mouseY, partialTicks);
+        this.widget.render(gui, mouseX, mouseY, partialTicks);
     }
 
     @Override

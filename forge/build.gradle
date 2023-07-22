@@ -98,20 +98,20 @@ dependencies {
     implementation project(":tuber")
 
     // compile against the API
-    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-7.3.1")
+    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-8.2.0")
 
 //    // run against the full jar
-//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-7.3.1")
+//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-8.2.0")
 //    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.4.1")
 
-    compileOnly fg.deobf("curse.maven:jade-324717:4538674")
-    runtimeOnly fg.deobf("curse.maven:jade-324717:4538674")
+    compileOnly fg.deobf("curse.maven:jade-324717:4614153")
+//    runtimeOnly fg.deobf("curse.maven:jade-324717:4614153")
 
-    compileOnly fg.deobf("curse.maven:the-one-probe-245211:4442439")
-//    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:4442439")
+    compileOnly fg.deobf("curse.maven:the-one-probe-245211:4629624")
+    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:4629624")
 
-    compileOnly fg.deobf("curse.maven:project-mmo-353935:4630627") // https://github.com/Caltinor/Project-MMO-2.0
-//    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4630627")
+    compileOnly fg.deobf("curse.maven:project-mmo-353935:4630465") // https://github.com/Caltinor/Project-MMO-2.0
+//    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4630465")
 
 //    compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:4160388")

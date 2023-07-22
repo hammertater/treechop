@@ -5,8 +5,8 @@ import ht.treechop.common.block.ForgeChoppedLogBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -19,11 +19,12 @@ public class ForgeModBlocks {
     // Blocks
     public static final RegistryObject<Block> CHOPPED_LOG = BLOCKS.register("chopped_log",
             () -> new ForgeChoppedLogBlock(
-                    Block.Properties.of(
-                            Material.WOOD,
-                            MaterialColor.WOOD)
+                    Block.Properties.of()
+                            .mapColor(blockState -> MapColor.WOOD)
+                            .instrument(NoteBlockInstrument.BASS)
                             .strength(2.0F)
                             .sound(SoundType.WOOD)
+                            .ignitedByLava()
             )
     );
 
