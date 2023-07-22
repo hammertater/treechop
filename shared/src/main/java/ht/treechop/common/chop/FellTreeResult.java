@@ -1,10 +1,8 @@
 package ht.treechop.common.chop;
 
-import com.ibm.icu.impl.Pair;
 import ht.treechop.api.TreeData;
-import ht.treechop.common.config.ConfigHandler;
+import ht.tuber.structs.Pair;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -25,8 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class FellTreeResult implements ChopResult {
-    public static final int MAX_NUM_FELLING_EFFECTS = 32;
-
     private final Level level;
     private final TreeData tree;
 
