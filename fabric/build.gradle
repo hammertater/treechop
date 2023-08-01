@@ -77,7 +77,6 @@ jar {
 
 loom {
     mixin {
-        add(sourceSets.main, "treechop.mixins.refmap.json")
         defaultRefmapName.set("treechop.mixins.refmap.json")
     }
     runs {
