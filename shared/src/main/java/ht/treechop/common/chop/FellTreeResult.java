@@ -1,10 +1,8 @@
 package ht.treechop.common.chop;
 
-import com.ibm.icu.impl.Pair;
 import ht.treechop.api.TreeData;
-import ht.treechop.common.config.ConfigHandler;
+import org.apache.commons.lang3.tuple.Pair;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -62,7 +60,7 @@ public class FellTreeResult implements ChopResult {
     private void breakLogs(ServerPlayer player, ServerLevel level, GameType gameType, Consumer<BlockPos> blockBreaker, BlockPos targetPos) {
         final long maxNumEffects = 4;
         AtomicInteger i = new AtomicInteger(0);
-        PriorityQueue<Pair<BlockPos, BlockState>> effects = new PriorityQueue<>(Comparator.comparing(pair -> pair.first.getY()));
+        PriorityQueue<Pair<BlockPos, BlockState>> effects = new PriorityQueue<>(Comparator.comparing(pair -> pair.getLeft().getY()));
 
         tree.streamLogs()
                 .filter(pos -> !pos.equals(targetPos) && !player.blockActionRestricted(level, targetPos, gameType))
@@ -73,13 +71,13 @@ public class FellTreeResult implements ChopResult {
 
         effects.stream()
                 .limit(maxNumEffects)
-                .forEach(posState -> playBlockBreakEffects(level, posState.first, posState.second));
+                .forEach(posState -> playBlockBreakEffects(level, posState.getLeft(), posState.getRight()));
     }
 
     private void breakLeaves(ServerPlayer player, ServerLevel level, GameType gameType, Consumer<BlockPos> blockBreaker) {
         final long maxNumEffects = 5;
         AtomicInteger i = new AtomicInteger(0);
-        PriorityQueue<Pair<BlockPos, BlockState>> effects = new PriorityQueue<>(Comparator.comparing(pair -> pair.first.getY()));
+        PriorityQueue<Pair<BlockPos, BlockState>> effects = new PriorityQueue<>(Comparator.comparing(pair -> pair.getLeft().getY()));
 
         Consumer<BlockPos> leavesBreaker = pos -> {
             if (!player.blockActionRestricted(level, pos, gameType)) {
@@ -100,7 +98,7 @@ public class FellTreeResult implements ChopResult {
 
         effects.stream()
                 .limit(maxNumEffects)
-                .forEach(posState -> playBlockBreakEffects(level, posState.first, posState.second));
+                .forEach(posState -> playBlockBreakEffects(level, posState.getLeft(), posState.getRight()));
     }
 
     private static void collectSomeBlocks(Queue<Pair<BlockPos, BlockState>> collection, BlockPos pos, BlockState state, AtomicInteger counter, int period) {
