@@ -27,6 +27,8 @@ public class LazyTreeData extends AbstractTreeData {
     private final Level level;
     private final int chops;
     private final int maxNumLogs;
+    private final boolean distanceBasedLeaves;
+    private final int maxLeavesDistance;
     private double mass = 0;
     private boolean overrideLeaves = false;
 
@@ -50,22 +52,31 @@ public class LazyTreeData extends AbstractTreeData {
 
     private FloodFill<BlockPos> generator;
     private Set<BlockPos> base;
-    private final DirectedGraph<BlockPos> world;
 
-    public LazyTreeData(Level level, BlockPos origin, DirectedGraph<BlockPos> logGraph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumLogs) {
+    private final DirectedGraph<BlockPos> logsWorld;
+    private final DirectedGraph<BlockPos> leavesWorld;
+
+    public LazyTreeData(Level level, BlockPos origin, DirectedGraph<BlockPos> logGraph, DirectedGraph<BlockPos> leavesGraph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumLogs, int maxLeavesDistance) {
         this.level = level;
         this.maxNumLogs = maxNumLogs;
+        this.distanceBasedLeaves = (maxLeavesDistance <= 0);
+        this.maxLeavesDistance = maxLeavesDistance;
 
-        world = GraphUtil.filter(
+        logsWorld = GraphUtil.filter(
                 logGraph,
                 this::gatherLog,
                 pos -> check(pos, logFilter, leavesFilter)
         );
 
+        leavesWorld = GraphUtil.filterNeighbors(
+                leavesGraph,
+                leavesFilter
+        );
+
         makeTreeBase(level, origin);
         this.chops = base.stream().map(pos -> ChopUtil.getNumChops(level, pos)).reduce(Integer::sum).orElse(0);
 
-        generator = GraphUtil.flood(world, origin, Vec3i::getY);
+        generator = GraphUtil.flood(logsWorld, base, Vec3i::getY);
 
     }
 
@@ -112,28 +123,44 @@ public class LazyTreeData extends AbstractTreeData {
         streamLogs().forEach(a -> {}); // TODO: don't do this? Makes sure all log-adjacent leaves are discovered
 
         List<BlockPos> allLeaves = new LinkedList<>();
-        forEachLeaves(allLeaves, allLeaves::add); // TODO: yikes; defeats the purpose of streaming
+        forEachLeaves(leaves, allLeaves::add); // TODO: yikes; defeats the purpose of streaming
 
         return allLeaves.stream();
     }
 
-    private void forEachLeaves(List<BlockPos> firstLeaves, Consumer<BlockPos> forEach) {
+    private void forEachLeaves(Collection<BlockPos> firstLeaves, Consumer<BlockPos> forEach) {
+        if (distanceBasedLeaves) {
+            forEachLeavesSmart(firstLeaves, forEach);
+        } else {
+            forEachLeavesDumb(firstLeaves, forEach);
+        }
+    }
+
+    private void forEachLeavesSmart(Collection<BlockPos> firstLeaves, Consumer<BlockPos> forEach) {
         leaves.stream().filter(pos -> leavesHasExactDistance(level.getBlockState(pos), 1)).forEach(forEach);
 
         AtomicInteger distance = new AtomicInteger();
         DirectedGraph<BlockPos> distancedLeavesGraph = GraphUtil.filterNeighbors(
-                BlockNeighbors.ADJACENTS::asStream,
+                leavesWorld,
                 pos -> {
                     BlockState state = level.getBlockState(pos);
-                    return ChopUtil.isBlockLeaves(state) && (leavesHasAtLeastDistance(state, distance.get()));
+                    return leavesHasAtLeastDistance(state, distance.get());
                 }
         );
 
         FloodFillImpl<BlockPos> flood = new FloodFillImpl<>(firstLeaves, distancedLeavesGraph, a -> 0);
 
-        int maxDistance = ConfigHandler.COMMON.maxBreakLeavesDistance.get();
-        for (int i = 2; i < maxDistance; ++i) {
+        final int maxDistance = 7;
+        for (int i = 2; i <= maxDistance; ++i) {
             distance.set(i);
+            flood.fillOnce(forEach);
+        }
+    }
+
+    private void forEachLeavesDumb(Collection<BlockPos> firstLeaves, Consumer<BlockPos> forEach) {
+        FloodFillImpl<BlockPos> flood = new FloodFillImpl<>(firstLeaves, leavesWorld, a -> 0);
+
+        for (int i = 0; i < maxLeavesDistance; ++i) {
             flood.fillOnce(forEach);
         }
     }
@@ -157,15 +184,11 @@ public class LazyTreeData extends AbstractTreeData {
     }
 
     private boolean leavesHasExactDistance(BlockState state, int distance) {
-        return (state.getOptionalValue(LeavesBlock.PERSISTENT).orElse(true))
-                ? true
-                : state.getOptionalValue(LeavesBlock.DISTANCE).orElse(distance) == distance;
+        return state.getOptionalValue(LeavesBlock.DISTANCE).orElse(distance) == distance;
     }
 
     private boolean leavesHasAtLeastDistance(BlockState state, int distance) {
-        return (state.getOptionalValue(LeavesBlock.PERSISTENT).orElse(true))
-                ? true
-                : state.getOptionalValue(LeavesBlock.DISTANCE).orElse(distance) >= distance;
+        return state.getOptionalValue(LeavesBlock.DISTANCE).orElse(distance) >= distance;
     }
 
     private void makeTreeBase(Level level, BlockPos origin) {
@@ -188,7 +211,7 @@ public class LazyTreeData extends AbstractTreeData {
         AtomicInteger chopsLeft = new AtomicInteger(numChops);
 
         if (chopsLeft.get() > 0) {
-            GraphUtil.flood(world, base, a -> ChopUtil.blockDistance(target, a) * 32 + RandomUtils.nextInt(0, 32))
+            GraphUtil.flood(logsWorld, base, a -> ChopUtil.blockDistance(target, a) * 32 + RandomUtils.nextInt(0, 32))
                     .fill()
                     .takeWhile(pos -> {
                         chopsLeft.set(gatherChopAndGetNumChopsRemaining(level, pos, chopsLeft.get(), chops));

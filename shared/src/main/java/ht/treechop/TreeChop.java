@@ -1,6 +1,8 @@
 package ht.treechop;
 
 import ht.treechop.api.TreeChopAPI;
+import ht.treechop.api.TreeDetectorBuilder;
+import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.compat.MushroomStemHandler;
@@ -20,8 +22,7 @@ public abstract class TreeChop {
 
     public static void initUsingAPI(TreeChopAPI api) {
         if (ConfigHandler.COMMON.compatForMushroomStems.get()) {
-            MushroomStemHandler handler = new MushroomStemHandler();
-            ConfigHandler.getMushroomStems().forEach(block -> api.registerChoppableBlockBehavior(block, handler));
+            MushroomStemHandler.register(api);
         }
     }
 

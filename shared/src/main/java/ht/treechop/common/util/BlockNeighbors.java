@@ -47,7 +47,7 @@ public class BlockNeighbors {
 
     static public final BlockNeighbors ADJACENTS_AND_DIAGONALS = join(ABOVE, HORIZONTAL, BELOW);
 
-    static public final BlockNeighbors ADJACENTS_AND_BELOW_ADJACENTS = join(ADJACENTS, BELOW);
+    static public final BlockNeighbors ADJACENTS_AND_BELOW = join(ADJACENTS, BELOW);
 
     public BlockNeighbors(BlockPos[] blocks) {
         this.blocks = blocks;

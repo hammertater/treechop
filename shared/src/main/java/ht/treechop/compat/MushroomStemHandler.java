@@ -1,12 +1,35 @@
 package ht.treechop.compat;
 
-import ht.treechop.api.IStrippableBlock;
+import ht.treechop.api.*;
+import ht.treechop.common.chop.ChopUtil;
+import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.Lazy;
+import ht.treechop.common.util.BlockNeighbors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.PipeBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class MushroomStemHandler implements IStrippableBlock {
+import java.util.Set;
+import java.util.stream.Collectors;
+
+public class MushroomStemHandler implements IStrippableBlock, ITreeBlock {
+    private static ITreeBlock detectionHandler;
+
+    public static void register(TreeChopAPI api) {
+        detectionHandler = new TreeDetectorBuilder()
+                .logs(MushroomStemHandler::isStem)
+                .leaves(MushroomStemHandler::isCap)
+                .leavesScanner((level, pos) -> BlockNeighbors.ADJACENTS_AND_BELOW.asStream(pos))
+                .maxLeavesDistance(4)
+                .build();
+
+        MushroomStemHandler handler = new MushroomStemHandler();
+        ConfigHandler.getMushroomStems().forEach(block -> api.registerChoppableBlockBehavior(block, handler));
+    }
+
     @Override
     public BlockState getStrippedState(BlockGetter level, BlockPos pos, BlockState blockState) {
         if (PipeBlock.PROPERTY_BY_DIRECTION.values().stream().anyMatch(property -> !blockState.hasProperty(property))) {
@@ -20,5 +43,27 @@ public class MushroomStemHandler implements IStrippableBlock {
                     .setValue(PipeBlock.UP, false)
                     .setValue(PipeBlock.DOWN, false);
         }
+    }
+
+    @Override
+    public TreeData getTree(Level level, BlockPos origin) {
+        return detectionHandler.getTree(level, origin);
+    }
+
+    private static final Lazy<Set<Block>> stems = new Lazy<>(
+            ConfigHandler.RELOAD,
+            () -> ConfigHandler.getMushroomStems().collect(Collectors.toSet())
+    );
+    private static final Lazy<Set<Block>> caps = new Lazy<>(
+            ConfigHandler.RELOAD,
+            () -> ConfigHandler.getMushroomCaps().collect(Collectors.toSet())
+    );
+
+    public static boolean isStem(Level level, BlockPos pos, BlockState state) {
+        return stems.get().contains(state.getBlock());
+    }
+
+    public static boolean isCap(Level level, BlockPos pos, BlockState state) {
+        return caps.get().contains(state.getBlock());
     }
 }

@@ -5,6 +5,7 @@ import ht.treechop.api.*;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ChopCounting;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.Lazy;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.util.*;
 import ht.treechop.server.Server;
@@ -25,9 +26,15 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ChopUtil {
+
+    private static final Lazy<ITreeBlock> defaultDetector = new Lazy<>(
+            ConfigHandler.RELOAD,
+            () -> new TreeDetectorBuilder().build()
+    );
 
     public static boolean isBlockALog(Level level, BlockPos pos) {
         return isBlockALog(level, pos, level.getBlockState(pos));
@@ -43,6 +50,10 @@ public class ChopUtil {
 
     public static boolean isBlockChoppable(BlockGetter level, BlockPos pos, BlockState blockState) {
         return ClassUtil.getChoppableBlock(level, pos, blockState) != null;
+    }
+
+    public static boolean isBlockLeaves(Level level, BlockPos pos, BlockState state) {
+        return isBlockLeaves(state);
     }
 
     public static boolean isBlockLeaves(Level level, BlockPos pos) {
@@ -102,8 +113,13 @@ public class ChopUtil {
         }
     }
 
+
     public static TreeData getTree(Level level, BlockPos origin) {
-        ITreeBlock detector = new BaseTreeDetector(); // TODO: look up from registry
+        ITreeBlock detector = ClassUtil.getTreeBlock(getLogBlock(level, origin));
+        if (detector == null) {
+            detector = defaultDetector.get();
+        }
+
         TreeData tree = detector.getTree(level, origin);
 
         return TreeChop.platform.detectTreeEvent(level, null, origin, level.getBlockState(origin), tree);
@@ -252,6 +268,14 @@ public class ChopUtil {
         }
 
         return (strippedState != null) ? BlockUtil.copyStateProperties(strippedState, state) : fallback;
+    }
+
+    public static BlockState getLogState(Level level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
+            return entity.getOriginalState();
+        } else {
+            return level.getBlockState(pos);
+        }
     }
 
     public static Block getLogBlock(Level level, BlockPos pos) {
