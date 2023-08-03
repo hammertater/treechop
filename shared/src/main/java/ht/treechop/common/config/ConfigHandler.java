@@ -365,8 +365,7 @@ public class ConfigHandler {
                             "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
                     .defineList("blocks",
                             List.of("#treechop:choppables",
-                                    "#minecraft:logs",
-                                    getCommonTagId("mushroom_stems")),
+                                    "#minecraft:logs"),
                             always -> true);
             choppableBlocksExceptionsList = builder
                     .comment(String.join("\n",
