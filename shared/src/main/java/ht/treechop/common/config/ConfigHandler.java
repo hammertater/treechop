@@ -385,10 +385,7 @@ public class ConfigHandler {
                             "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
                     .defineList("blocks",
                             List.of("#treechop:leaves_like",
-                                    "#minecraft:leaves",
-                                    "#minecraft:wart_blocks",
-                                    getCommonTagId("mushroom_caps"),
-                                    "minecraft:shroomlight"),
+                                    "#minecraft:leaves"),
                             always -> true);
             leavesBlocksExceptionsList = builder
                     .comment(String.join("\n",
