@@ -1,10 +1,13 @@
 package ht.treechop.common.util;
 
 import ht.treechop.api.AbstractTreeData;
+import ht.treechop.common.chop.Chop;
 import ht.treechop.common.chop.ChopUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -58,6 +61,11 @@ public class TreeDataImpl extends AbstractTreeData {
     @Override
     public boolean readyToFell(int numChops) {
         return ChopUtil.enoughChopsToFell(numChops, chopsToFell);
+    }
+
+    @Override
+    public Collection<Chop> chop(BlockPos target, int numChops) {
+        return Collections.emptyList();
     }
 
     @Override

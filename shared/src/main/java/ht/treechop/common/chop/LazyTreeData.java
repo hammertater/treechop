@@ -1,8 +1,10 @@
 package ht.treechop.common.chop;
 
 import ht.treechop.api.AbstractTreeData;
+import ht.treechop.api.IChoppableBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.util.BlockNeighbors;
+import ht.treechop.common.util.ClassUtil;
 import ht.tuber.graph.DirectedGraph;
 import ht.tuber.graph.FloodFill;
 import ht.tuber.graph.FloodFillImpl;
@@ -12,6 +14,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import org.apache.commons.lang3.RandomUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,19 +49,24 @@ public class LazyTreeData extends AbstractTreeData {
     };
 
     private FloodFill<BlockPos> generator;
+    private Set<BlockPos> base;
+    private final DirectedGraph<BlockPos> world;
 
-    public LazyTreeData(Level level, Collection<BlockPos> base, DirectedGraph<BlockPos> logGraph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumLogs, int chops) {
+    public LazyTreeData(Level level, BlockPos origin, DirectedGraph<BlockPos> logGraph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumLogs) {
         this.level = level;
-        this.chops = chops;
         this.maxNumLogs = maxNumLogs;
-        logs.addAll(base);
 
-        DirectedGraph<BlockPos> world = GraphUtil.filter(
+        world = GraphUtil.filter(
                 logGraph,
                 this::gatherLog,
                 pos -> check(pos, logFilter, leavesFilter)
         );
-        generator = GraphUtil.flood(world, base, Vec3i::getY);
+
+        makeTreeBase(level, origin);
+        this.chops = base.stream().map(pos -> ChopUtil.getNumChops(level, pos)).reduce(Integer::sum).orElse(0);
+
+        generator = GraphUtil.flood(world, origin, Vec3i::getY);
+
     }
 
     private boolean gatherLog(BlockPos pos) {
@@ -148,14 +156,6 @@ public class LazyTreeData extends AbstractTreeData {
         return level;
     }
 
-    public Collection<BlockPos> getIncompleteLogs() {
-        return logs;
-    }
-
-    public Collection<BlockPos> getIncompleteLeaves() {
-        return leaves;
-    }
-
     private boolean leavesHasExactDistance(BlockState state, int distance) {
         return (state.getOptionalValue(LeavesBlock.PERSISTENT).orElse(true))
                 ? true
@@ -166,5 +166,69 @@ public class LazyTreeData extends AbstractTreeData {
         return (state.getOptionalValue(LeavesBlock.PERSISTENT).orElse(true))
                 ? true
                 : state.getOptionalValue(LeavesBlock.DISTANCE).orElse(distance) >= distance;
+    }
+
+    private void makeTreeBase(Level level, BlockPos origin) {
+        base = new HashSet<>();
+        if (ChopUtil.isBlockChoppable(level, origin)) {
+            DirectedGraph<BlockPos> adjacentWorld = BlockNeighbors.ADJACENTS_AND_DIAGONALS::asStream;
+            base.add(origin);
+
+            GraphUtil.flood(
+                    GraphUtil.filterNeighbors(adjacentWorld, pos -> ChopUtil.getNumChops(level, pos) > 0),
+                    origin,
+                    Vec3i::getY
+            ).fill().forEach(base::add);
+        }
+    }
+
+    @Override
+    public Collection<Chop> chop(BlockPos target, int numChops) {
+        List<Chop> chops = new Stack<>();
+        AtomicInteger chopsLeft = new AtomicInteger(numChops);
+
+        if (chopsLeft.get() > 0) {
+            GraphUtil.flood(world, base, a -> ChopUtil.blockDistance(target, a) * 32 + RandomUtils.nextInt(0, 32))
+                    .fill()
+                    .takeWhile(pos -> {
+                        chopsLeft.set(gatherChopAndGetNumChopsRemaining(level, pos, chopsLeft.get(), chops));
+                        return chopsLeft.get() > 0;
+                    })
+                    .count();
+        }
+
+        return chops;
+    }
+
+    private static int gatherChopAndGetNumChopsRemaining(Level level, BlockPos pos, int numChops, List<Chop> chops) {
+        BlockState blockStateBeforeChopping = level.getBlockState(pos);
+
+        if (!(blockStateBeforeChopping.getBlock() instanceof IChoppableBlock) && isBlockSurrounded(level, pos)) {
+            return numChops;
+        }
+
+        int adjustedNumChops = adjustNumChops(level, pos, blockStateBeforeChopping, numChops);
+
+        if (adjustedNumChops > 0) {
+            chops.add(new Chop(pos, adjustedNumChops));
+        }
+
+        return numChops - adjustedNumChops;
+    }
+
+    private static int adjustNumChops(Level level, BlockPos blockPos, BlockState blockState, int numChops) {
+        IChoppableBlock choppableBlock = ClassUtil.getChoppableBlock(level, blockPos, blockState);
+        if (choppableBlock != null) {
+            int currentNumChops = choppableBlock.getNumChops(level, blockPos, blockState);
+            int maxNondestructiveChops = choppableBlock.getMaxNumChops(level, blockPos, blockState) - currentNumChops;
+            return Math.min(maxNondestructiveChops, numChops);
+        } else {
+            return 0;
+        }
+    }
+
+    private static boolean isBlockSurrounded(Level level, BlockPos pos) {
+        return Stream.of(pos.west(), pos.north(), pos.east(), pos.south())
+                .allMatch(neighborPos -> ChopUtil.isBlockALog(level, neighborPos));
     }
 }

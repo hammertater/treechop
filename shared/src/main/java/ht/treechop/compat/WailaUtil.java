@@ -62,8 +62,7 @@ public class WailaUtil {
                                    Consumer<Component> addNumChops,
                                    Consumer<ItemStack> addTreeBlockStack) {
 
-        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
-        TreeData tree = Client.treeCache.getTree(level, pos, maxNumTreeBlocks);
+        TreeData tree = Client.treeCache.getTree(level, pos);
 
         if (tree.isAProperTree(Client.getChopSettings().getTreesMustHaveLeaves())) {
             if (showNumChops) {

@@ -15,20 +15,15 @@ import java.util.Objects;
 public class TreeCache {
     private final SingleBlockCache<TreeData> singleBlockCache = new SingleBlockCache<>();
 
-    public TreeData getTree(Level level, BlockPos pos) {
-        int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
-        return getTree(level, pos, maxNumTreeBlocks);
-    }
-
     public void invalidate() {
         singleBlockCache.invalidate();
     }
 
-    public TreeData getTree(Level level, BlockPos pos, int maxNumTreeBlocks) {
+    public TreeData getTree(Level level, BlockPos pos) {
         // TODO: maxNumTreeBlocks
         TreeData tree = singleBlockCache.get(level, pos);
         if (tree == null) {
-            tree = ChopUtil.getTree(level, pos, maxNumTreeBlocks);
+            tree = ChopUtil.getTree(level, pos);
             singleBlockCache.put(level, pos, tree);
         }
 
