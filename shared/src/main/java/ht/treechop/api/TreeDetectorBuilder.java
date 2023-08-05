@@ -20,7 +20,7 @@ public class TreeDetectorBuilder {
     private BiFunction<Level, BlockPos, Stream<BlockPos>> leavesScanner = ((level, pos) -> BlockNeighbors.ADJACENTS.asStream(pos));
     private int maxLogs;
     private int maxLeavesDistance;
-    private LeavesStrategy leavesStrategy;
+    private LeavesStrategy leavesStrategy = LeavesStrategy.SMART;
 
     public TreeDetectorBuilder() {
         maxLogs = ConfigHandler.COMMON.maxNumTreeBlocks.get();
