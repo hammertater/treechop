@@ -134,6 +134,7 @@ public class FellTreeResult implements ChopResult {
     }
 
     private static boolean isVanillaLeaves(BlockState blockState) {
-        return blockState.hasProperty(LeavesBlock.DISTANCE);
+        return blockState.hasProperty(LeavesBlock.DISTANCE) && blockState.hasProperty(LeavesBlock.PERSISTENT)
+                && blockState.setValue(LeavesBlock.DISTANCE, 7).setValue(LeavesBlock.PERSISTENT, false).isRandomlyTicking(); // Catches modded leaves that don't decay
     }
 }

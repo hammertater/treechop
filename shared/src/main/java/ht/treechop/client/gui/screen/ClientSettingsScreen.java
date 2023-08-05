@@ -204,7 +204,13 @@ public class ClientSettingsScreen extends Screen {
                 new LabeledGui(font,
                         Component.translatable("treechop.gui.settings.label.felling_options"),
                         new ToggleGui(
-                                () -> ConfigHandler.CLIENT.showFellingOptions.set(!ConfigHandler.CLIENT.showFellingOptions.get()),
+                                () -> {
+                                    boolean newValue = !ConfigHandler.CLIENT.showFellingOptions.get();
+                                    ConfigHandler.CLIENT.showFellingOptions.set(newValue);
+                                    if (!newValue) {
+                                        ConfigHandler.CLIENT.fellingEnabled.set(true);
+                                    }
+                                },
                                 () -> ToggleWidget.State.of(
                                         ConfigHandler.CLIENT.showFellingOptions.get(),
                                         Client.getServerPermissions().isPermitted(new Setting(SettingsField.FELLING, false))

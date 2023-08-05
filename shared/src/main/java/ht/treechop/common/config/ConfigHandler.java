@@ -8,6 +8,7 @@ import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;
 import ht.treechop.compat.HugeFungusHandler;
 import ht.treechop.compat.HugeMushroomHandler;
+import ht.treechop.compat.ProblematicLeavesTreeHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -480,6 +481,7 @@ public class ConfigHandler {
             builder.push("trees");
             HugeMushroomHandler.MyConfigHandler.init(builder);
             HugeFungusHandler.MyConfigHandler.init(builder);
+            ProblematicLeavesTreeHandler.MyConfigHandler.init(builder);
             builder.pop();
 
             if (TreeChop.platform.uses(ModLoader.FORGE)) {
