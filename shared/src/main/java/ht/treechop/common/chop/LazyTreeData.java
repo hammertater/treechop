@@ -2,7 +2,6 @@ package ht.treechop.common.chop;
 
 import ht.treechop.api.AbstractTreeData;
 import ht.treechop.api.IChoppableBlock;
-import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.util.BlockNeighbors;
 import ht.treechop.common.util.ClassUtil;
 import ht.tuber.graph.DirectedGraph;
@@ -27,7 +26,7 @@ public class LazyTreeData extends AbstractTreeData {
     private final Level level;
     private final int chops;
     private final int maxNumLogs;
-    private final boolean distanceBasedLeaves;
+    private final boolean smartDetection;
     private final int maxLeavesDistance;
     private double mass = 0;
     private boolean overrideLeaves = false;
@@ -56,10 +55,10 @@ public class LazyTreeData extends AbstractTreeData {
     private final DirectedGraph<BlockPos> logsWorld;
     private final DirectedGraph<BlockPos> leavesWorld;
 
-    public LazyTreeData(Level level, BlockPos origin, DirectedGraph<BlockPos> logGraph, DirectedGraph<BlockPos> leavesGraph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumLogs, int maxLeavesDistance) {
+    public LazyTreeData(Level level, BlockPos origin, DirectedGraph<BlockPos> logGraph, DirectedGraph<BlockPos> leavesGraph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumLogs, int maxLeavesDistance, boolean smartDetection) {
         this.level = level;
         this.maxNumLogs = maxNumLogs;
-        this.distanceBasedLeaves = (maxLeavesDistance <= 0);
+        this.smartDetection = smartDetection;
         this.maxLeavesDistance = maxLeavesDistance;
 
         logsWorld = GraphUtil.filter(
@@ -129,7 +128,7 @@ public class LazyTreeData extends AbstractTreeData {
     }
 
     private void forEachLeaves(Collection<BlockPos> firstLeaves, Consumer<BlockPos> forEach) {
-        if (distanceBasedLeaves) {
+        if (smartDetection) {
             forEachLeavesSmart(firstLeaves, forEach);
         } else {
             forEachLeavesDumb(firstLeaves, forEach);
@@ -150,8 +149,7 @@ public class LazyTreeData extends AbstractTreeData {
 
         FloodFillImpl<BlockPos> flood = new FloodFillImpl<>(firstLeaves, distancedLeavesGraph, a -> 0);
 
-        final int maxDistance = 7;
-        for (int i = 2; i <= maxDistance; ++i) {
+        for (int i = 2; i <= maxLeavesDistance; ++i) {
             distance.set(i);
             flood.fillOnce(forEach);
         }
