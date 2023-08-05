@@ -182,11 +182,11 @@ public class LazyTreeData extends AbstractTreeData {
     }
 
     private boolean leavesHasExactDistance(BlockState state, int distance) {
-        return state.getOptionalValue(LeavesBlock.DISTANCE).orElse(distance) == distance;
+        return state.getOptionalValue(LeavesBlock.DISTANCE).orElse(distance) == distance || state.getOptionalValue(LeavesBlock.PERSISTENT).orElse(false);
     }
 
     private boolean leavesHasAtLeastDistance(BlockState state, int distance) {
-        return state.getOptionalValue(LeavesBlock.DISTANCE).orElse(distance) >= distance;
+        return state.getOptionalValue(LeavesBlock.DISTANCE).orElse(distance) >= distance || state.getOptionalValue(LeavesBlock.PERSISTENT).orElse(false);
     }
 
     private void makeTreeBase(Level level, BlockPos origin) {
