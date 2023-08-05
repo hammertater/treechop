@@ -387,7 +387,8 @@ public class ConfigHandler {
                             "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
                     .defineList("blocks",
                             List.of("#treechop:leaves_like",
-                                    "#minecraft:leaves"),
+                                    "#minecraft:leaves",
+                                    "pamhc2trees:pam[a-z]+"),
                             always -> true);
             leavesBlocksExceptionsList = builder
                     .comment(String.join("\n",
