@@ -110,6 +110,12 @@ dependencies {
     compileOnly fg.deobf("curse.maven:the-one-probe-245211:4629624")
 //    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:4629624")
 
+//    compileOnly fg.deobf("curse.maven:multi-mine-227887:4667502")
+//    runtimeOnly fg.deobf("curse.maven:multi-mine-227887:4667502")
+
+    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4647094")
+    runtimeOnly fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
+
     compileOnly fg.deobf("curse.maven:project-mmo-353935:4630465") // https://github.com/Caltinor/Project-MMO-2.0
 //    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4630465")
 

@@ -56,7 +56,7 @@ public abstract class ResourceIdentifier {
             }
         } else {
             try {
-                Pattern pattern = Pattern.compile(string.strip());
+                Pattern pattern = Pattern.compile("^" + string.strip() + "$");
                 return new ResourcePatternIdentifier(pattern, List.of(), string);
             } catch (PatternSyntaxException e) {
                 return new MalformedResourceIdentifier(string, "unqualified identifier does not match \"@mod\", \"#mod:tag\", or \"mod:id\", and is not a valid regular expression");

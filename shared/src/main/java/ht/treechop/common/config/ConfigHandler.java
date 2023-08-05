@@ -6,6 +6,8 @@ import ht.treechop.common.config.resource.ResourceIdentifier;
 import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;
+import ht.treechop.compat.HugeFungusHandler;
+import ht.treechop.compat.HugeMushroomHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -155,6 +157,11 @@ public class ConfigHandler {
         return id.resolve(BuiltInRegistries.BLOCK);
     }
 
+    public static Stream<Block> getIdentifiedBlocks(List<? extends String> strings) {
+        return strings.stream()
+                .flatMap(ConfigHandler::getIdentifiedBlocks);
+    }
+
     public static boolean canChopWithTool(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState) {
         IChoppingItem choppingItem = TreeChop.api.getRegisteredChoppingItemBehavior(tool.getItem());
         return (choppingItem != null)
@@ -177,29 +184,7 @@ public class ConfigHandler {
         return new InitializedSupplier<>(() -> defaultValue);
     }
 
-    public static Stream<Block> getMushroomStems() {
-        return ConfigHandler.getIdentifiedBlocks(getCommonTagId("mushroom_stems"));
-    }
-
-    public static Stream<Block> getMushroomCaps() {
-        return ConfigHandler.getIdentifiedBlocks(getCommonTagId("mushroom_caps"));
-    }
-
-    public static Stream<Block> getFungusStems() {
-        return Stream.concat(
-                ConfigHandler.getIdentifiedBlocks("#minecraft:crimson_stems"),
-                ConfigHandler.getIdentifiedBlocks("#minecraft:warped_stems")
-        );
-    }
-
-    public static Stream<Block> getFungusHats() {
-        return Stream.concat(
-                ConfigHandler.getIdentifiedBlocks("#minecraft:wart_blocks"),
-                ConfigHandler.getIdentifiedBlocks("minecraft:shroomlight")
-        );
-    }
-
-    private static String getCommonTagId(String path) {
+    public static String getCommonTagId(String path) {
         return String.format("#%s:%s", TreeChop.platform.uses(ModLoader.FORGE) ? "forge" : "c", path);
     }
 
@@ -244,7 +229,6 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
         public final InitializedSupplier<Boolean> compatForCarryOn = defaultValue(true);
-        public final InitializedSupplier<Boolean> compatForMushroomStems = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForProjectMMO = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForTheOneProbe = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForSilentGear = defaultValue(true);
@@ -261,12 +245,10 @@ public class ConfigHandler {
         public final Lazy<Set<Block>> choppableBlocks = new Lazy<>(
                 UPDATE_TAGS,
                 () -> {
-                    Set<Block> exceptions = COMMON.choppableBlocksExceptionsList.get().stream()
-                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                    Set<Block> exceptions = ConfigHandler.getIdentifiedBlocks(COMMON.choppableBlocksExceptionsList.get())
                             .collect(Collectors.toSet());
 
-                    Set<Block> blocks = COMMON.choppableBlocksList.get().stream()
-                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                    Set<Block> blocks = ConfigHandler.getIdentifiedBlocks(COMMON.choppableBlocksList.get())
                             .filter(block -> !exceptions.contains(block))
                             .collect(Collectors.toSet());
 
@@ -286,12 +268,10 @@ public class ConfigHandler {
         public final Lazy<Set<Block>> leavesBlocks = new Lazy<>(
                 UPDATE_TAGS,
                 () -> {
-                    Set<Block> exceptions = COMMON.leavesBlocksExceptionsList.get().stream()
-                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                    Set<Block> exceptions = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksExceptionsList.get())
                             .collect(Collectors.toSet());
 
-                    Set<Block> blocks = COMMON.leavesBlocksList.get().stream()
-                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                    Set<Block> blocks = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksList.get())
                             .filter(block -> !exceptions.contains(block))
                             .collect(Collectors.toSet());
 
@@ -329,6 +309,14 @@ public class ConfigHandler {
         );
 
         public Common(ForgeConfigSpec.Builder builder) {
+            final String blockIdsHelp = String.join("\n",
+                    "For block lists, specify using registry names (mod:block), tags (#mod:tag), namespaces (@mod), and Java-style regular expressions",
+                    "Regular expressions must match the whole resource name, including the colon. Some simple examples are:",
+                    " - To match any block ending in _log: \".*_log\", where .* is a wildcard",
+                    " - You can also specify a mod: \"treemod:.*_log\"",
+                    " - To also match stripped versions: \".*_log(_stripped)?\", where ? means that the text in the parenthesis is optional",
+                    "For more help, see https://github.com/hammertater/treechop/wiki/Configuration");
+
             builder.push("mod");
             enabled = builder
                     .comment("Set to false to disable TreeChop without having to uninstall the mod")
@@ -369,14 +357,12 @@ public class ConfigHandler {
                     .comment("Non-decayable leaves are ignored when detecting leaves")
                     .define("ignorePersistentLeaves", true);
             maxBreakLeavesDistance = builder
-                    .comment("Maximum distance from log blocks to destroy non-standard leaves blocks (e.g. mushroom caps) when felling")
+                    .comment("Maximum distance from log blocks to destroy leaves blocks when felling")
                     .defineInRange("maxBreakLeavesDistance", 7, 0, 16);
 
             builder.push("logs");
             choppableBlocksList = builder
-                    .comment(String.join("\n",
-                            "Blocks that should be considered choppable",
-                            "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
+                    .comment(String.join("\n","Blocks that should be considered choppable", blockIdsHelp))
                     .defineList("blocks",
                             List.of("#treechop:choppables",
                                     "#minecraft:logs"),
@@ -487,9 +473,13 @@ public class ConfigHandler {
 
             builder.pop();
 
-            compatForMushroomStems.set(builder
-                    .comment(String.format("Better chopping behavior for block with the %s tag", getCommonTagId("mushroom_stems")))
-                    .define("mushroomStems", true)::get);
+            builder.comment(String.join("\n",
+                    "A set of alternate tree detection strategies for oddly shaped trees",
+                    blockIdsHelp));
+            builder.push("trees");
+            HugeMushroomHandler.MyConfigHandler.init(builder);
+            HugeFungusHandler.MyConfigHandler.init(builder);
+            builder.pop();
 
             if (TreeChop.platform.uses(ModLoader.FORGE)) {
                 compatForCarryOn.set(builder
