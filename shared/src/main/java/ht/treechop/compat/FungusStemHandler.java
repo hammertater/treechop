@@ -3,7 +3,6 @@ package ht.treechop.compat;
 import ht.treechop.api.*;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.config.Lazy;
-import ht.treechop.common.util.BlockNeighbors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -20,13 +19,15 @@ public class FungusStemHandler implements IStrippableBlock, ITreeBlock {
     public static void register(TreeChopAPI api) {
         detectionHandler = new TreeDetectorBuilder()
                 .logs(FungusStemHandler::isStem)
-                .leaves(FungusStemHandler::isCap)
-                .leavesScanner((level, pos) -> BlockNeighbors.ADJACENTS_AND_BELOW.asStream(pos))
-                .maxLeavesDistance(4)
+                .leaves(FungusStemHandler::isHat)
+                .maxLeavesDistance(6)
                 .build();
 
         FungusStemHandler handler = new FungusStemHandler();
-        ConfigHandler.getMushroomStems().forEach(block -> api.registerChoppableBlockBehavior(block, handler));
+        stems.get().forEach(block -> {
+            api.overrideChoppableBlock(block, true);
+            api.registerChoppableBlockBehavior(block, handler);
+        });
     }
 
     @Override
@@ -51,18 +52,18 @@ public class FungusStemHandler implements IStrippableBlock, ITreeBlock {
 
     private static final Lazy<Set<Block>> stems = new Lazy<>(
             ConfigHandler.RELOAD,
-            () -> ConfigHandler.getMushroomStems().collect(Collectors.toSet())
+            () -> ConfigHandler.getFungusStems().collect(Collectors.toSet())
     );
-    private static final Lazy<Set<Block>> caps = new Lazy<>(
+    private static final Lazy<Set<Block>> hats = new Lazy<>(
             ConfigHandler.RELOAD,
-            () -> ConfigHandler.getMushroomCaps().collect(Collectors.toSet())
+            () -> ConfigHandler.getFungusHats().collect(Collectors.toSet())
     );
 
     public static boolean isStem(Level level, BlockPos pos, BlockState state) {
         return stems.get().contains(state.getBlock());
     }
 
-    public static boolean isCap(Level level, BlockPos pos, BlockState state) {
-        return caps.get().contains(state.getBlock());
+    public static boolean isHat(Level level, BlockPos pos, BlockState state) {
+        return hats.get().contains(state.getBlock());
     }
 }

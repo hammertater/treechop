@@ -113,7 +113,6 @@ public class ChopUtil {
         }
     }
 
-
     public static TreeData getTree(Level level, BlockPos origin) {
         ITreeBlock detector = ClassUtil.getTreeBlock(getLogBlock(level, origin));
         if (detector == null) {

@@ -5,6 +5,7 @@ import ht.treechop.api.TreeDetectorBuilder;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.platform.Platform;
+import ht.treechop.compat.FungusStemHandler;
 import ht.treechop.compat.MushroomStemHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -23,6 +24,7 @@ public abstract class TreeChop {
     public static void initUsingAPI(TreeChopAPI api) {
         if (ConfigHandler.COMMON.compatForMushroomStems.get()) {
             MushroomStemHandler.register(api);
+            FungusStemHandler.register(api);
         }
     }
 

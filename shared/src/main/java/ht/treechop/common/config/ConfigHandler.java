@@ -145,12 +145,12 @@ public class ConfigHandler {
         return null;
     }
 
-    private static Stream<Item> getIdentifiedItems(String stringId) {
+    public static Stream<Item> getIdentifiedItems(String stringId) {
         ResourceIdentifier id = ResourceIdentifier.from(stringId);
         return id.resolve(BuiltInRegistries.ITEM);
     }
 
-    private static Stream<Block> getIdentifiedBlocks(String stringId) {
+    public static Stream<Block> getIdentifiedBlocks(String stringId) {
         ResourceIdentifier id = ResourceIdentifier.from(stringId);
         return id.resolve(BuiltInRegistries.BLOCK);
     }
@@ -183,6 +183,20 @@ public class ConfigHandler {
 
     public static Stream<Block> getMushroomCaps() {
         return ConfigHandler.getIdentifiedBlocks(getCommonTagId("mushroom_caps"));
+    }
+
+    public static Stream<Block> getFungusStems() {
+        return Stream.concat(
+                ConfigHandler.getIdentifiedBlocks("#minecraft:crimson_stems"),
+                ConfigHandler.getIdentifiedBlocks("#minecraft:warped_stems")
+        );
+    }
+
+    public static Stream<Block> getFungusHats() {
+        return Stream.concat(
+                ConfigHandler.getIdentifiedBlocks("#minecraft:wart_blocks"),
+                ConfigHandler.getIdentifiedBlocks("minecraft:shroomlight")
+        );
     }
 
     private static String getCommonTagId(String path) {

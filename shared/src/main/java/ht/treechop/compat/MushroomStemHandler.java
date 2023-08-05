@@ -27,7 +27,10 @@ public class MushroomStemHandler implements IStrippableBlock, ITreeBlock {
                 .build();
 
         MushroomStemHandler handler = new MushroomStemHandler();
-        ConfigHandler.getMushroomStems().forEach(block -> api.registerChoppableBlockBehavior(block, handler));
+        stems.get().forEach(block -> {
+            api.overrideChoppableBlock(block, true);
+            api.registerChoppableBlockBehavior(block, handler);
+        });
     }
 
     @Override
