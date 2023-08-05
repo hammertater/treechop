@@ -235,6 +235,7 @@ public class ConfigHandler {
         public final InitializedSupplier<Integer> silentGearSawChops = defaultValue(5);
         public final InitializedSupplier<Boolean> compatForTerraformers = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForTinkersConstruct = defaultValue(true);
+        public final InitializedSupplier<Boolean> compatForMultiMine = defaultValue(true);
         public final InitializedSupplier<Integer> tinkersConstructTreeAOEChops = defaultValue(5);
         public final InitializedSupplier<Integer> tinkersConstructWoodAOEChops = defaultValue(5);
         public final InitializedSupplier<Double> tinkersConstructExpandedMultiplier = defaultValue(2.0);
@@ -501,6 +502,10 @@ public class ConfigHandler {
                         .comment("https://github.com/TerraformersMC",
                                 "Fixes starting chop radius for small logs from Terraformers mods (Terrestria, etc.)")
                         .define("terraformers", true)::get);
+                compatForMultiMine.set(builder
+                        .comment("https://github.com/AtomicStryker/atomicstrykers-minecraft-mods",
+                                "Fixes bad behavior")
+                        .define("multiMine", true)::get);
 
                 builder.push("silentgear");
                 compatForSilentGear.set(builder

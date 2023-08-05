@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -30,10 +31,12 @@ public class ForgeCommon {
             return;
         }
 
-        ItemStack tool = event.getPlayer().getMainHandItem();
+        ItemStack tool = agent.getMainHandItem();
         BlockState blockState = event.getState();
         BlockPos pos = event.getPos();
-        if (ChopUtil.chop(agent, level, pos, blockState, tool, event)) {
+
+        boolean skip = MinecraftForge.EVENT_BUS.post(new InternalChopEvent.PreChopEvent(level, agent, pos));
+        if (skip || ChopUtil.chop(agent, level, pos, blockState, tool, event)) {
             event.setCanceled(true);
         }
     }
