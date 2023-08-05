@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public abstract class AbstractTreeData implements TreeData {
@@ -23,5 +24,10 @@ public abstract class AbstractTreeData implements TreeData {
     @Override
     public Set<BlockPos> getLogBlocksOrEmpty() {
         return streamLogs().collect(Collectors.toSet());
+    }
+
+    @Override
+    public void forEachLeaves(Consumer<BlockPos> consumer) {
+        streamLeaves().forEach(consumer);
     }
 }
