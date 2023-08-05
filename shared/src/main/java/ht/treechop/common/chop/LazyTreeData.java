@@ -119,15 +119,23 @@ public class LazyTreeData extends AbstractTreeData {
 
     @Override
     public Stream<BlockPos> streamLeaves() {
-        streamLogs().forEach(a -> {}); // TODO: don't do this? Makes sure all log-adjacent leaves are discovered
-
         List<BlockPos> allLeaves = new LinkedList<>();
         forEachLeaves(leaves, allLeaves::add); // TODO: yikes; defeats the purpose of streaming
 
         return allLeaves.stream();
     }
 
+    private void completeTree() {
+        generator.fill().forEach(a -> {});
+    }
+
+    @Override
+    public void forEachLeaves(Consumer<BlockPos> consumer) {
+        forEachLeaves(leaves, consumer);
+    }
+
     private void forEachLeaves(Collection<BlockPos> firstLeaves, Consumer<BlockPos> forEach) {
+        completeTree(); // Make sure all log-adjacent leaves are discovered
         if (smartDetection) {
             forEachLeavesSmart(firstLeaves, forEach);
         } else {

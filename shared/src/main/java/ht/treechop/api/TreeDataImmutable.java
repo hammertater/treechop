@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @Deprecated
@@ -29,4 +30,6 @@ public interface TreeDataImmutable {
     boolean readyToFell(int numChops);
 
     Collection<Chop> chop(BlockPos target, int numChops);
+
+    void forEachLeaves(Consumer<BlockPos> consumer);
 }

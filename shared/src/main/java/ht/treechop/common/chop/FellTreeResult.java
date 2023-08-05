@@ -92,7 +92,7 @@ public class FellTreeResult implements ChopResult {
             }
         };
 
-        tree.streamLeaves().forEach(leavesBreaker);
+        tree.forEachLeaves(leavesBreaker);
 
         effects.stream()
                 .limit(maxNumEffects)
