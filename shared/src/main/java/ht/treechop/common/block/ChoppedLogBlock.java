@@ -65,7 +65,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         );
     }
 
-    public static ChoppedLogShape getPlacementShape(Level level, BlockPos blockPos) {
+    public static ChoppedLogShape getPlacementShape(Level level, BlockPos blockPos, BlockState state) {
         final byte DOWN = 1;
         final byte UP = 1 << 1;
         final byte NORTH = 1 << 2;
@@ -74,12 +74,12 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         final byte EAST = 1 << 5;
 
         byte openSides = (byte) (
-                (isBlockOpen(level, blockPos.below()) ? DOWN : 0)
-                        | (!isBlockALog(level, blockPos.above()) ? UP : 0)
-                        | (!isBlockALog(level, blockPos.north()) ? NORTH : 0)
-                        | (!isBlockALog(level, blockPos.south()) ? SOUTH : 0)
-                        | (!isBlockALog(level, blockPos.west()) ? WEST : 0)
-                        | (!isBlockALog(level, blockPos.east()) ? EAST : 0)
+                (!state.getOptionalValue(BlockStateProperties.DOWN).orElse(!isBlockOpen(level, blockPos.below())) ? DOWN : 0)
+                        | (!state.getOptionalValue(BlockStateProperties.UP).orElse(isBlockALog(level, blockPos.above())) ? UP : 0)
+                        | (!state.getOptionalValue(BlockStateProperties.NORTH).orElse(isBlockALog(level, blockPos.north())) ? NORTH : 0)
+                        | (!state.getOptionalValue(BlockStateProperties.SOUTH).orElse(isBlockALog(level, blockPos.south())) ? SOUTH : 0)
+                        | (!state.getOptionalValue(BlockStateProperties.WEST).orElse(isBlockALog(level, blockPos.west())) ? WEST : 0)
+                        | (!state.getOptionalValue(BlockStateProperties.EAST).orElse(isBlockALog(level, blockPos.east())) ? EAST : 0)
         );
 
         return ChoppedLogShape.forOpenSides(openSides);
@@ -196,7 +196,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                     if (level.setBlockAndUpdate(pos, newBlockState)
                             && level.getBlockEntity(pos) instanceof MyEntity entity
                             && level instanceof ServerLevel serverLevel) {
-                        entity.setShape(getPlacementShape(level, pos));
+                        entity.setShape(getPlacementShape(level, pos, blockState));
                         entity.setOriginalState(blockState);
                         entity.setParameters(chopZeroRadius, maxNumChops, supportFactor);
 
