@@ -24,7 +24,7 @@ public class HugeMushroomHandler implements IStrippableBlock, ITreeBlock {
                 .logs(HugeMushroomHandler::isLog)
                 .leaves(HugeMushroomHandler::isLeaves)
                 .leavesScanner((level, pos) -> BlockNeighbors.ADJACENTS_AND_BELOW.asStream(pos))
-                .maxLeavesDistance(4)
+                .maxLeavesDistance(5)
                 .build();
 
         HugeMushroomHandler handler = new HugeMushroomHandler();
