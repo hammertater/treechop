@@ -45,6 +45,10 @@ dependencies {
 //    modCompileOnly "curse.maven:carry-on-274259:4160654"
 //    modRuntimeOnly "curse.maven:carry-on-274259:4160654"
 
+//    modRuntimeOnly "curse.maven:terrablender-565956:4647092"
+//    modRuntimeOnly "curse.maven:bclib-495191:4677965"
+//    modRuntimeOnly "curse.maven:betterend-413596:4677967"
+
     modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:6.1.0"
 }
 

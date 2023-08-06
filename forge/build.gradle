@@ -101,8 +101,8 @@ dependencies {
     compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-8.2.0")
 
 //    // run against the full jar
-    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-8.2.0")
-    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.4.1")
+//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-8.2.0")
+//    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.4.1")
 
     compileOnly fg.deobf("curse.maven:jade-324717:4614153")
 //    runtimeOnly fg.deobf("curse.maven:jade-324717:4614153")
@@ -113,8 +113,13 @@ dependencies {
 //    compileOnly fg.deobf("curse.maven:multi-mine-227887:4667502")
 //    runtimeOnly fg.deobf("curse.maven:multi-mine-227887:4667502")
 
-    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4647094")
-    runtimeOnly fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
+//    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4647094")
+//    runtimeOnly fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
+//    runtimeOnly fg.deobf("curse.maven:regions-unexplored-659110:4599808")
+//    runtimeOnly fg.deobf("curse.maven:pams-harvestcraft-2-trees-365460:4625518")
+//    runtimeOnly fg.deobf("curse.maven:oh-the-biomes-youll-go-247560:xxx")
+//    runtimeOnly fg.deobf("curse.maven:tropicraft-254794:4617294")
+//    runtimeOnly fg.deobf("curse.maven:mystics-biomes-397962:4677470")
 
     compileOnly fg.deobf("curse.maven:project-mmo-353935:4630465") // https://github.com/Caltinor/Project-MMO-2.0
 //    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4630465")
