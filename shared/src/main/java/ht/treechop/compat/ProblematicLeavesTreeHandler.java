@@ -63,7 +63,10 @@ public class ProblematicLeavesTreeHandler implements ITreeBlock {
         public MyConfigHandler(ForgeConfigSpec.Builder builder) {
             builder.push("problematicLeavesTrees");
             logBlocksList = builder.defineList("logs", List.of("tropicraft:.*_log(_.*)?"), always -> true);
-            leavesBlockList = builder.defineList("leaves", List.of("tropicraft:.*_leaves(_.*)?"), always -> true);
+            leavesBlockList = builder.defineList("leaves", List.of(
+                    "tropicraft:.*_leaves(_.*)?",
+                    "mysticbiomes:.*_log"
+            ), always -> true);
             builder.pop();
         }
 
