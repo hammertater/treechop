@@ -31,6 +31,9 @@ public class ProblematicLeavesTreeHandler implements ITreeBlock {
             api.overrideChoppableBlock(block, true);
             api.registerChoppableBlockBehavior(block, handler);
         });
+        leaves.get().forEach(block -> {
+            api.overrideLeavesBlock(block, true);
+        });
     }
 
     @Override
@@ -40,11 +43,11 @@ public class ProblematicLeavesTreeHandler implements ITreeBlock {
 
     private static final Lazy<Set<Block>> logs = new Lazy<>(
             ConfigHandler.RELOAD,
-            () -> ConfigHandler.getIdentifiedBlocks(MyConfigHandler.instance.logBlocksList.get()).collect(Collectors.toSet())
+            () -> ConfigHandler.getIdentifiedBlocks(MyConfigHandler.instance.logIds.get()).collect(Collectors.toSet())
     );
     private static final Lazy<Set<Block>> leaves = new Lazy<>(
             ConfigHandler.RELOAD,
-            () -> ConfigHandler.getIdentifiedBlocks(MyConfigHandler.instance.leavesBlockList.get()).collect(Collectors.toSet())
+            () -> ConfigHandler.getIdentifiedBlocks(MyConfigHandler.instance.leavesIds.get()).collect(Collectors.toSet())
     );
 
     public static boolean isLog(Level level, BlockPos pos, BlockState state) {
@@ -57,15 +60,19 @@ public class ProblematicLeavesTreeHandler implements ITreeBlock {
 
     public static class MyConfigHandler {
         private static MyConfigHandler instance;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> logBlocksList;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlockList;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> logIds;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesIds;
 
         public MyConfigHandler(ForgeConfigSpec.Builder builder) {
             builder.push("problematicLeavesTrees");
-            logBlocksList = builder.defineList("logs", List.of("tropicraft:.*_log(_.*)?"), always -> true);
-            leavesBlockList = builder.defineList("leaves", List.of(
-                    "tropicraft:.*_leaves(_.*)?",
-                    "mysticbiomes:.*_log"
+            logIds = builder.defineList("logs", List.of(
+                    "tropicraft:.*_log(_.*)?",
+                    "mysticbiomes:.*_log",
+                    "betternether:.*_bark",
+                    "betternether:.*_log"
+            ), always -> true);
+            leavesIds = builder.defineList("leaves", List.of(
+                    "tropicraft:.*_leaves(_.*)?"
             ), always -> true);
             builder.pop();
         }

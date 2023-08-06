@@ -21,16 +21,19 @@ public class HugeMushroomHandler implements IStrippableBlock, ITreeBlock {
 
     public static void register(TreeChopAPI api) {
         detectionHandler = new TreeDetectorBuilder()
-                .logs(HugeMushroomHandler::isStem)
-                .leaves(HugeMushroomHandler::isCap)
+                .logs(HugeMushroomHandler::isLog)
+                .leaves(HugeMushroomHandler::isLeaves)
                 .leavesScanner((level, pos) -> BlockNeighbors.ADJACENTS_AND_BELOW.asStream(pos))
                 .maxLeavesDistance(4)
                 .build();
 
         HugeMushroomHandler handler = new HugeMushroomHandler();
-        stems.get().forEach(block -> {
+        logs.get().forEach(block -> {
             api.overrideChoppableBlock(block, true);
             api.registerChoppableBlockBehavior(block, handler);
+        });
+        leaves.get().forEach(block -> {
+            api.overrideLeavesBlock(block, true);
         });
     }
 
@@ -54,32 +57,32 @@ public class HugeMushroomHandler implements IStrippableBlock, ITreeBlock {
         return detectionHandler.getTree(level, origin);
     }
 
-    private static final Lazy<Set<Block>> stems = new Lazy<>(
+    private static final Lazy<Set<Block>> logs = new Lazy<>(
             ConfigHandler.RELOAD,
-            () -> ConfigHandler.getIdentifiedBlocks(MyConfigHandler.instance.stemBlocksList.get()).collect(Collectors.toSet())
+            () -> ConfigHandler.getIdentifiedBlocks(MyConfigHandler.instance.logIds.get()).collect(Collectors.toSet())
     );
-    private static final Lazy<Set<Block>> caps = new Lazy<>(
+    private static final Lazy<Set<Block>> leaves = new Lazy<>(
             ConfigHandler.RELOAD,
-            () -> ConfigHandler.getIdentifiedBlocks(MyConfigHandler.instance.capBlocksList.get()).collect(Collectors.toSet())
+            () -> ConfigHandler.getIdentifiedBlocks(MyConfigHandler.instance.leavesIds.get()).collect(Collectors.toSet())
     );
 
-    public static boolean isStem(Level level, BlockPos pos, BlockState state) {
-        return stems.get().contains(state.getBlock());
+    public static boolean isLog(Level level, BlockPos pos, BlockState state) {
+        return logs.get().contains(state.getBlock());
     }
 
-    public static boolean isCap(Level level, BlockPos pos, BlockState state) {
-        return caps.get().contains(state.getBlock());
+    public static boolean isLeaves(Level level, BlockPos pos, BlockState state) {
+        return leaves.get().contains(state.getBlock());
     }
 
     public static class MyConfigHandler {
         private static MyConfigHandler instance;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> stemBlocksList;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> capBlocksList;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> logIds;
+        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesIds;
 
         public MyConfigHandler(ForgeConfigSpec.Builder builder) {
             builder.push("hugeMushrooms");
-            stemBlocksList = builder.defineList("logs", List.of(ConfigHandler.getCommonTagId("mushroom_stems")), always -> true);
-            capBlocksList = builder.defineList("leaves", List.of(ConfigHandler.getCommonTagId("mushroom_caps")), always -> true);
+            logIds = builder.defineList("logs", List.of(ConfigHandler.getCommonTagId("mushroom_stems")), always -> true);
+            leavesIds = builder.defineList("leaves", List.of(ConfigHandler.getCommonTagId("mushroom_caps")), always -> true);
             builder.pop();
         }
 
