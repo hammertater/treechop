@@ -146,18 +146,25 @@ public class LazyTreeData extends AbstractTreeData {
     private void forEachLeavesSmart(Collection<BlockPos> firstLeaves, Consumer<BlockPos> forEach) {
         leaves.stream().filter(pos -> leavesHasExactDistance(level.getBlockState(pos), 1)).forEach(forEach);
 
+        AtomicInteger highestDistance = new AtomicInteger(maxLeavesDistance);
         AtomicInteger distance = new AtomicInteger();
         DirectedGraph<BlockPos> distancedLeavesGraph = GraphUtil.filterNeighbors(
                 leavesWorld,
                 pos -> {
                     BlockState state = level.getBlockState(pos);
+                    state.getOptionalValue(LeavesBlock.DISTANCE).ifPresent(d -> {
+                        if (d > highestDistance.get()) {
+                            highestDistance.set(d);
+                        }
+                    });
+
                     return leavesHasAtLeastDistance(state, distance.get());
                 }
         );
 
         FloodFillImpl<BlockPos> flood = new FloodFillImpl<>(firstLeaves, distancedLeavesGraph, a -> 0);
 
-        for (int i = 2; i <= maxLeavesDistance; ++i) {
+        for (int i = 2; i <= highestDistance.get(); ++i) {
             distance.set(i);
             flood.fillOnce(forEach);
         }
