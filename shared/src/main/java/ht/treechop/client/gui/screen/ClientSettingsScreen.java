@@ -1,5 +1,6 @@
 package ht.treechop.client.gui.screen;
 
+import ht.treechop.client.settings.ClientChopSettings;
 import net.minecraft.client.gui.GuiGraphics;
 import ht.treechop.TreeChop;
 import ht.treechop.client.Client;
@@ -208,7 +209,11 @@ public class ClientSettingsScreen extends Screen {
                                     boolean newValue = !ConfigHandler.CLIENT.showFellingOptions.get();
                                     ConfigHandler.CLIENT.showFellingOptions.set(newValue);
                                     if (!newValue) {
-                                        ConfigHandler.CLIENT.fellingEnabled.set(true);
+                                        ClientChopSettings settings = Client.getChopSettings();
+                                        settings.setFellingEnabled(true);
+                                        if (settings.getSneakBehavior() == SneakBehavior.INVERT_FELLING) {
+                                            settings.setSneakBehavior(SneakBehavior.INVERT_CHOPPING);
+                                        }
                                     }
                                 },
                                 () -> ToggleWidget.State.of(
