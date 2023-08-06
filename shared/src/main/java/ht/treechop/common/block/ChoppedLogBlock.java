@@ -73,13 +73,21 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         final byte WEST = 1 << 4;
         final byte EAST = 1 << 5;
 
+//        openSides = (byte) (
+//                (!state.getOptionalValue(BlockStateProperties.DOWN).orElse(!isBlockOpen(level, blockPos.below())) ? DOWN : 0)
+//                        | (!state.getOptionalValue(BlockStateProperties.UP).orElse(isBlockALog(level, blockPos.above())) ? UP : 0)
+//                        | (!state.getOptionalValue(BlockStateProperties.NORTH).orElse(isBlockALog(level, blockPos.north())) ? NORTH : 0)
+//                        | (!state.getOptionalValue(BlockStateProperties.SOUTH).orElse(isBlockALog(level, blockPos.south())) ? SOUTH : 0)
+//                        | (!state.getOptionalValue(BlockStateProperties.WEST).orElse(isBlockALog(level, blockPos.west())) ? WEST : 0)
+//                        | (!state.getOptionalValue(BlockStateProperties.EAST).orElse(isBlockALog(level, blockPos.east())) ? EAST : 0)
+
         byte openSides = (byte) (
-                (!state.getOptionalValue(BlockStateProperties.DOWN).orElse(!isBlockOpen(level, blockPos.below())) ? DOWN : 0)
-                        | (!state.getOptionalValue(BlockStateProperties.UP).orElse(isBlockALog(level, blockPos.above())) ? UP : 0)
-                        | (!state.getOptionalValue(BlockStateProperties.NORTH).orElse(isBlockALog(level, blockPos.north())) ? NORTH : 0)
-                        | (!state.getOptionalValue(BlockStateProperties.SOUTH).orElse(isBlockALog(level, blockPos.south())) ? SOUTH : 0)
-                        | (!state.getOptionalValue(BlockStateProperties.WEST).orElse(isBlockALog(level, blockPos.west())) ? WEST : 0)
-                        | (!state.getOptionalValue(BlockStateProperties.EAST).orElse(isBlockALog(level, blockPos.east())) ? EAST : 0)
+                (isBlockOpen(level, blockPos.below()) ? DOWN : 0)
+                        | (!isBlockALog(level, blockPos.above()) ? UP : 0)
+                        | (!isBlockALog(level, blockPos.north()) ? NORTH : 0)
+                        | (!isBlockALog(level, blockPos.south()) ? SOUTH : 0)
+                        | (!isBlockALog(level, blockPos.west()) ? WEST : 0)
+                        | (!isBlockALog(level, blockPos.east()) ? EAST : 0)
         );
 
         return ChoppedLogShape.forOpenSides(openSides);
