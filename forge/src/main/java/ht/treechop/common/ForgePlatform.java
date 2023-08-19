@@ -3,6 +3,9 @@ package ht.treechop.common;
 import ht.treechop.api.ChopData;
 import ht.treechop.api.ChopDataImmutable;
 import ht.treechop.api.ChopEvent;
+import ht.treechop.api.TreeData;
+import ht.treechop.common.chop.ChopResult;
+import ht.treechop.common.chop.FellTreeResult;
 import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.common.registry.ForgeModBlocks;
@@ -24,14 +27,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ForgePlatform implements Platform {
 
-    @SuppressWarnings("UnstableApiUsage")
     @Override
     public boolean isDedicatedServer() {
         return FMLEnvironment.dist.isDedicatedServer();
@@ -43,13 +44,11 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public TreeDataImpl detectTreeEvent(Level level, ServerPlayer agent, BlockPos blockPos, BlockState blockState, boolean overrideLeaves) {
-        TreeDataImpl treeData = new TreeDataImpl(overrideLeaves);
-        boolean canceled = MinecraftForge.EVENT_BUS.post(new ChopEvent.DetectTreeEvent(level, agent, blockPos, blockState, treeData));
-        if (canceled) {
-            return TreeDataImpl.empty();
-        }
-        return treeData;
+    public TreeData detectTreeEvent(Level level, ServerPlayer agent, BlockPos blockPos, BlockState blockState, TreeData treeData) {
+        ChopEvent.DetectTreeEvent event = new ChopEvent.DetectTreeEvent(level, agent, blockPos, blockState, treeData);
+        boolean canceled = MinecraftForge.EVENT_BUS.post(event);
+        treeData = event.getTreeData().orElse(null);
+        return (canceled || treeData == null) ? TreeDataImpl.empty(level) : treeData;
     }
 
     @Override
@@ -68,14 +67,15 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData, boolean felled) {
+    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData, ChopResult chopResult) {
         MinecraftForge.EVENT_BUS.post(new ChopEvent.FinishChopEvent(
                 level,
                 agent,
                 pos,
                 blockState,
                 chopData,
-                felled));
+                chopResult instanceof FellTreeResult
+        ));
     }
 
     @Override

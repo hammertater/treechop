@@ -3,7 +3,9 @@ package ht.treechop;
 import ht.treechop.api.TreeChopAPI;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.platform.Platform;
-import ht.treechop.compat.MushroomStemHandler;
+import ht.treechop.compat.HugeFungusHandler;
+import ht.treechop.compat.HugeMushroomHandler;
+import ht.treechop.compat.ProblematicLeavesTreeHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -19,10 +21,9 @@ public abstract class TreeChop {
     public static TreeChopInternalAPI api;
 
     public static void initUsingAPI(TreeChopAPI api) {
-        if (ConfigHandler.COMMON.compatForMushroomStems.get()) {
-            MushroomStemHandler handler = new MushroomStemHandler();
-            ConfigHandler.getMushroomStems().forEach(block -> api.registerChoppableBlockBehavior(block, handler));
-        }
+        HugeMushroomHandler.register(api);
+        HugeFungusHandler.register(api);
+        ProblematicLeavesTreeHandler.register(api);
     }
 
     @SuppressWarnings("ConstantConditions")

@@ -10,6 +10,7 @@ targetCompatibility = JavaVersion.VERSION_17
 archivesBaseName = "${modname}-${mcversion}-fabric"
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         url "https://www.cursemaven.com"
@@ -17,9 +18,9 @@ repositories {
             includeGroup "curse.maven"
         }
     }
-    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
-    maven { url "https://maven.bai.lol" }
-    maven { url = 'https://maven.terraformersmc.com/' }
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven" }
+    maven { url = "https://maven.terraformersmc.com"}
+    maven { url = "https://maven.bai.lol" }
 }
 
 dependencies {

@@ -1,15 +1,14 @@
 package ht.treechop.server;
 
-import ht.treechop.common.capabilities.ChopSettingsCapability;
 import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.network.ForgePacketHandler;
-import ht.treechop.common.settings.EntityChopSettings;
+import ht.treechop.common.settings.ChoppingEntity;
+import ht.treechop.common.settings.SyncedChopData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -36,12 +35,7 @@ public class ForgeServer extends Server {
 
     @Override
     public void sendTo(ServerPlayer player, CustomPacket packet) {
-        ForgePacketHandler.HANDLER.sendTo(packet, player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
-    }
-
-    @Override
-    public EntityChopSettings getPlayerChopSettings(Player player) {
-        return ChopSettingsCapability.forPlayer(player).map(x -> (EntityChopSettings) x).orElse(Server.getDefaultPlayerSettings());
+        ForgePacketHandler.HANDLER.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
     private static class EventHandler {
@@ -50,14 +44,9 @@ public class ForgeServer extends Server {
             if (event.isWasDeath()) {
                 Player oldPlayer = event.getOriginal();
                 Player newPlayer = event.getEntity();
-                LazyOptional<ChopSettingsCapability> lazyOldSettings = ChopSettingsCapability.forPlayer(oldPlayer);
-                LazyOptional<ChopSettingsCapability> lazyNewSettings = ChopSettingsCapability.forPlayer(newPlayer);
 
-                lazyOldSettings.ifPresent(
-                        oldSettings -> lazyNewSettings.ifPresent(
-                                newSettings -> newSettings.copyFrom(oldSettings)
-                        )
-                );
+                SyncedChopData chopSettings = instance.getPlayerChopData(oldPlayer);
+                ((ChoppingEntity) newPlayer).setChopData(chopSettings);
             }
         }
     }

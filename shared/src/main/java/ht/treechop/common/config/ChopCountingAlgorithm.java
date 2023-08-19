@@ -30,16 +30,9 @@ public enum ChopCountingAlgorithm implements StringRepresentable {
         this.preciseCalculation = preciseCalculation;
     }
 
-    public int calculate(int numBlocks) {
-        if (numBlocks == 1) {
-            return 1;
-        } else {
-            Rounder rounder = ConfigHandler.COMMON.chopCountRounding.get();
-            int unboundedCount = Math.max(1, rounder.round(preciseCalculation.apply(numBlocks)));
-            return ConfigHandler.COMMON.canRequireMoreChopsThanBlocks.get()
-                    ? unboundedCount
-                    : Math.min(numBlocks, unboundedCount);
-        }
+    public int calculate(int numBlocks, Rounder rounder, boolean canRequireMoreChopsThanBlocks) {
+        int count = Math.max(1, rounder.round(preciseCalculation.apply(numBlocks)));
+        return canRequireMoreChopsThanBlocks ? count : Math.min(numBlocks, count);
     }
 
     @Override

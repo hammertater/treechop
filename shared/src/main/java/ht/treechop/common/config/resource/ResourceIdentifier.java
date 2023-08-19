@@ -9,13 +9,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class ResourceIdentifier {
 
-    private static final Pattern PATTERN = Pattern.compile("^\\s*([#@])?([a-z0-9_\\-.]*(?=:))?:?([a-z0-9_\\-./]*)?(.*)?");
-    private static final Pattern QUALIFIERS_PATTERN = Pattern.compile("^\\?(.*)$");
+    private static final Pattern PATTERN = Pattern.compile("^\\s*([#@])?([a-z0-9_\\-.]*(?=:))?:?([a-z0-9_\\-./]*)?$");
+    private static final Pattern QUALIFIERS_PATTERN = Pattern.compile("^\\?(.*)$"); // Disabled to keep regex IDs simple
     private static final String DEFAULT_NAMESPACE = "minecraft";
 
     private final String nameSpace;
@@ -40,7 +41,7 @@ public abstract class ResourceIdentifier {
             String searchSpace = Optional.ofNullable(matcher.group(1)).orElse("");
             String namespace = Optional.ofNullable(matcher.group(2)).orElse("");
             String localSpace = Optional.ofNullable(matcher.group(3)).orElse("");
-            List<IdentifierQualifier> qualifiers = parseQualifiers(Optional.ofNullable(matcher.group(4)).orElse(""));
+            List<IdentifierQualifier> qualifiers = List.of(); //parseQualifiers(Optional.ofNullable(matcher.group(4)).orElse(""));
 
             if (searchSpace.equals("#")) {
                 return new ResourceTagIdentifier(either(namespace, DEFAULT_NAMESPACE), localSpace, qualifiers, string);
@@ -54,7 +55,12 @@ public abstract class ResourceIdentifier {
                 return new SingleResourceIdentifier(either(namespace, DEFAULT_NAMESPACE), localSpace, qualifiers, string);
             }
         } else {
-            return new MalformedResourceIdentifier(string, "unqualified identifier does not match \"@mod\", \"#mod:tag\", or \"mod:id\"");
+            try {
+                Pattern pattern = Pattern.compile("^" + string.strip() + "$");
+                return new ResourcePatternIdentifier(pattern, List.of(), string);
+            } catch (PatternSyntaxException e) {
+                return new MalformedResourceIdentifier(string, "unqualified identifier does not match \"@mod\", \"#mod:tag\", or \"mod:id\", and is not a valid regular expression");
+            }
         }
     }
 
