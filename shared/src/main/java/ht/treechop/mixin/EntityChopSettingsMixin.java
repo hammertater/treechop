@@ -1,7 +1,8 @@
 package ht.treechop.mixin;
 
+import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.ChoppingEntity;
-import ht.treechop.common.settings.EntityChopSettings;
+import ht.treechop.common.settings.SyncedChopData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,16 +13,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
 public class EntityChopSettingsMixin implements ChoppingEntity {
-    private EntityChopSettings chopSettings;
+    private SyncedChopData chopSettings;
     private final String KEY = "treechop:chopSettings";
 
     @Override
-    public EntityChopSettings getChopSettings() {
+    public SyncedChopData getChopData() {
         return chopSettings;
     }
 
     @Override
-    public EntityChopSettings setChopSettings(EntityChopSettings chopSettings) {
+    public SyncedChopData setChopData(SyncedChopData chopSettings) {
         this.chopSettings = chopSettings;
         return chopSettings;
     }
@@ -36,8 +37,6 @@ public class EntityChopSettingsMixin implements ChoppingEntity {
     @Inject(method = "load", at = @At("HEAD"))
     public void injectDataLoading(CompoundTag tag, CallbackInfo info) {
         CompoundTag data = tag.getCompound(KEY);
-        if (data != null) {
-            chopSettings = (new EntityChopSettings()).readSaveData(data);
-        }
+        chopSettings = (new SyncedChopData(new ChopSettings())).readSaveData(data);
     }
 }

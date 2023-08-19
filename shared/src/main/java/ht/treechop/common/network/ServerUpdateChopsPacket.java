@@ -1,18 +1,20 @@
 package ht.treechop.common.network;
 
 import ht.treechop.TreeChop;
+import ht.treechop.client.Client;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ServerUpdateChopsPacket implements CustomPacket {
     public static final ResourceLocation ID = TreeChop.resource("server_update_chops");
-    private static Level lastLevel = null;
+    private static LevelAccessor lastLevel = null;
 
     private final BlockPos pos;
     private final CompoundTag tag;
@@ -42,10 +44,13 @@ public class ServerUpdateChopsPacket implements CustomPacket {
     }
 
     public static void handle(ServerUpdateChopsPacket message) {
-        pendingUpdates.put(message.pos, message.tag);
+        if (!TreeChop.platform.isDedicatedServer()) {
+            pendingUpdates.put(message.pos, message.tag);
+            Client.forceChoppedLogUpdate(message.pos);
+        }
     }
 
-    private static void checkLevel(Level level) {
+    public static void checkLevel(LevelAccessor level) {
         if (level != lastLevel) {
             pendingUpdates.clear();
             lastLevel = level;

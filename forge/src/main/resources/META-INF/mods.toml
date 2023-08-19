@@ -1,6 +1,6 @@
 modLoader="javafml"
 loaderVersion="[32,)"
-license="All rights reserved"
+license="MIT (https://github.com/hammertater/treechop/blob/main/LICENSE)"
 issueTrackerURL="https://github.com/hammertater/treechop/issues"
 
 [[mods]]

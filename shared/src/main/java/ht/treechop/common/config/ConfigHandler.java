@@ -6,8 +6,11 @@ import ht.treechop.common.config.resource.ResourceIdentifier;
 import ht.treechop.common.platform.ModLoader;
 import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;
+import ht.treechop.compat.HugeFungusHandler;
+import ht.treechop.compat.HugeMushroomHandler;
+import ht.treechop.compat.ProblematicLeavesTreeHandler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -33,7 +36,7 @@ public class ConfigHandler {
     public static final ForgeConfigSpec COMMON_SPEC;
     public static final Client CLIENT;
     public static final ForgeConfigSpec CLIENT_SPEC;
-    private static final Signal<Lazy<?>> RELOAD = new Signal<>(Lazy::reset);
+    public static final Signal<Lazy<?>> RELOAD = new Signal<>(Lazy::reset);
     public final static Lazy<ChopSettings> defaultChopSettings = new Lazy<>(
             RELOAD,
             () -> {
@@ -51,22 +54,12 @@ public class ConfigHandler {
                 });
                 return chopSettings;
             });
-    public final static Lazy<EntityChopSettings> fakePlayerChopSettings = new Lazy<>(
+    public final static Lazy<ChopSettings> fakePlayerChopSettings = new Lazy<>(
             RELOAD,
-            () -> {
-                EntityChopSettings chopSettings = new EntityChopSettings() {
-                    @Override
-                    public boolean isSynced() {
-                        return true;
-                    }
-                };
-
-                chopSettings.setChoppingEnabled(ConfigHandler.COMMON.fakePlayerChoppingEnabled.get())
-                        .setFellingEnabled(ConfigHandler.COMMON.fakePlayerFellingEnabled.get())
-                        .setTreesMustHaveLeaves(ConfigHandler.COMMON.fakePlayerTreesMustHaveLeaves.get());
-
-                return chopSettings;
-            });
+            () -> new ChopSettings()
+                    .setChoppingEnabled(ConfigHandler.COMMON.fakePlayerChoppingEnabled.get())
+                    .setFellingEnabled(ConfigHandler.COMMON.fakePlayerFellingEnabled.get())
+                    .setTreesMustHaveLeaves(ConfigHandler.COMMON.fakePlayerTreesMustHaveLeaves.get()));
     private static final Signal<Lazy<?>> UPDATE_TAGS = new Signal<>(Lazy::reset);
     public static Lazy<Boolean> removeBarkOnInteriorLogs = new Lazy<>(
             RELOAD,
@@ -130,7 +123,7 @@ public class ConfigHandler {
     }
 
     private static Block inferUnstripped(Block block) {
-        ResourceLocation resource = Registry.BLOCK.getKey(block);
+        ResourceLocation resource = BuiltInRegistries.BLOCK.getKey(block);
         return inferUnstripped(resource);
     }
 
@@ -138,7 +131,7 @@ public class ConfigHandler {
         if (resource != null) {
             ResourceLocation unstripped = getFilteredResourceLocation(resource, "stripped");
             if (unstripped != null) {
-                return Registry.BLOCK.get(unstripped);
+                return BuiltInRegistries.BLOCK.get(unstripped);
             }
         }
         return Blocks.AIR;
@@ -155,14 +148,19 @@ public class ConfigHandler {
         return null;
     }
 
-    private static Stream<Item> getIdentifiedItems(String stringId) {
+    public static Stream<Item> getIdentifiedItems(String stringId) {
         ResourceIdentifier id = ResourceIdentifier.from(stringId);
-        return id.resolve(Registry.ITEM);
+        return id.resolve(BuiltInRegistries.ITEM);
     }
 
-    private static Stream<Block> getIdentifiedBlocks(String stringId) {
+    public static Stream<Block> getIdentifiedBlocks(String stringId) {
         ResourceIdentifier id = ResourceIdentifier.from(stringId);
-        return id.resolve(Registry.BLOCK);
+        return id.resolve(BuiltInRegistries.BLOCK);
+    }
+
+    public static Stream<Block> getIdentifiedBlocks(List<? extends String> strings) {
+        return strings.stream()
+                .flatMap(ConfigHandler::getIdentifiedBlocks);
     }
 
     public static boolean canChopWithTool(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState) {
@@ -187,11 +185,7 @@ public class ConfigHandler {
         return new InitializedSupplier<>(() -> defaultValue);
     }
 
-    public static Stream<Block> getMushroomStems() {
-        return ConfigHandler.getIdentifiedBlocks(getCommonTagId("mushroom_stems"));
-    }
-
-    private static String getCommonTagId(String path) {
+    public static String getCommonTagId(String path) {
         return String.format("#%s:%s", TreeChop.platform.uses(ModLoader.FORGE) ? "forge" : "c", path);
     }
 
@@ -236,12 +230,13 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
         public final InitializedSupplier<Boolean> compatForCarryOn = defaultValue(true);
-        public final InitializedSupplier<Boolean> compatForMushroomStems = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForProjectMMO = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForTheOneProbe = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForSilentGear = defaultValue(true);
         public final InitializedSupplier<Integer> silentGearSawChops = defaultValue(5);
+        public final InitializedSupplier<Boolean> compatForTerraformers = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForTinkersConstruct = defaultValue(true);
+        public final InitializedSupplier<Boolean> compatForMultiMine = defaultValue(true);
         public final InitializedSupplier<Integer> tinkersConstructTreeAOEChops = defaultValue(5);
         public final InitializedSupplier<Integer> tinkersConstructWoodAOEChops = defaultValue(5);
         public final InitializedSupplier<Double> tinkersConstructExpandedMultiplier = defaultValue(2.0);
@@ -252,12 +247,10 @@ public class ConfigHandler {
         public final Lazy<Set<Block>> choppableBlocks = new Lazy<>(
                 UPDATE_TAGS,
                 () -> {
-                    Set<Block> exceptions = COMMON.choppableBlocksExceptionsList.get().stream()
-                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                    Set<Block> exceptions = ConfigHandler.getIdentifiedBlocks(COMMON.choppableBlocksExceptionsList.get())
                             .collect(Collectors.toSet());
 
-                    Set<Block> blocks = COMMON.choppableBlocksList.get().stream()
-                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                    Set<Block> blocks = ConfigHandler.getIdentifiedBlocks(COMMON.choppableBlocksList.get())
                             .filter(block -> !exceptions.contains(block))
                             .collect(Collectors.toSet());
 
@@ -277,12 +270,10 @@ public class ConfigHandler {
         public final Lazy<Set<Block>> leavesBlocks = new Lazy<>(
                 UPDATE_TAGS,
                 () -> {
-                    Set<Block> exceptions = COMMON.leavesBlocksExceptionsList.get().stream()
-                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                    Set<Block> exceptions = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksExceptionsList.get())
                             .collect(Collectors.toSet());
 
-                    Set<Block> blocks = COMMON.leavesBlocksList.get().stream()
-                            .flatMap(ConfigHandler::getIdentifiedBlocks)
+                    Set<Block> blocks = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksList.get())
                             .filter(block -> !exceptions.contains(block))
                             .collect(Collectors.toSet());
 
@@ -320,6 +311,14 @@ public class ConfigHandler {
         );
 
         public Common(ForgeConfigSpec.Builder builder) {
+            final String blockIdsHelp = String.join("\n",
+                    "For block lists, specify using registry names (mod:block), tags (#mod:tag), namespaces (@mod), and Java-style regular expressions",
+                    "Regular expressions must match the whole resource name, including the colon. Some simple examples are:",
+                    " - To match any block ending in _log: \".*_log\", where .* is a wildcard",
+                    " - You can also specify a mod: \"treemod:.*_log\"",
+                    " - To also match stripped versions: \".*_log(_stripped)?\", where ? means that the text in the parenthesis is optional",
+                    "For more help, see https://github.com/hammertater/treechop/wiki/Configuration");
+
             builder.push("mod");
             enabled = builder
                     .comment("Set to false to disable TreeChop without having to uninstall the mod")
@@ -360,18 +359,15 @@ public class ConfigHandler {
                     .comment("Non-decayable leaves are ignored when detecting leaves")
                     .define("ignorePersistentLeaves", true);
             maxBreakLeavesDistance = builder
-                    .comment("Maximum distance from log blocks to destroy non-standard leaves blocks (e.g. mushroom caps) when felling")
+                    .comment("Maximum distance from log blocks to destroy leaves blocks when felling")
                     .defineInRange("maxBreakLeavesDistance", 7, 0, 16);
 
             builder.push("logs");
             choppableBlocksList = builder
-                    .comment(String.join("\n",
-                            "Blocks that should be considered choppable",
-                            "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
+                    .comment(String.join("\n","Blocks that should be considered choppable", blockIdsHelp))
                     .defineList("blocks",
                             List.of("#treechop:choppables",
-                                    "#minecraft:logs",
-                                    getCommonTagId("mushroom_stems")),
+                                    "#minecraft:logs"),
                             always -> true);
             choppableBlocksExceptionsList = builder
                     .comment(String.join("\n",
@@ -392,9 +388,7 @@ public class ConfigHandler {
                     .defineList("blocks",
                             List.of("#treechop:leaves_like",
                                     "#minecraft:leaves",
-                                    "#minecraft:wart_blocks",
-                                    getCommonTagId("mushroom_caps"),
-                                    "minecraft:shroomlight"),
+                                    "pamhc2trees:pam[a-z]+"),
                             always -> true);
             leavesBlocksExceptionsList = builder
                     .comment(String.join("\n",
@@ -482,36 +476,49 @@ public class ConfigHandler {
 
             builder.pop();
 
-            compatForMushroomStems.set(builder
-                    .comment(String.format("Better chopping behavior for block with the %s tag", getCommonTagId("mushroom_stems")))
-                    .define("mushroomStems", true));
+            builder.comment(String.join("\n",
+                    "A set of alternate tree detection strategies for oddly shaped trees",
+                    blockIdsHelp));
+            builder.push("trees");
+            HugeMushroomHandler.MyConfigHandler.init(builder);
+            HugeFungusHandler.MyConfigHandler.init(builder);
+            ProblematicLeavesTreeHandler.MyConfigHandler.init(builder);
+            builder.pop();
 
             if (TreeChop.platform.uses(ModLoader.FORGE)) {
                 compatForCarryOn.set(builder
                         .comment("https://www.curseforge.com/minecraft/mc-mods/carry-on",
                                 "https://modrinth.com/mod/carry-on",
                                 "Small fixes.")
-                        .define("carryOn", true));
+                        .define("carryOn", true)::get);
                 compatForProjectMMO.set(builder
                         .comment("https://www.curseforge.com/minecraft/mc-mods/project-mmo",
                                 "https://modrinth.com/mod/project-mmo",
                                 "Award woodcutting XP for chopping.")
-                        .define("projectMMO", true));
+                        .define("projectMMO", true)::get);
                 compatForTheOneProbe.set(builder
                         .comment("https://www.curseforge.com/minecraft/mc-mods/the-one-probe",
                                 "https://modrinth.com/mod/the-one-probe",
                                 "Shows the number of chops required to fell a tree and what loot will drop.")
-                        .define("theOneProbe", true));
+                        .define("theOneProbe", true)::get);
+                compatForTerraformers.set(builder
+                        .comment("https://github.com/TerraformersMC",
+                                "Fixes starting chop radius for small logs from Terraformers mods (Terrestria, etc.)")
+                        .define("terraformers", true)::get);
+                compatForMultiMine.set(builder
+                        .comment("https://github.com/AtomicStryker/atomicstrykers-minecraft-mods",
+                                "Fixes bad behavior")
+                        .define("multiMine", true)::get);
 
                 builder.push("silentgear");
                 compatForSilentGear.set(builder
                         .comment("https://www.curseforge.com/minecraft/mc-mods/tinkers-construct",
                                 "https://modrinth.com/mod/tinkers-construct",
                                 "Makes saws do more chops.")
-                        .define("enabled", true));
+                        .define("enabled", true)::get);
                 silentGearSawChops.set(builder
                         .comment("Number of chops a saw should perform on a single block break")
-                        .defineInRange("sawChops", 5, 1, 10000)
+                        .defineInRange("sawChops", 5, 1, 10000)::get
                 );
                 builder.pop();
 
@@ -520,18 +527,18 @@ public class ConfigHandler {
                         .comment("https://www.curseforge.com/minecraft/mc-mods/tinkers-construct",
                                 "https://modrinth.com/mod/tinkers-construct",
                                 "Makes AOE tools do more chops.")
-                        .define("enabled", true));
+                        .define("enabled", true)::get);
                 tinkersConstructTreeAOEChops.set(builder
                         .comment("Number of chops that tree breaking tools (like broad axes) should perform on a single block break")
-                        .defineInRange("treeBreakingTools", 5, 1, 10000)
+                        .defineInRange("treeBreakingTools", 5, 1, 10000)::get
                 );
                 tinkersConstructWoodAOEChops.set(builder
                         .comment("Number of chops that wood breaking tools (like hand axes) should perform on a single block break")
-                        .defineInRange("woodBreakingTools", 1, 1, 10000)
+                        .defineInRange("woodBreakingTools", 1, 1, 10000)::get
                 );
                 tinkersConstructExpandedMultiplier.set(builder
                         .comment("The chop count multiplier for each level of the expanded upgrade")
-                        .defineInRange("expandedMultiplier", 2.0, 1.0, 10000.0)
+                        .defineInRange("expandedMultiplier", 2.0, 1.0, 10000.0)::get
                 );
                 builder.pop();
             }

@@ -1,8 +1,8 @@
 package ht.treechop.client.gui.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 
@@ -48,22 +48,22 @@ public enum Sprite {
         RenderSystem.enableDepthTest();
     }
 
-    public void blit(PoseStack poseStack, int x, int y) {
-        blit(poseStack, x, y, width, height);
+    public void blit(GuiGraphics gui, int x, int y) {
+        blit(gui, x, y, width, height);
     }
 
-    public void blit(PoseStack poseStack, int x, int y, double scale) {
-        blit(poseStack, x, y, (int) (width * scale), (int) (height * scale));
+    public void blit(GuiGraphics gui, int x, int y, double scale) {
+        blit(gui, x, y, (int) (width * scale), (int) (height * scale));
     }
 
-    public void blit(PoseStack poseStack, int x, int y, int width, int height) {
-        blit(poseStack, x, y, width, height, false);
+    public void blit(GuiGraphics gui, int x, int y, int width, int height) {
+        blit(gui, x, y, width, height, false);
     }
 
-    public void blit(PoseStack poseStack, int x, int y, int width, int height, boolean mirror) {
+    public void blit(GuiGraphics gui, int x, int y, int width, int height, boolean mirror) {
         float u = mirror ? this.u + this.width : this.u;
         int uw = mirror ? -this.width : this.width;
-        GuiComponent.blit(poseStack, x, y, width, height, u, v, uw, this.height, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        gui.blit(TEXTURE_PATH, x, y, width, height, u, v, uw, this.height, TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
 }

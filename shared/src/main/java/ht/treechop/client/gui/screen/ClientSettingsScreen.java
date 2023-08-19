@@ -1,6 +1,7 @@
 package ht.treechop.client.gui.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import ht.treechop.client.settings.ClientChopSettings;
+import net.minecraft.client.gui.GuiGraphics;
 import ht.treechop.TreeChop;
 import ht.treechop.client.Client;
 import ht.treechop.client.gui.element.*;
@@ -65,14 +66,13 @@ public class ClientSettingsScreen extends Screen {
         ));
 
         final int doneButtonWidth = 200;
-        doneButton = addRenderableWidget(new Button(
-                (width - doneButtonWidth) / 2,
-                getDoneButtonTop(),
-                doneButtonWidth,
-                GUIUtil.BUTTON_HEIGHT,
-                Component.translatable("gui.done"),
-                button -> onClose()
-        ));
+        doneButton = addRenderableWidget(new Button.Builder(Component.translatable("gui.done"), button -> onClose())
+                        .bounds((width - doneButtonWidth) / 2,
+                                getDoneButtonTop(),
+                                doneButtonWidth,
+                                GUIUtil.BUTTON_HEIGHT)
+                        .build()
+        );
     }
 
     private void addBufferRows(List<NestedGui> rows) {
@@ -205,7 +205,17 @@ public class ClientSettingsScreen extends Screen {
                 new LabeledGui(font,
                         Component.translatable("treechop.gui.settings.label.felling_options"),
                         new ToggleGui(
-                                () -> ConfigHandler.CLIENT.showFellingOptions.set(!ConfigHandler.CLIENT.showFellingOptions.get()),
+                                () -> {
+                                    boolean newValue = !ConfigHandler.CLIENT.showFellingOptions.get();
+                                    ConfigHandler.CLIENT.showFellingOptions.set(newValue);
+                                    if (!newValue) {
+                                        ClientChopSettings settings = Client.getChopSettings();
+                                        settings.setFellingEnabled(true);
+                                        if (settings.getSneakBehavior() == SneakBehavior.INVERT_FELLING) {
+                                            settings.setSneakBehavior(SneakBehavior.INVERT_CHOPPING);
+                                        }
+                                    }
+                                },
                                 () -> ToggleWidget.State.of(
                                         ConfigHandler.CLIENT.showFellingOptions.get(),
                                         Client.getServerPermissions().isPermitted(new Setting(SettingsField.FELLING, false))
@@ -279,35 +289,34 @@ public class ClientSettingsScreen extends Screen {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         if (needToRebuild) {
             clearWidgets();
             rebuild();
             needToRebuild = false;
         }
 
-        renderBackground(poseStack);
+        renderBackground(gui);
 
-        doneButton.y = getDoneButtonTop();
+        doneButton.setY(getDoneButtonTop());
 
         int listTop = getListTop();
         int listBottom = getListBottom();
         optionsList.setBox(0, listTop, width, listBottom - listTop);
-        optionsList.render(poseStack, mouseX, mouseY, partialTicks);
-        drawCenteredString(poseStack, this.font, this.title, this.width / 2, getTitleTop(), 16777215);
-        super.render(poseStack, mouseX, mouseY, partialTicks);
+        optionsList.render(gui, mouseX, mouseY, partialTicks);
+        gui.drawCenteredString(this.font, this.title, this.width / 2, getTitleTop(), 16777215);
+        super.render(gui, mouseX, mouseY, partialTicks);
         // TODO: check out ClientSettingsScreen.func_243293_a for draw reordering; might be important for tooltips
 
         if (ConfigHandler.CLIENT.showTooltips.get()) {
-            GUIUtil.renderTooltip(poseStack);
+            GUIUtil.renderTooltip(gui);
         }
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
-    public void renderBackground(PoseStack poseStack) {
-        super.renderBackground(poseStack);
-        fill(poseStack, INSET_SIZE, INSET_SIZE, width - INSET_SIZE, height - INSET_SIZE, 0x00000080);
+    public void renderBackground(GuiGraphics gui) {
+        super.renderBackground(gui);
+        gui.fill(INSET_SIZE, INSET_SIZE, width - INSET_SIZE, height - INSET_SIZE, 0x00000080);
     }
 
     @Override

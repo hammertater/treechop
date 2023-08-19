@@ -1,6 +1,5 @@
 package ht.treechop.client.model;
 
-import com.mojang.datafixers.util.Pair;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.properties.ChoppedLogShape;
@@ -35,6 +34,10 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     protected static final ResourceLocation DEFAULT_TEXTURE_RESOURCE = new ResourceLocation("block/stripped_oak_log");
     public static final RenderType RENDER_TYPE = RenderType.cutout(); // Don't use translucent, looks nuts with shaders
 
+    public static void setDefaultSprite(TextureAtlasSprite defaultSprite) {
+        ChoppedLogBakedModel.defaultSprite = defaultSprite;
+    }
+
     private static BlockState getStrippedNeighbor(BlockAndTintGetter level, BlockPos pos, Direction direction) {
         BlockPos neighborPos = pos.relative(direction);
         return ChopUtil.getStrippedState(level, pos, level.getBlockState(neighborPos));
@@ -68,13 +71,11 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     @Override
-    public @NotNull Collection<Material> getMaterials(@NotNull Function<ResourceLocation, UnbakedModel> var1, @NotNull Set<Pair<String, String>> var2) {
-        return Collections.emptyList();
+    public void resolveParents(Function<ResourceLocation, UnbakedModel> function) {
     }
 
     @Override
-    @Nullable
-    public BakedModel bake(@NotNull ModelBakery modelBakery, Function<Material, TextureAtlasSprite> textureGetter, ModelState modelState, ResourceLocation modelId) {
+    public BakedModel bake(@NotNull ModelBaker modelBakery, Function<Material, TextureAtlasSprite> textureGetter, @NotNull ModelState modelState, @NotNull ResourceLocation modelId) {
         defaultSprite = textureGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, DEFAULT_TEXTURE_RESOURCE));
         return this;
     }

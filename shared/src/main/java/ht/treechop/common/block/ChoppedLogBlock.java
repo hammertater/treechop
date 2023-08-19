@@ -32,7 +32,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -65,13 +65,21 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         );
     }
 
-    public static ChoppedLogShape getPlacementShape(Level level, BlockPos blockPos) {
+    public static ChoppedLogShape getPlacementShape(Level level, BlockPos blockPos, BlockState state) {
         final byte DOWN = 1;
         final byte UP = 1 << 1;
         final byte NORTH = 1 << 2;
         final byte SOUTH = 1 << 3;
         final byte WEST = 1 << 4;
         final byte EAST = 1 << 5;
+
+//        openSides = (byte) (
+//                (!state.getOptionalValue(BlockStateProperties.DOWN).orElse(!isBlockOpen(level, blockPos.below())) ? DOWN : 0)
+//                        | (!state.getOptionalValue(BlockStateProperties.UP).orElse(isBlockALog(level, blockPos.above())) ? UP : 0)
+//                        | (!state.getOptionalValue(BlockStateProperties.NORTH).orElse(isBlockALog(level, blockPos.north())) ? NORTH : 0)
+//                        | (!state.getOptionalValue(BlockStateProperties.SOUTH).orElse(isBlockALog(level, blockPos.south())) ? SOUTH : 0)
+//                        | (!state.getOptionalValue(BlockStateProperties.WEST).orElse(isBlockALog(level, blockPos.west())) ? WEST : 0)
+//                        | (!state.getOptionalValue(BlockStateProperties.EAST).orElse(isBlockALog(level, blockPos.east())) ? EAST : 0)
 
         byte openSides = (byte) (
                 (isBlockOpen(level, blockPos.below()) ? DOWN : 0)
@@ -196,7 +204,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                     if (level.setBlockAndUpdate(pos, newBlockState)
                             && level.getBlockEntity(pos) instanceof MyEntity entity
                             && level instanceof ServerLevel serverLevel) {
-                        entity.setShape(getPlacementShape(level, pos));
+                        entity.setShape(getPlacementShape(level, pos, blockState));
                         entity.setOriginalState(blockState);
                         entity.setParameters(chopZeroRadius, maxNumChops, supportFactor);
 
@@ -258,7 +266,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     @SuppressWarnings("deprecation")
     @Nonnull
     @Override
-    public List<ItemStack> getDrops(BlockState blockState, LootContext.Builder context) {
+    public List<ItemStack> getDrops(BlockState blockState, LootParams.Builder context) {
         if (ConfigHandler.COMMON.dropLootForChoppedBlocks.get() && context.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof MyEntity entity) {
             return entity.drops;
         } else {
@@ -419,11 +427,11 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         public void setLevel(@NotNull Level level) {
             super.setLevel(level);
             if (level.isClientSide()) {
-                update(level);
+                update();
             }
         }
 
-        public void update(@NotNull Level level) {
+        public void update() {
             CompoundTag update = ServerUpdateChopsPacket.getPendingUpdate(level, worldPosition);
             if (update != null) {
                 load(update);

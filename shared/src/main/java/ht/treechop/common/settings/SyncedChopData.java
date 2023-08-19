@@ -6,16 +6,24 @@ import net.minecraft.nbt.CompoundTag;
 
 import java.util.Optional;
 
-public class EntityChopSettings extends ChopSettings {
+public class SyncedChopData {
 
+    protected static final String FELLING_ENABLED_KEY = "fellingEnabled";
+    protected static final String CHOPPING_ENABLED_KEY = "choppingEnabled";
+    protected static final String SNEAK_BEHAVIOR_KEY = "sneakBehavior";
+    protected static final String TREES_MUST_HAVE_LEAVES_KEY = "treesMustHaveLeaves";
+    protected static final String CHOP_IN_CREATIVE_MODE_KEY = "chopInCreativeMode";
+    protected static final String IS_SYNCED_KEY = "isSynced";
+
+    private final ChopSettings settings;
     private boolean isSynced = false;
 
-    public EntityChopSettings() {
-        super();
+    public SyncedChopData(ChopSettings settings) {
+        this.settings = settings;
     }
 
-    public EntityChopSettings(ChopSettings template) {
-        super(template);
+    public ChopSettings getSettings() {
+        return settings;
     }
 
     public boolean isSynced() {
@@ -28,16 +36,16 @@ public class EntityChopSettings extends ChopSettings {
 
     public CompoundTag makeSaveData() {
         CompoundTag nbt = new CompoundTag();
-        nbt.putBoolean(CHOPPING_ENABLED_KEY, getChoppingEnabled());
-        nbt.putBoolean(FELLING_ENABLED_KEY, getFellingEnabled());
-        nbt.putString(SNEAK_BEHAVIOR_KEY, getSneakBehavior().name());
-        nbt.putBoolean(TREES_MUST_HAVE_LEAVES_KEY, getTreesMustHaveLeaves());
-        nbt.putBoolean(CHOP_IN_CREATIVE_MODE_KEY, getChopInCreativeMode());
+        nbt.putBoolean(CHOPPING_ENABLED_KEY, settings.getChoppingEnabled());
+        nbt.putBoolean(FELLING_ENABLED_KEY, settings.getFellingEnabled());
+        nbt.putString(SNEAK_BEHAVIOR_KEY, settings.getSneakBehavior().name());
+        nbt.putBoolean(TREES_MUST_HAVE_LEAVES_KEY, settings.getTreesMustHaveLeaves());
+        nbt.putBoolean(CHOP_IN_CREATIVE_MODE_KEY, settings.getChopInCreativeMode());
         nbt.putBoolean(IS_SYNCED_KEY, isSynced());
         return nbt;
     }
 
-    public EntityChopSettings readSaveData(CompoundTag tag) {
+    public SyncedChopData readSaveData(CompoundTag tag) {
         if (tag.contains(IS_SYNCED_KEY)) {
             Optional<Boolean> choppingEnabled = getBoolean(tag, CHOPPING_ENABLED_KEY);
             Optional<Boolean> fellingEnabled = getBoolean(tag, FELLING_ENABLED_KEY);
@@ -48,7 +56,7 @@ public class EntityChopSettings extends ChopSettings {
             SneakBehavior defaultSneakBehavior = ConfigHandler.defaultChopSettings.get().getSneakBehavior();
             String sneakBehaviorId = (tag.contains(SNEAK_BEHAVIOR_KEY)) ? tag.getString(SNEAK_BEHAVIOR_KEY) : "";
             if (sneakBehaviorId.isEmpty()) {
-                setSneakBehavior(defaultSneakBehavior);
+                settings.setSneakBehavior(defaultSneakBehavior);
             } else {
                 SneakBehavior sneakBehavior;
                 try {
@@ -57,13 +65,13 @@ public class EntityChopSettings extends ChopSettings {
                     TreeChop.LOGGER.warn(String.format("NBT contains bad sneak behavior value \"%s\"; using default value \"%s\"", tag.getString(SNEAK_BEHAVIOR_KEY), defaultSneakBehavior.name()));
                     sneakBehavior = defaultSneakBehavior;
                 }
-                setSneakBehavior(sneakBehavior);
+                settings.setSneakBehavior(sneakBehavior);
             }
 
-            setChoppingEnabled(choppingEnabled.orElse(getChoppingEnabled()));
-            setFellingEnabled(fellingEnabled.orElse(getFellingEnabled()));
-            setTreesMustHaveLeaves(onlyChopTreesWithLeaves.orElse(getTreesMustHaveLeaves()));
-            setChopInCreativeMode(chopInCreativeMode.orElse(getChopInCreativeMode()));
+            settings.setChoppingEnabled(choppingEnabled.orElse(settings.getChoppingEnabled()));
+            settings.setFellingEnabled(fellingEnabled.orElse(settings.getFellingEnabled()));
+            settings.setTreesMustHaveLeaves(onlyChopTreesWithLeaves.orElse(settings.getTreesMustHaveLeaves()));
+            settings.setChopInCreativeMode(chopInCreativeMode.orElse(settings.getChopInCreativeMode()));
 
             if (isSynced.orElse(false)) {
                 setSynced();
@@ -71,5 +79,11 @@ public class EntityChopSettings extends ChopSettings {
         }
 
         return this;
+    }
+
+    protected Optional<Boolean> getBoolean(CompoundTag CompoundTag, String key) {
+        return (CompoundTag.contains(key))
+                ? Optional.of(CompoundTag.getBoolean(key))
+                : Optional.empty();
     }
 }

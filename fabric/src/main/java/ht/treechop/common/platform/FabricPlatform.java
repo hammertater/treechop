@@ -4,12 +4,14 @@ import ht.treechop.api.ChopData;
 import ht.treechop.api.ChopDataImmutable;
 import ht.treechop.api.TreeChopEvents;
 import ht.treechop.api.TreeData;
+import ht.treechop.common.chop.ChopResult;
+import ht.treechop.common.chop.FellTreeResult;
 import ht.treechop.common.registry.FabricModBlocks;
-import ht.treechop.common.util.TreeDataImpl;
 import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,13 +34,8 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public TreeData detectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, boolean overrideLeaves) {
-        TreeData treeData = new TreeDataImpl(overrideLeaves);
-        boolean canceled = !TreeChopEvents.DETECT_TREE.invoker().onDetectTree(level, player, blockPos, blockState, overrideLeaves);
-        if (canceled) {
-            return TreeDataImpl.empty();
-        }
-        return treeData;
+    public TreeData detectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, TreeData treeData) {
+        return TreeChopEvents.DETECT_TREE.invoker().onDetectTree(level, player, blockPos, blockState, treeData);
     }
 
     // Returns true if chopping should continue
@@ -54,14 +51,14 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData, boolean felled) {
+    public void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData, ChopResult chopResult) {
         TreeChopEvents.AFTER_CHOP.invoker().afterChop(
                 level,
                 agent,
                 pos,
                 blockState,
                 chopData,
-                felled
+                chopResult instanceof FellTreeResult
         );
     }
 
@@ -77,12 +74,12 @@ public class FabricPlatform implements Platform {
 
     @Override
     public ResourceLocation getResourceLocationForBlock(Block block) {
-        return Registry.BLOCK.getKey(block);
+        return BuiltInRegistries.BLOCK.getKey(block);
     }
 
     @Override
     public ResourceLocation getResourceLocationForItem(Item item) {
-        return Registry.ITEM.getKey(item);
+        return BuiltInRegistries.ITEM.getKey(item);
     }
 
     @Override

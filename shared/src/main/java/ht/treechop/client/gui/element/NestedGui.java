@@ -1,6 +1,5 @@
 package ht.treechop.client.gui.element;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.gui.util.IPositionalGui;
 import ht.treechop.client.gui.util.ScreenBox;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -20,8 +19,6 @@ public abstract class NestedGui extends AbstractWidget implements ContainerEvent
     public NestedGui(int x, int y, int width, int height, Component message) {
         super(x, y, width, height, message);
     }
-
-    public abstract void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks);
 
     public abstract int getMinimumWidth();
 
@@ -74,8 +71,8 @@ public abstract class NestedGui extends AbstractWidget implements ContainerEvent
         this.box = box;
         width = box.getWidth();
         height = box.getHeight();
-        x = box.getLeft();
-        y = box.getTop();
+        setX(box.getLeft());
+        setY(box.getTop());
     }
 
     public Optional<GuiEventListener> getChildAt(double x, double y) {

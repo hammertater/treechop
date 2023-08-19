@@ -1,43 +1,57 @@
 package ht.treechop.common.util;
 
-import ht.treechop.api.TreeData;
-import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.api.AbstractTreeData;
+import ht.treechop.common.chop.Chop;
+import ht.treechop.common.chop.ChopUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
-public class TreeDataImpl implements TreeData {
+@Deprecated
+public class TreeDataImpl extends AbstractTreeData {
+    private final Level level;
+    private int chopsToFell;
     private boolean hasLeaves;
-    private Set<BlockPos> logBlocks;
+    private Set<BlockPos> logBlocks = new HashSet<>();
 
-    public TreeDataImpl() {
-        logBlocks = null;
-    }
-
-    public TreeDataImpl(boolean overrideLeaves) {
-        this();
+    public TreeDataImpl(Level level, boolean overrideLeaves) {
+        this.level = level;
         this.hasLeaves = overrideLeaves;
     }
 
-    public static TreeDataImpl empty() {
-        return new TreeDataImpl();
+    public TreeDataImpl(Level level) {
+        this(level, false);
     }
 
-    @Override
-    public Optional<Set<BlockPos>> getLogBlocks() {
-        return Optional.ofNullable(logBlocks);
+    public static TreeDataImpl empty(Level level) {
+        return new TreeDataImpl(level);
     }
 
     @Override
     public void setLogBlocks(Set<BlockPos> logBlocks) {
         this.logBlocks = logBlocks;
+        this.chopsToFell = ChopUtil.numChopsToFell(level, logBlocks.stream());
     }
 
     @Override
-    public Set<BlockPos> getLogBlocksOrEmpty() {
-        return getLogBlocks().orElse(Collections.emptySet());
+    public int getChops() {
+        return 0;
+    }
+
+    @Override
+    public Stream<BlockPos> streamLogs() {
+        return logBlocks.stream();
+    }
+
+    @Override
+    public Stream<BlockPos> streamLeaves() {
+        return Stream.empty(); // TODO
     }
 
     @Override
@@ -46,12 +60,18 @@ public class TreeDataImpl implements TreeData {
     }
 
     @Override
+    public boolean readyToFell(int numChops) {
+        return ChopUtil.enoughChopsToFell(numChops, chopsToFell);
+    }
+
+    @Override
+    public Collection<Chop> chop(BlockPos target, int numChops) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public void setLeaves(boolean hasLeaves) {
         this.hasLeaves = hasLeaves;
     }
 
-    @Override
-    public boolean isAProperTree(boolean mustHaveLeaves) {
-        return (hasLeaves || !mustHaveLeaves) && getLogBlocksOrEmpty().size() >= ((hasLeaves && ConfigHandler.COMMON.breakLeaves.get()) ? 1 : 2);
-    }
 }

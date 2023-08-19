@@ -55,11 +55,23 @@ public class ClassUtil {
         }
     }
 
+    @Nullable
     public static IStrippableBlock getStrippableBlock(Block block) {
         if (block instanceof IStrippableBlock strippableBlock) {
             return strippableBlock;
         } else if (TreeChop.api.getRegisteredChoppableBlockBehavior(block) instanceof IStrippableBlock strippableBlock) {
             return strippableBlock;
+        } else {
+            return null;
+        }
+    }
+
+    @Nullable
+    public static ITreeBlock getTreeBlock(Block block) {
+        if (block instanceof ITreeBlock treeBlock) {
+            return treeBlock;
+        } else if (TreeChop.api.getRegisteredChoppableBlockBehavior(block) instanceof ITreeBlock treeBlock) {
+            return treeBlock;
         } else {
             return null;
         }

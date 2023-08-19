@@ -3,7 +3,11 @@
   "minVersion": "0.8",
   "package": "ht.treechop.mixin",
   "compatibilityLevel": "JAVA_17",
+  "refmap": "treechop.mixins.refmap.json",
   "mixins": [
+  ],
+  "client": [
+    "GuiMixin"
   ],
   "injectors": {
     "defaultRequire": 1

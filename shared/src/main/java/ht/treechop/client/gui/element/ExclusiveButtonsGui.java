@@ -1,8 +1,9 @@
 package ht.treechop.client.gui.element;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import ht.treechop.client.gui.util.GUIUtil;
 import ht.treechop.client.gui.widget.StickyWidget;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -51,7 +52,7 @@ public class ExclusiveButtonsGui extends NestedGui {
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         int x = getBox().getLeft();
         int y = getBox().getTop();
 
@@ -59,9 +60,9 @@ public class ExclusiveButtonsGui extends NestedGui {
         int maxY = y;
 
         for (AbstractWidget widget : widgets) {
-            widget.x = maxX;
-            widget.y = y;
-            widget.render(poseStack, mouseX, mouseY, partialTicks);
+            widget.setX(maxX);
+            widget.setY(y);
+            widget.render(gui, mouseX, mouseY, partialTicks);
 
             maxX = Math.max(maxX, maxX + widget.getWidth());
             maxY = Math.max(maxY, y + widget.getHeight());
@@ -84,7 +85,7 @@ public class ExclusiveButtonsGui extends NestedGui {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput out) {
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 

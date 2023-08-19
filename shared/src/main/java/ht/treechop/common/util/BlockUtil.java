@@ -5,10 +5,10 @@ import net.minecraft.world.level.block.state.properties.Property;
 
 public class BlockUtil {
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static BlockState copyStateProperties(BlockState blockState, BlockState stateToCopy) {
-        for(Property property : stateToCopy.getProperties()) {
+    public static BlockState copyStateProperties(BlockState blockState, BlockState stateToCopyFrom) {
+        for(Property property : stateToCopyFrom.getProperties()) {
             if (blockState.hasProperty(property)) {
-                blockState = blockState.setValue(property, stateToCopy.getValue(property));
+                blockState = blockState.setValue(property, stateToCopyFrom.getValue(property));
             }
         }
         return blockState;

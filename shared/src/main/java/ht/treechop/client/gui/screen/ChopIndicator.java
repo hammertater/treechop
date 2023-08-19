@@ -2,14 +2,13 @@ package ht.treechop.client.gui.screen;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.Client;
 import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -18,11 +17,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
-public class ChopIndicator extends GuiComponent {
+public class ChopIndicator {
 
     private static final double IMAGE_SCALE = 1.0;
 
-    public static void render(PoseStack poseStack, int windowWidth, int windowHeight) {
+    public static void render(GuiGraphics gui, int windowWidth, int windowHeight) {
         Minecraft minecraft = Minecraft.getInstance();
         HitResult mouseOver = minecraft.hitResult;
         Player player = minecraft.player;
@@ -51,7 +50,7 @@ public class ChopIndicator extends GuiComponent {
                 int imageHeight = (int) (sprite.height * IMAGE_SCALE);
 
                 sprite.blit(
-                        poseStack,
+                        gui,
                         indicatorCenterX - imageWidth / 2,
                         indicatorCenterY - imageHeight / 2,
                         imageWidth,
@@ -77,8 +76,7 @@ public class ChopIndicator extends GuiComponent {
         boolean wantToChop = ChopUtil.canChopWithTool(player, level, pos) && ChopUtil.playerWantsToChop(minecraft.player, chopSettings);
         if (wantToChop) {
             if (ChopUtil.playerWantsToFell(player, chopSettings)) {
-                int maxNumTreeBlocks = ConfigHandler.COMMON.maxNumTreeBlocks.get();
-                return Client.treeCache.getTree(level, pos, maxNumTreeBlocks).isAProperTree(chopSettings.getTreesMustHaveLeaves());
+                return Client.treeCache.getTree(level, pos).isAProperTree(chopSettings.getTreesMustHaveLeaves());
             } else {
                 return ChopUtil.isBlockChoppable(level, pos);
             }

@@ -1,5 +1,6 @@
 package ht.treechop.api;
 
+import ht.treechop.common.util.TreeDataImpl;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.core.BlockPos;
@@ -34,13 +35,14 @@ public final class TreeChopEvents {
     );
 
     public static final Event<DetectTree> DETECT_TREE = EventFactory.createArrayBacked(DetectTree.class,
-            (listeners) -> (world, player, pos, state, overrideHasLeaves) -> {
+            (listeners) -> (world, player, pos, state, treeData) -> {
                 for (DetectTree listener : listeners) {
-                    if (!listener.onDetectTree(world, player, pos, state, overrideHasLeaves)) {
-                        return false;
+                    treeData = listener.onDetectTree(world, player, pos, state, treeData);
+                    if (treeData == null) {
+                        return TreeDataImpl.empty(world);
                     }
                 }
-                return true;
+                return treeData;
             }
     );
 
@@ -71,16 +73,16 @@ public final class TreeChopEvents {
     @FunctionalInterface
     public interface DetectTree {
         /**
-         * Used to determine whether a choppable block belongs to a tree. For example,
+         * Used to determine what tree a block belongs to. This is used to:
          * <ul>
-         *   <li> to trigger chopping when a choppable block is broken
-         *   <li> to activate the on-screen chop indicator when the player highlights a choppable block
-         *   <li> to add tree information to Jade/WTHIT/TheOneProbe/etc. popups
+         *   <li> trigger chopping when a choppable block is broken
+         *   <li> activate the on-screen chop indicator when the player highlights a choppable block
+         *   <li> add tree information to Jade/WTHIT/TheOneProbe/etc. popups
          * </ul>
          * Note that detection events only trigger for blocks that are considered choppable (see {@link TreeChopAPI#isBlockChoppable}).
          *
-         * @return false to prevent tree detection
+         * @return null to prevent tree detection
          */
-        boolean onDetectTree(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, boolean overrideLeaves);
+        TreeData onDetectTree(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, TreeData treeData);
     }
 }
