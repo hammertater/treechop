@@ -16,8 +16,8 @@ public class Terraformers implements ISimpleChoppableBlock {
                 ITreeChopBlockBehavior handler = new ISimpleChoppableBlock() {
                     @Override
                     public int getRadius(BlockGetter level, BlockPos blockPos, BlockState blockState) {
-                        if (blockState.getBlock() instanceof BareSmallLogBlock smallBlock) {
-                            return smallBlock.getLogRadius();
+                        if (blockState.getBlock() instanceof BareSmallLogBlock) {
+                            return 5;
                         } else {
                             return 8;
                         }

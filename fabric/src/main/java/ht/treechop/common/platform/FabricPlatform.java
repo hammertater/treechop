@@ -8,10 +8,9 @@ import ht.treechop.common.chop.ChopResult;
 import ht.treechop.common.chop.FellTreeResult;
 import ht.treechop.common.registry.FabricModBlocks;
 import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -74,12 +73,12 @@ public class FabricPlatform implements Platform {
 
     @Override
     public ResourceLocation getResourceLocationForBlock(Block block) {
-        return BuiltInRegistries.BLOCK.getKey(block);
+        return Registry.BLOCK.getKey(block);
     }
 
     @Override
     public ResourceLocation getResourceLocationForItem(Item item) {
-        return BuiltInRegistries.ITEM.getKey(item);
+        return Registry.ITEM.getKey(item);
     }
 
     @Override
