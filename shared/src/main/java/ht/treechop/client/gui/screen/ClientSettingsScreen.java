@@ -1,7 +1,6 @@
 package ht.treechop.client.gui.screen;
 
-import ht.treechop.client.settings.ClientChopSettings;
-import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.TreeChop;
 import ht.treechop.client.Client;
 import ht.treechop.client.gui.element.*;
@@ -9,6 +8,7 @@ import ht.treechop.client.gui.util.GUIUtil;
 import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.gui.widget.StickyWidget;
 import ht.treechop.client.gui.widget.ToggleWidget;
+import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
@@ -66,13 +66,14 @@ public class ClientSettingsScreen extends Screen {
         ));
 
         final int doneButtonWidth = 200;
-        doneButton = addRenderableWidget(new Button.Builder(Component.translatable("gui.done"), button -> onClose())
-                        .bounds((width - doneButtonWidth) / 2,
-                                getDoneButtonTop(),
-                                doneButtonWidth,
-                                GUIUtil.BUTTON_HEIGHT)
-                        .build()
-        );
+        doneButton = addRenderableWidget(new Button(
+                (width - doneButtonWidth) / 2,
+                getDoneButtonTop(),
+                doneButtonWidth,
+                GUIUtil.BUTTON_HEIGHT,
+                Component.translatable("gui.done"),
+                button -> onClose()
+        ));
     }
 
     private void addBufferRows(List<NestedGui> rows) {
@@ -289,34 +290,35 @@ public class ClientSettingsScreen extends Screen {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         if (needToRebuild) {
             clearWidgets();
             rebuild();
             needToRebuild = false;
         }
 
-        renderBackground(gui);
+        renderBackground(poseStack);
 
-        doneButton.setY(getDoneButtonTop());
+        doneButton.y = getDoneButtonTop();
 
         int listTop = getListTop();
         int listBottom = getListBottom();
         optionsList.setBox(0, listTop, width, listBottom - listTop);
-        optionsList.render(gui, mouseX, mouseY, partialTicks);
-        gui.drawCenteredString(this.font, this.title, this.width / 2, getTitleTop(), 16777215);
-        super.render(gui, mouseX, mouseY, partialTicks);
+        optionsList.render(poseStack, mouseX, mouseY, partialTicks);
+        drawCenteredString(poseStack, this.font, this.title, this.width / 2, getTitleTop(), 16777215);
+        super.render(poseStack, mouseX, mouseY, partialTicks);
         // TODO: check out ClientSettingsScreen.func_243293_a for draw reordering; might be important for tooltips
 
         if (ConfigHandler.CLIENT.showTooltips.get()) {
-            GUIUtil.renderTooltip(gui);
+            GUIUtil.renderTooltip(poseStack);
         }
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
-    public void renderBackground(GuiGraphics gui) {
-        super.renderBackground(gui);
-        gui.fill(INSET_SIZE, INSET_SIZE, width - INSET_SIZE, height - INSET_SIZE, 0x00000080);
+    public void renderBackground(PoseStack poseStack) {
+        super.renderBackground(poseStack);
+        fill(poseStack, INSET_SIZE, INSET_SIZE, width - INSET_SIZE, height - INSET_SIZE, 0x00000080);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package ht.treechop.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.gui.util.GUIUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -23,10 +23,10 @@ public class StickyWidget extends AbstractWidget {
     }
 
     @Override
-    public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         this.active = stateSupplier.get() == State.Up;
         this.height = Math.min(this.height, GUIUtil.BUTTON_HEIGHT);
-        super.render(gui, mouseX, mouseY, partialTicks);
+        super.render(poseStack, mouseX, mouseY, partialTicks);
     }
 
     public void onClick(double mouseX, double mouseY) {
@@ -39,8 +39,10 @@ public class StickyWidget extends AbstractWidget {
     }
 
     @Override
-    public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
+    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
+        Font font = minecraft.font;
+        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
 
         if (stateSupplier.get() != State.Locked) {
@@ -48,20 +50,17 @@ public class StickyWidget extends AbstractWidget {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.enableDepthTest();
-            gui.blit(WIDGETS_LOCATION, getX(), getY(), 0, 46 + i * 20, this.width / 2, this.height);
-            gui.blit(WIDGETS_LOCATION, getX() + this.width / 2, getY(), 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+            this.blit(poseStack, this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
+            this.blit(poseStack, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+            this.renderBg(poseStack, minecraft, mouseX, mouseY);
         }
 
         int j = getFGColor();
-        gui.drawCenteredString(minecraft.font, this.getMessage(), getX() + this.width / 2, getY() + (this.height - 8) / 2, j | (int)Math.ceil(this.alpha * 255.0F) << 24);
-    }
-
-    private int getYImage(boolean hoveredOrFocused) {
-        return active ? (hoveredOrFocused ? 2 : 1) : 0;
+        drawCenteredString(poseStack, font, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | (int)Math.ceil(this.alpha * 255.0F) << 24);
     }
 
     @Override
-    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+    public void updateNarration(NarrationElementOutput out) {
         // TODO
     }
 

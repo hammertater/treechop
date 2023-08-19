@@ -17,12 +17,13 @@ class TreeMapperTest {
 
         List<Vector2> groundedBlocks = new LinkedList<>();
 
-        FloodFill<Vector2> flood = new FloodFillImpl<>(graph, pos -> world.get(pos) == TestBlock.LOG);
-        Set<Vector2> fill = flood.fill(pos(0, 1)).takeWhile(pos -> {
+        Set<Vector2> fill = GraphUtil.flood(
+                GraphUtil.filter(graph, pos -> world.get(pos) == TestBlock.LOG),
+                pos(0, 1)
+        ).fill().takeWhile(pos -> {
             if (world.get(pos) == TestBlock.DIRT) {
                 groundedBlocks.add(pos);
             }
-
             return true;
         }).collect(Collectors.toSet());
 

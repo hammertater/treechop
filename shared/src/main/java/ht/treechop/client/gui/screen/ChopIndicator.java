@@ -2,13 +2,13 @@ package ht.treechop.client.gui.screen;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.client.Client;
 import ht.treechop.client.gui.util.Sprite;
 import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -21,7 +21,7 @@ public class ChopIndicator {
 
     private static final double IMAGE_SCALE = 1.0;
 
-    public static void render(GuiGraphics gui, int windowWidth, int windowHeight) {
+    public static void render(PoseStack poseStack, int windowWidth, int windowHeight) {
         Minecraft minecraft = Minecraft.getInstance();
         HitResult mouseOver = minecraft.hitResult;
         Player player = minecraft.player;
@@ -50,7 +50,7 @@ public class ChopIndicator {
                 int imageHeight = (int) (sprite.height * IMAGE_SCALE);
 
                 sprite.blit(
-                        gui,
+                        poseStack,
                         indicatorCenterX - imageWidth / 2,
                         indicatorCenterY - imageHeight / 2,
                         imageWidth,

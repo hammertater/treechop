@@ -17,8 +17,8 @@ public class FabricModBlocks {
 
     public static final Block CHOPPED_LOG = new FabricChoppedLogBlock(
             FabricBlockSettings.of(
-                    Material.WOOD,
-                    MaterialColor.WOOD)
+                            Material.WOOD,
+                            MaterialColor.WOOD)
                     .strength(2.0F)
                     .sound(SoundType.WOOD)
     );

@@ -10,7 +10,7 @@ import ht.treechop.compat.HugeFungusHandler;
 import ht.treechop.compat.HugeMushroomHandler;
 import ht.treechop.compat.ProblematicLeavesTreeHandler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -123,7 +123,7 @@ public class ConfigHandler {
     }
 
     private static Block inferUnstripped(Block block) {
-        ResourceLocation resource = BuiltInRegistries.BLOCK.getKey(block);
+        ResourceLocation resource = Registry.BLOCK.getKey(block);
         return inferUnstripped(resource);
     }
 
@@ -131,7 +131,7 @@ public class ConfigHandler {
         if (resource != null) {
             ResourceLocation unstripped = getFilteredResourceLocation(resource, "stripped");
             if (unstripped != null) {
-                return BuiltInRegistries.BLOCK.get(unstripped);
+                return Registry.BLOCK.get(unstripped);
             }
         }
         return Blocks.AIR;
@@ -150,12 +150,12 @@ public class ConfigHandler {
 
     public static Stream<Item> getIdentifiedItems(String stringId) {
         ResourceIdentifier id = ResourceIdentifier.from(stringId);
-        return id.resolve(BuiltInRegistries.ITEM);
+        return id.resolve(Registry.ITEM);
     }
 
     public static Stream<Block> getIdentifiedBlocks(String stringId) {
         ResourceIdentifier id = ResourceIdentifier.from(stringId);
-        return id.resolve(BuiltInRegistries.BLOCK);
+        return id.resolve(Registry.BLOCK);
     }
 
     public static Stream<Block> getIdentifiedBlocks(List<? extends String> strings) {

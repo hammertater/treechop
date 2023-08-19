@@ -71,4 +71,8 @@ class SupportGraphTest {
         assertEquals(4, result.getSupport(pos(1, 1)).distinct().count());
     }
 
+    @Test
+    void supporter() {
+    }
+
 }

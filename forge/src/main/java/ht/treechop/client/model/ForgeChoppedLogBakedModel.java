@@ -37,17 +37,16 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
     public static ModelProperty<Integer> RADIUS = new ModelProperty<>();
     public static ModelProperty<ChoppedLogShape> CHOPPED_LOG_SHAPE = new ModelProperty<>();
 
-    public static void overrideBlockStateModels(ModelEvent.ModifyBakingResult event) {
+    public static void overrideBlockStateModels(ModelEvent.BakingCompleted event) {
         for (BlockState blockState : ForgeModBlocks.CHOPPED_LOG.get().getStateDefinition().getPossibleStates()) {
             ModelResourceLocation variantMRL = BlockModelShaper.stateToModelLocation(blockState);
-            BakedModel existingModel = event.getModels().get(variantMRL);
-            if (existingModel == null) {
+            BakedModel existingModel = event.getModelManager().getModel(variantMRL);
+            if (existingModel == event.getModelManager().getMissingModel()) {
                 TreeChop.LOGGER.warn("Did not find the expected vanilla baked model(s) for treechop:chopped_log in registry");
             } else if (existingModel instanceof ForgeChoppedLogBakedModel) {
                 TreeChop.LOGGER.warn("Tried to replace ChoppedLogBakedModel twice");
             } else {
-                BakedModel customModel = new ForgeChoppedLogBakedModel();
-                ForgeChoppedLogBakedModel.setDefaultSprite(event.getModels().get(variantMRL).getParticleIcon());
+                BakedModel customModel = new ForgeChoppedLogBakedModel().bake(event.getModelBakery(), event.getModelBakery().getAtlasSet()::getSprite, null, null);
                 event.getModels().put(variantMRL, customModel);
             }
         }

@@ -1,6 +1,6 @@
 package ht.treechop.client.gui.util;
 
-import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
@@ -37,13 +37,12 @@ public class GUIUtil {
         tooltipText = text;
     }
 
-    public static void renderTooltip(GuiGraphics gui) {
+    public static void renderTooltip(PoseStack poseStack) {
         Screen screen = Minecraft.getInstance().screen;
         if (screen != null && tooltipText != null) {
             int maxWidth = Math.max(Math.max(tooltipX, screen.width - tooltipX) - TOOLTIP_WIDTH_BUFFER, TOOLTIP_WIDTH_BUFFER);
-            Font font = Minecraft.getInstance().font;
-            List<FormattedCharSequence> splitText = font.split(tooltipText, maxWidth);
-            gui.renderTooltip(font, splitText, tooltipX, tooltipY);
+            List<FormattedCharSequence> splitText = Minecraft.getInstance().font.split(tooltipText, maxWidth);
+            screen.renderTooltip(poseStack, splitText, tooltipX, tooltipY);
         }
 
         tooltipText = null;

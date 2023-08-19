@@ -1,6 +1,6 @@
 package ht.treechop.compat;
 
-import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.blaze3d.vertex.PoseStack;
 import ht.treechop.TreeChop;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.settings.ChopSettings;
@@ -110,7 +110,7 @@ public class TheOneProbeInfoProvider implements IProbeInfoProvider {
         }
 
         @Override
-        public void render(GuiGraphics gui, int i, int i1) {
+        public void render(PoseStack poseStack, int i, int i1) {
         }
 
         @Override

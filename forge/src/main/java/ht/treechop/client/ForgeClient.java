@@ -1,15 +1,18 @@
 package ht.treechop.client;
 
+import ht.treechop.TreeChop;
 import ht.treechop.client.gui.screen.ChopIndicator;
 import ht.treechop.client.model.ForgeChoppedLogBakedModel;
 import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.network.ForgePacketHandler;
+import ht.treechop.common.network.ServerUpdateChopsPacket;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -61,6 +64,13 @@ public class ForgeClient extends Client {
                         return;
                     }
                 }
+            }
+        }
+
+        @SubscribeEvent
+        public static void onLoadLevel(LevelEvent.Load event) {
+            if (!TreeChop.platform.isDedicatedServer()) {
+                ServerUpdateChopsPacket.checkLevel(event.getLevel());
             }
         }
     }
