@@ -1,6 +1,6 @@
 # HT's TreeChop
 
-For a far more fun description, see https://www.curseforge.com/minecraft/mc-mods/treechop.
+For a far more fun description, see [CurseForge](https://www.curseforge.com/minecraft/mc-mods/treechop) or [Modrinth](https://modrinth.com/mod/treechop).
 
 ## Are trees leaving behind floating blocks?
 
