@@ -97,6 +97,9 @@ dependencies {
     implementation project(":shared")
     implementation project(":tuber")
 
+    runtimeOnly fg.deobf("curse.maven:multi-mine-227887:4667519")
+    runtimeOnly fg.deobf("curse.maven:excavar-561528:3909137")
+
     // compile against the API
     compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-5.13.4")
 
@@ -130,6 +133,9 @@ dependencies {
 //    runtimeOnly fg.deobf("curse.maven:mutil-351914:3941314")
 //    runtimeOnly fg.deobf("curse.maven:tetra-289712:4379764")
 
+    compileOnly fg.deobf("curse.maven:silent-lib-242998:3968715")
+    compileOnly fg.deobf("curse.maven:silent-gear-297039:4397693")
+
     runtimeOnly fg.deobf("curse.maven:silent-lib-242998:3968715")
     runtimeOnly fg.deobf("curse.maven:silent-gear-297039:4397693")
 
@@ -149,6 +155,7 @@ test {
 
 tasks.withType(JavaCompile) {
     source(project(":shared").sourceSets.main.allSource)
+    source(project(":tuber").sourceSets.main.allSource)
 }
 
 processResources {

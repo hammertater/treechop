@@ -35,8 +35,7 @@ public class ForgeCommon {
         BlockState blockState = event.getState();
         BlockPos pos = event.getPos();
 
-        boolean skip = MinecraftForge.EVENT_BUS.post(new InternalChopEvent.PreChopEvent(level, agent, pos));
-        if (skip || ChopUtil.chop(agent, level, pos, blockState, tool, event)) {
+        if (ChopUtil.chop(agent, level, pos, blockState, tool, event)) {
             event.setCanceled(true);
         }
     }
