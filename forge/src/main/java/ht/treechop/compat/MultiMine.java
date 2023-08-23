@@ -20,6 +20,7 @@ public class MultiMine {
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
+        // TODO: Check if Multi Mine is loaded
         if (ConfigHandler.COMMON.compatForMultiMine.get()) {
             MinecraftForge.EVENT_BUS.register(MultiMine.EventHandler.class);
         }
@@ -30,6 +31,7 @@ public class MultiMine {
         public static void onChop(InternalChopEvent.PreChopEvent event) {
             Player player = event.getPlayer();
             long gameTick = event.getLevel().getGameTime();
+            // TODO: Check for repeated block pos instead of player
             if (lastChopTickByPlayers.getOrDefault(player, TickUtil.NEVER) == gameTick) {
                 event.setCanceled(true);
             } else {
