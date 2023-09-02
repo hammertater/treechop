@@ -38,8 +38,8 @@ dependencies {
 //    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-5.9.0"
 //    modRuntimeOnly "lol.bai:badpackets:fabric-0.2.0"
 
-    modCompileOnly "curse.maven:jade-324717:3952631"
-//    modRuntimeOnly "curse.maven:jade-324717:3952631"
+    modCompileOnly "curse.maven:jade-324717:4328558"
+    modRuntimeOnly "curse.maven:jade-324717:4328558"
 
 //    modRuntimeOnly "curse.maven:sodium-394468:4381988" // Doesn't wanna work in IntelliJ
 //    modRuntimeOnly "curse.maven:indium-459496:3957480"
