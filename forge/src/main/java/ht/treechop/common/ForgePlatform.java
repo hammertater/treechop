@@ -1,9 +1,6 @@
 package ht.treechop.common;
 
-import ht.treechop.api.ChopData;
-import ht.treechop.api.ChopDataImmutable;
-import ht.treechop.api.ChopEvent;
-import ht.treechop.api.TreeData;
+import ht.treechop.api.*;
 import ht.treechop.common.chop.ChopResult;
 import ht.treechop.common.chop.FellTreeResult;
 import ht.treechop.common.platform.ModLoader;
@@ -76,6 +73,20 @@ public class ForgePlatform implements Platform {
                 chopData,
                 chopResult instanceof FellTreeResult
         ));
+    }
+
+    @Override
+    public boolean startFellTreeEvent(ServerPlayer player, Level level, BlockPos choppedPos, FellData fellData) {
+        ChopEvent.BeforeFellEvent beforeFellEvent = new ChopEvent.BeforeFellEvent(
+                level,
+                player,
+                choppedPos,
+                level.getBlockState(choppedPos),
+                fellData
+        );
+
+        boolean canceled = MinecraftForge.EVENT_BUS.post(beforeFellEvent);
+        return !canceled;
     }
 
     @Override

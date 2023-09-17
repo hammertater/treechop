@@ -2,6 +2,7 @@ package ht.treechop.common.platform;
 
 import ht.treechop.api.ChopData;
 import ht.treechop.api.ChopDataImmutable;
+import ht.treechop.api.FellData;
 import ht.treechop.api.TreeData;
 import ht.treechop.common.chop.ChopResult;
 import net.minecraft.core.BlockPos;
@@ -21,11 +22,11 @@ public interface Platform {
 
     boolean uses(ModLoader loader);
 
-    TreeData detectTreeEvent(Level level, ServerPlayer agent, BlockPos blockPos, BlockState blockState, TreeData treeData);
+    TreeData detectTreeEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, TreeData treeData);
 
-    boolean startChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData, Object trigger);
+    boolean startChopEvent(ServerPlayer player, ServerLevel level, BlockPos pos, BlockState blockState, ChopData chopData, Object trigger);
 
-    void finishChopEvent(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData, ChopResult felled);
+    void finishChopEvent(ServerPlayer player, ServerLevel level, BlockPos pos, BlockState blockState, ChopDataImmutable chopData, ChopResult chopResult);
 
     Block getChoppedLogBlock();
 
@@ -36,4 +37,6 @@ public interface Platform {
     ResourceLocation getResourceLocationForItem(Item item);
 
     BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state);
+
+    boolean startFellTreeEvent(ServerPlayer player, Level level, BlockPos choppedPos, FellData fellData);
 }

@@ -98,17 +98,17 @@ public class ChopUtil {
                 : 1.0;
     }
 
-    public static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean fellIfPossible) {
+    public static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean fellIfPossible, boolean breakLeaves) {
         return fellIfPossible
-                ? getChopResult(level, origin, chopSettings, numChops)
+                ? getChopResult(level, origin, chopSettings, numChops, breakLeaves)
                 : tryToChopWithoutFelling(level, origin, numChops);
     }
 
-    private static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops) {
+    private static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean breakLeaves) {
         TreeData tree = getTree(level, origin);
 
         if (tree.isAProperTree(chopSettings.getTreesMustHaveLeaves())) {
-            return getChopResult(level, origin, tree, numChops);
+            return getChopResult(level, origin, tree, numChops, breakLeaves);
         } else {
             return ChopResult.IGNORED;
         }
@@ -125,13 +125,13 @@ public class ChopUtil {
         return TreeChop.platform.detectTreeEvent(level, null, origin, level.getBlockState(origin), tree);
     }
 
-    private static ChopResult getChopResult(Level level, BlockPos origin, TreeData tree, int numChops) {
+    private static ChopResult getChopResult(Level level, BlockPos origin, TreeData tree, int numChops, boolean breakLeaves) {
         if (tree.streamLogs().findFirst().isEmpty()) {
             return ChopResult.IGNORED;
         }
 
         if (tree.readyToFell(tree.getChops() + numChops)) {
-            return new FellTreeResult(level, tree);
+            return new FellTreeResult(level, tree, breakLeaves);
         } else {
             return new ChopTreeResult(level, tree.chop(origin, numChops));
         }
@@ -231,11 +231,12 @@ public class ChopUtil {
                 pos,
                 chopSettings,
                 chopData.getNumChops(),
-                chopData.getFelling()
+                chopData.getFelling(),
+                ConfigHandler.COMMON.breakLeaves.get()
         );
 
         if (chopResult != ChopResult.IGNORED) {
-            chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
+            chopResult.apply(pos, agent, tool);
             TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData, chopResult);
             tool.mineBlock(level, blockState, pos, agent);
 

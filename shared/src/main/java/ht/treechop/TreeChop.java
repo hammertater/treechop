@@ -1,7 +1,6 @@
 package ht.treechop;
 
 import ht.treechop.api.TreeChopAPI;
-import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.compat.HugeFungusHandler;
 import ht.treechop.compat.HugeMushroomHandler;

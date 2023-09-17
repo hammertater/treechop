@@ -5,10 +5,7 @@ import ht.treechop.api.TreeData;
 import ht.treechop.client.Client;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.chop.ChopUtil;
-import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.config.Lazy;
 import ht.treechop.common.settings.ChopSettings;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -19,8 +16,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 

@@ -1,9 +1,6 @@
 package ht.treechop.common.platform;
 
-import ht.treechop.api.ChopData;
-import ht.treechop.api.ChopDataImmutable;
-import ht.treechop.api.TreeChopEvents;
-import ht.treechop.api.TreeData;
+import ht.treechop.api.*;
 import ht.treechop.common.chop.ChopResult;
 import ht.treechop.common.chop.FellTreeResult;
 import ht.treechop.common.registry.FabricModBlocks;
@@ -58,6 +55,16 @@ public class FabricPlatform implements Platform {
                 blockState,
                 chopData,
                 chopResult instanceof FellTreeResult
+        );
+    }
+
+    @Override
+    public boolean startFellTreeEvent(ServerPlayer player, Level level, BlockPos choppedPos, FellData fellData) {
+        return TreeChopEvents.BEFORE_FELL.invoker().beforeFell(
+                level,
+                player,
+                choppedPos,
+                fellData
         );
     }
 
