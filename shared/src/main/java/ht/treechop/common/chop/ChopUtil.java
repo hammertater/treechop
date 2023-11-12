@@ -98,15 +98,13 @@ public class ChopUtil {
                 : 1.0;
     }
 
-    public static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean fellIfPossible, boolean breakLeaves) {
+    public static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean fellIfPossible, boolean breakLeaves, TreeData tree) {
         return fellIfPossible
-                ? getChopResult(level, origin, chopSettings, numChops, breakLeaves)
+                ? getChopResult(level, origin, chopSettings, numChops, breakLeaves, tree)
                 : tryToChopWithoutFelling(level, origin, numChops);
     }
 
-    private static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean breakLeaves) {
-        TreeData tree = getTree(level, origin);
-
+    private static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean breakLeaves, TreeData tree) {
         if (tree.isAProperTree(chopSettings.getTreesMustHaveLeaves())) {
             return getChopResult(level, origin, tree, numChops, breakLeaves);
         } else {
@@ -216,9 +214,13 @@ public class ChopUtil {
             return false;
         }
 
+        boolean felling = ChopUtil.playerWantsToFell(agent, chopSettings);
+        TreeData tree = felling ? getTree(level, pos) : null;
+
         ChopData chopData = new ChopDataImpl(
                 ChopUtil.getNumChopsByTool(tool, blockState),
-                ChopUtil.playerWantsToFell(agent, chopSettings)
+                felling,
+                tree
         );
 
         boolean doChop = TreeChop.platform.startChopEvent(agent, level, pos, blockState, chopData, trigger);
@@ -232,7 +234,8 @@ public class ChopUtil {
                 chopSettings,
                 chopData.getNumChops(),
                 chopData.getFelling(),
-                ConfigHandler.COMMON.breakLeaves.get()
+                ConfigHandler.COMMON.breakLeaves.get(),
+                tree
         );
 
         if (chopResult != ChopResult.IGNORED) {
