@@ -1,6 +1,7 @@
 package ht.treechop.common.chop;
 
 import ht.treechop.TreeChop;
+import ht.treechop.TreeChopException;
 import ht.treechop.api.*;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ChopCounting;
@@ -206,7 +207,15 @@ public class ChopUtil {
         return chopSettings.getFellingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeFellBehavior(player);
     }
 
-    public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) {
+    public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) throws TreeChopException {
+        try {
+            return chopUnsafe(agent, level, pos, blockState, tool, trigger);
+        } catch (Exception e) {
+            throw new TreeChopException(String.format("Parameters: %s, %s, %s, %s, %s, %s", agent, level, pos, blockState, tool, trigger), e);
+        }
+    }
+
+    public static boolean chopUnsafe(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) {
         ChopSettings chopSettings = Server.instance().getPlayerChopData(agent).getSettings();
         if (!isBlockChoppable(level, pos, blockState)
                 || !ChopUtil.playerWantsToChop(agent, chopSettings)

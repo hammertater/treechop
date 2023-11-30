@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.MessageSupplier;
 
 public abstract class TreeChop {
     public static final String MOD_ID = "treechop";
@@ -32,5 +33,9 @@ public abstract class TreeChop {
 
     public static ResourceLocation resource(String path) {
         return new ResourceLocation(TreeChop.MOD_ID, path);
+    }
+
+    public static void cry(Throwable e) {
+        LOGGER.error("Something went wrong - please share this log file at https://github.com/hammertater/treechop/issues", e);
     }
 }
