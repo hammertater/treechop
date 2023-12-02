@@ -11,7 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.util.MessageSupplier;
 
 public abstract class TreeChop {
     public static final String MOD_ID = "treechop";
@@ -19,6 +18,7 @@ public abstract class TreeChop {
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
     public static Platform platform;
     public static TreeChopInternalAPI api;
+    private static int cryCounter = 10;
 
     public static void initUsingAPI(TreeChopAPI api) {
         HugeMushroomHandler.register(api);
@@ -36,6 +36,8 @@ public abstract class TreeChop {
     }
 
     public static void cry(Throwable e) {
-        LOGGER.error("Something went wrong - please share this log file at https://github.com/hammertater/treechop/issues", e);
+        if (cryCounter-- > 0) {
+            LOGGER.error("Something went wrong - please share this log file at https://github.com/hammertater/treechop/issues", e);
+        }
     }
 }
