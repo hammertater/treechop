@@ -119,8 +119,8 @@ dependencies {
     compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 
-//    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4205732")
-//    runtimeOnly fg.deobf("curse.maven:regions-unexplored-659110:4406301")
+    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4618490")
+    runtimeOnly fg.deobf("curse.maven:regions-unexplored-659110:4807303")
 //    runtimeOnly fg.deobf("curse.maven:enhanced-farming-285105:4280679")
 
 //    runtimeOnly fg.deobf("curse.maven:selene-499980:4410933")

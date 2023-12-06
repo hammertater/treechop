@@ -76,7 +76,8 @@ public class ProblematicLeavesTreeHandler implements ITreeBlock {
             ), always -> true);
             leavesIds = builder.defineList("leaves", List.of(
                     "tropicraft:.*_leaves(_.*)?",
-                    "betternether:.*_leaves"
+                    "betternether:.*_leaves",
+                    "regions_unexplored:brimwood_leaves"
             ), always -> true);
             builder.pop();
         }

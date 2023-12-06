@@ -7,6 +7,7 @@ import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ChopCounting;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.config.Lazy;
+import ht.treechop.common.config.TreeLeavesBehavior;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.util.AxeAccessor;
 import ht.treechop.common.util.BlockUtil;
@@ -27,6 +28,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -63,8 +65,9 @@ public class ChopUtil {
     }
 
     public static boolean isBlockLeaves(BlockState blockState) {
-        if (ConfigHandler.COMMON.leavesBlocks.get().contains(blockState.getBlock())) {
-            return !ConfigHandler.COMMON.ignorePersistentLeaves.get() || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.getValue(LeavesBlock.PERSISTENT);
+        TreeLeavesBehavior behavior = ConfigHandler.COMMON.leavesBlocks.get().get(blockState.getBlock());
+        if (behavior != null) {
+            return behavior.isLeaves(blockState);
         } else {
             return false;
         }

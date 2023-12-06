@@ -267,19 +267,19 @@ public class ConfigHandler {
         );
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksList;
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksExceptionsList;
-        public final Lazy<Set<Block>> leavesBlocks = new Lazy<>(
+        public final Lazy<Map<Block, TreeLeavesBehavior>> leavesBlocks = new Lazy<>(
                 UPDATE_TAGS,
                 () -> {
                     Set<Block> exceptions = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksExceptionsList.get())
                             .collect(Collectors.toSet());
 
-                    Set<Block> blocks = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksList.get())
+                    Map<Block, TreeLeavesBehavior> blocks = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksList.get())
                             .filter(block -> !exceptions.contains(block))
-                            .collect(Collectors.toSet());
+                            .collect(Collectors.toMap(k -> k, v -> TreeLeavesBehavior.DEFAULT));
 
                     TreeChop.api.getLeavesBlockOverrides().forEach(blockIsLeaves -> {
                         if (blockIsLeaves.getValue()) {
-                            blocks.add(blockIsLeaves.getKey());
+                            blocks.put(blockIsLeaves.getKey(), TreeLeavesBehavior.PROBLEMATIC);
                         } else {
                             blocks.remove(blockIsLeaves.getKey());
                         }
