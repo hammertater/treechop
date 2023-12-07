@@ -119,8 +119,9 @@ dependencies {
     compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 
-    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4618490")
-    runtimeOnly fg.deobf("curse.maven:regions-unexplored-659110:4807303")
+//    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4618490")
+//    runtimeOnly fg.deobf("curse.maven:regions-unexplored-659110:4807303")
+//    runtimeOnly fg.deobf("curse.maven:biomes-o-plenty-220318:4473556")
 //    runtimeOnly fg.deobf("curse.maven:enhanced-farming-285105:4280679")
 
 //    runtimeOnly fg.deobf("curse.maven:placebo-283644:4876369")
@@ -139,8 +140,8 @@ dependencies {
     compileOnly fg.deobf("curse.maven:silent-lib-242998:3968715")
     compileOnly fg.deobf("curse.maven:silent-gear-297039:4397693")
 
-    runtimeOnly fg.deobf("curse.maven:silent-lib-242998:3968715")
-    runtimeOnly fg.deobf("curse.maven:silent-gear-297039:4397693")
+//    runtimeOnly fg.deobf("curse.maven:silent-lib-242998:3968715")
+//    runtimeOnly fg.deobf("curse.maven:silent-gear-297039:4397693")
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
     testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"
