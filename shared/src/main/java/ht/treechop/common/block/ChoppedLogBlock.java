@@ -73,14 +73,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         final byte WEST = 1 << 4;
         final byte EAST = 1 << 5;
 
-//        openSides = (byte) (
-//                (!state.getOptionalValue(BlockStateProperties.DOWN).orElse(!isBlockOpen(level, blockPos.below())) ? DOWN : 0)
-//                        | (!state.getOptionalValue(BlockStateProperties.UP).orElse(isBlockALog(level, blockPos.above())) ? UP : 0)
-//                        | (!state.getOptionalValue(BlockStateProperties.NORTH).orElse(isBlockALog(level, blockPos.north())) ? NORTH : 0)
-//                        | (!state.getOptionalValue(BlockStateProperties.SOUTH).orElse(isBlockALog(level, blockPos.south())) ? SOUTH : 0)
-//                        | (!state.getOptionalValue(BlockStateProperties.WEST).orElse(isBlockALog(level, blockPos.west())) ? WEST : 0)
-//                        | (!state.getOptionalValue(BlockStateProperties.EAST).orElse(isBlockALog(level, blockPos.east())) ? EAST : 0)
-
         byte openSides = (byte) (
                 (isBlockOpen(level, blockPos.below()) ? DOWN : 0)
                         | (!isBlockALog(level, blockPos.above()) ? UP : 0)
@@ -209,7 +201,11 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                         entity.setParameters(chopZeroRadius, maxNumChops, supportFactor);
 
                         List<ItemStack> drops = Block.getDrops(blockState, serverLevel, pos, entity, player, tool);
-                        entity.setDrops(drops);
+                        if (ConfigHandler.COMMON.dropLootOnFirstChop.get()) {
+                            drops.forEach(stack -> popResource(level, pos, stack));
+                        } else {
+                            entity.setDrops(drops);
+                        }
                     }
                 }
 

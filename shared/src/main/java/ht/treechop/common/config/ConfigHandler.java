@@ -210,6 +210,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue enabled;
         public final ForgeConfigSpec.BooleanValue enableLogging;
         public final ForgeConfigSpec.BooleanValue dropLootForChoppedBlocks;
+        public final ForgeConfigSpec.BooleanValue dropLootOnFirstChop;
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
         public final ForgeConfigSpec.BooleanValue breakLeaves;
@@ -344,6 +345,9 @@ public class ConfigHandler {
             dropLootForChoppedBlocks = builder
                     .comment("If false, log items will be destroyed when chopping")
                     .define("dropLootForChoppedBlocks", true);
+            dropLootOnFirstChop = builder
+                    .comment("If true, chopped logs will drop a log item immediately instead of waiting for the tree to be felled, restoring legacy behavior. Does nothing if dropLootForChoppedBlocks is false")
+                    .define("dropLootOnFirstChop", false);
             builder.pop();
 
             builder.push("treeDetection");
