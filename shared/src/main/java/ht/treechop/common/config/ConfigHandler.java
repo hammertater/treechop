@@ -237,6 +237,7 @@ public class ConfigHandler {
         public final InitializedSupplier<Boolean> compatForTerraformers = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForTinkersConstruct = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForMultiMine = defaultValue(true);
+        public final InitializedSupplier<Boolean> compatForApotheosis = defaultValue(true);
         public final InitializedSupplier<Integer> tinkersConstructTreeAOEChops = defaultValue(5);
         public final InitializedSupplier<Integer> tinkersConstructWoodAOEChops = defaultValue(5);
         public final InitializedSupplier<Double> tinkersConstructExpandedMultiplier = defaultValue(2.0);
@@ -509,6 +510,10 @@ public class ConfigHandler {
                         .comment("https://github.com/AtomicStryker/atomicstrykers-minecraft-mods",
                                 "Fixes bad behavior")
                         .define("multiMine", true)::get);
+                compatForApotheosis.set(builder
+                        .comment("https://www.curseforge.com/minecraft/mc-mods/apotheosis",
+                                "Adds compatibility with the \"chainsaw\" enchantment.")
+                        .define("apotheosis", true)::get);
 
                 builder.push("silentgear");
                 compatForSilentGear.set(builder

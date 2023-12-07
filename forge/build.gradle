@@ -123,6 +123,9 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:regions-unexplored-659110:4807303")
 //    runtimeOnly fg.deobf("curse.maven:enhanced-farming-285105:4280679")
 
+//    runtimeOnly fg.deobf("curse.maven:placebo-283644:4876369")
+//    runtimeOnly fg.deobf("curse.maven:apotheosis-313970:4876447")
+
 //    runtimeOnly fg.deobf("curse.maven:selene-499980:4410933")
 //    runtimeOnly fg.deobf("curse.maven:immersive-weathering-forge-592449:4401359")
 
