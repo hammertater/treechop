@@ -25,7 +25,6 @@ public class LazyTreeData extends AbstractTreeData {
 
     private final Level level;
     private final int chops;
-    private final int maxNumLogs;
     private final boolean smartDetection;
     private final int maxLeavesDistance;
     private double mass = 0;
@@ -49,7 +48,7 @@ public class LazyTreeData extends AbstractTreeData {
         }
     };
 
-    private FloodFill<BlockPos> generator;
+    private LogFinder logFinder;
     private Set<BlockPos> base;
 
     private final DirectedGraph<BlockPos> logsWorld;
@@ -57,7 +56,6 @@ public class LazyTreeData extends AbstractTreeData {
 
     public LazyTreeData(Level level, BlockPos origin, DirectedGraph<BlockPos> logGraph, DirectedGraph<BlockPos> leavesGraph, Predicate<BlockPos> logFilter, Predicate<BlockPos> leavesFilter, int maxNumLogs, int maxLeavesDistance, boolean smartDetection) {
         this.level = level;
-        this.maxNumLogs = maxNumLogs;
         this.smartDetection = smartDetection;
         this.maxLeavesDistance = maxLeavesDistance;
 
@@ -75,8 +73,7 @@ public class LazyTreeData extends AbstractTreeData {
         makeTreeBase(level, origin);
         this.chops = base.stream().map(pos -> ChopUtil.getNumChops(level, pos)).reduce(Integer::sum).orElse(0);
 
-        generator = GraphUtil.flood(logsWorld, base, Vec3i::getY);
-
+        logFinder = new LogFinder(logsWorld, base, maxNumLogs);
     }
 
     private boolean gatherLog(BlockPos pos) {
@@ -96,7 +93,7 @@ public class LazyTreeData extends AbstractTreeData {
         if (overrideLeaves || !leaves.isEmpty()) {
             return true;
         } else {
-            return generator.fill().anyMatch(p -> !leaves.isEmpty() || overrideLeaves);
+            return logFinder.find().anyMatch(p -> !leaves.isEmpty() || overrideLeaves);
         }
     }
 
@@ -104,7 +101,7 @@ public class LazyTreeData extends AbstractTreeData {
     public void setLogBlocks(Set<BlockPos> logBlocks) {
         logs = logBlocks;
         mass = ChopUtil.getSupportFactor(level, logs.stream()).orElse(1.0);
-        generator = new FloodFillImpl<>(List.of(), a -> Stream.empty(), a -> 0);
+        logFinder = new LogFinder(a -> Stream.empty(), Collections.emptySet(), 0);
     }
 
     @Override
@@ -114,19 +111,20 @@ public class LazyTreeData extends AbstractTreeData {
 
     @Override
     public Stream<BlockPos> streamLogs() {
-        return Stream.concat(logs.stream(), generator.fill()).limit(maxNumLogs);
+        return Stream.concat(logs.stream(), logFinder.find());
     }
 
     @Override
     public Stream<BlockPos> streamLeaves() {
         List<BlockPos> allLeaves = new LinkedList<>();
+
         forEachLeaves(leaves, allLeaves::add); // TODO: yikes; defeats the purpose of streaming
 
         return allLeaves.stream();
     }
 
     private void completeTree() {
-        generator.fill().forEach(a -> {});
+        logFinder.find().count();
     }
 
     @Override
@@ -183,7 +181,7 @@ public class LazyTreeData extends AbstractTreeData {
         if (!ChopUtil.enoughChopsToFell(numChops, mass)) {
             return false;
         } else {
-            return generator.fill().allMatch(ignored -> ChopUtil.enoughChopsToFell(numChops, mass));
+            return logFinder.find().allMatch(ignored -> ChopUtil.enoughChopsToFell(numChops, mass));
         }
     }
 
@@ -266,5 +264,22 @@ public class LazyTreeData extends AbstractTreeData {
     private static boolean isBlockSurrounded(Level level, BlockPos pos) {
         return Stream.of(pos.west(), pos.north(), pos.east(), pos.south())
                 .allMatch(neighborPos -> ChopUtil.isBlockALog(level, neighborPos));
+    }
+
+    private static class LogFinder {
+        private int size;
+        private final int maxSize;
+        FloodFill<BlockPos> flood;
+
+        public LogFinder(DirectedGraph<BlockPos> logsWorld, Set<BlockPos> base, int maxSize) {
+            flood = GraphUtil.flood(logsWorld, base, Vec3i::getY);
+            size = base.size();
+            this.maxSize = maxSize;
+        }
+
+        public Stream<BlockPos> find() {
+            int n = size;
+            return flood.fill().peek(a -> ++size).limit(maxSize - n);
+        }
     }
 }
