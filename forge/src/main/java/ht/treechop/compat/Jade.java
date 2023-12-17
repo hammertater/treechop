@@ -15,7 +15,6 @@ import snownee.jade.api.ui.IElement;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 @WailaPlugin
 public class Jade implements IWailaPlugin, IBlockComponentProvider {
@@ -42,7 +41,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
         boolean showChopsRemaining = config.get(SHOW_NUM_CHOPS_REMAINING);
 
         if (WailaUtil.playerWantsTreeInfo(level, pos, showNumBlocks, showChopsRemaining)) {
-            Optional<LinkedList<IElement>> tiles = Optional.empty();
+            LinkedList<IElement> tiles = new LinkedList<>();
             WailaUtil.addTreeInfo(
                     level,
                     pos,
@@ -51,9 +50,10 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
                     tooltip::add,
                     stack -> {
                         IElement icon = tooltip.getElementHelper().item(stack, 1f, Integer.toString(stack.getCount()));
-                        tiles.orElseGet(LinkedList::new).add(icon.translate(new Vec2(0, -1.5f)));
+                        tiles.add(icon.translate(new Vec2(0, -1.5f)));
                     }
             );
+            tooltip.add(tiles);
         }
     }
 

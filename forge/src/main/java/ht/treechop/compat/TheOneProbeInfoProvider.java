@@ -57,7 +57,6 @@ public class TheOneProbeInfoProvider implements IProbeInfoProvider {
         changeBlockName(builder, level, iProbeHitData.getPos());
 
         BlockPos blockPos = iProbeHitData.getPos();
-        ChopSettings chopSettings = Server.instance().getPlayerChopData(player).getSettings();
         if (WailaUtil.playerWantsTreeInfo(level, blockPos, SHOW_TREE_BLOCKS, SHOW_NUM_CHOPS_REMAINING)) {
             builder.element(new DeferredTreeDataElement(iProbeHitData.getPos()));
         }

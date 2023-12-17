@@ -71,6 +71,7 @@ public class LazyTreeData extends AbstractTreeData {
         );
 
         makeTreeBase(level, origin);
+        logs.addAll(base);
         this.chops = base.stream().map(pos -> ChopUtil.getNumChops(level, pos)).reduce(Integer::sum).orElse(0);
 
         logFinder = new LogFinder(logsWorld, base, maxNumLogs);
@@ -267,13 +268,12 @@ public class LazyTreeData extends AbstractTreeData {
     }
 
     private static class LogFinder {
-        private int size;
+        private int size = 0;
         private final int maxSize;
         FloodFill<BlockPos> flood;
 
         public LogFinder(DirectedGraph<BlockPos> logsWorld, Set<BlockPos> base, int maxSize) {
             flood = GraphUtil.flood(logsWorld, base, Vec3i::getY);
-            size = base.size();
             this.maxSize = maxSize;
         }
 
