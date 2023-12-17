@@ -273,7 +273,7 @@ public class LazyTreeData extends AbstractTreeData {
         FloodFill<BlockPos> flood;
 
         public LogFinder(DirectedGraph<BlockPos> logsWorld, Set<BlockPos> base, int maxSize) {
-            flood = GraphUtil.flood(logsWorld, base, Vec3i::getY);
+            flood = GraphUtil.flood(logsWorld, base, v -> -v.getY());
             this.maxSize = maxSize;
         }
 
