@@ -97,8 +97,10 @@ dependencies {
     implementation project(":shared")
     implementation project(":tuber")
 
-    runtimeOnly fg.deobf("curse.maven:multi-mine-227887:4667519")
-    runtimeOnly fg.deobf("curse.maven:excavar-561528:3909137")
+//    runtimeOnly fg.deobf("curse.maven:multi-mine-227887:4667519")
+//    runtimeOnly fg.deobf("curse.maven:excavar-561528:3909137")
+
+//    runtimeOnly fg.deobf("curse.maven:tan-huge-trees-469915:4843105")
 
     // compile against the API
     compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-5.13.4")
