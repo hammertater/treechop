@@ -96,4 +96,16 @@ public interface TreeChopAPI {
      * @return true {@code true} if the player may chop the block by breaking it with the item.
      */
     boolean canChopWithItem(Player player, ItemStack stack, Level level, BlockPos pos, BlockState blockState);
+
+    /**
+     * Retrieves information about a tree with its origin at {@code pos}. The "base" of the tree is formed by {@code pos} and any connected {@code treechop:chopped_log} blocks, and the "tree" consists of this base and any log blocks that are supported by it. For most trees, this means that unchopped blocks below {@code pos} are *not* part of the tree.
+     * <p>
+     * Currently, no caching is performed. Every call produces a new {@link TreeData} instance. This may change in the future.
+     * <p>
+     * Fires a tree detection event.
+     * @param level
+     * @param pos
+     * @return Always returns a {@link TreeData}, but it may be empty if {@code pos} is not part of a tree. Use {@link TreeData#isAProperTree(boolean)} to check whether it is a valid tree (e.g., connected to leaves) according to the {@code treechop-common.toml} configuration.
+     */
+    TreeData getTree(Level level, BlockPos pos);
 }

@@ -3,6 +3,7 @@ package ht.treechop;
 import ht.treechop.api.IChoppingItem;
 import ht.treechop.api.ITreeChopBlockBehavior;
 import ht.treechop.api.TreeChopAPI;
+import ht.treechop.api.TreeData;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.core.BlockPos;
@@ -132,6 +133,11 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
     @Override
     public boolean canChopWithItem(Player player, ItemStack stack, Level level, BlockPos pos, BlockState blockState) {
         return ChopUtil.canChopWithTool(player, stack, level, pos, blockState);
+    }
+
+    @Override
+    public TreeData getTree(Level level, BlockPos pos) {
+        return ChopUtil.getTree(level, pos);
     }
 
     public Stream<Pair<Block, Boolean>> getChoppableBlockOverrides() {

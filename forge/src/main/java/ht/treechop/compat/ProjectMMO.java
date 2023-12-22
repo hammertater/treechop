@@ -35,13 +35,16 @@ public class ProjectMMO {
                 //This registers custom configuration behavior for the block which is checked before a standard configuration
                 APIUtils.registerBlockXpGainTooltipData(TreeChop.resource("chopped_log"), EventType.BLOCK_BREAK, TREE_XP);
                 MinecraftForge.EVENT_BUS.addListener(ProjectMMO::awardXPOnChop);
-            } catch (NoSuchMethodError e) {
+                Class.forName("harmonised.pmmo.api.APIUtils");
+                Class.forName("harmonised.pmmo.api.enums.EventType");
+                Class.forName("harmonised.pmmo.api.enums.ObjectType");
+            } catch (NoSuchMethodError | ClassNotFoundException e) {
                 crank(e);
             }
         }
     }
 
-    private static void crank(NoSuchMethodError e) {
+    private static void crank(Throwable e) {
         if (!broke) {
             TreeChop.LOGGER.error("Something went wrong with Project MMO compatibility!");
             e.printStackTrace();

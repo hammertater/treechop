@@ -1,6 +1,9 @@
 package ht.treechop.compat;
 
-import ht.treechop.api.*;
+import ht.treechop.api.ITreeBlock;
+import ht.treechop.api.TreeChopAPI;
+import ht.treechop.api.TreeData;
+import ht.treechop.api.TreeDetectorBuilder;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.config.Lazy;
 import net.minecraft.core.BlockPos;

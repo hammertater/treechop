@@ -1,6 +1,7 @@
 package ht.treechop.common;
 
 import ht.treechop.TreeChop;
+import ht.treechop.TreeChopException;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.core.BlockPos;
@@ -35,9 +36,12 @@ public class ForgeCommon {
         BlockState blockState = event.getState();
         BlockPos pos = event.getPos();
 
-        boolean skip = MinecraftForge.EVENT_BUS.post(new InternalChopEvent.PreChopEvent(level, agent, pos));
-        if (skip || ChopUtil.chop(agent, level, pos, blockState, tool, event)) {
-            event.setCanceled(true);
+        try {
+            if (ChopUtil.chop(agent, level, pos, blockState, tool, event)) {
+                event.setCanceled(true);
+            }
+        } catch (TreeChopException e) {
+            TreeChop.cry(e);
         }
     }
 

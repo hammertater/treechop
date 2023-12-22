@@ -1,14 +1,10 @@
 package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
-import ht.treechop.client.Client;
-import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.block.ChoppedLogBlock;
 import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.component.ItemComponent;
 import mcp.mobius.waila.api.component.WrappedComponent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

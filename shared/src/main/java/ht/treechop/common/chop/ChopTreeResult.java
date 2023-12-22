@@ -18,7 +18,7 @@ public class ChopTreeResult implements ChopResult {
     }
 
     @Override
-    public void apply(BlockPos targetPos, ServerPlayer agent, ItemStack tool, boolean breakLeaves) {
+    public void apply(BlockPos targetPos, ServerPlayer agent, ItemStack tool) {
         GameType gameType = agent.gameMode.getGameModeForPlayer();
         if (level.getBlockState(targetPos).isAir() || agent.blockActionRestricted(level, targetPos, gameType)) {
             return;

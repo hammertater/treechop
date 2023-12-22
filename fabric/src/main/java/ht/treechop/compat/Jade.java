@@ -1,25 +1,21 @@
 package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
-import ht.treechop.client.Client;
-import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.registry.FabricModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec2;
 import snownee.jade.api.*;
 import snownee.jade.api.config.IPluginConfig;
+import snownee.jade.api.config.IWailaConfig;
 import snownee.jade.api.ui.IElement;
-import snownee.jade.impl.ui.TextElement;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 @WailaPlugin
 public class Jade implements IWailaPlugin, IBlockComponentProvider {
@@ -46,7 +42,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
         boolean showChopsRemaining = config.get(SHOW_NUM_CHOPS_REMAINING);
 
         if (WailaUtil.playerWantsTreeInfo(level, pos, showNumBlocks, showChopsRemaining)) {
-            Optional<LinkedList<IElement>> tiles = Optional.empty();
+            List<IElement> tiles = new LinkedList<>();
             WailaUtil.addTreeInfo(
                     level,
                     pos,
@@ -55,31 +51,25 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
                     tooltip::add,
                     stack -> {
                         IElement icon = tooltip.getElementHelper().item(stack, 1f, Integer.toString(stack.getCount()));
-                        tiles.orElseGet(LinkedList::new).add(icon.translate(new Vec2(0, -1.5f)));
+                        tiles.add(icon.translate(new Vec2(0, -1.5f)));
                     }
             );
+            tooltip.add(tiles);
         }
     }
 
     private static void changeBlockName(ITooltip tooltip, BlockAccessor accessor) {
         final ResourceLocation OBJECT_NAME_COMPONENT_KEY = new ResourceLocation("jade", "object_name");
-        try {
-            if (accessor.getBlockEntity() instanceof ChoppedLogBlock.MyEntity choppedEntity) {
-                Class.forName("snownee.jade.impl.ui.TextElement");
-                if (tooltip.get(OBJECT_NAME_COMPONENT_KEY).get(0) instanceof TextElement textElement) {
-                    if (textElement.text instanceof MutableComponent textComponent) {
-                        String choppedLogName = FabricModBlocks.CHOPPED_LOG.getName().getString();
-                        List<Component> siblings = textComponent.getSiblings();
-                        for (int i = 0, n = siblings.size(); i < n; ++i) {
-                            if (siblings.get(i).getString().matches(choppedLogName)) {
-                                siblings.set(i, WailaUtil.getPrefixedBlockName(choppedEntity));
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (NullPointerException | ClassNotFoundException ignored) {
+        if (accessor.getBlockEntity() instanceof ChoppedLogBlock.MyEntity choppedEntity) {
+            // There's no API function to change the message, so let's replace it
+            tooltip.clear();
+
+            Component newName = WailaUtil.getPrefixedBlockName(choppedEntity);
+            IElement newNameElement = tooltip.getElementHelper()
+                    .text(IWailaConfig.get().getFormatting().title(newName))
+                    .tag(OBJECT_NAME_COMPONENT_KEY);
+
+            tooltip.add(newNameElement);
         }
     }
 

@@ -1,7 +1,6 @@
 package ht.treechop;
 
 import ht.treechop.api.TreeChopAPI;
-import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.compat.HugeFungusHandler;
 import ht.treechop.compat.HugeMushroomHandler;
@@ -19,6 +18,7 @@ public abstract class TreeChop {
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
     public static Platform platform;
     public static TreeChopInternalAPI api;
+    private static int cryCounter = 10;
 
     public static void initUsingAPI(TreeChopAPI api) {
         HugeMushroomHandler.register(api);
@@ -33,5 +33,11 @@ public abstract class TreeChop {
 
     public static ResourceLocation resource(String path) {
         return new ResourceLocation(TreeChop.MOD_ID, path);
+    }
+
+    public static void cry(Throwable e) {
+        if (cryCounter-- > 0) {
+            LOGGER.error("Something went wrong - please share this log file at https://github.com/hammertater/treechop/issues", e);
+        }
     }
 }
