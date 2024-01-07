@@ -458,12 +458,13 @@ public class ConfigHandler {
                     .defineList("items",
                             Arrays.asList(
                                     "botania:terra_axe",
-                                    "mekanism:atomic_disassembler",
                                     "@lumberjack",
-                                    "practicaltools:iron_greataxe",
-                                    "practicaltools:golden_greataxe",
+                                    "mekanism:atomic_disassembler",
                                     "practicaltools:diamond_greataxe",
-                                    "practicaltools:netherite_greataxe"),
+                                    "practicaltools:golden_greataxe",
+                                    "practicaltools:iron_greataxe",
+                                    "practicaltools:netherite_greataxe",
+                                    "twilightforest:giant_pickaxe"),
                             always -> true);
             builder.pop();
 
