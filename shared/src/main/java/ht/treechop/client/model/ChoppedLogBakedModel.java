@@ -43,7 +43,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
         return ChopUtil.getStrippedState(level, pos, level.getBlockState(neighborPos));
     }
 
-    protected Map<Direction, BlockState> getStrippedNeighbors(BlockAndTintGetter level, BlockPos pos, ChoppedLogBlock.MyEntity entity) {
+    protected static Map<Direction, BlockState> getStrippedNeighbors(BlockAndTintGetter level, BlockPos pos, ChoppedLogBlock.MyEntity entity) {
         if (entity.getOriginalState().isSolidRender(level, pos)) {
             return entity.getShape().getSolidSides(level, pos).stream().collect(Collectors.toMap(
                     side -> side,

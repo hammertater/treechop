@@ -11,10 +11,8 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.ChunkRenderTypeSet;
@@ -58,27 +56,19 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
         return ChunkRenderTypeSet.of(RENDER_TYPE);
     }
 
-    @Override
     @Nonnull
-    public ModelData getModelData(
-            @Nonnull BlockAndTintGetter level,
-            @Nonnull BlockPos pos,
-            @Nonnull BlockState state,
-            @Nonnull ModelData tileData
+    public static ModelData getModelData(
+            ChoppedLogBlock.MyEntity entity
     ) {
-        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
-            BlockState strippedState = ChopUtil.getStrippedState(level, pos, entity.getOriginalState());
+        BlockState strippedState = ChopUtil.getStrippedState(entity.getLevel(), entity.getBlockPos(), entity.getOriginalState());
 
-            ModelData.Builder builder = ModelData.builder();
-            builder.with(STRIPPED_NEIGHBORS, getStrippedNeighbors(level, pos, entity));
-            builder.with(STRIPPED_BLOCK_STATE, strippedState);
-            builder.with(RADIUS, entity.getRadius());
-            builder.with(CHOPPED_LOG_SHAPE, entity.getShape());
+        ModelData.Builder builder = ModelData.builder();
+        builder.with(STRIPPED_NEIGHBORS, getStrippedNeighbors(entity.getLevel(), entity.getBlockPos(), entity));
+        builder.with(STRIPPED_BLOCK_STATE, strippedState);
+        builder.with(RADIUS, entity.getRadius());
+        builder.with(CHOPPED_LOG_SHAPE, entity.getShape());
 
-            return builder.build();
-        } else {
-            return ModelData.EMPTY;
-        }
+        return builder.build();
     }
 
     @Override
