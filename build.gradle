@@ -1,12 +1,9 @@
-plugins {
-    id("org.spongepowered.mixin") version "0.7-SNAPSHOT" apply(false)
-}
-
 subprojects {
     apply plugin: "java"
+    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
     apply plugin: "idea"
     apply plugin: 'maven-publish'
-    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
     jar {
         manifest {

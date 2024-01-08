@@ -1,14 +1,10 @@
 plugins {
-    id 'java'
-    id 'idea'
-    id 'maven-publish'
-    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id "fabric-loom" version "1.4-SNAPSHOT"
 }
 
-archivesBaseName = "${modname}-${mcversion}-fabric"
-//base {
-//    archivesName = "${modname}-${mcversion}-fabric"
-//}
+base {
+    archivesName = "${modname}-${mcversion}-fabric"
+}
 
 repositories {
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
@@ -24,6 +20,7 @@ dependencies {
     implementation project(":shared")
     implementation project(":tuber")
 
+    //{
 //    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:8.0.0"
 
 //    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-8.4.3"
@@ -45,6 +42,7 @@ dependencies {
 //    modRuntimeOnly "curse.maven:betterend-413596:4677967"
 
 //    modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:8.0.0"
+    //}
 }
 
 processResources {
@@ -59,36 +57,26 @@ processResources {
 tasks.withType(JavaCompile).configureEach {
     source(project(":shared").sourceSets.main.allSource)
     source(project(":tuber").sourceSets.main.allSource)
+    it.options.release = 17
 }
 
 java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present. If you remove this line, sources will not be generated.
     withSourcesJar()
-}
-
-jar {
-    from("LICENSE") {
-        rename { "${it}_${archivesBaseName}"}
-    }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 loom {
     mixin {
         defaultRefmapName.set("${modid}.mixins.refmap.json")
     }
-    runs {
-        client {
-            client()
-            setConfigName("Fabric Client")
-            ideConfigGenerated(true)
-            runDir("run")
-        }
-        server {
-            server()
-            setConfigName("Fabric Server")
-            ideConfigGenerated(true)
-            runDir("run")
+
+    splitEnvironmentSourceSets()
+
+    mods {
+        "$modid" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
         }
     }
 }
