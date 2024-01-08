@@ -1,19 +1,28 @@
+
+println("Java: " + System.getProperty("java.version") + " JVM: " + System.getProperty("java.vm.version") + "(" + System.getProperty("java.vendor") + ") Arch: " + System.getProperty("os.arch"))
 subprojects {
     apply plugin: "java"
-    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
     apply plugin: "idea"
     apply plugin: 'maven-publish'
+
+    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+    version = mod_version
+    group = mod_group
+
+    base {
+        archivesName = "$mod_name-$minecraft_version-$project.name"
+    }
 
     jar {
         manifest {
             attributes([
-                    "Specification-Title"     : modid,
-                    "Specification-Vendor"    : "hammertater",
+                    "Specification-Title"     : mod_id,
+                    "Specification-Vendor"    : mod_authors,
                     "Specification-Version"   : "1",
-                    "Implementation-Title"    : project.name,
+                    "Implementation-Title"    : "$mod_id-$project.name",
                     "Implementation-Version"  : project.jar.archiveVersion,
-                    "Implementation-Vendor"   : "hammertater",
+                    "Implementation-Vendor"   : mod_authors,
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
             ])
         }
@@ -27,9 +36,14 @@ subprojects {
         maven { url "https://maven.bai.lol" }
     }
 
-    tasks.withType(JavaCompile).configureEach {
-        it.options.encoding = "UTF-8"
-        it.options.release = 17
+    dependencies {
+        testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
+        testImplementation group: "org.hamcrest", name: "hamcrest", version: "2.2"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     publishing {
@@ -43,5 +57,10 @@ subprojects {
                 url "file://${rootDir}/publishing"
             }
         }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        it.options.encoding = "UTF-8"
+        it.options.release = 17
     }
 }

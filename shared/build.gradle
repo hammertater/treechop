@@ -1,5 +1,4 @@
 plugins {
-    id "java"
     id "org.spongepowered.gradle.vanilla" version "0.2.1-SNAPSHOT"
 }
 
@@ -13,18 +12,11 @@ dependencies {
 }
 
 minecraft {
-    version("${mcversion}")
+    version("${minecraft_version}")
 }
 
 dependencies {
     implementation project(":tuber")
-
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.0"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.0"
-}
-
-test {
-    useJUnitPlatform()
 }
 
 tasks.withType(JavaCompile) {

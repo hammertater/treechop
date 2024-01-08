@@ -5,18 +5,18 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
-archivesBaseName = "${modname}-${mcversion}-fabric-tests"
+archivesBaseName = "${mod_name}-${minecraft_version}-fabric-tests"
 
 repositories {
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${mcversion}"
+    minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${fabricloaderversion}"
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricversion}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
     modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.2.6"
 
     modCompileOnly "curse.maven:treechop-421377:4147540"
