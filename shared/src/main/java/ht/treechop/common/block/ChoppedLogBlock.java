@@ -8,6 +8,7 @@ import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.ClassUtil;
 import ht.treechop.server.Server;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -393,6 +394,8 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                 CompoundTag item = list.getCompound(i);
                 drops.add(ItemStack.of(item));
             }
+
+            level.setBlocksDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
         }
 
         @Nonnull
