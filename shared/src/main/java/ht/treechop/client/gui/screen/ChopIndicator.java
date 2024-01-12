@@ -70,7 +70,7 @@ public class ChopIndicator {
         }
     }
 
-    private static boolean blockCanBeChopped(BlockPos pos) throws TreeChopException {
+    public static boolean blockCanBeChopped(BlockPos pos) throws TreeChopException {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         ClientLevel level = minecraft.level;

@@ -255,11 +255,17 @@ public class ChopUtil {
             TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData, chopResult);
             tool.mineBlock(level, blockState, pos, agent);
 
+            thwack(agent, level, pos, blockState);
+
             boolean felled = chopResult instanceof FellTreeResult;
             return !felled;
         }
 
         return false;
+    }
+
+    public static void thwack(Player thwacker, Level level, BlockPos pos, BlockState state) {
+        level.levelEvent(thwacker, 2001, pos, Block.getId(state));
     }
 
     public static BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state) {
