@@ -17,18 +17,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -255,9 +254,11 @@ public class ChopUtil {
             TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData, chopResult);
             tool.mineBlock(level, blockState, pos, agent);
 
-            thwack(agent, level, pos, blockState);
-
             boolean felled = chopResult instanceof FellTreeResult;
+            if (!felled) {
+                thwack(agent, level, pos, blockState);
+            }
+
             return !felled;
         }
 
@@ -265,7 +266,10 @@ public class ChopUtil {
     }
 
     public static void thwack(Player thwacker, Level level, BlockPos pos, BlockState state) {
-        level.levelEvent(thwacker, 2001, pos, Block.getId(state));
+        final float volume = .5f;
+        final float pitch = 1f;
+        level.playSound(thwacker, pos, TreeChop.CHOP_WOOD_EVENT, SoundSource.BLOCKS, volume, pitch);
+        level.addDestroyBlockEffect(pos, state);
     }
 
     public static BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state) {
