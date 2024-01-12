@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "id": "${mod_id}",
-  "version": "${mod_version}",
-  "name": "${mod_name_gloating}",
-  "description": "${mod_description}",
+  "id": "$mod_id",
+  "version": "$mod_version",
+  "name": "$mod_name_gloating",
+  "description": "$mod_description",
   "authors": [
-    "${mod_authors}"
+    "$mod_authors"
   ],
   "contact": {
-    "curseforge": "${mod_url_curseforge}",
-    "modrinth": "${mod_url_modrinth}",
-    "sources": "${mod_url_source}",
-    "issues": "${mod_url_issues}"
+    "curseforge": "$mod_url_curseforge",
+    "modrinth": "$mod_url_modrinth",
+    "sources": "$mod_url_source",
+    "issues": "$mod_url_issues"
   },
 
-  "license": "${mod_license}",
+  "license": "$mod_license",
   "icon": "logo.png",
 
   "environment": "*",

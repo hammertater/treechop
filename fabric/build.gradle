@@ -12,6 +12,7 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
     modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_api_version"
+    implementation "com.google.code.findbugs:jsr305:3.0.2"
 
     implementation project(":shared")
     implementation project(":tuber")
@@ -55,13 +56,18 @@ loom {
     mixin {
         defaultRefmapName.set("${mod_id}.mixins.refmap.json")
     }
-
-    splitEnvironmentSourceSets()
-
-    mods {
-        "$mod_id" {
-            sourceSet sourceSets.main
-            sourceSet sourceSets.client
+    runs {
+        client {
+            client()
+            setConfigName("Fabric Client")
+            ideConfigGenerated(true)
+            runDir("run")
+        }
+        server {
+            server()
+            setConfigName("Fabric Server")
+            ideConfigGenerated(true)
+            runDir("run")
         }
     }
 }
