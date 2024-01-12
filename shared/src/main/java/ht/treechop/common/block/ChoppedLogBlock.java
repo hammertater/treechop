@@ -395,7 +395,13 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                 drops.add(ItemStack.of(item));
             }
 
-            level.setBlocksDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
+            rerender();
+        }
+
+        private void rerender() {
+            if (level != null) {
+                level.setBlocksDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
+            }
         }
 
         @Nonnull
