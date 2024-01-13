@@ -89,7 +89,7 @@ public class FellTreeResult implements ChopResult {
                     blockBreaker.accept(pos);
                 }
 
-                if (player.distanceToSqr(pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5) > 9.0) {
+                if (effects.size() == 0 || player.distanceToSqr(pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5) > 9.0) {
                     collectSomeBlocks(effects, pos, state, i, 8);
                 }
             }
