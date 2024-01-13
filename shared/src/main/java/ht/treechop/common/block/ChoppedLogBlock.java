@@ -394,14 +394,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                 CompoundTag item = list.getCompound(i);
                 drops.add(ItemStack.of(item));
             }
-
-            rerender();
-        }
-
-        protected void rerender() {
-            if (level != null) {
-                level.setBlocksDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
-            }
         }
 
         @Nonnull
@@ -440,6 +432,13 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             CompoundTag update = ServerUpdateChopsPacket.getPendingUpdate(level, worldPosition);
             if (update != null) {
                 load(update);
+                rerender();
+            }
+        }
+
+        protected void rerender() {
+            if (level != null) {
+                level.setBlocksDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
             }
         }
     }
