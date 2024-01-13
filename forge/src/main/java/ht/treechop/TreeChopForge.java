@@ -47,7 +47,7 @@ public class TreeChopForge extends TreeChop {
 
         ForgePacketHandler.registerPackets();
 
-        modBus.addListener((RegisterEvent event) -> event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> helper.register(CHOP_WOOD, CHOP_WOOD_EVENT)));
+        modBus.addListener((RegisterEvent event) -> event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> helper.register(CHOP_WOOD, CHOP_WOOD_EVENT.get())));
     }
 
     private void processIMC(InterModProcessEvent event) {

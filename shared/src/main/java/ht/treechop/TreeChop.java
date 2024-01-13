@@ -1,6 +1,7 @@
 package ht.treechop;
 
 import ht.treechop.api.TreeChopAPI;
+import ht.treechop.common.config.Lazy;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.compat.HugeFungusHandler;
 import ht.treechop.compat.HugeMushroomHandler;
@@ -22,7 +23,7 @@ public abstract class TreeChop {
     private static int cryCounter = 10;
 
     public static final ResourceLocation CHOP_WOOD = resource("chop_wood");
-    public static SoundEvent CHOP_WOOD_EVENT = SoundEvent.createVariableRangeEvent(CHOP_WOOD);
+    public static final Lazy<SoundEvent> CHOP_WOOD_EVENT = new Lazy<>(() -> SoundEvent.createVariableRangeEvent(CHOP_WOOD));
 
     public static void initUsingAPI(TreeChopAPI api) {
         HugeMushroomHandler.register(api);

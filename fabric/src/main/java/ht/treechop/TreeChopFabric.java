@@ -41,7 +41,7 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
         // Compat
         TreeChopFabricAPITest.init();
 
-        Registry.register(BuiltInRegistries.SOUND_EVENT, CHOP_WOOD, CHOP_WOOD_EVENT);
+        Registry.register(BuiltInRegistries.SOUND_EVENT, CHOP_WOOD, CHOP_WOOD_EVENT.get());
     }
 
     private static void onReload(ModConfig config) {
