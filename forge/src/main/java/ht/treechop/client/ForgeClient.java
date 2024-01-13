@@ -2,7 +2,6 @@ package ht.treechop.client;
 
 import ht.treechop.TreeChop;
 import ht.treechop.client.gui.screen.ChopIndicator;
-import ht.treechop.client.model.ForgeChoppedLogBakedModel;
 import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.network.ForgePacketHandler;
 import ht.treechop.common.network.ServerUpdateChopsPacket;
@@ -13,11 +12,9 @@ import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.lwjgl.glfw.GLFW;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -29,11 +26,6 @@ public class ForgeClient extends Client {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(EventHandler.class);
-    }
-
-    public static void registerModels() {
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modBus.addListener(ForgeChoppedLogBakedModel::overrideBlockStateModels);
     }
 
     @SubscribeEvent

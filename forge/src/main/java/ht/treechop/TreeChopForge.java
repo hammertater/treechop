@@ -2,6 +2,8 @@ package ht.treechop;
 
 import ht.treechop.api.TreeChopAPI;
 import ht.treechop.client.ForgeClient;
+import ht.treechop.client.ForgeClientProxy;
+import ht.treechop.client.model.ForgeChoppedLogBakedModel;
 import ht.treechop.common.ForgePlatform;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ForgePacketHandler;
@@ -49,7 +51,7 @@ public class TreeChopForge extends TreeChop {
 
         modBus.addListener((RegisterEvent event) -> event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> helper.register(CHOP_WOOD, CHOP_WOOD_EVENT.get())));
 
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ForgeClient::registerModels);
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ForgeClientProxy::init);
     }
 
     private void processIMC(InterModProcessEvent event) {
