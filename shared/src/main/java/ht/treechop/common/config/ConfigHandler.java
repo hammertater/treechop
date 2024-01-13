@@ -277,7 +277,7 @@ public class ConfigHandler {
 
                     Map<Block, TreeLeavesBehavior> blocks = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksList.get())
                             .filter(block -> !exceptions.contains(block))
-                            .collect(Collectors.toMap(k -> k, v -> TreeLeavesBehavior.DEFAULT, (a, b) -> b));
+                            .collect(Collectors.toConcurrentMap(k -> k, v -> TreeLeavesBehavior.DEFAULT, (a, b) -> b));
 
                     TreeChop.api.getLeavesBlockOverrides().forEach(blockIsLeaves -> {
                         if (blockIsLeaves.getValue()) {
