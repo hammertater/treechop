@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -110,6 +111,12 @@ public class ForgeChoppedLogBlock extends ChoppedLogBlock {
         @Override
         public @NotNull ModelData getModelData() {
             return ForgeChoppedLogBakedModel.getModelData(this);
+        }
+
+        @Override
+        protected void rerender() {
+            super.rerender();
+            requestModelDataUpdate();
         }
     }
 }

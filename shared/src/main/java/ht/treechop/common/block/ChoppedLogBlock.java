@@ -398,7 +398,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             rerender();
         }
 
-        private void rerender() {
+        protected void rerender() {
             if (level != null) {
                 level.setBlocksDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
             }

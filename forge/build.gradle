@@ -53,19 +53,19 @@ dependencies {
     compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-8.4.3")
 
 //    // run against the full jar
-//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-8.4.3")
-//    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.4.1")
+    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-8.4.3")
+    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.4.1")
 
     compileOnly fg.deobf("curse.maven:jade-324717:4986594")
 //    runtimeOnly fg.deobf("curse.maven:jade-324717:4986594")
 
     compileOnly fg.deobf("curse.maven:the-one-probe-245211:4629624")
-    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:4629624")
+//    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:4629624")
 
 //    compileOnly fg.deobf("curse.maven:rubidium-574856:4952685")
 //    runtimeOnly fg.deobf("curse.maven:rubidium-574856:4952685")
 
-//    runtimeOnly fg.deobf("curse.maven:multi-mine-227887:4667502")
+    runtimeOnly fg.deobf("curse.maven:multi-mine-227887:4667502")
 
 //    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4647094")
 //    runtimeOnly fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
@@ -110,9 +110,8 @@ sourceSets.main.resources {
 
 processResources {
     from project(":shared").sourceSets.main.resources
-    inputs.property "version", mod_version
 
-    filesMatching(["mods.toml", "pack.mcmeta"]) {
+    filesMatching(["META-INF/mods.toml", "pack.mcmeta"]) {
         expand project.properties
     }
 }

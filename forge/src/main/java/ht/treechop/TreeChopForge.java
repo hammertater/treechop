@@ -5,6 +5,9 @@ import ht.treechop.common.ForgePlatform;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ForgePacketHandler;
 import ht.treechop.common.registry.ForgeModBlocks;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -14,6 +17,8 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -41,6 +46,8 @@ public class TreeChopForge extends TreeChop {
         forgeBus.addListener((TagsUpdatedEvent event) -> ConfigHandler.updateTags());
 
         ForgePacketHandler.registerPackets();
+
+        modBus.addListener((RegisterEvent event) -> event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> helper.register(CHOP_WOOD, CHOP_WOOD_EVENT)));
     }
 
     private void processIMC(InterModProcessEvent event) {
