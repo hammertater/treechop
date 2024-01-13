@@ -266,7 +266,7 @@ public class ChopUtil {
     }
 
     public static void thwack(Player thwacker, Level level, BlockPos pos, BlockState state) {
-        final float volume = .5f;
+        final float volume = .3f;
         final float pitch = 1f;
         level.playSound(thwacker, pos, TreeChop.CHOP_WOOD_EVENT.get(), SoundSource.BLOCKS, volume, pitch);
         level.addDestroyBlockEffect(pos, state);
