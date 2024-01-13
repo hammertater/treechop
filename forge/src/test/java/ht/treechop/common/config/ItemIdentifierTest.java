@@ -4,6 +4,7 @@ import ht.treechop.common.config.resource.MalformedResourceIdentifier;
 import ht.treechop.common.config.resource.ResourceIdentifier;
 import ht.treechop.common.config.resource.ResourceNamespaceIdentifier;
 import ht.treechop.common.config.resource.ResourceTagIdentifier;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -28,6 +29,7 @@ class ItemIdentifierTest {
         assertThat(id.getQualifiers().size(), is(0));
     }
 
+    @Disabled // Removed qualifier support
     @Test
     void fromIdWithQualifier() {
         ResourceIdentifier id = ResourceIdentifier.from("chimney:chute?nice");
@@ -46,6 +48,7 @@ class ItemIdentifierTest {
         assertThat(id.getQualifiers().size(), is(0));
     }
 
+    @Disabled // Removed qualifier support
     @Test
     void fromModWithQualifier() {
         ResourceIdentifier id = ResourceIdentifier.from("@chimney?nice");
@@ -71,6 +74,7 @@ class ItemIdentifierTest {
         assertThat(id.getQualifiers().size(), is(0));
     }
 
+    @Disabled // Removed qualifier support
     @Test
     void fromVanillaTagWithQualifier() {
         ResourceIdentifier id = ResourceIdentifier.from("#logs?nice");
@@ -90,6 +94,7 @@ class ItemIdentifierTest {
         assertThat(id.getQualifiers().size(), is(0));
     }
 
+    @Disabled // Removed qualifier support
     @Test
     void fromExplicitTagWithQualifier() {
         ResourceIdentifier id = ResourceIdentifier.from("#chimney:chutes?nice,horse=stallion");
@@ -101,6 +106,7 @@ class ItemIdentifierTest {
         assertThat(id.getQualifier("horse").orElse(null), is("stallion"));
     }
 
+    @Disabled // Removed qualifier support
     @Test
     void fromOverride() {
         ResourceIdentifier id = ResourceIdentifier.from("#chimney:chutes?chops=3,override=always");

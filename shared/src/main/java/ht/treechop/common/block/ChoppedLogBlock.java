@@ -8,6 +8,7 @@ import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.ClassUtil;
 import ht.treechop.server.Server;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -72,14 +73,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         final byte SOUTH = 1 << 3;
         final byte WEST = 1 << 4;
         final byte EAST = 1 << 5;
-
-//        openSides = (byte) (
-//                (!state.getOptionalValue(BlockStateProperties.DOWN).orElse(!isBlockOpen(level, blockPos.below())) ? DOWN : 0)
-//                        | (!state.getOptionalValue(BlockStateProperties.UP).orElse(isBlockALog(level, blockPos.above())) ? UP : 0)
-//                        | (!state.getOptionalValue(BlockStateProperties.NORTH).orElse(isBlockALog(level, blockPos.north())) ? NORTH : 0)
-//                        | (!state.getOptionalValue(BlockStateProperties.SOUTH).orElse(isBlockALog(level, blockPos.south())) ? SOUTH : 0)
-//                        | (!state.getOptionalValue(BlockStateProperties.WEST).orElse(isBlockALog(level, blockPos.west())) ? WEST : 0)
-//                        | (!state.getOptionalValue(BlockStateProperties.EAST).orElse(isBlockALog(level, blockPos.east())) ? EAST : 0)
 
         byte openSides = (byte) (
                 (isBlockOpen(level, blockPos.below()) ? DOWN : 0)
@@ -209,7 +202,11 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                         entity.setParameters(chopZeroRadius, maxNumChops, supportFactor);
 
                         List<ItemStack> drops = Block.getDrops(blockState, serverLevel, pos, entity, player, tool);
-                        entity.setDrops(drops);
+                        if (ConfigHandler.COMMON.dropLootOnFirstChop.get()) {
+                            drops.forEach(stack -> popResource(level, pos, stack));
+                        } else {
+                            entity.setDrops(drops);
+                        }
                     }
                 }
 
@@ -396,6 +393,14 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             for (int i = 0; i < list.size(); ++i) {
                 CompoundTag item = list.getCompound(i);
                 drops.add(ItemStack.of(item));
+            }
+
+            rerender();
+        }
+
+        protected void rerender() {
+            if (level != null) {
+                level.setBlocksDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
             }
         }
 

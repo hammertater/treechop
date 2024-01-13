@@ -1,42 +1,50 @@
 package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
-import ht.treechop.common.InternalChopEvent;
+import ht.treechop.api.ChopEvent;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.util.TickUtil;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 @EventBusSubscriber(modid = TreeChop.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class MultiMine {
 
-    static private final Map<Player, Long> lastChopTickByPlayers = new HashMap<>();
+    static private Long lastChopTick = TickUtil.NEVER;
+    static private final Set<BlockPos> lastChops = new HashSet<>();
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
-        // TODO: Check if Multi Mine is loaded
-        if (ConfigHandler.COMMON.compatForMultiMine.get()) {
-            MinecraftForge.EVENT_BUS.register(MultiMine.EventHandler.class);
+        if (ConfigHandler.COMMON.compatForMultiMine.get() && ModList.get().isLoaded("multimine")) {
+            MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, MultiMine::onChop);
         }
     }
 
-    private static class EventHandler {
-        @SubscribeEvent
-        public static void onChop(InternalChopEvent.PreChopEvent event) {
-            Player player = event.getPlayer();
-            long gameTick = event.getLevel().getGameTime();
-            // TODO: Check for repeated block pos instead of player
-            if (lastChopTickByPlayers.getOrDefault(player, TickUtil.NEVER) == gameTick) {
+    public static void onChop(ChopEvent.StartChopEvent event) {
+        BlockPos pos = event.getChoppedBlockPos();
+        long gameTick = event.getLevel().getGameTime();
+
+        if (lastChopTick == gameTick) {
+            if (lastChops.contains(pos)) {
                 event.setCanceled(true);
-            } else {
-                lastChopTickByPlayers.put(player, gameTick);
+                if (event.getTrigger() instanceof BlockEvent.BreakEvent breakEvent) {
+                    breakEvent.setCanceled(true);
+                }
             }
+        } else {
+            lastChops.clear();
+            lastChopTick = gameTick;
         }
+
+        lastChops.add(pos);
     }
 }

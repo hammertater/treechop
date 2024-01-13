@@ -1,32 +1,35 @@
 package ht.treechop.common.chop;
 
 import ht.treechop.TreeChop;
+import ht.treechop.TreeChopException;
 import ht.treechop.api.*;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ChopCounting;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.config.Lazy;
+import ht.treechop.common.config.TreeLeavesBehavior;
 import ht.treechop.common.settings.ChopSettings;
-import ht.treechop.common.util.*;
+import ht.treechop.common.util.AxeAccessor;
+import ht.treechop.common.util.BlockUtil;
+import ht.treechop.common.util.ClassUtil;
 import ht.treechop.server.Server;
-import ht.tuber.graph.DirectedGraph;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class ChopUtil {
@@ -61,8 +64,9 @@ public class ChopUtil {
     }
 
     public static boolean isBlockLeaves(BlockState blockState) {
-        if (ConfigHandler.COMMON.leavesBlocks.get().contains(blockState.getBlock())) {
-            return !ConfigHandler.COMMON.ignorePersistentLeaves.get() || !blockState.hasProperty(LeavesBlock.PERSISTENT) || !blockState.getValue(LeavesBlock.PERSISTENT);
+        TreeLeavesBehavior behavior = ConfigHandler.COMMON.leavesBlocks.get().get(blockState.getBlock());
+        if (behavior != null) {
+            return behavior.isLeaves(blockState);
         } else {
             return false;
         }
@@ -97,17 +101,15 @@ public class ChopUtil {
                 : 1.0;
     }
 
-    public static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean fellIfPossible) {
+    public static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean fellIfPossible, boolean breakLeaves, TreeData tree) {
         return fellIfPossible
-                ? getChopResult(level, origin, chopSettings, numChops)
+                ? getChopResult(level, origin, chopSettings, numChops, breakLeaves, tree)
                 : tryToChopWithoutFelling(level, origin, numChops);
     }
 
-    private static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops) {
-        TreeData tree = getTree(level, origin);
-
+    private static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean breakLeaves, TreeData tree) {
         if (tree.isAProperTree(chopSettings.getTreesMustHaveLeaves())) {
-            return getChopResult(level, origin, tree, numChops);
+            return getChopResult(level, origin, tree, numChops, breakLeaves);
         } else {
             return ChopResult.IGNORED;
         }
@@ -124,13 +126,13 @@ public class ChopUtil {
         return TreeChop.platform.detectTreeEvent(level, null, origin, level.getBlockState(origin), tree);
     }
 
-    private static ChopResult getChopResult(Level level, BlockPos origin, TreeData tree, int numChops) {
+    private static ChopResult getChopResult(Level level, BlockPos origin, TreeData tree, int numChops, boolean breakLeaves) {
         if (tree.streamLogs().findFirst().isEmpty()) {
             return ChopResult.IGNORED;
         }
 
         if (tree.readyToFell(tree.getChops() + numChops)) {
-            return new FellTreeResult(level, tree);
+            return new FellTreeResult(level, tree, breakLeaves);
         } else {
             return new ChopTreeResult(level, tree.chop(origin, numChops));
         }
@@ -207,7 +209,15 @@ public class ChopUtil {
         return chopSettings.getFellingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeFellBehavior(player);
     }
 
-    public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) {
+    public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) throws TreeChopException {
+        try {
+            return chopUnsafe(agent, level, pos, blockState, tool, trigger);
+        } catch (Exception e) {
+            throw new TreeChopException(String.format("Parameters: %s, %s, %s, %s, %s, %s", agent, level, pos, blockState, tool, trigger), e);
+        }
+    }
+
+    public static boolean chopUnsafe(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) {
         ChopSettings chopSettings = Server.instance().getPlayerChopData(agent).getSettings();
         if (!isBlockChoppable(level, pos, blockState)
                 || !ChopUtil.playerWantsToChop(agent, chopSettings)
@@ -215,9 +225,13 @@ public class ChopUtil {
             return false;
         }
 
+        boolean felling = ChopUtil.playerWantsToFell(agent, chopSettings);
+        TreeData tree = felling ? getTree(level, pos) : null;
+
         ChopData chopData = new ChopDataImpl(
                 ChopUtil.getNumChopsByTool(tool, blockState),
-                ChopUtil.playerWantsToFell(agent, chopSettings)
+                felling,
+                tree
         );
 
         boolean doChop = TreeChop.platform.startChopEvent(agent, level, pos, blockState, chopData, trigger);
@@ -230,19 +244,32 @@ public class ChopUtil {
                 pos,
                 chopSettings,
                 chopData.getNumChops(),
-                chopData.getFelling()
+                chopData.getFelling(),
+                ConfigHandler.COMMON.breakLeaves.get(),
+                tree
         );
 
         if (chopResult != ChopResult.IGNORED) {
-            chopResult.apply(pos, agent, tool, ConfigHandler.COMMON.breakLeaves.get());
+            chopResult.apply(pos, agent, tool);
             TreeChop.platform.finishChopEvent(agent, level, pos, blockState, chopData, chopResult);
             tool.mineBlock(level, blockState, pos, agent);
 
             boolean felled = chopResult instanceof FellTreeResult;
+            if (!felled) {
+                thwack(agent, level, pos, blockState);
+            }
+
             return !felled;
         }
 
         return false;
+    }
+
+    public static void thwack(Player thwacker, Level level, BlockPos pos, BlockState state) {
+        final float volume = .5f;
+        final float pitch = 1f;
+        level.playSound(thwacker, pos, TreeChop.CHOP_WOOD_EVENT.get(), SoundSource.BLOCKS, volume, pitch);
+        level.addDestroyBlockEffect(pos, state);
     }
 
     public static BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state) {

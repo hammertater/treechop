@@ -44,6 +44,25 @@ public class ChopEvent extends Event {
     }
 
     /**
+     * Signals that a tree is about to be felled. Fires before any blocks are broken.
+     * Can be canceled to prevent felling.
+     */
+    @Cancelable
+    public static class BeforeFellEvent extends ChopEvent {
+        private final FellData fellData;
+
+        public BeforeFellEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, FellData fellData) {
+            super(level, player, blockPos, blockState);
+            this.fellData = fellData;
+        }
+
+        public FellData getFellData() {
+            return fellData;
+        }
+
+    }
+
+    /**
      * Used to determine whether a choppable block belongs to a tree. For example,
      * <ul>
      *   <li> to trigger chopping when a choppable block is broken

@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
 public interface ChopResult {
-    ChopResult IGNORED = (targetPos, agent, tool, breakLeaves) -> {};
+    ChopResult IGNORED = (targetPos, agent, tool) -> {};
 
     /**
      * Applies the results of chopping to the level, spawning the appropriate drops.
@@ -13,5 +13,5 @@ public interface ChopResult {
      * - Felled blocks: harvest by no one, change to felled state
      * - Chopped and felled blocks: harvest by agent, change to felled state
      */
-    void apply(BlockPos targetPos, ServerPlayer agent, ItemStack tool, boolean breakLeaves);
+    void apply(BlockPos targetPos, ServerPlayer agent, ItemStack tool);
 }

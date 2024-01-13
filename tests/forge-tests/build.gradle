@@ -12,13 +12,13 @@ buildscript {
 apply plugin: "net.minecraftforge.gradle"
 apply plugin: 'org.spongepowered.mixin'
 
-archivesBaseName = "${modname}-${mcversion}-forgetests"
+archivesBaseName = "${mod_name}-${minecraft_version}-forgetests"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println("Java: " + System.getProperty("java.version") + " JVM: " + System.getProperty("java.vm.version") + "(" + System.getProperty("java.vendor") + ") Arch: " + System.getProperty("os.arch"))
 minecraft {
-    mappings channel: "official", version: mcversion
+    mappings channel: "official", version: minecraft_version
 
     runs {
         client {
@@ -88,7 +88,7 @@ repositories {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${mcversion}-${forgeversion}"
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forgeversion}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     compileOnly fg.deobf("curse.maven:treechop-421377:4167152")

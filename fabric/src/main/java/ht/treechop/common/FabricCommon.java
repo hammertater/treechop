@@ -1,5 +1,7 @@
 package ht.treechop.common;
 
+import ht.treechop.TreeChop;
+import ht.treechop.TreeChopException;
 import ht.treechop.common.chop.ChopUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -14,7 +16,15 @@ public class FabricCommon {
     public static boolean onBreakEvent(Level level, Player player, BlockPos pos, BlockState blockState, BlockEntity blockEntity) {
         if (level instanceof ServerLevel serverLevel && player instanceof ServerPlayer serverPlayer) {
             ItemStack tool = player.getMainHandItem();
-            boolean chopped = ChopUtil.chop(serverPlayer, serverLevel, pos, blockState, tool, null);
+
+            boolean chopped;
+            try {
+                chopped = ChopUtil.chop(serverPlayer, serverLevel, pos, blockState, tool, null);
+            } catch (TreeChopException e) {
+                TreeChop.cry(e);
+                chopped = false;
+            }
+
             return !chopped;
         } else {
             return true;

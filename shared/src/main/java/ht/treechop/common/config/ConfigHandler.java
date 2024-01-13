@@ -210,6 +210,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue enabled;
         public final ForgeConfigSpec.BooleanValue enableLogging;
         public final ForgeConfigSpec.BooleanValue dropLootForChoppedBlocks;
+        public final ForgeConfigSpec.BooleanValue dropLootOnFirstChop;
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
         public final ForgeConfigSpec.BooleanValue breakLeaves;
@@ -237,6 +238,7 @@ public class ConfigHandler {
         public final InitializedSupplier<Boolean> compatForTerraformers = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForTinkersConstruct = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForMultiMine = defaultValue(true);
+        public final InitializedSupplier<Boolean> compatForApotheosis = defaultValue(true);
         public final InitializedSupplier<Integer> tinkersConstructTreeAOEChops = defaultValue(5);
         public final InitializedSupplier<Integer> tinkersConstructWoodAOEChops = defaultValue(5);
         public final InitializedSupplier<Double> tinkersConstructExpandedMultiplier = defaultValue(2.0);
@@ -267,19 +269,19 @@ public class ConfigHandler {
         );
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksList;
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksExceptionsList;
-        public final Lazy<Set<Block>> leavesBlocks = new Lazy<>(
+        public final Lazy<Map<Block, TreeLeavesBehavior>> leavesBlocks = new Lazy<>(
                 UPDATE_TAGS,
                 () -> {
                     Set<Block> exceptions = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksExceptionsList.get())
                             .collect(Collectors.toSet());
 
-                    Set<Block> blocks = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksList.get())
+                    Map<Block, TreeLeavesBehavior> blocks = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksList.get())
                             .filter(block -> !exceptions.contains(block))
-                            .collect(Collectors.toSet());
+                            .collect(Collectors.toMap(k -> k, v -> TreeLeavesBehavior.DEFAULT));
 
                     TreeChop.api.getLeavesBlockOverrides().forEach(blockIsLeaves -> {
                         if (blockIsLeaves.getValue()) {
-                            blocks.add(blockIsLeaves.getKey());
+                            blocks.put(blockIsLeaves.getKey(), TreeLeavesBehavior.PROBLEMATIC);
                         } else {
                             blocks.remove(blockIsLeaves.getKey());
                         }
@@ -343,12 +345,15 @@ public class ConfigHandler {
             dropLootForChoppedBlocks = builder
                     .comment("If false, log items will be destroyed when chopping")
                     .define("dropLootForChoppedBlocks", true);
+            dropLootOnFirstChop = builder
+                    .comment("If true, chopped logs will drop a log item immediately instead of waiting for the tree to be felled, restoring legacy behavior. Does nothing if dropLootForChoppedBlocks is false")
+                    .define("dropLootOnFirstChop", false);
             builder.pop();
 
             builder.push("treeDetection");
             maxNumTreeBlocks = builder
                     .comment("Maximum number of log blocks that can be detected to belong to one tree")
-                    .defineInRange("maxTreeBlocks", 320, 1, 8096);
+                    .defineInRange("maxTreeBlocks", 1024, 1, 8096);
             maxNumLeavesBlocks = builder
                     .comment("Maximum number of leaves blocks that can destroyed when a tree is felled")
                     .defineInRange("maxLeavesBlocks", 1024, 1, 8096);
@@ -453,12 +458,13 @@ public class ConfigHandler {
                     .defineList("items",
                             Arrays.asList(
                                     "botania:terra_axe",
-                                    "mekanism:atomic_disassembler",
                                     "@lumberjack",
-                                    "practicaltools:iron_greataxe",
-                                    "practicaltools:golden_greataxe",
+                                    "mekanism:atomic_disassembler",
                                     "practicaltools:diamond_greataxe",
-                                    "practicaltools:netherite_greataxe"),
+                                    "practicaltools:golden_greataxe",
+                                    "practicaltools:iron_greataxe",
+                                    "practicaltools:netherite_greataxe",
+                                    "twilightforest:giant_pickaxe"),
                             always -> true);
             builder.pop();
 
@@ -509,6 +515,10 @@ public class ConfigHandler {
                         .comment("https://github.com/AtomicStryker/atomicstrykers-minecraft-mods",
                                 "Fixes bad behavior")
                         .define("multiMine", true)::get);
+                compatForApotheosis.set(builder
+                        .comment("https://www.curseforge.com/minecraft/mc-mods/apotheosis",
+                                "Adds compatibility with the \"chainsaw\" enchantment.")
+                        .define("apotheosis", true)::get);
 
                 builder.push("silentgear");
                 compatForSilentGear.set(builder

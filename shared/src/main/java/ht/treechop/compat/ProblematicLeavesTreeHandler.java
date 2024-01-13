@@ -1,6 +1,9 @@
 package ht.treechop.compat;
 
-import ht.treechop.api.*;
+import ht.treechop.api.ITreeBlock;
+import ht.treechop.api.TreeChopAPI;
+import ht.treechop.api.TreeData;
+import ht.treechop.api.TreeDetectorBuilder;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.config.Lazy;
 import ht.treechop.common.util.BlockNeighbors;
@@ -69,11 +72,18 @@ public class ProblematicLeavesTreeHandler implements ITreeBlock {
                     "tropicraft:.*_log(_.*)?",
                     "mysticbiomes:.*_log",
                     "betternether:.*_bark",
-                    "betternether:.*_log"
+                    "betternether:.*_log",
+//                    "biomesoplenty:palm_logs", // No issues on 1.20.1+
+                    "alexscaves:.*_log",
+                    "alexscaves:pewen_wood"
             ), always -> true);
             leavesIds = builder.defineList("leaves", List.of(
                     "tropicraft:.*_leaves(_.*)?",
-                    "betternether:.*_leaves"
+                    "betternether:.*_leaves",
+                    "regions_unexplored:brimwood_leaves",
+//                    "biomesoplenty:palm_leaves", // No issues on 1.20.1+
+                    "alexscaves:.*_branch",
+                    "alexscaves:pewen_pines"
             ), always -> true);
             builder.pop();
         }

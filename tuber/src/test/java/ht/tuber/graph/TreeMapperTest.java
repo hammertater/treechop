@@ -5,9 +5,12 @@ import ht.tuber.test.TestBlock;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static ht.tuber.graph.TestUtil.pos;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TreeMapperTest {
     @Test
@@ -33,6 +36,20 @@ class TreeMapperTest {
 
     private SupportGraph<Vector2> makeWatershedGradients(DirectedGraph<Vector2> graph, Collection<Vector2> sinks) {
         return null;
+    }
+
+    @Test
+    void haha() {
+        final AtomicInteger[] nextNode = {new AtomicInteger(0)};
+        Stream.iterate(nextNode[0], Objects::nonNull, ignored -> nextNode[0])
+                .peek(node -> {
+                    assertTrue(node != null);
+                    if (nextNode[0].get() < 100) {
+                        nextNode[0].getAndIncrement();
+                    } else {
+                        nextNode[0] = null;
+                    }
+                }).forEach(a -> {});
     }
 
 }

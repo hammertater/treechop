@@ -1,5 +1,6 @@
 package ht.treechop.common.chop;
 
+import ht.treechop.TreeChop;
 import ht.treechop.api.TreeData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -24,23 +25,25 @@ import java.util.function.Consumer;
 
 public class FellTreeResult implements ChopResult {
     private final Level level;
-    private final TreeData tree;
+    private final FellDataImpl fellData;
 
-    public FellTreeResult(Level level, TreeData tree) {
+    public FellTreeResult(Level level, TreeData tree, boolean breakLeaves) {
         this.level = level;
-        this.tree = tree;
+        this.fellData = new FellDataImpl(tree, breakLeaves);
     }
 
     @Override
-    public void apply(BlockPos targetPos, ServerPlayer player, ItemStack tool, boolean breakLeaves) {
+    public void apply(BlockPos targetPos, ServerPlayer player, ItemStack tool) {
         GameType gameType = player.gameMode.getGameModeForPlayer();
 
         if (level instanceof ServerLevel serverLevel && !serverLevel.getBlockState(targetPos).isAir() && !player.blockActionRestricted(serverLevel, targetPos, gameType)) {
-            Consumer<BlockPos> blockBreaker = makeBlockBreaker(player, serverLevel);
-            breakLogs(player, serverLevel, gameType, blockBreaker, targetPos);
+            if (TreeChop.platform.startFellTreeEvent(player, level, targetPos, fellData)) {
+                Consumer<BlockPos> blockBreaker = makeBlockBreaker(player, serverLevel);
+                breakLogs(player, serverLevel, fellData.getTree(), gameType, blockBreaker, targetPos);
 
-            if (breakLeaves) {
-                breakLeaves(player, serverLevel, gameType, blockBreaker);
+                if (fellData.getBreakLeaves()) {
+                    breakLeaves(player, serverLevel, fellData.getTree(), gameType, blockBreaker);
+                }
             }
         }
     }
@@ -55,7 +58,7 @@ public class FellTreeResult implements ChopResult {
         }
     }
 
-    private void breakLogs(ServerPlayer player, ServerLevel level, GameType gameType, Consumer<BlockPos> blockBreaker, BlockPos targetPos) {
+    private static void breakLogs(ServerPlayer player, ServerLevel level, TreeData tree, GameType gameType, Consumer<BlockPos> blockBreaker, BlockPos targetPos) {
         final long maxNumEffects = 4;
         AtomicInteger i = new AtomicInteger(0);
         PriorityQueue<Pair<BlockPos, BlockState>> effects = new PriorityQueue<>(Comparator.comparing(pair -> pair.getLeft().getY()));
@@ -72,7 +75,7 @@ public class FellTreeResult implements ChopResult {
                 .forEach(posState -> playBlockBreakEffects(level, posState.getLeft(), posState.getRight()));
     }
 
-    private void breakLeaves(ServerPlayer player, ServerLevel level, GameType gameType, Consumer<BlockPos> blockBreaker) {
+    private static void breakLeaves(ServerPlayer player, ServerLevel level, TreeData tree, GameType gameType, Consumer<BlockPos> blockBreaker) {
         final long maxNumEffects = 5;
         AtomicInteger i = new AtomicInteger(0);
         PriorityQueue<Pair<BlockPos, BlockState>> effects = new PriorityQueue<>(Comparator.comparing(pair -> pair.getLeft().getY()));
@@ -86,7 +89,7 @@ public class FellTreeResult implements ChopResult {
                     blockBreaker.accept(pos);
                 }
 
-                if (player.distanceToSqr(pos.getCenter()) > 9.0) {
+                if (effects.size() == 0 || player.distanceToSqr(pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5) > 9.0) {
                     collectSomeBlocks(effects, pos, state, i, 8);
                 }
             }
@@ -128,7 +131,7 @@ public class FellTreeResult implements ChopResult {
         }
     }
 
-    private void decayLeavesInsteadOfBreaking(ServerLevel level, BlockPos pos, BlockState state) {
+    private static void decayLeavesInsteadOfBreaking(ServerLevel level, BlockPos pos, BlockState state) {
         BlockState decayingState = state.setValue(LeavesBlock.PERSISTENT, false).setValue(LeavesBlock.DISTANCE, LeavesBlock.DECAY_DISTANCE);
         decayingState.randomTick(level, pos, level.random);
     }

@@ -21,7 +21,7 @@ public class NoChopRecursion {
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
         if (ConfigHandler.COMMON.preventChopRecursion.get()) {
-            MinecraftForge.EVENT_BUS.register(NoChopRecursion.EventHandler.class);
+            MinecraftForge.EVENT_BUS.register(EventHandler.class);
         }
     }
 

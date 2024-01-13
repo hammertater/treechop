@@ -1,7 +1,6 @@
 package ht.treechop.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiGraphics;
 import ht.treechop.common.block.FabricChoppedLogBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -59,4 +58,5 @@ public class FabricChoppedLogEntityRenderer extends FabricChoppedLogBakedModel i
         emitBlockQuads(level, originalState, pos, random, quads::add);
         return new HiddenChoppedLogBakedModel(quads);
     }
+
 }

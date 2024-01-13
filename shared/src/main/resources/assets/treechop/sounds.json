@@ -1,0 +1,14 @@
+{
+  "chop_wood": {
+    "subtitle": "treechop.subtitles.block_chopped",
+    "sounds": [
+      "treechop:chop_wood1",
+      "treechop:chop_wood2",
+      "treechop:chop_wood3",
+      "treechop:chop_wood4",
+      "treechop:chop_wood5",
+      "treechop:chop_wood6",
+      "treechop:chop_wood7"
+    ]
+  }
+}

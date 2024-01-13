@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 @Deprecated
 public interface TreeDataImmutable {
-    @Deprecated
+
     Optional<Set<BlockPos>> getLogBlocks();
 
     @Deprecated

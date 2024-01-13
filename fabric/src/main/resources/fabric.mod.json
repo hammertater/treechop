@@ -1,19 +1,20 @@
 {
   "schemaVersion": 1,
-  "id": "treechop",
-  "version": "${version}",
-
-  "name": "HT's TreeChop",
-  "description": "Makes trees more choppable.",
+  "id": "$mod_id",
+  "version": "$mod_version",
+  "name": "$mod_name_gloating",
+  "description": "$mod_description",
   "authors": [
-    "hammertater"
+    "$mod_authors"
   ],
   "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/treechop",
-    "sources": "https://github.com/hammertater/treechop"
+    "curseforge": "$mod_url_curseforge",
+    "modrinth": "$mod_url_modrinth",
+    "sources": "$mod_url_source",
+    "issues": "$mod_url_issues"
   },
 
-  "license": "MIT (https://github.com/hammertater/treechop/blob/main/LICENSE)",
+  "license": "$mod_license",
   "icon": "logo.png",
 
   "environment": "*",
@@ -32,15 +33,15 @@
     ]
   },
   "mixins": [
-    "treechop.mixins.json",
-    "treechop.fabric.mixins.json"
+    "${mod_id}.mixins.json",
+    "${mod_id}.fabric.mixins.json"
   ],
 
   "depends": {
     "forgeconfigapiport": "*",
     "fabricloader": "*",
     "fabric": "*",
-    "minecraft": "~1.20",
+    "minecraft": "~${minecraft_version}",
     "java": ">=17"
   },
   "suggests": {

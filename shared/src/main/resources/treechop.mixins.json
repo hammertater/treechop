@@ -7,6 +7,9 @@
   "mixins": [
     "EntityChopSettingsMixin"
   ],
+  "client": [
+    "MultiPlayerGameModeMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }
