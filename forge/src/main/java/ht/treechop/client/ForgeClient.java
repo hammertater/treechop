@@ -29,7 +29,9 @@ public class ForgeClient extends Client {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(EventHandler.class);
+    }
 
+    public static void registerModels() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(ForgeChoppedLogBakedModel::overrideBlockStateModels);
     }
