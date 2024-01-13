@@ -24,6 +24,7 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -266,10 +267,15 @@ public class ChopUtil {
     }
 
     public static void thwack(Player thwacker, Level level, BlockPos pos, BlockState state) {
-        final float volume = .3f;
-        final float pitch = 1f;
-        level.playSound(thwacker, pos, TreeChop.CHOP_WOOD_EVENT.get(), SoundSource.BLOCKS, volume, pitch);
-        level.addDestroyBlockEffect(pos, state);
+        IThwackableBlock thwackable = ClassUtil.getThwackableBlock(state.getBlock());
+        if (thwackable != null) {
+            thwackable.thwack(thwacker, level, pos, state);
+        } else {
+            final float volume = .3f;
+            final float pitch = 1f;
+            level.playSound(thwacker, pos, TreeChop.CHOP_WOOD_EVENT.get(), SoundSource.BLOCKS, volume, pitch);
+            level.addDestroyBlockEffect(pos, state);
+        }
     }
 
     public static BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state) {
