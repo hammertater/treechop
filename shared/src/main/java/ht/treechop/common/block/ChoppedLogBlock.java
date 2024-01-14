@@ -432,7 +432,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             CompoundTag update = ServerUpdateChopsPacket.getPendingUpdate(level, worldPosition);
             if (update != null) {
                 load(update);
-                rerender();
+//                rerender(); // Causes crashes with Flywheel, aint worth it folks.
             }
         }
 
