@@ -2,7 +2,6 @@ package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.registry.FabricModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -11,7 +10,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec2;
 import snownee.jade.api.*;
 import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.config.IWailaConfig;
+import snownee.jade.api.theme.IThemeHelper;
 import snownee.jade.api.ui.IElement;
 
 import java.util.LinkedList;
@@ -66,7 +65,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
 
             Component newName = WailaUtil.getPrefixedBlockName(choppedEntity);
             IElement newNameElement = tooltip.getElementHelper()
-                    .text(IWailaConfig.get().getFormatting().title(newName))
+                    .text(IThemeHelper.get().title(newName))
                     .tag(OBJECT_NAME_COMPONENT_KEY);
 
             tooltip.add(newNameElement);
