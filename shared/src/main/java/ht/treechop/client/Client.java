@@ -15,6 +15,7 @@ import ht.treechop.common.settings.SneakBehavior;
 import ht.treechop.common.util.TreeCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -90,24 +91,17 @@ public abstract class Client {
         Client.instance().sendToServer(new ClientRequestSettingsPacket(chopSettings));
     }
 
-    public static void handleUpdateChopsPacket(ServerUpdateChopsPacket message) {
-        ServerUpdateChopsPacket.handle(message);
-        Level level = Minecraft.getInstance().level;
-        if (level != null && level.getBlockEntity(message.getPos()) instanceof ChoppedLogBlock.MyEntity entity) {
-            entity.update();
-        }
-    }
-
-    public static void forceChoppedLogUpdate(BlockPos pos) {
+    public static void handleUpdateChopsPacket(BlockPos pos, CompoundTag tag) {
         Level level = Minecraft.getInstance().level;
         if (level != null && level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
-            entity.update();
+            entity.load(tag);
         }
     }
 
     public static Player getPlayer() {
         return Minecraft.getInstance().player;
     }
+
 
     abstract void sendToServer(CustomPacket packet);
 }

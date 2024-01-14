@@ -1,6 +1,5 @@
 package ht.treechop.client;
 
-import ht.treechop.TreeChop;
 import ht.treechop.client.gui.screen.ChopIndicator;
 import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.network.ForgePacketHandler;
@@ -60,13 +59,5 @@ public class ForgeClient extends Client {
                 }
             }
         }
-
-        @SubscribeEvent
-        public static void onLoadLevel(LevelEvent.Load event) {
-            if (!TreeChop.platform.isDedicatedServer()) {
-                ServerUpdateChopsPacket.checkLevel(event.getLevel());
-            }
-        }
     }
-
 }

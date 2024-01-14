@@ -10,7 +10,7 @@ public class SafeClient {
 
     public static void handleUpdateChopsPacket(ServerUpdateChopsPacket message) {
         if (safe()) {
-            Client.handleUpdateChopsPacket(message);
+            Client.handleUpdateChopsPacket(message.getPos(), message.getTag());
         }
     }
 

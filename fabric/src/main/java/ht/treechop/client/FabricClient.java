@@ -43,8 +43,6 @@ public class FabricClient extends Client implements ClientModInitializer {
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> syncOnJoin());
 
-        ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> ServerUpdateChopsPacket.checkLevel(world));
-
         registerPackets();
         registerKeybindings();
 
@@ -76,7 +74,7 @@ public class FabricClient extends Client implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(ServerUpdateChopsPacket.ID, (client, handler, buffer, sender) -> {
             ServerUpdateChopsPacket packet = ServerUpdateChopsPacket.decode(buffer);
-            client.execute(() -> Client.handleUpdateChopsPacket(packet));
+            client.execute(() -> ServerUpdateChopsPacket.handle(packet));
         });
     }
 

@@ -293,6 +293,11 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             super(TreeChop.platform.getChoppedLogBlockEntity(), pos, blockState);
         }
 
+        @Override
+        public int hashCode() {
+            return Objects.hash(level, worldPosition, originalState, drops, shape, chops, unchoppedRadius, maxNumChops, supportFactor);
+        }
+
         /**
          * @param unchoppedRadius Maximum is 8 (default), minimum is 1.
          */
@@ -376,6 +381,8 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         public void load(@Nonnull CompoundTag tag) {
             super.load(tag);
 
+            int hash = hashCode();
+
             int stateId = tag.getInt(KEY_ORIGINAL_STATE);
             setOriginalState(stateId > 0 ? Block.stateById(stateId) : Blocks.OAK_LOG.defaultBlockState());
 
@@ -393,6 +400,10 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             for (int i = 0; i < list.size(); ++i) {
                 CompoundTag item = list.getCompound(i);
                 drops.add(ItemStack.of(item));
+            }
+
+            if (hash != hashCode()) {
+                rerender();
             }
         }
 
@@ -414,33 +425,16 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             syncWithClients();
         }
 
-        public void syncWithClients() {
+        private void syncWithClients() {
             if (level instanceof ServerLevel serverLevel) {
                 Server.instance().broadcast(serverLevel, worldPosition, new ServerUpdateChopsPacket(worldPosition, getUpdateTag()));
             }
         }
 
-        @Override
-        public void setLevel(@NotNull Level level) {
-            super.setLevel(level);
-            if (level.isClientSide()) {
-                update();
-            }
-        }
-
-        public void update() {
-            CompoundTag update = ServerUpdateChopsPacket.getPendingUpdate(level, worldPosition);
-            if (update != null) {
-                load(update);
-//                rerender(); // Causes crashes with Flywheel, aint worth it folks.
-            }
-        }
-
         protected void rerender() {
             if (level != null) {
-                level.setBlocksDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
+                Minecraft.getInstance().levelRenderer.setBlockDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
             }
         }
     }
-
 }
