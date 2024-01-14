@@ -1,18 +1,19 @@
 package ht.treechop.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
 import ht.treechop.client.gui.util.GUIUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
 
 public class StickyWidget extends AbstractWidget {
 
+    public static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
     private final Supplier<State> stateSupplier;
     private final Runnable onPress;
 

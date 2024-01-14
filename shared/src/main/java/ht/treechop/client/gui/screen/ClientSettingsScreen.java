@@ -24,7 +24,6 @@ import java.util.List;
 public class ClientSettingsScreen extends Screen {
 
     private static final int ROW_SEPARATION = 1;
-    private static final int INSET_SIZE = 20;
     private static final boolean IS_PAUSE_SCREEN = true;
     private static final int SPACE_ABOVE_AND_BELOW_LIST = 10;
     private static final int MIN_HEIGHT = (GUIUtil.BUTTON_HEIGHT + ROW_SEPARATION) * 5 - ROW_SEPARATION;
@@ -313,10 +312,16 @@ public class ClientSettingsScreen extends Screen {
         }
     }
 
-    @Override
+    // Introduced in 1.20.2
+    public void renderBackground(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
+        renderBackground(gui);
+    }
+
+    // Don't call super.renderBackground, it doesn't exist on 1.20.2+
+    // @Override
     public void renderBackground(GuiGraphics gui) {
-        super.renderBackground(gui);
-        gui.fill(INSET_SIZE, INSET_SIZE, width - INSET_SIZE, height - INSET_SIZE, 0x00000080);
+
+        gui.fillGradient(0, 0, width, height, -1072689136, -804253680);
     }
 
     @Override
