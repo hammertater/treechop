@@ -40,7 +40,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -404,7 +403,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             }
 
             if (hash != hashCode()) {
-                rerender();
+                rerenderNeighborhood();
             }
         }
 
@@ -433,9 +432,23 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
 
         protected void rerender() {
-            if (level != null) {
+            if (level != null && level.isClientSide()) {
                 Minecraft.getInstance().levelRenderer.setBlockDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
                 Client.treeCache.invalidate(); // Always need to do this to update WAILAs when chops spill
+            }
+        }
+
+        private void rerenderNeighborhood() {
+            if (level != null && level.isClientSide()) {
+                rerender();
+
+                BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+                for (Direction dir : Direction.values()) {
+                    pos.setWithOffset(worldPosition, dir);
+                    if (level.getBlockEntity(pos) instanceof MyEntity neighbor) {
+                        neighbor.rerender();
+                    }
+                }
             }
         }
     }
