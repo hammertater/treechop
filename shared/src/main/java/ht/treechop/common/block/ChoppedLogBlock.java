@@ -2,6 +2,7 @@ package ht.treechop.common.block;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.IChoppableBlock;
+import ht.treechop.client.Client;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ServerUpdateChopsPacket;
@@ -434,6 +435,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         protected void rerender() {
             if (level != null) {
                 Minecraft.getInstance().levelRenderer.setBlockDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
+                Client.treeCache.invalidate(); // Always need to do this to update WAILAs when chops spill
             }
         }
     }
