@@ -220,6 +220,8 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
     }
 
+
+
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -255,6 +257,10 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     public BlockState updateShape(BlockState blockState, Direction side, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (blockState.getValue(WATERLOGGED)) {
             level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+
+        if (level.getBlockEntity(pos) instanceof MyEntity entity) {
+            entity.rerender();
         }
 
         return super.updateShape(blockState, side, neighborState, level, pos, neighborPos);
