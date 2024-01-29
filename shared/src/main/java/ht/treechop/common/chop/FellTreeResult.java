@@ -44,6 +44,8 @@ public class FellTreeResult implements ChopResult {
                 if (fellData.getBreakLeaves()) {
                     breakLeaves(player, serverLevel, fellData.getTree(), gameType, blockBreaker);
                 }
+
+                TreeChop.platform.finishFellTreeEvent(player, level, targetPos, fellData);
             }
         }
     }

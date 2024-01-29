@@ -39,4 +39,6 @@ public interface Platform {
     BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state);
 
     boolean startFellTreeEvent(ServerPlayer player, Level level, BlockPos choppedPos, FellData fellData);
+
+    void finishFellTreeEvent(ServerPlayer player, Level level, BlockPos choppedPos, FellData fellData);
 }
