@@ -48,7 +48,7 @@ dependencies {
     implementation project(":shared")
     implementation project(":tuber")
 
-    runtimeOnly fg.deobf("curse.maven:create-328085:4835191")
+//    runtimeOnly fg.deobf("curse.maven:create-328085:4835191")
 
     // compile against the API
     compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-8.4.3")
