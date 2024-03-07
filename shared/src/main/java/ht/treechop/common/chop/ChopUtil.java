@@ -24,7 +24,6 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -102,14 +101,14 @@ public class ChopUtil {
                 : 1.0;
     }
 
-    public static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean fellIfPossible, boolean breakLeaves, TreeData tree) {
+    public static ChopResult getChopResult(Level level, BlockPos origin, int numChops, boolean fellIfPossible, boolean mustHaveLeaves, boolean breakLeaves, TreeData tree) {
         return fellIfPossible
-                ? getChopResult(level, origin, chopSettings, numChops, breakLeaves, tree)
+                ? getChopResult(level, origin, numChops, mustHaveLeaves, breakLeaves, tree)
                 : tryToChopWithoutFelling(level, origin, numChops);
     }
 
-    private static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean breakLeaves, TreeData tree) {
-        if (tree.isAProperTree(chopSettings.getTreesMustHaveLeaves())) {
+    private static ChopResult getChopResult(Level level, BlockPos origin, int numChops, boolean mustHaveLeaves, boolean breakLeaves, TreeData tree) {
+        if (tree.isAProperTree(mustHaveLeaves)) {
             return getChopResult(level, origin, tree, numChops, breakLeaves);
         } else {
             return ChopResult.IGNORED;
@@ -211,29 +210,34 @@ public class ChopUtil {
     }
 
     public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) throws TreeChopException {
+        ChopSettings chopSettings = Server.instance().getPlayerChopData(agent).getSettings();
+        if (ChopUtil.playerWantsToChop(agent, chopSettings)) {
+            int numChops = ChopUtil.getNumChopsByTool(tool, blockState);
+            boolean felling = ChopUtil.playerWantsToFell(agent, chopSettings);
+            boolean treesMustHaveLeaves = chopSettings.getTreesMustHaveLeaves();
+            return chop(agent, level, pos, blockState, tool, trigger, numChops, felling, treesMustHaveLeaves);
+        }
+
+        return false;
+    }
+
+    public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger, int numChops, boolean felling, boolean treesMustHaveLeaves) throws TreeChopException {
         try {
-            return chopUnsafe(agent, level, pos, blockState, tool, trigger);
+            return chopUnsafe(agent, level, pos, blockState, tool, trigger, numChops, felling, treesMustHaveLeaves);
         } catch (Exception e) {
-            throw new TreeChopException(String.format("Parameters: %s, %s, %s, %s, %s, %s", agent, level, pos, blockState, tool, trigger), e);
+            throw new TreeChopException(String.format("Parameters: %s, %s, %s, %s, %s, %s, %s, %s, %s", agent, level, pos, blockState, tool, trigger, numChops, felling, treesMustHaveLeaves), e);
         }
     }
 
-    public static boolean chopUnsafe(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) {
-        ChopSettings chopSettings = Server.instance().getPlayerChopData(agent).getSettings();
+    public static boolean chopUnsafe(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger, int numChops, boolean felling, boolean treesMustHaveLeaves) {
+
         if (!isBlockChoppable(level, pos, blockState)
-                || !ChopUtil.playerWantsToChop(agent, chopSettings)
                 || !ChopUtil.canChopWithTool(agent, tool, level, pos, blockState)) {
             return false;
         }
 
-        boolean felling = ChopUtil.playerWantsToFell(agent, chopSettings);
         TreeData tree = felling ? getTree(level, pos) : null;
-
-        ChopData chopData = new ChopDataImpl(
-                ChopUtil.getNumChopsByTool(tool, blockState),
-                felling,
-                tree
-        );
+        ChopData chopData = new ChopDataImpl(numChops, felling, tree);
 
         boolean doChop = TreeChop.platform.startChopEvent(agent, level, pos, blockState, chopData, trigger);
         if (!doChop) {
@@ -243,9 +247,9 @@ public class ChopUtil {
         ChopResult chopResult = ChopUtil.getChopResult(
                 level,
                 pos,
-                chopSettings,
                 chopData.getNumChops(),
                 chopData.getFelling(),
+                treesMustHaveLeaves,
                 ConfigHandler.COMMON.breakLeaves.get(),
                 tree
         );

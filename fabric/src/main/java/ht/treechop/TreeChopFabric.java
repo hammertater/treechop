@@ -9,7 +9,9 @@ import ht.treechop.common.platform.FabricPlatform;
 import ht.treechop.common.registry.FabricModBlocks;
 import ht.treechop.compat.TreeChopFabricAPITest;
 import ht.treechop.server.FabricServer;
+import ht.treechop.server.commands.ServerCommands;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -42,6 +44,10 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
         TreeChopFabricAPITest.init();
 
         Registry.register(BuiltInRegistries.SOUND_EVENT, CHOP_WOOD, CHOP_WOOD_EVENT.get());
+
+        CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
+            ServerCommands.register(dispatcher);
+        }));
     }
 
     private static void onReload(ModConfig config) {

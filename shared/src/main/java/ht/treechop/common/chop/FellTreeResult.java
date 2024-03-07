@@ -2,10 +2,10 @@ package ht.treechop.common.chop;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.TreeData;
+import ht.treechop.common.util.LevelUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -13,7 +13,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,7 +55,7 @@ public class FellTreeResult implements ChopResult {
             BlockState air = Blocks.AIR.defaultBlockState();
             return pos -> level.setBlockAndUpdate(pos, air);
         } else {
-            return pos -> harvestWorldBlock(null, level, pos, ItemStack.EMPTY);
+            return pos -> LevelUtil.harvestBlock(null, level, pos, ItemStack.EMPTY);
         }
     }
 
@@ -112,25 +111,6 @@ public class FellTreeResult implements ChopResult {
 
     private static void playBlockBreakEffects(Level level, BlockPos pos, BlockState state) {
         level.levelEvent(2001, pos, Block.getId(state));
-    }
-
-    private static void harvestWorldBlock(
-            Entity agent,
-            Level level,
-            BlockPos pos,
-            ItemStack tool
-    ) {
-        BlockState blockState = level.getBlockState(pos);
-
-        // Do not call -- makes particle and sound effects
-        // blockState.removedByPlayer(level, pos, agent, true, level.getFluidState(pos));
-
-        if (level instanceof ServerLevel) {
-            FluidState fluidStateOrAir = level.getFluidState(pos);
-            blockState.getBlock().destroy(level, pos, blockState);
-            Block.dropResources(blockState, level, pos, level.getBlockEntity(pos), agent, tool); // Should drop XP
-            level.setBlockAndUpdate(pos, fluidStateOrAir.createLegacyBlock());
-        }
     }
 
     private static void decayLeavesInsteadOfBreaking(ServerLevel level, BlockPos pos, BlockState state) {
