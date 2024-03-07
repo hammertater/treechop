@@ -25,6 +25,9 @@ public class ServerCommands {
                         .then(Commands.argument("chopCount", IntegerArgumentType.integer(0))
                                 .executes(ServerCommands::chop))));
 
+        builder.then(Commands.literal("fell")
+                .executes(ServerCommands::fell));
+
         dispatcher.register(builder);
     }
 
@@ -33,6 +36,12 @@ public class ServerCommands {
         BlockPos pos = context.getArgument("chopPos", Coordinates.class).getBlockPos(source);
         int numChops = context.getArgument("chopCount", Integer.class);
 
+        chop(context, source, pos, numChops);
+
+        return 1;
+    }
+
+    private static void chop(CommandContext<CommandSourceStack> context, CommandSourceStack source, BlockPos pos, int numChops) {
         try {
             boolean felled = !ChopUtil.chop(
                     source.getPlayer(),
@@ -52,6 +61,13 @@ public class ServerCommands {
         } catch (TreeChopException e) {
             // ignore
         }
+    }
+
+    private static int fell(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        BlockPos pos = context.getArgument("chopPos", Coordinates.class).getBlockPos(source);
+
+        chop(context, source, pos, 10000);
 
         return 1;
     }
