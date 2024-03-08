@@ -13,12 +13,12 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import java.util.Collections;
 import java.util.Set;
 
-public class DestroyBlockLootItemCondition implements LootItemCondition {
-    public static final ResourceLocation ID = TreeChop.resource("destroy_block");
+public class TreeFelledLootItemCondition implements LootItemCondition {
+    public static final ResourceLocation ID = TreeChop.resource("tree_felled");
     public static final LootItemConditionType TYPE = new LootItemConditionType(new Serializer());
-    static final DestroyBlockLootItemCondition INSTANCE = new DestroyBlockLootItemCondition();
+    static final TreeFelledLootItemCondition INSTANCE = new TreeFelledLootItemCondition();
 
-    DestroyBlockLootItemCondition() {
+    TreeFelledLootItemCondition() {
     }
 
     public LootItemConditionType getType() {
@@ -34,11 +34,11 @@ public class DestroyBlockLootItemCondition implements LootItemCondition {
         return destroying == null || destroying;
     }
 
-    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<DestroyBlockLootItemCondition> {
-        public void serialize(JsonObject json, DestroyBlockLootItemCondition condition, JsonSerializationContext context) {
+    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<TreeFelledLootItemCondition> {
+        public void serialize(JsonObject json, TreeFelledLootItemCondition condition, JsonSerializationContext context) {
         }
 
-        public DestroyBlockLootItemCondition deserialize(JsonObject json, JsonDeserializationContext context) {
+        public TreeFelledLootItemCondition deserialize(JsonObject json, JsonDeserializationContext context) {
             return INSTANCE;
         }
     }

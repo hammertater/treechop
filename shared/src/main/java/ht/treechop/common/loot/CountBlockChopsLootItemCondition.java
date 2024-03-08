@@ -14,13 +14,13 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 import java.util.Set;
 
-public class BlockChopCountLootItemCondition implements LootItemCondition {
-    public static final ResourceLocation ID = TreeChop.resource("block_chop_count");
+public class CountBlockChopsLootItemCondition implements LootItemCondition {
+    public static final ResourceLocation ID = TreeChop.resource("count_block_chops");
     public static final LootItemConditionType TYPE = new LootItemConditionType(new Serializer());
 
     final IntRange range;
 
-    BlockChopCountLootItemCondition(IntRange range) {
+    CountBlockChopsLootItemCondition(IntRange range) {
         this.range = range;
     }
 
@@ -37,14 +37,14 @@ public class BlockChopCountLootItemCondition implements LootItemCondition {
         return count != null && this.range.test(context, count);
     }
 
-    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<BlockChopCountLootItemCondition> {
-        public void serialize(JsonObject json, BlockChopCountLootItemCondition condition, JsonSerializationContext context) {
+    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<CountBlockChopsLootItemCondition> {
+        public void serialize(JsonObject json, CountBlockChopsLootItemCondition condition, JsonSerializationContext context) {
             json.add("range", context.serialize(condition.range));
         }
 
-        public BlockChopCountLootItemCondition deserialize(JsonObject json, JsonDeserializationContext context) {
+        public CountBlockChopsLootItemCondition deserialize(JsonObject json, JsonDeserializationContext context) {
             IntRange range = GsonHelper.getAsObject(json, "range", context, IntRange.class);
-            return new BlockChopCountLootItemCondition(range);
+            return new CountBlockChopsLootItemCondition(range);
         }
     }
 }

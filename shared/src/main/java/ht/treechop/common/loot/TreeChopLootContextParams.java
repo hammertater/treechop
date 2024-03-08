@@ -14,8 +14,8 @@ public class TreeChopLootContextParams {
 
     }
 
-    public static final LootContextParam<Integer> BLOCK_CHOP_COUNT = new LootContextParam<>(TreeChop.resource("block_chop_count"));
-    public static final LootContextParam<Boolean> DESTROY_BLOCK = new LootContextParam<>(TreeChop.resource("destroy_block"));
+    public static final LootContextParam<Integer> BLOCK_CHOP_COUNT = new LootContextParam<>(TreeChop.resource("count_block_chops"));
+    public static final LootContextParam<Boolean> DESTROY_BLOCK = new LootContextParam<>(TreeChop.resource("tree_felled"));
 
     public static final LootContextParamSet SET = LootContextParamSetsAccess.callRegister("treechop:chopping", set -> {
         Set<LootContextParam<?>> required = LootContextParamSets.BLOCK.getRequired();
