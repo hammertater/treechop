@@ -1,7 +1,5 @@
 package ht.treechop.common.loot;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
@@ -31,7 +29,7 @@ public class BlockChopCountLootItemCondition implements LootItemCondition {
     }
 
     public Set<LootContextParam<?>> getReferencedContextParams() {
-        return Sets.union(ImmutableSet.of(TreeChopLootContextParams.BLOCK_CHOP_COUNT), range.getReferencedContextParams());
+        return range.getReferencedContextParams();
     }
 
     public boolean test(LootContext context) {

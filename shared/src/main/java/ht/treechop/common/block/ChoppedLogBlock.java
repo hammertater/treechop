@@ -13,9 +13,11 @@ import ht.treechop.server.Server;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -36,6 +38,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -215,22 +218,26 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
 
         if (level instanceof ServerLevel serverLevel) {
+            ResourceLocation chopLootTable = BuiltInRegistries.BLOCK.getKey(this.asBlock()).withPrefix("chopping/");
+            LootTable lootTable = serverLevel.getServer().getLootData().getLootTable(chopLootTable);
+            int finalBlockChopCount = currentNumChops + numAddedChops;
+
             for (int i = 0; i < numAddedChops; ++i) {
+                int blockChopCount = 1 + currentNumChops + i;
                 LootParams.Builder builder = (new LootParams.Builder(serverLevel))
+                        .withParameter(LootContextParams.BLOCK_STATE, defaultBlockState())
                         .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
                         .withParameter(LootContextParams.TOOL, tool)
-                        .withParameter(TreeChopLootContextParams.BLOCK_CHOP_COUNT, currentNumChops + i)
-                        .withParameter(TreeChopLootContextParams.DESTROY_BLOCK, false)
+                        .withParameter(TreeChopLootContextParams.BLOCK_CHOP_COUNT, blockChopCount)
+                        .withParameter(TreeChopLootContextParams.DESTROY_BLOCK, felling && (i == finalBlockChopCount))
                         .withOptionalParameter(LootContextParams.THIS_ENTITY, player)
                         .withOptionalParameter(LootContextParams.BLOCK_ENTITY, level.getBlockEntity(pos));
 
-                defaultBlockState().getDrops(builder)
+                lootTable.getRandomItems(builder.create(TreeChopLootContextParams.SET))
                         .forEach(stack -> popResource(serverLevel, pos, stack));
             }
         }
     }
-
-
 
     @Nullable
     @Override
@@ -282,10 +289,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     public List<ItemStack> getDrops(BlockState blockState, LootParams.Builder context) {
         List<ItemStack> stacks = new ArrayList<>(super.getDrops(blockState, context));
         if (ConfigHandler.COMMON.dropLootForChoppedBlocks.get() && context.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof MyEntity entity) {
-            Boolean destroying = context.getOptionalParameter(TreeChopLootContextParams.DESTROY_BLOCK);
-            if (destroying == null || destroying) {
-                stacks.addAll(entity.drops);
-            }
+            stacks.addAll(entity.drops);
         }
         return stacks;
     }

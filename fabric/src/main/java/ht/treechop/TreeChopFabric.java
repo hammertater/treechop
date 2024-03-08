@@ -6,6 +6,7 @@ import ht.treechop.api.ITreeChopAPIProvider;
 import ht.treechop.common.FabricCommon;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.loot.BlockChopCountLootItemCondition;
+import ht.treechop.common.loot.DestroyBlockLootItemCondition;
 import ht.treechop.common.platform.FabricPlatform;
 import ht.treechop.common.registry.FabricModBlocks;
 import ht.treechop.compat.TreeChopFabricAPITest;
@@ -47,6 +48,7 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
         Registry.register(BuiltInRegistries.SOUND_EVENT, CHOP_WOOD, CHOP_WOOD_EVENT.get());
 
         Registry.register(BuiltInRegistries.LOOT_CONDITION_TYPE, BlockChopCountLootItemCondition.ID, BlockChopCountLootItemCondition.TYPE);
+        Registry.register(BuiltInRegistries.LOOT_CONDITION_TYPE, DestroyBlockLootItemCondition.ID, DestroyBlockLootItemCondition.TYPE);
 
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
             ServerCommands.register(dispatcher);
