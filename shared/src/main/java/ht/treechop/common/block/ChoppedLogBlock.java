@@ -220,6 +220,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                         .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
                         .withParameter(LootContextParams.TOOL, tool)
                         .withParameter(TreeChopLootContextParams.BLOCK_CHOP_COUNT, currentNumChops + i)
+                        .withParameter(TreeChopLootContextParams.DESTROY_BLOCK, false)
                         .withOptionalParameter(LootContextParams.THIS_ENTITY, player)
                         .withOptionalParameter(LootContextParams.BLOCK_ENTITY, level.getBlockEntity(pos));
 
@@ -279,11 +280,14 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     @Nonnull
     @Override
     public List<ItemStack> getDrops(BlockState blockState, LootParams.Builder context) {
+        List<ItemStack> stacks = new ArrayList<>(super.getDrops(blockState, context));
         if (ConfigHandler.COMMON.dropLootForChoppedBlocks.get() && context.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof MyEntity entity) {
-            return entity.drops;
-        } else {
-            return Collections.emptyList();
+            Boolean destroying = context.getOptionalParameter(TreeChopLootContextParams.DESTROY_BLOCK);
+            if (destroying == null || destroying) {
+                stacks.addAll(entity.drops);
+            }
         }
+        return stacks;
     }
 
     public static abstract class MyEntity extends BlockEntity {
