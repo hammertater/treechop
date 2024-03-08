@@ -5,6 +5,7 @@ import ht.treechop.api.IChoppableBlock;
 import ht.treechop.client.Client;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.loot.TreeChopLootContextParams;
 import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.ClassUtil;
@@ -37,6 +38,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -175,13 +177,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         int newNumChops = Math.min(currentNumChops + numChops, maxNumChops);
         int numAddedChops = newNumChops - currentNumChops;
 
-        if (level instanceof ServerLevel serverLevel) {
-            for (int i = 0; i < numAddedChops; ++i) {
-                getDrops(defaultBlockState(), serverLevel, pos, null, player, tool)
-                        .forEach(stack -> popResource(serverLevel, pos, stack));
-            }
-        }
-
         if (!felling) {
             if (numAddedChops > 0) {
                 if (!blockState.is(this)) {
@@ -216,6 +211,20 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                 }
             } else {
                 level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+            }
+        }
+
+        if (level instanceof ServerLevel serverLevel) {
+            for (int i = 0; i < numAddedChops; ++i) {
+                LootParams.Builder builder = (new LootParams.Builder(serverLevel))
+                        .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+                        .withParameter(LootContextParams.TOOL, tool)
+                        .withParameter(TreeChopLootContextParams.BLOCK_CHOP_COUNT, currentNumChops + i)
+                        .withOptionalParameter(LootContextParams.THIS_ENTITY, player)
+                        .withOptionalParameter(LootContextParams.BLOCK_ENTITY, level.getBlockEntity(pos));
+
+                defaultBlockState().getDrops(builder)
+                        .forEach(stack -> popResource(serverLevel, pos, stack));
             }
         }
     }

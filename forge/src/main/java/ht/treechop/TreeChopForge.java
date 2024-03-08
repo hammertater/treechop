@@ -1,13 +1,14 @@
 package ht.treechop;
 
 import ht.treechop.api.TreeChopAPI;
-import ht.treechop.client.ForgeClient;
 import ht.treechop.client.ForgeClientProxy;
-import ht.treechop.client.model.ForgeChoppedLogBakedModel;
 import ht.treechop.common.ForgePlatform;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.loot.BlockChopCountLootItemCondition;
 import ht.treechop.common.network.ForgePacketHandler;
 import ht.treechop.common.registry.ForgeModBlocks;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TagsUpdatedEvent;
@@ -50,6 +51,8 @@ public class TreeChopForge extends TreeChop {
         ForgePacketHandler.registerPackets();
 
         modBus.addListener((RegisterEvent event) -> event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> helper.register(CHOP_WOOD, CHOP_WOOD_EVENT.get())));
+
+        Registry.register(BuiltInRegistries.LOOT_CONDITION_TYPE, BlockChopCountLootItemCondition.ID, BlockChopCountLootItemCondition.TYPE);
 
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ForgeClientProxy::init);
     }
