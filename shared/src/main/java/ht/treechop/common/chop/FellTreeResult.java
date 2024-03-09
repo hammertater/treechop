@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -25,10 +26,12 @@ import java.util.function.Consumer;
 public class FellTreeResult implements ChopResult {
     private final Level level;
     private final FellDataImpl fellData;
+    private final Collection<Chop> chops;
 
-    public FellTreeResult(Level level, TreeData tree, boolean breakLeaves) {
+    public FellTreeResult(Level level, TreeData tree, boolean breakLeaves, Collection<Chop> chops) {
         this.level = level;
         this.fellData = new FellDataImpl(tree, breakLeaves);
+        this.chops = chops;
     }
 
     @Override
@@ -36,7 +39,11 @@ public class FellTreeResult implements ChopResult {
         GameType gameType = player.gameMode.getGameModeForPlayer();
 
         if (level instanceof ServerLevel serverLevel && !serverLevel.getBlockState(targetPos).isAir() && !player.blockActionRestricted(serverLevel, targetPos, gameType)) {
-            if (TreeChop.platform.startFellTreeEvent(player, level, targetPos, fellData)) {
+            boolean fell = TreeChop.platform.startFellTreeEvent(player, level, targetPos, fellData);
+
+            chops.forEach(chop -> chop.apply(level, player, tool, fell));
+
+            if (fell) {
                 Consumer<BlockPos> blockBreaker = makeBlockBreaker(player, serverLevel);
                 breakLogs(player, serverLevel, fellData.getTree(), gameType, blockBreaker, targetPos);
 

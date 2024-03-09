@@ -229,7 +229,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                         .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
                         .withParameter(LootContextParams.TOOL, tool)
                         .withParameter(TreeChopLootContextParams.BLOCK_CHOP_COUNT, blockChopCount)
-                        .withParameter(TreeChopLootContextParams.DESTROY_BLOCK, felling && (i == finalBlockChopCount))
+                        .withParameter(TreeChopLootContextParams.DESTROY_BLOCK, felling && (blockChopCount == finalBlockChopCount))
                         .withOptionalParameter(LootContextParams.THIS_ENTITY, player)
                         .withOptionalParameter(LootContextParams.BLOCK_ENTITY, level.getBlockEntity(pos));
 

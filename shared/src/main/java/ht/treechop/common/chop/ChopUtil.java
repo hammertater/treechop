@@ -76,15 +76,16 @@ public class ChopUtil {
         return ChopCounting.calculate((int) support) <= chops;
     }
 
-    public static int numChopsToFell(Level level, Stream<BlockPos> logs) {
-        int support = Math.max(
-                logs.map(pos -> getSupportFactor(level, pos))
-                        .reduce(Double::sum)
-                        .orElse(1.0).intValue(),
-                1
-        );
+    public static int numChopsToFell(double support) {
+        return ChopCounting.calculate(Math.max(1, Double.valueOf(support).intValue()));
+    }
 
-        return ChopCounting.calculate(support);
+    public static int numChopsToFell(Level level, Stream<BlockPos> logs) {
+        double support = logs.map(pos -> getSupportFactor(level, pos))
+                .reduce(Double::sum)
+                .orElse(1.0);
+
+        return numChopsToFell(support);
     }
 
     public static Optional<Double> getSupportFactor(Level level, Stream<BlockPos> blocks) {
@@ -132,7 +133,8 @@ public class ChopUtil {
         }
 
         if (tree.readyToFell(tree.getChops() + numChops)) {
-            return new FellTreeResult(level, tree, breakLeaves);
+            int numChopsNeeded = Math.min(10, Math.max(0, tree.numChopsNeededToFell() - tree.getChops())); // Max 10 in case numChops is set super high for instant felling
+            return new FellTreeResult(level, tree, breakLeaves, tree.chop(origin, numChopsNeeded));
         } else {
             return new ChopTreeResult(level, tree.chop(origin, numChops));
         }
