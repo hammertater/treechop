@@ -36,6 +36,9 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
     public static ModelProperty<ChoppedLogShape> CHOPPED_LOG_SHAPE = new ModelProperty<>();
 
     public static void overrideBlockStateModels(ModelEvent.ModifyBakingResult event) {
+        ModelResourceLocation oakLog = BlockModelShaper.stateToModelLocation(Blocks.OAK_LOG.defaultBlockState());
+        ForgeChoppedLogBakedModel.setDefaultSprite(event.getModels().get(oakLog).getParticleIcon());
+
         for (BlockState blockState : ForgeModBlocks.CHOPPED_LOG.get().getStateDefinition().getPossibleStates()) {
             ModelResourceLocation variantMRL = BlockModelShaper.stateToModelLocation(blockState);
             BakedModel existingModel = event.getModels().get(variantMRL);
@@ -45,7 +48,6 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
                 TreeChop.LOGGER.warn("Tried to replace ChoppedLogBakedModel twice");
             } else {
                 BakedModel customModel = new ForgeChoppedLogBakedModel();
-                ForgeChoppedLogBakedModel.setDefaultSprite(event.getModels().get(variantMRL).getParticleIcon());
                 event.getModels().put(variantMRL, customModel);
             }
         }
