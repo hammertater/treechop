@@ -26,7 +26,8 @@ public class ServerCommands {
                                 .executes(ServerCommands::chop))));
 
         builder.then(Commands.literal("fell")
-                .executes(ServerCommands::fell));
+                .then(Commands.argument("chopPos", BlockPosArgument.blockPos())
+                        .executes(ServerCommands::fell)));
 
         dispatcher.register(builder);
     }
