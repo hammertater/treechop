@@ -62,7 +62,7 @@ public class FellTreeResult implements ChopResult {
             BlockState air = Blocks.AIR.defaultBlockState();
             return pos -> level.setBlockAndUpdate(pos, air);
         } else {
-            return pos -> LevelUtil.harvestBlock(null, level, pos, ItemStack.EMPTY);
+            return pos -> LevelUtil.harvestBlock(player, level, pos, ItemStack.EMPTY, false);
         }
     }
 

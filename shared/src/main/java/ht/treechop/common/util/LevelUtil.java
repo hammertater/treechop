@@ -15,13 +15,14 @@ public class LevelUtil {
             Entity agent,
             Level level,
             BlockPos pos,
-            ItemStack tool
+            ItemStack tool,
+            boolean loud
     ) {
         if (level instanceof ServerLevel) {
             BlockState blockState = level.getBlockState(pos);
 
             // Plays particle and sound effects
-            if (agent instanceof Player player) {
+            if (loud && agent instanceof Player player) {
                 blockState.getBlock().playerWillDestroy(level, pos, blockState, player);
             }
 

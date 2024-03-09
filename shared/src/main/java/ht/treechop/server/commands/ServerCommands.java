@@ -57,7 +57,7 @@ public class ServerCommands {
             );
 
             if (felled) {
-                LevelUtil.harvestBlock(source.getPlayer(), source.getLevel(), pos, ItemStack.EMPTY);
+                LevelUtil.harvestBlock(source.getPlayer(), source.getLevel(), pos, ItemStack.EMPTY, true);
             }
         } catch (TreeChopException e) {
             // ignore
