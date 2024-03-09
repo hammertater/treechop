@@ -19,6 +19,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -199,11 +200,9 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                         entity.setOriginalState(blockState);
                         entity.setParameters(chopZeroRadius, maxNumChops, supportFactor);
 
-                        List<ItemStack> drops = Block.getDrops(blockState, serverLevel, pos, entity, player, tool);
                         if (ConfigHandler.COMMON.dropLootOnFirstChop.get()) {
-                            drops.forEach(stack -> popResource(level, pos, stack));
-                        } else {
-                            entity.setDrops(drops);
+                            Block.getDrops(blockState, serverLevel, pos, entity, player, tool)
+                                    .forEach(stack -> popResource(level, pos, stack));
                         }
                     }
                 }
@@ -288,23 +287,25 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     @Override
     public List<ItemStack> getDrops(BlockState blockState, LootParams.Builder context) {
         List<ItemStack> stacks = new ArrayList<>(super.getDrops(blockState, context));
+
         if (ConfigHandler.COMMON.dropLootForChoppedBlocks.get() && context.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof MyEntity entity) {
-            stacks.addAll(entity.drops);
+            ItemStack tool = context.getOptionalParameter(LootContextParams.TOOL);
+            Entity player = context.getOptionalParameter(LootContextParams.THIS_ENTITY);
+            stacks.addAll(Block.getDrops(entity.originalState, context.getLevel(), entity.getBlockPos(), entity, player, (tool == null) ? ItemStack.EMPTY : tool));
         }
+
         return stacks;
     }
 
     public static abstract class MyEntity extends BlockEntity {
         public static final String KEY_CHOPS = "Chops";
         public static final String KEY_SHAPE = "Shape";
-        public static final String KEY_DROPS = "Drops";
         public static final String KEY_ORIGINAL_STATE = "OriginalState";
         public static final String KEY_UNCHOPPED_RADIUS = "UnchoppedRadius";
         public static final String KEY_MAX_NUM_CHOPS = "MaxNumChops";
         public static final String KEY_SUPPORT_FACTOR = "SupportFactor";
 
         protected BlockState originalState = Blocks.OAK_LOG.defaultBlockState();
-        protected List<ItemStack> drops = Collections.emptyList();
         private ChoppedLogShape shape = ChoppedLogShape.PILLAR_Y;
         private int chops = 1;
 
@@ -318,7 +319,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
         @Override
         public int hashCode() {
-            return Objects.hash(level, worldPosition, originalState, drops, shape, chops, unchoppedRadius, maxNumChops, supportFactor);
+            return Objects.hash(level, worldPosition, originalState, shape, chops, unchoppedRadius, maxNumChops, supportFactor);
         }
 
         /**
@@ -328,10 +329,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             this.unchoppedRadius = unchoppedRadius;
             this.maxNumChops = maxNumChops;
             this.supportFactor = supportFactor;
-        }
-
-        public void setDrops(List<ItemStack> drops) {
-            this.drops = drops;
         }
 
         public int getChops() {
@@ -393,11 +390,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             if (supportFactor != DEFAULT_SUPPORT_FACTOR) {
                 tag.putDouble(KEY_SUPPORT_FACTOR, supportFactor);
             }
-
-            ListTag list = new ListTag();
-            drops.stream().map(stack -> stack.save(new CompoundTag()))
-                    .forEach(list::add);
-            tag.put(KEY_DROPS, list);
         }
 
         @Override
@@ -416,14 +408,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             int maxNumChops = (tag.contains(KEY_MAX_NUM_CHOPS)) ? tag.getInt(KEY_MAX_NUM_CHOPS) : DEFAULT_MAX_NUM_CHOPS;
             double supportFactor = (tag.contains(KEY_SUPPORT_FACTOR)) ? tag.getInt(KEY_SUPPORT_FACTOR) : DEFAULT_SUPPORT_FACTOR;
             setParameters(unchoppedRadius, maxNumChops, supportFactor);
-
-            ListTag list = tag.getList(KEY_DROPS, 10);
-
-            drops = new LinkedList<>();
-            for (int i = 0; i < list.size(); ++i) {
-                CompoundTag item = list.getCompound(i);
-                drops.add(ItemStack.of(item));
-            }
 
             if (hash != hashCode()) {
                 rerenderNeighborhood();
