@@ -59,7 +59,23 @@ public class ChopEvent extends Event {
         public FellData getFellData() {
             return fellData;
         }
+    }
 
+    /**
+     * Signals that a tree has been felled.
+     */
+    @Cancelable
+    public static class AfterFellEvent extends ChopEvent {
+        private final FellData fellData;
+
+        public AfterFellEvent(Level level, ServerPlayer player, BlockPos blockPos, BlockState blockState, FellData fellData) {
+            super(level, player, blockPos, blockState);
+            this.fellData = fellData;
+        }
+
+        public FellData getFellData() {
+            return fellData;
+        }
     }
 
     /**

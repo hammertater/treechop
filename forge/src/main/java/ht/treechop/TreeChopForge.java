@@ -1,19 +1,28 @@
 package ht.treechop;
 
 import ht.treechop.api.TreeChopAPI;
+import ht.treechop.client.ForgeClientProxy;
 import ht.treechop.common.ForgePlatform;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.loot.CountBlockChopsLootItemCondition;
+import ht.treechop.common.loot.TreeFelledLootItemCondition;
 import ht.treechop.common.network.ForgePacketHandler;
 import ht.treechop.common.registry.ForgeModBlocks;
+import net.minecraft.core.Registry;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -41,6 +50,17 @@ public class TreeChopForge extends TreeChop {
         forgeBus.addListener((TagsUpdatedEvent event) -> ConfigHandler.updateTags());
 
         ForgePacketHandler.registerPackets();
+
+        modBus.addListener((RegisterEvent event) -> event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> helper.register(CHOP_WOOD, CHOP_WOOD_EVENT.get())));
+
+        modBus.addListener((RegisterEvent event) -> event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> helper.register(CHOP_WOOD, CHOP_WOOD_EVENT.get())));
+
+        modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> {
+            Registry.register(Registry.LOOT_CONDITION_TYPE, CountBlockChopsLootItemCondition.ID, CountBlockChopsLootItemCondition.TYPE);
+            Registry.register(Registry.LOOT_CONDITION_TYPE, TreeFelledLootItemCondition.ID, TreeFelledLootItemCondition.TYPE);
+        }));
+
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ForgeClientProxy::init);
     }
 
     private void processIMC(InterModProcessEvent event) {

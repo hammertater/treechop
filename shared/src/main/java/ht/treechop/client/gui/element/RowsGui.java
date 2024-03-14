@@ -64,7 +64,7 @@ public class RowsGui extends NestedGui {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput p_169152_) {
+    public void updateNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 }

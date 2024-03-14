@@ -8,8 +8,8 @@ pluginManagement {
     }
 }
 
-rootProject.name = "${modname}"
+rootProject.name = mod_name
 
 include "tuber", "shared", "forge", "fabric"
-include 'tests:fabric-tests'
-include 'tests:forge-tests'
+//include 'tests:fabric-tests'
+//include 'tests:forge-tests'

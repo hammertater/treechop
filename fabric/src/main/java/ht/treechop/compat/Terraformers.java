@@ -27,10 +27,8 @@ public class Terraformers implements ISimpleChoppableBlock {
                 ConfigHandler.COMMON.choppableBlocks.get().stream()
                         .filter(block -> block instanceof BareSmallLogBlock)
                         .forEach(block -> api.registerChoppableBlockBehavior(block, handler));
-            } catch (NoClassDefFoundError ignored) {
+            } catch (NoClassDefFoundError | NoSuchMethodError ignored) {
             }
         }
     }
-
-
 }

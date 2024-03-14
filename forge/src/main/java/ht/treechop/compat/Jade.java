@@ -2,7 +2,6 @@ package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.registry.ForgeModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -11,6 +10,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec2;
 import snownee.jade.api.*;
 import snownee.jade.api.config.IPluginConfig;
+import snownee.jade.api.config.IWailaConfig;
 import snownee.jade.api.ui.IElement;
 
 import java.util.LinkedList;
@@ -41,7 +41,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
         boolean showChopsRemaining = config.get(SHOW_NUM_CHOPS_REMAINING);
 
         if (WailaUtil.playerWantsTreeInfo(level, pos, showNumBlocks, showChopsRemaining)) {
-            LinkedList<IElement> tiles = new LinkedList<>();
+            List<IElement> tiles = new LinkedList<>();
             WailaUtil.addTreeInfo(
                     level,
                     pos,
@@ -60,20 +60,15 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
     private static void changeBlockName(ITooltip tooltip, BlockAccessor accessor) {
         final ResourceLocation OBJECT_NAME_COMPONENT_KEY = new ResourceLocation("jade", "object_name");
         if (accessor.getBlockEntity() instanceof ChoppedLogBlock.MyEntity choppedEntity) {
-            IElement nameElement;
-            Component nameComponent;
-            if ((nameElement = tooltip.get(OBJECT_NAME_COMPONENT_KEY).get(0)) != null) {
-                if ((nameComponent = nameElement.getMessage()) != null) {
-                    String choppedLogName = ForgeModBlocks.CHOPPED_LOG.get().getName().getString();
-                    List<Component> siblings = nameComponent.getSiblings();
-                    for (int i = 0, n = siblings.size(); i < n; ++i) {
-                        if (siblings.get(i).getString().matches(choppedLogName)) {
-                            siblings.set(i, WailaUtil.getPrefixedBlockName(choppedEntity));
-                            break;
-                        }
-                    }
-                }
-            }
+            // There's no API function to change the message, so let's replace it
+            tooltip.clear();
+
+            Component newName = WailaUtil.getPrefixedBlockName(choppedEntity);
+            IElement newNameElement = tooltip.getElementHelper()
+                    .text(IWailaConfig.get().getFormatting().title(newName))
+                    .tag(OBJECT_NAME_COMPONENT_KEY);
+
+            tooltip.add(newNameElement);
         }
     }
 

@@ -3,11 +3,15 @@ package ht.treechop;
 import ht.treechop.api.ITreeChopAPIProvider;
 import ht.treechop.common.FabricCommon;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.loot.CountBlockChopsLootItemCondition;
+import ht.treechop.common.loot.TreeFelledLootItemCondition;
 import ht.treechop.common.platform.FabricPlatform;
 import ht.treechop.common.registry.FabricModBlocks;
 import ht.treechop.compat.TreeChopFabricAPITest;
 import ht.treechop.server.FabricServer;
+import ht.treechop.server.commands.ServerCommands;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -39,6 +43,15 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
 
         // Compat
         TreeChopFabricAPITest.init();
+
+        Registry.register(Registry.SOUND_EVENT, CHOP_WOOD, CHOP_WOOD_EVENT.get());
+
+        Registry.register(Registry.LOOT_CONDITION_TYPE, CountBlockChopsLootItemCondition.ID, CountBlockChopsLootItemCondition.TYPE);
+        Registry.register(Registry.LOOT_CONDITION_TYPE, TreeFelledLootItemCondition.ID, TreeFelledLootItemCondition.TYPE);
+
+        CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
+            ServerCommands.register(dispatcher);
+        }));
     }
 
     private static void onReload(ModConfig config) {

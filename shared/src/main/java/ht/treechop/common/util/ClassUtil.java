@@ -67,6 +67,17 @@ public class ClassUtil {
     }
 
     @Nullable
+    public static IThwackableBlock getThwackableBlock(Block block) {
+        if (block instanceof IThwackableBlock thwackableBlock) {
+            return thwackableBlock;
+        } else if (TreeChop.api.getRegisteredChoppableBlockBehavior(block) instanceof IThwackableBlock thwackableBlock) {
+            return thwackableBlock;
+        } else {
+            return null;
+        }
+    }
+
+    @Nullable
     public static ITreeBlock getTreeBlock(Block block) {
         if (block instanceof ITreeBlock treeBlock) {
             return treeBlock;

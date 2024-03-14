@@ -20,12 +20,6 @@ public class SpriteButtonWidget extends AbstractWidget {
         this.active = true;
     }
 
-    @SuppressWarnings("NullableProblems")
-    @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        super.render(poseStack, mouseX, mouseY, partialTicks);
-    }
-
     public void onClick(double mouseX, double mouseY) {
         onPress.run();
     }
@@ -39,7 +33,7 @@ public class SpriteButtonWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput out) {
+    public void updateNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 }

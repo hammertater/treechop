@@ -11,10 +11,8 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.ChunkRenderTypeSet;
@@ -38,15 +36,18 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
     public static ModelProperty<ChoppedLogShape> CHOPPED_LOG_SHAPE = new ModelProperty<>();
 
     public static void overrideBlockStateModels(ModelEvent.BakingCompleted event) {
+        ModelResourceLocation oakLog = BlockModelShaper.stateToModelLocation(Blocks.OAK_LOG.defaultBlockState());
+        ForgeChoppedLogBakedModel.setDefaultSprite(event.getModels().get(oakLog).getParticleIcon());
+
         for (BlockState blockState : ForgeModBlocks.CHOPPED_LOG.get().getStateDefinition().getPossibleStates()) {
             ModelResourceLocation variantMRL = BlockModelShaper.stateToModelLocation(blockState);
-            BakedModel existingModel = event.getModelManager().getModel(variantMRL);
-            if (existingModel == event.getModelManager().getMissingModel()) {
+            BakedModel existingModel = event.getModels().get(variantMRL);
+            if (existingModel == null) {
                 TreeChop.LOGGER.warn("Did not find the expected vanilla baked model(s) for treechop:chopped_log in registry");
             } else if (existingModel instanceof ForgeChoppedLogBakedModel) {
                 TreeChop.LOGGER.warn("Tried to replace ChoppedLogBakedModel twice");
             } else {
-                BakedModel customModel = new ForgeChoppedLogBakedModel().bake(event.getModelBakery(), event.getModelBakery().getAtlasSet()::getSprite, null, null);
+                BakedModel customModel = new ForgeChoppedLogBakedModel();
                 event.getModels().put(variantMRL, customModel);
             }
         }
@@ -57,27 +58,19 @@ public class ForgeChoppedLogBakedModel extends ChoppedLogBakedModel implements I
         return ChunkRenderTypeSet.of(RENDER_TYPE);
     }
 
-    @Override
     @Nonnull
-    public ModelData getModelData(
-            @Nonnull BlockAndTintGetter level,
-            @Nonnull BlockPos pos,
-            @Nonnull BlockState state,
-            @Nonnull ModelData tileData
+    public static ModelData getModelData(
+            ChoppedLogBlock.MyEntity entity
     ) {
-        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
-            BlockState strippedState = ChopUtil.getStrippedState(level, pos, entity.getOriginalState());
+        BlockState strippedState = ChopUtil.getStrippedState(entity.getLevel(), entity.getBlockPos(), entity.getOriginalState());
 
-            ModelData.Builder builder = ModelData.builder();
-            builder.with(STRIPPED_NEIGHBORS, getStrippedNeighbors(level, pos, entity));
-            builder.with(STRIPPED_BLOCK_STATE, strippedState);
-            builder.with(RADIUS, entity.getRadius());
-            builder.with(CHOPPED_LOG_SHAPE, entity.getShape());
+        ModelData.Builder builder = ModelData.builder();
+        builder.with(STRIPPED_NEIGHBORS, getStrippedNeighbors(entity.getLevel(), entity.getBlockPos(), entity));
+        builder.with(STRIPPED_BLOCK_STATE, strippedState);
+        builder.with(RADIUS, entity.getRadius());
+        builder.with(CHOPPED_LOG_SHAPE, entity.getShape());
 
-            return builder.build();
-        } else {
-            return ModelData.EMPTY;
-        }
+        return builder.build();
     }
 
     @Override

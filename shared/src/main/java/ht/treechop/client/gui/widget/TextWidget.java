@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 
 public class TextWidget extends AbstractWidget {
 
-    private Font font;
+    private final Font font;
 
     public TextWidget(int x, int y, Font font, Component text) {
         super(x, y, font.width(text.getString()), GUIUtil.TEXT_LINE_HEIGHT, text);
@@ -26,13 +26,12 @@ public class TextWidget extends AbstractWidget {
         render(poseStack, mouseX, mouseY, partialTicks, 0);
     }
 
-    @SuppressWarnings({"SuspiciousNameCombination"})
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks, int xOffset) {
         drawString(poseStack, font, getMessage(), x + xOffset, y, 0xFFFFFF);
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput out) {
+    public void updateNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 }

@@ -69,6 +69,16 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
+    public void finishFellTreeEvent(ServerPlayer player, Level level, BlockPos choppedPos, FellData fellData) {
+        TreeChopEvents.AFTER_FELL.invoker().afterFell(
+                level,
+                player,
+                choppedPos,
+                fellData
+        );
+    }
+
+    @Override
     public Block getChoppedLogBlock() {
         return FabricModBlocks.CHOPPED_LOG;
     }

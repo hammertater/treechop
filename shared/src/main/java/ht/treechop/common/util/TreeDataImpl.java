@@ -64,6 +64,11 @@ public class TreeDataImpl extends AbstractTreeData {
     }
 
     @Override
+    public int numChopsNeededToFell() {
+        return chopsToFell;
+    }
+
+    @Override
     public Collection<Chop> chop(BlockPos target, int numChops) {
         return Collections.emptyList();
     }

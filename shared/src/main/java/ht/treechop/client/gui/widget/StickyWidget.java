@@ -8,11 +8,13 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
 
 public class StickyWidget extends AbstractWidget {
 
+    public static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
     private final Supplier<State> stateSupplier;
     private final Runnable onPress;
 
@@ -60,7 +62,7 @@ public class StickyWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput out) {
+    public void updateNarration(NarrationElementOutput narrationElementOutput) {
         // TODO
     }
 

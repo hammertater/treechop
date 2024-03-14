@@ -2,18 +2,24 @@ package ht.treechop.common.block;
 
 import ht.treechop.TreeChop;
 import ht.treechop.api.IChoppableBlock;
+import ht.treechop.client.Client;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.loot.TreeChopLootContextParams;
 import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.ClassUtil;
 import ht.treechop.server.Server;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -33,8 +39,10 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -174,13 +182,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         int newNumChops = Math.min(currentNumChops + numChops, maxNumChops);
         int numAddedChops = newNumChops - currentNumChops;
 
-        if (level instanceof ServerLevel serverLevel) {
-            for (int i = 0; i < numAddedChops; ++i) {
-                getDrops(defaultBlockState(), serverLevel, pos, null, player, tool)
-                        .forEach(stack -> popResource(serverLevel, pos, stack));
-            }
-        }
-
         if (!felling) {
             if (numAddedChops > 0) {
                 if (!blockState.is(this)) {
@@ -200,11 +201,9 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                         entity.setOriginalState(blockState);
                         entity.setParameters(chopZeroRadius, maxNumChops, supportFactor);
 
-                        List<ItemStack> drops = Block.getDrops(blockState, serverLevel, pos, entity, player, tool);
                         if (ConfigHandler.COMMON.dropLootOnFirstChop.get()) {
-                            drops.forEach(stack -> popResource(level, pos, stack));
-                        } else {
-                            entity.setDrops(drops);
+                            Block.getDrops(blockState, serverLevel, pos, entity, player, tool)
+                                    .forEach(stack -> popResource(level, pos, stack));
                         }
                     }
                 }
@@ -215,6 +214,28 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                 }
             } else {
                 level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+            }
+        }
+
+        if (level instanceof ServerLevel serverLevel) {
+            ResourceLocation blockId = Registry.BLOCK.getKey(this.asBlock());
+            ResourceLocation chopLootTable = ResourceLocation.tryBuild(blockId.getNamespace(), "chopping/" + blockId.getPath());
+            LootTable lootTable = serverLevel.getServer().getLootTables().get(chopLootTable);
+            int finalBlockChopCount = currentNumChops + numAddedChops;
+
+            for (int i = 0; i < numAddedChops; ++i) {
+                int blockChopCount = 1 + currentNumChops + i;
+                LootContext.Builder builder = (new LootContext.Builder(serverLevel))
+                        .withParameter(LootContextParams.BLOCK_STATE, defaultBlockState())
+                        .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+                        .withParameter(LootContextParams.TOOL, tool)
+                        .withParameter(TreeChopLootContextParams.BLOCK_CHOP_COUNT, blockChopCount)
+                        .withParameter(TreeChopLootContextParams.DESTROY_BLOCK, felling && (blockChopCount == finalBlockChopCount))
+                        .withOptionalParameter(LootContextParams.THIS_ENTITY, player)
+                        .withOptionalParameter(LootContextParams.BLOCK_ENTITY, level.getBlockEntity(pos));
+
+                lootTable.getRandomItems(builder.create(TreeChopLootContextParams.SET))
+                        .forEach(stack -> popResource(serverLevel, pos, stack));
             }
         }
     }
@@ -256,6 +277,10 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
 
+        if (level.getBlockEntity(pos) instanceof MyEntity entity) {
+            entity.rerender();
+        }
+
         return super.updateShape(blockState, side, neighborState, level, pos, neighborPos);
     }
 
@@ -263,24 +288,26 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     @Nonnull
     @Override
     public List<ItemStack> getDrops(BlockState blockState, LootContext.Builder context) {
+        List<ItemStack> stacks = new ArrayList<>(super.getDrops(blockState, context));
+
         if (ConfigHandler.COMMON.dropLootForChoppedBlocks.get() && context.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof MyEntity entity) {
-            return entity.drops;
-        } else {
-            return Collections.emptyList();
+            ItemStack tool = context.getOptionalParameter(LootContextParams.TOOL);
+            Entity player = context.getOptionalParameter(LootContextParams.THIS_ENTITY);
+            stacks.addAll(Block.getDrops(entity.originalState, context.getLevel(), entity.getBlockPos(), entity, player, (tool == null) ? ItemStack.EMPTY : tool));
         }
+
+        return stacks;
     }
 
     public static abstract class MyEntity extends BlockEntity {
         public static final String KEY_CHOPS = "Chops";
         public static final String KEY_SHAPE = "Shape";
-        public static final String KEY_DROPS = "Drops";
         public static final String KEY_ORIGINAL_STATE = "OriginalState";
         public static final String KEY_UNCHOPPED_RADIUS = "UnchoppedRadius";
         public static final String KEY_MAX_NUM_CHOPS = "MaxNumChops";
         public static final String KEY_SUPPORT_FACTOR = "SupportFactor";
 
         protected BlockState originalState = Blocks.OAK_LOG.defaultBlockState();
-        protected List<ItemStack> drops = Collections.emptyList();
         private ChoppedLogShape shape = ChoppedLogShape.PILLAR_Y;
         private int chops = 1;
 
@@ -292,6 +319,11 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             super(TreeChop.platform.getChoppedLogBlockEntity(), pos, blockState);
         }
 
+        @Override
+        public int hashCode() {
+            return Objects.hash(level, worldPosition, originalState, shape, chops, unchoppedRadius, maxNumChops, supportFactor);
+        }
+
         /**
          * @param unchoppedRadius Maximum is 8 (default), minimum is 1.
          */
@@ -299,10 +331,6 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             this.unchoppedRadius = unchoppedRadius;
             this.maxNumChops = maxNumChops;
             this.supportFactor = supportFactor;
-        }
-
-        public void setDrops(List<ItemStack> drops) {
-            this.drops = drops;
         }
 
         public int getChops() {
@@ -364,16 +392,13 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             if (supportFactor != DEFAULT_SUPPORT_FACTOR) {
                 tag.putDouble(KEY_SUPPORT_FACTOR, supportFactor);
             }
-
-            ListTag list = new ListTag();
-            drops.stream().map(stack -> stack.save(new CompoundTag()))
-                    .forEach(list::add);
-            tag.put(KEY_DROPS, list);
         }
 
         @Override
         public void load(@Nonnull CompoundTag tag) {
             super.load(tag);
+
+            int hash = hashCode();
 
             int stateId = tag.getInt(KEY_ORIGINAL_STATE);
             setOriginalState(stateId > 0 ? Block.stateById(stateId) : Blocks.OAK_LOG.defaultBlockState());
@@ -386,12 +411,8 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             double supportFactor = (tag.contains(KEY_SUPPORT_FACTOR)) ? tag.getInt(KEY_SUPPORT_FACTOR) : DEFAULT_SUPPORT_FACTOR;
             setParameters(unchoppedRadius, maxNumChops, supportFactor);
 
-            ListTag list = tag.getList(KEY_DROPS, 10);
-
-            drops = new LinkedList<>();
-            for (int i = 0; i < list.size(); ++i) {
-                CompoundTag item = list.getCompound(i);
-                drops.add(ItemStack.of(item));
+            if (hash != hashCode()) {
+                rerenderNeighborhood();
             }
         }
 
@@ -413,26 +434,31 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
             syncWithClients();
         }
 
-        public void syncWithClients() {
+        private void syncWithClients() {
             if (level instanceof ServerLevel serverLevel) {
                 Server.instance().broadcast(serverLevel, worldPosition, new ServerUpdateChopsPacket(worldPosition, getUpdateTag()));
             }
         }
 
-        @Override
-        public void setLevel(@NotNull Level level) {
-            super.setLevel(level);
-            if (level.isClientSide()) {
-                update();
+        protected void rerender() {
+            if (level != null && level.isClientSide()) {
+                Minecraft.getInstance().levelRenderer.setBlockDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
+                Client.treeCache.invalidate(); // Always need to do this to update WAILAs when chops spill
             }
         }
 
-        public void update() {
-            CompoundTag update = ServerUpdateChopsPacket.getPendingUpdate(level, worldPosition);
-            if (update != null) {
-                load(update);
+        private void rerenderNeighborhood() {
+            if (level != null && level.isClientSide()) {
+                rerender();
+
+                BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+                for (Direction dir : Direction.values()) {
+                    pos.setWithOffset(worldPosition, dir);
+                    if (level.getBlockEntity(pos) instanceof MyEntity neighbor) {
+                        neighbor.rerender();
+                    }
+                }
             }
         }
     }
-
 }

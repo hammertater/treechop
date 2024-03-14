@@ -90,6 +90,17 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
+    public void finishFellTreeEvent(ServerPlayer player, Level level, BlockPos choppedPos, FellData fellData) {
+        ChopEvent.AfterFellEvent afterFellEvent = new ChopEvent.AfterFellEvent(
+                level,
+                player,
+                choppedPos,
+                level.getBlockState(choppedPos),
+                fellData
+        );
+    }
+
+    @Override
     public Block getChoppedLogBlock() {
         return ForgeModBlocks.CHOPPED_LOG.get();
     }

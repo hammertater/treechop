@@ -1,6 +1,7 @@
 package ht.treechop.common.util;
 
 import ht.treechop.api.TreeData;
+import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.chop.ChopUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
@@ -35,9 +36,10 @@ public class TreeCache {
         private BlockState blockState;
         private BlockPos pos;
         private BlockEntity entity;
+        private int numChops;
 
         public T get(BlockGetter level, BlockPos pos) {
-            if (level == this.level && pos.equals(this.pos) && Objects.equals(level.getBlockState(pos), blockState) && Objects.equals(level.getBlockEntity(pos), entity)) {
+            if (level == this.level && pos.equals(this.pos) && Objects.equals(level.getBlockState(pos), blockState) && Objects.equals(level.getBlockEntity(pos), entity) && (entity instanceof ChoppedLogBlock.MyEntity choppedEntity && choppedEntity.getChops() == numChops)) {
                 return value;
             } else {
                 return null;
@@ -50,6 +52,7 @@ public class TreeCache {
             this.pos = pos;
             blockState = level.getBlockState(pos);
             entity = level.getBlockEntity(pos);
+            numChops = (entity instanceof ChoppedLogBlock.MyEntity choppedEntity) ? choppedEntity.getChops() : 0;
         }
 
         public void invalidate() {

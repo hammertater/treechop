@@ -314,10 +314,14 @@ public class ClientSettingsScreen extends Screen {
         }
     }
 
-    @SuppressWarnings("NullableProblems")
-    @Override
+    // Introduced in 1.20.2
+    public void renderBackground(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+        renderBackground(poseStack);
+    }
+
+    // Don't call super.renderBackground, it doesn't exist on 1.20.2+
+    // @Override
     public void renderBackground(PoseStack poseStack) {
-        super.renderBackground(poseStack);
         fill(poseStack, INSET_SIZE, INSET_SIZE, width - INSET_SIZE, height - INSET_SIZE, 0x00000080);
     }
 
