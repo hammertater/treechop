@@ -3,12 +3,11 @@ plugins {
 }
 
 repositories {
-    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
 }
 
 dependencies {
     compileOnly "org.spongepowered:mixin:0.8.5"
-    compileOnly "fuzs.forgeconfigapiport:forgeconfigapiport-common:8.0.0"
+    compileOnly "net.minecraftforge:forgeconfigapiport-fabric:4.2.11"
 }
 
 minecraft {

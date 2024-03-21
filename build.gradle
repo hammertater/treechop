@@ -34,6 +34,7 @@ subprojects {
         maven { url "file://${rootDir}/publishing" }
         maven { url = "https://api.modrinth.com/maven" }
         maven { url "https://maven.bai.lol" }
+        maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
     }
 
     dependencies {

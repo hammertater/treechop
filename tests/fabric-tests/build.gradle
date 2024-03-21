@@ -1,82 +1,37 @@
 plugins {
-    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id "fabric-loom" version "1.5.8"
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
-archivesBaseName = "${modname}-${mcversion}-fabric-tests"
-
 repositories {
-    mavenCentral()
-    maven {
-        url "https://www.cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
-    }
-    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
-    maven { url "https://maven.bai.lol" }
+    maven { url = "https://maven.terraformersmc.com"}
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${mcversion}"
+    minecraft "com.mojang:minecraft:$minecraft_version"
     mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${fabricloaderversion}"
+    modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_api_version"
+    implementation "com.google.code.findbugs:jsr305:3.0.2"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricversion}"
-    modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.2.6"
+    modRuntimeOnly "net.minecraftforge:forgeconfigapiport-fabric:4.2.11"
 
     modCompileOnly "curse.maven:treechop-421377:4713146"
     modRuntimeOnly "curse.maven:treechop-421377:4713146"
-}
-
-processResources {
-    inputs.property "version", version
-
-    filesMatching("fabric.mod.json") {
-        expand "version": version
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 17
-}
-
-java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present. If you remove this line, sources will not be generated.
-    withSourcesJar()
-}
-
-jar {
-    from("LICENSE") {
-        rename { "${it}_${archivesBaseName}"}
-    }
 }
 
 loom {
     runs {
         client {
             client()
-            setConfigName("fabric Client")
+            setConfigName("Fabric Client")
             ideConfigGenerated(true)
             runDir("run")
         }
         server {
             server()
-            setConfigName("fabric Server")
+            setConfigName("Fabric Server")
             ideConfigGenerated(true)
             runDir("run")
         }
     }
-}
-
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-}
-
-test {
-    useJUnitPlatform()
 }
