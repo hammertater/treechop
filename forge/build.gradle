@@ -67,6 +67,7 @@ dependencies {
     compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 
+    compileOnly fg.deobf("curse.maven:multi-mine-227887:4667519")
     runtimeOnly fg.deobf("curse.maven:multi-mine-227887:4667519")
 
 //    runtimeOnly fg.deobf("curse.maven:create-328085:4835191")
@@ -112,6 +113,7 @@ processResources {
 mixin {
     add(sourceSets.main, "${mod_id}.mixins.refmap.json")
     config "${mod_id}.mixins.json"
+    config "${mod_id}.forge.mixins.json"
 }
 
 tasks.withType(JavaCompile) {
