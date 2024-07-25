@@ -113,7 +113,7 @@ public enum ChoppedLogShape implements StringRepresentable {
         this.occlusionShape = Shapes.or(
                 Shapes.empty(),
                 Arrays.stream(Direction.values())
-                        .filter(direction -> direction.getAxis().isHorizontal() && !isSideOpen(direction))
+                        .filter(direction -> !isSideOpen(direction))
                         .map(direction -> Shapes.create(FaceShape.get(direction).toAABB()))
                         .toArray(VoxelShape[]::new)
         );
@@ -127,7 +127,7 @@ public enum ChoppedLogShape implements StringRepresentable {
     public Set<Direction> getSolidSides(BlockGetter level, BlockPos pos) {
         return ConfigHandler.removeBarkOnInteriorLogs.get()
                 ? Arrays.stream(Direction.values())
-                .filter(direction -> direction.getAxis().isHorizontal() && !isSideOpen(direction))
+                .filter(direction -> !isSideOpen(direction))
                 .filter(direction -> {
                     BlockPos neighborPos = pos.relative(direction);
                     BlockState blockState = level.getBlockState(neighborPos);
