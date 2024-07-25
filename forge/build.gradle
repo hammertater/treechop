@@ -1,6 +1,6 @@
 plugins {
-    id "net.minecraftforge.gradle" version "[6.0,6.2)"
-    id "org.spongepowered.mixin" version "0.7-SNAPSHOT"
+    id "net.minecraftforge.gradle"
+    id "org.spongepowered.mixin"
 }
 
 minecraft {
@@ -45,11 +45,6 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
 
-    implementation project(":shared")
-    implementation project(":tuber")
-
-//    runtimeOnly fg.deobf("curse.maven:create-328085:4835191")
-
     // compile against the API
     compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-8.4.3")
 
@@ -69,6 +64,7 @@ dependencies {
     compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 
+//    runtimeOnly fg.deobf("curse.maven:create-328085:4835191")
 //    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4618490")
 //    runtimeOnly fg.deobf("curse.maven:regions-unexplored-659110:4807303")
 //    runtimeOnly fg.deobf("curse.maven:biomes-o-plenty-220318:4473556")

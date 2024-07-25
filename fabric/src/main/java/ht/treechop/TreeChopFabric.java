@@ -17,6 +17,7 @@ import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraftforge.api.ModLoadingContext;
+import net.minecraftforge.api.fml.event.config.ModConfigEvent;
 import net.minecraftforge.api.fml.event.config.ModConfigEvents;
 import net.minecraftforge.fml.config.ModConfig;
 

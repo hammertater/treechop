@@ -1,5 +1,5 @@
 plugins {
-    id "fabric-loom" version "1.5.8"
+    id "fabric-loom"
 }
 
 repositories {
@@ -11,13 +11,12 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
     modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_api_version"
-    implementation "com.google.code.findbugs:jsr305:3.0.2"
-
-    modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.2.11"
-    modRuntimeOnly "net.minecraftforge:forgeconfigapiport-fabric:4.2.11"
 
     api project(":shared")
     api project(":tuber")
+
+    compileOnly "com.electronwill.night-config:toml:3.6.5"
+    modImplementation "net.minecraftforge:forgeconfigapiport-fabric:$forgeconfigapiport_version"
 
     modCompileOnly "mcp.mobius.waila:wthit-api:fabric-5.9.0"
 //    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-5.9.0"
