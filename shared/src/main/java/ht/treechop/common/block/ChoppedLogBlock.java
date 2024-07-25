@@ -9,13 +9,13 @@ import ht.treechop.common.loot.TreeChopLootContextParams;
 import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.ClassUtil;
+import ht.treechop.common.util.FaceShape;
 import ht.treechop.server.Server;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +23,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -46,11 +47,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static ht.treechop.common.chop.ChopUtil.isBlockALog;
 import static ht.treechop.common.chop.ChopUtil.isBlockLeaves;
@@ -134,8 +135,8 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     @SuppressWarnings("deprecation")
     @Override
     public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity && entity.getOriginalState().isSolidRender(level, pos)) {
-            return entity.getShape().getOcclusionShape();
+        if (ConfigHandler.removeBarkOnInteriorLogs.get() && level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity && entity.getOriginalState().isSolidRender(level, pos)) {
+            return entity.getOcclusionShape(level, pos);
         } else {
             return Shapes.empty();
         }
@@ -314,6 +315,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         private int unchoppedRadius = DEFAULT_UNCHOPPED_RADIUS;
         private int maxNumChops = DEFAULT_MAX_NUM_CHOPS;
         private double supportFactor = DEFAULT_SUPPORT_FACTOR;
+        private List<Direction> solidSides = Collections.emptyList();
 
         public MyEntity(BlockPos pos, BlockState blockState) {
             super(TreeChop.platform.getChoppedLogBlockEntity(), pos, blockState);
@@ -459,6 +461,27 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                     }
                 }
             }
+        }
+
+        public Stream<Direction> streamSolidSides(BlockGetter level, BlockPos pos) {
+            return ConfigHandler.removeBarkOnInteriorLogs.get()
+                    ? Arrays.stream(Direction.values())
+                    .filter(direction -> !shape.isSideOpen(direction))
+                    .filter(direction -> {
+                        BlockPos neighborPos = pos.relative(direction);
+                        BlockState blockState = level.getBlockState(neighborPos);
+                        return ChopUtil.isBlockChoppable(level, neighborPos, blockState) && blockState.isCollisionShapeFullBlock(level, neighborPos);
+                    })
+                    : Stream.empty();
+        }
+
+        public VoxelShape getOcclusionShape(BlockGetter level, BlockPos pos) {
+            return Shapes.or(
+                    Shapes.empty(),
+                    streamSolidSides(level, pos)
+                            .map(direction -> Shapes.create(FaceShape.get(direction).toAABB()))
+                            .toArray(VoxelShape[]::new)
+            );
         }
     }
 }
