@@ -1,4 +1,4 @@
-package ht.treechop.compat;
+package ht.treechop.compat.mixin;
 
 import atomicstryker.multimine.client.MultiMineClient;
 import ht.treechop.client.Client;
