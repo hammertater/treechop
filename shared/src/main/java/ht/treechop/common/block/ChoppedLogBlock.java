@@ -9,6 +9,7 @@ import ht.treechop.common.loot.TreeChopLootContextParams;
 import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.properties.ChoppedLogShape;
 import ht.treechop.common.util.ClassUtil;
+import ht.treechop.common.util.FaceShape;
 import ht.treechop.server.Server;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -50,6 +51,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static ht.treechop.common.chop.ChopUtil.isBlockALog;
 import static ht.treechop.common.chop.ChopUtil.isBlockLeaves;
@@ -133,8 +135,8 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
     @SuppressWarnings("deprecation")
     @Override
     public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity && entity.getOriginalState().isSolidRender(level, pos)) {
-            return entity.getShape().getOcclusionShape();
+        if (ConfigHandler.removeBarkOnInteriorLogs.get() && level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity && entity.getOriginalState().isSolidRender(level, pos)) {
+            return entity.getOcclusionShape(level, pos);
         } else {
             return Shapes.empty();
         }
@@ -457,6 +459,27 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
                     }
                 }
             }
+        }
+
+        public Stream<Direction> streamSolidSides(BlockGetter level, BlockPos pos) {
+            return ConfigHandler.removeBarkOnInteriorLogs.get()
+                    ? Arrays.stream(Direction.values())
+                    .filter(direction -> !shape.isSideOpen(direction))
+                    .filter(direction -> {
+                        BlockPos neighborPos = pos.relative(direction);
+                        BlockState blockState = level.getBlockState(neighborPos);
+                        return ChopUtil.isBlockChoppable(level, neighborPos, blockState) && blockState.isCollisionShapeFullBlock(level, neighborPos);
+                    })
+                    : Stream.empty();
+        }
+
+        public VoxelShape getOcclusionShape(BlockGetter level, BlockPos pos) {
+            return Shapes.or(
+                    Shapes.empty(),
+                    streamSolidSides(level, pos)
+                            .map(direction -> Shapes.create(FaceShape.get(direction).toAABB()))
+                            .toArray(VoxelShape[]::new)
+            );
         }
     }
 }
