@@ -1,9 +1,8 @@
 plugins {
-    id "fabric-loom" version "1.5.8"
+    id "fabric-loom"
 }
 
 repositories {
-    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
     maven { url = "https://maven.terraformersmc.com/" }
 }
 
@@ -12,13 +11,12 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
     modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_api_version"
-    implementation "com.google.code.findbugs:jsr305:3.0.2"
 
     implementation project(":shared")
     implementation project(":tuber")
 
     //{
-    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:8.0.0"
+    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:$forgeconfigapiport_version"
 
     modCompileOnly "mcp.mobius.waila:wthit-api:fabric-8.4.3"
     modRuntimeOnly "mcp.mobius.waila:wthit:fabric-8.4.3"

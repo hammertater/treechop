@@ -51,17 +51,17 @@ dependencies {
 //    runtimeOnly fg.deobf("curse.maven:create-328085:4835191")
 
     // compile against the API
-    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-8.4.3")
+    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-8.13.3")
 
 //    // run against the full jar
-//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-8.4.3")
-//    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.4.1")
+//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-8.13.3")
+//    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.4.3")
 
-    compileOnly fg.deobf("curse.maven:jade-324717:4986594")
-    runtimeOnly fg.deobf("curse.maven:jade-324717:4986594")
+    compileOnly fg.deobf("curse.maven:jade-324717:5493390")
+    runtimeOnly fg.deobf("curse.maven:jade-324717:5493390")
 
-    compileOnly fg.deobf("curse.maven:the-one-probe-245211:4629624")
-//    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:4629624")
+    compileOnly fg.deobf("curse.maven:the-one-probe-245211:5159287")
+//    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:5159287")
 
 //    compileOnly fg.deobf("curse.maven:rubidium-574856:4952685")
 //    runtimeOnly fg.deobf("curse.maven:rubidium-574856:4952685")
@@ -76,8 +76,8 @@ dependencies {
 //    runtimeOnly fg.deobf("curse.maven:tropicraft-254794:4617294")
 //    runtimeOnly fg.deobf("curse.maven:mystics-biomes-397962:4677470")
 
-    compileOnly fg.deobf("curse.maven:project-mmo-353935:4600797") // https://github.com/Caltinor/Project-MMO-2.0
-//    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:4600797")
+    compileOnly fg.deobf("curse.maven:project-mmo-353935:5501774") // https://github.com/Caltinor/Project-MMO-2.0
+    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:5501774")
 
 //    compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:4160388")
