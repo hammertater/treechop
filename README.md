@@ -1,6 +1,6 @@
 # HT's TreeChop
 
-For a far more fun description, see [CurseForge](https://www.curseforge.com/minecraft/mc-mods/treechop) or [Modrinth](https://modrinth.com/mod/treechop).
+For a more fun description, see [CurseForge](https://www.curseforge.com/minecraft/mc-mods/treechop) or [Modrinth](https://modrinth.com/mod/treechop).
 
 ## Are trees leaving behind floating blocks?
 
@@ -9,6 +9,10 @@ Let me know [here](https://github.com/hammertater/treechop/issues/44)!
 ## Is something not working correctly?
 
 Send me a log! See [how to find and share Minecraft logs](https://github.com/hammertater/treechop/blob/main/docs/retrieve_latest_log.md).
+
+## Want to make your mod compatible with TreeChop?
+
+See the wiki - https://github.com/hammertater/treechop/wiki/Adding-compatibility-with-TreeChop
 
 ## Configuring chop counting (version 0.13.0 and later)
 <!-- For generating equation svgs: https://www.codecogs.com/latex/eqneditor.php-->
