@@ -42,7 +42,7 @@
     "fabricloader": "*",
     "fabric": "*",
     "minecraft": "~${minecraft_version}",
-    "java": ">=17"
+    "java": ">=21"
   },
   "suggests": {
   },

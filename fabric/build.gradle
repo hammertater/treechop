@@ -3,6 +3,7 @@ plugins {
 }
 
 repositories {
+    maven { url = uri('https://maven.fabricmc.net') }
     maven { url = "https://maven.terraformersmc.com/" }
 }
 
@@ -18,12 +19,12 @@ dependencies {
     //{
     modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:$forgeconfigapiport_version"
 
-    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-8.4.3"
-    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-8.4.3"
-    modRuntimeOnly "lol.bai:badpackets:fabric-0.4.1"
+    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-12.2.3"
+    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-12.2.3"
+    modRuntimeOnly "lol.bai:badpackets:fabric-0.8.1"
 
-    modCompileOnly "curse.maven:jade-324717:4973433"
-//    modRuntimeOnly "curse.maven:jade-324717:4973433"
+    modCompileOnly "curse.maven:jade-324717:5571122"
+//    modRuntimeOnly "curse.maven:jade-324717:5571122"
 
 //    modRuntimeOnly "maven.modrinth:sodium:mc1.19.3-0.4.9" // Doesn't wanna work in IntelliJ
 //    modRuntimeOnly "curse.maven:indium-459496:3957480"
@@ -36,7 +37,7 @@ dependencies {
 //    modRuntimeOnly "curse.maven:bclib-495191:4677965"
 //    modRuntimeOnly "curse.maven:betterend-413596:4677967"
 
-    modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:8.0.0"
+    modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:10.0.0"
     //}
 }
 
