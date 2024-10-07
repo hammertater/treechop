@@ -142,7 +142,7 @@ public class ConfigHandler {
             String strippedPath = resource.getPath();
             String unstrippedPath = Arrays.stream(strippedPath.split("_")).filter(token -> !token.equals(filterTerm)).collect(Collectors.joining("_"));
             if (!strippedPath.equals(unstrippedPath)) {
-                return new ResourceLocation(resource.getNamespace(), unstrippedPath);
+                return ResourceLocation.fromNamespaceAndPath(resource.getNamespace(), unstrippedPath);
             }
         }
         return null;

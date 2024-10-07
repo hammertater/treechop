@@ -29,7 +29,7 @@ public class SilentGear {
     public static void enqueueIMC(InterModEnqueueEvent event) {
         if (ConfigHandler.COMMON.compatForSilentGear.get() && ModList.get().isLoaded("silentgear")) {
             InterModComms.sendTo("treechop", "getTreeChopAPI", () -> (Consumer<TreeChopAPI>) api -> {
-                Item saw = ForgeRegistries.ITEMS.getValue(new ResourceLocation("silentgear", "saw"));
+                Item saw = ForgeRegistries.ITEMS.getValue(ResourceLocation.fromNamespaceAndPath("silentgear", "saw"));
                 if (saw != null) {
                     api.registerChoppingItemBehavior(saw, new IChoppingItem() {
                         @Override

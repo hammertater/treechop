@@ -9,17 +9,25 @@ import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SyncedChopData;
 import ht.treechop.server.Server;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ClientRequestSettingsPacket implements CustomPacket {
+public class ClientRequestSettingsPacket implements CustomPacketPayload {
     public static final ResourceLocation ID = TreeChop.resource("client_request_settings");
+    public static final CustomPacketPayload.Type<ClientRequestSettingsPacket> TYPE = new CustomPacketPayload.Type<>(ID);
+    public static final StreamCodec<FriendlyByteBuf, ClientRequestSettingsPacket> STREAM_CODEC = StreamCodec.ofMember(
+            ClientRequestSettingsPacket::encode, ClientRequestSettingsPacket::decode
+    );
+
     private final List<Setting> settings;
     private final Event event;
 
@@ -36,12 +44,10 @@ public class ClientRequestSettingsPacket implements CustomPacket {
         this(chopSettings.getAll(), Event.FIRST_TIME_SYNC);
     }
 
-    @Override
-    public FriendlyByteBuf encode(FriendlyByteBuf buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         event.encode(buffer);
         buffer.writeInt(settings.size());
         settings.forEach(setting -> setting.encode(buffer));
-        return buffer;
     }
 
     public static ClientRequestSettingsPacket decode(FriendlyByteBuf buffer) {
@@ -54,8 +60,8 @@ public class ClientRequestSettingsPacket implements CustomPacket {
         return new ClientRequestSettingsPacket(settings, event);
     }
 
-    public static void handle(ClientRequestSettingsPacket message, ServerPlayer player, PacketChannel replyChannel) {
-        processSettingsRequest(Server.instance().getPlayerChopData(player), message, player, replyChannel);
+    public void handle(ServerPlayer player, PacketChannel replyChannel) {
+        processSettingsRequest(Server.instance().getPlayerChopData(player), this, player, replyChannel);
     }
 
     private static void processSettingsRequest(SyncedChopData chopData, ClientRequestSettingsPacket message, ServerPlayer player, PacketChannel replyChannel) {
@@ -106,14 +112,13 @@ public class ClientRequestSettingsPacket implements CustomPacket {
     }
 
     @Override
-    public ResourceLocation getId() {
-        return ID;
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
     private enum Event {
         FIRST_TIME_SYNC,
-        REQUEST
-        ;
+        REQUEST;
 
         private static final Event[] values = Event.values();
 

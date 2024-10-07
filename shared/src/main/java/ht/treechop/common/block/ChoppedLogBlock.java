@@ -14,10 +14,13 @@ import ht.treechop.server.Server;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -219,8 +222,9 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
 
         if (level instanceof ServerLevel serverLevel) {
-            ResourceLocation chopLootTable = BuiltInRegistries.BLOCK.getKey(this.asBlock()).withPrefix("chopping/");
-            LootTable lootTable = serverLevel.getServer().getLootData().getLootTable(chopLootTable);
+            ResourceLocation chopLootTableId = BuiltInRegistries.BLOCK.getKey(this.asBlock()).withPrefix("chopping/");
+            ResourceKey<LootTable> chopLootTableKey = ResourceKey.create(Registries.LOOT_TABLE, chopLootTableId);
+            LootTable lootTable = serverLevel.getServer().reloadableRegistries().getLootTable(chopLootTableKey);
             int finalBlockChopCount = currentNumChops + numAddedChops;
 
             for (int i = 0; i < numAddedChops; ++i) {
@@ -374,8 +378,8 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
 
         @Override
-        public void saveAdditional(@Nonnull CompoundTag tag) {
-            super.saveAdditional(tag);
+        public void saveAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider lookup) {
+            super.saveAdditional(tag, lookup);
 
             tag.putInt(KEY_ORIGINAL_STATE, Block.getId(getOriginalState()));
             tag.putInt(KEY_CHOPS, getChops());
@@ -395,8 +399,8 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
 
         @Override
-        public void load(@Nonnull CompoundTag tag) {
-            super.load(tag);
+        public void loadAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider lookup) {
+            super.loadAdditional(tag, lookup);
 
             int hash = hashCode();
 
@@ -418,8 +422,8 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
         @Nonnull
         @Override
-        public CompoundTag getUpdateTag() {
-            return saveWithoutMetadata();
+        public CompoundTag getUpdateTag(HolderLookup.Provider lookup) {
+            return saveWithoutMetadata(lookup);
         }
 
         @Nullable
@@ -436,7 +440,7 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
 
         private void syncWithClients() {
             if (level instanceof ServerLevel serverLevel) {
-                Server.instance().broadcast(serverLevel, worldPosition, new ServerUpdateChopsPacket(worldPosition, getUpdateTag()));
+                Server.instance().broadcast(serverLevel, worldPosition, new ServerUpdateChopsPacket(worldPosition, getUpdateTag(level.registryAccess())));
             }
         }
 

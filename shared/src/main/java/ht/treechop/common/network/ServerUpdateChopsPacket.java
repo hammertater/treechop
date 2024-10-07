@@ -5,15 +5,17 @@ import ht.treechop.client.Client;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-public class ServerUpdateChopsPacket implements CustomPacket {
+public class ServerUpdateChopsPacket implements CustomPacketPayload {
     public static final ResourceLocation ID = TreeChop.resource("server_update_chops");
+    public static final CustomPacketPayload.Type<ServerUpdateChopsPacket> TYPE = new CustomPacketPayload.Type<>(ID);
+    public static final StreamCodec<FriendlyByteBuf, ServerUpdateChopsPacket> STREAM_CODEC = CustomPacketPayload.codec(
+            ServerUpdateChopsPacket::encode, ServerUpdateChopsPacket::decode
+    );
 
     private final BlockPos pos;
     private final CompoundTag tag;
@@ -23,10 +25,9 @@ public class ServerUpdateChopsPacket implements CustomPacket {
         this.tag = tag;
     }
 
-    public FriendlyByteBuf encode(FriendlyByteBuf buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeBlockPos(pos);
         buffer.writeNbt(tag);
-        return buffer;
     }
 
     public static ServerUpdateChopsPacket decode(FriendlyByteBuf buffer) {
@@ -35,13 +36,8 @@ public class ServerUpdateChopsPacket implements CustomPacket {
         return new ServerUpdateChopsPacket(pos, tag);
     }
 
-    public static void handle(ServerUpdateChopsPacket message) {
-        Client.handleUpdateChopsPacket(message.pos, message.tag);
-    }
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
+    public void handle() {
+        Client.handleUpdateChopsPacket(pos, tag);
     }
 
     public BlockPos getPos() {
@@ -50,5 +46,10 @@ public class ServerUpdateChopsPacket implements CustomPacket {
 
     public CompoundTag getTag() {
         return tag;
+    }
+
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

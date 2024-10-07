@@ -45,12 +45,5 @@
     "java": ">=21"
   },
   "suggests": {
-  },
-  "custom": {
-    "waila:plugins": {
-      "id": "treechop:plugin",
-      "initializer": "ht.treechop.compat.Wthit",
-      "environment": "client"
-    }
   }
 }

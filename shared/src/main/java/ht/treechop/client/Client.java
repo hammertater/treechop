@@ -16,6 +16,7 @@ import ht.treechop.common.util.TreeCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -94,7 +95,7 @@ public abstract class Client {
     public static void handleUpdateChopsPacket(BlockPos pos, CompoundTag tag) {
         Level level = Minecraft.getInstance().level;
         if (level != null && level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
-            entity.load(tag);
+            entity.loadWithComponents(tag, level.registryAccess());
         }
     }
 
@@ -103,5 +104,5 @@ public abstract class Client {
     }
 
 
-    abstract void sendToServer(CustomPacket packet);
+    abstract void sendToServer(CustomPacketPayload payload);
 }

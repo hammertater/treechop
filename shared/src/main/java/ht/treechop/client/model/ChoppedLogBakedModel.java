@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 
 public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     private static TextureAtlasSprite defaultSprite;
-    protected static final ResourceLocation DEFAULT_TEXTURE_RESOURCE = new ResourceLocation("block/stripped_oak_log");
+    protected static final ResourceLocation DEFAULT_TEXTURE_RESOURCE = ResourceLocation.withDefaultNamespace("block/stripped_oak_log");
     public static final RenderType RENDER_TYPE = RenderType.cutout(); // Don't use translucent, looks nuts with shaders
 
     public static void setDefaultSprite(TextureAtlasSprite defaultSprite) {
@@ -75,7 +75,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     @Override
-    public BakedModel bake(@NotNull ModelBaker modelBakery, Function<Material, TextureAtlasSprite> textureGetter, @NotNull ModelState modelState, @NotNull ResourceLocation modelId) {
+    public BakedModel bake(@NotNull ModelBaker modelBakery, Function<Material, TextureAtlasSprite> textureGetter, @NotNull ModelState modelState) {
         defaultSprite = textureGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, DEFAULT_TEXTURE_RESOURCE));
         return this;
     }

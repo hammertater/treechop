@@ -5,6 +5,7 @@ import ht.treechop.common.network.ForgePacketHandler;
 import ht.treechop.common.settings.ChoppingEntity;
 import ht.treechop.common.settings.SyncedChopData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -29,13 +30,13 @@ public class ForgeServer extends Server {
     }
 
     @Override
-    public void broadcast(ServerLevel level, BlockPos pos, CustomPacket packet) {
-        ForgePacketHandler.HANDLER.send(PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(pos)), packet);
+    public void broadcast(ServerLevel level, BlockPos pos, CustomPacketPayload payload) {
+        ForgePacketHandler.HANDLER.send(payload, PacketDistributor.TRACKING_CHUNK.with(level.getChunkAt(pos)));
     }
 
     @Override
-    public void sendTo(ServerPlayer player, CustomPacket packet) {
-        ForgePacketHandler.HANDLER.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+    public void sendTo(ServerPlayer player, CustomPacketPayload payload) {
+        ForgePacketHandler.HANDLER.send(payload, player.connection.getConnection());
     }
 
     private static class EventHandler {

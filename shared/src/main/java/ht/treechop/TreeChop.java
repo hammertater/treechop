@@ -37,7 +37,7 @@ public abstract class TreeChop {
     }
 
     public static ResourceLocation resource(String path) {
-        return new ResourceLocation(TreeChop.MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(TreeChop.MOD_ID, path);
     }
 
     public static void cry(Throwable e) {

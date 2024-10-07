@@ -19,8 +19,8 @@ import java.util.List;
 @WailaPlugin
 public class Jade implements IWailaPlugin, IBlockComponentProvider {
 
-    public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
-    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
+    public static final ResourceLocation SHOW_TREE_BLOCKS = ResourceLocation.fromNamespaceAndPath(TreeChop.MOD_ID, "show_tree_block_counts");
+    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = ResourceLocation.fromNamespaceAndPath(TreeChop.MOD_ID, "show_num_chops_remaining");
     private static final ResourceLocation UID = TreeChop.resource("plugin");
 
     @Override
@@ -58,7 +58,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
     }
 
     private static void changeBlockName(ITooltip tooltip, BlockAccessor accessor) {
-        final ResourceLocation OBJECT_NAME_COMPONENT_KEY = new ResourceLocation("jade", "object_name");
+        final ResourceLocation OBJECT_NAME_COMPONENT_KEY = ResourceLocation.fromNamespaceAndPath("jade", "object_name");
         if (accessor.getBlockEntity() instanceof ChoppedLogBlock.MyEntity choppedEntity) {
             // There's no API function to change the message, so let's replace it
             tooltip.clear();

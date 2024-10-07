@@ -23,19 +23,14 @@ public class ToggleWidget extends AbstractWidget {
         this.stateSupplier = stateSupplier;
     }
 
-    @SuppressWarnings("NullableProblems")
-    @Override
-    public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
-        this.active = !stateSupplier.get().isLocked;
-        super.render(gui, mouseX, mouseY, partialTicks);
-    }
-
     public void onClick(double mouseX, double mouseY) {
         onPress.run();
     }
 
     @Override
     public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
+        this.active = !stateSupplier.get().isLocked;
+
         Sprite.setRenderState(this.alpha);
 
         final EnumMap<State, Sprite> spriteForState = new EnumMap<State, Sprite>(Stream.of(

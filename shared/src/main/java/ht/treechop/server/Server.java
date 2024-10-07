@@ -6,6 +6,7 @@ import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.ChoppingEntity;
 import ht.treechop.common.settings.SyncedChopData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -26,9 +27,9 @@ public abstract class Server {
         return chopper.getChopData();
     }
 
-    public abstract void broadcast(ServerLevel level, BlockPos pos, CustomPacket packet);
+    public abstract void broadcast(ServerLevel level, BlockPos pos, CustomPacketPayload payload);
 
-    public abstract void sendTo(ServerPlayer player, CustomPacket packet);
+    public abstract void sendTo(ServerPlayer player, CustomPacketPayload payload);
 
     public static Server instance() {
         return instance;

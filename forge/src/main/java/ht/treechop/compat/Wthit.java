@@ -18,8 +18,8 @@ import net.minecraft.world.level.block.Block;
 import java.util.Optional;
 
 public class Wthit implements IWailaPlugin, IBlockComponentProvider {
-    public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
-    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
+    public static final ResourceLocation SHOW_TREE_BLOCKS = ResourceLocation.fromNamespaceAndPath(TreeChop.MOD_ID, "show_tree_block_counts");
+    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = ResourceLocation.fromNamespaceAndPath(TreeChop.MOD_ID, "show_num_chops_remaining");
     private static final Wthit INSTANCE = new Wthit();
 
     @Override

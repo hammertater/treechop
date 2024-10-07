@@ -22,7 +22,7 @@ public enum Sprite {
     ;
 
     public static final ResourceLocation TEXTURE_PATH =
-            new ResourceLocation("treechop", "textures/gui/widgets.png");
+            ResourceLocation.fromNamespaceAndPath("treechop", "textures/gui/widgets.png");
     public static final int TEXTURE_WIDTH = 64;
     public static final int TEXTURE_HEIGHT = 120;
 

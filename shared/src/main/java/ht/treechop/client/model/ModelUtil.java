@@ -14,7 +14,7 @@ import org.joml.Vector3f;
 import java.util.Arrays;
 
 public class ModelUtil {
-    private static final ResourceLocation UNKNOWN_RESOURCE = new ResourceLocation("treechop", "dynamic");
+    private static final ResourceLocation UNKNOWN_RESOURCE = ResourceLocation.fromNamespaceAndPath("treechop", "dynamic");
 
     public static BakedQuad makeQuad(
             TextureAtlasSprite sprite,
@@ -61,8 +61,7 @@ public class ModelUtil {
                 orientation,
                 BlockModelRotation.X0_Y0,
                 null, // This is fine
-                true,
-                UNKNOWN_RESOURCE
+                true
         );
     }
 

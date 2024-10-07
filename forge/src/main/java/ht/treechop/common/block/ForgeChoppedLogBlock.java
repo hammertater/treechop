@@ -69,8 +69,13 @@ public class ForgeChoppedLogBlock extends ChoppedLogBlock {
 
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
         return getImitatedBlockState(level, pos).getCloneItemStack(target, level, pos, player);
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState blockState) {
+        return getImitatedBlockState(level, pos).getBlock().getCloneItemStack(level, pos, blockState);
     }
 
     @Override
