@@ -578,8 +578,6 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue showFeedbackMessages;
         public final ForgeConfigSpec.BooleanValue showTooltips;
 
-//        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
-
         public Client(ForgeConfigSpec.Builder builder) {
             builder.push("chopping");
             choppingEnabled = builder

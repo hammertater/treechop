@@ -1,6 +1,8 @@
 {
   "treechop:plugin": {
-    "initializer": "ht.treechop.compat.wthit.Wthit",
+    "entrypoints" : {
+      "client": "ht.treechop.compat.Wthit"
+    },
     "side": "client"
   }
 }

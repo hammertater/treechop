@@ -1,7 +1,9 @@
 package ht.treechop.compat;
 
+import com.sun.source.tree.Tree;
 import ht.treechop.TreeChop;
 import ht.treechop.common.block.ChoppedLogBlock;
+import ht.treechop.common.config.ConfigHandler;
 import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.component.ItemComponent;
 import mcp.mobius.waila.api.component.WrappedComponent;
@@ -13,17 +15,21 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.Optional;
 
-public class Wthit implements IWailaPlugin, IBlockComponentProvider {
-    public static final ResourceLocation SHOW_TREE_BLOCKS = ResourceLocation.fromNamespaceAndPath(TreeChop.MOD_ID, "show_tree_block_counts");
-    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = ResourceLocation.fromNamespaceAndPath(TreeChop.MOD_ID, "show_num_chops_remaining");
+public class Wthit implements IWailaCommonPlugin, IWailaClientPlugin, IBlockComponentProvider {
+    public static final ResourceLocation SHOW_TREE_BLOCKS = TreeChop.resource("show_tree_block_counts");
+    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = TreeChop.resource("show_num_chops_remaining");
     private static final Wthit INSTANCE = new Wthit();
 
     @Override
-    public void register(IRegistrar registrar) {
-        registrar.addConfig(SHOW_TREE_BLOCKS, true);
-        registrar.addConfig(SHOW_NUM_CHOPS_REMAINING, true);
-        registrar.addComponent(INSTANCE, TooltipPosition.BODY, Block.class);
-        registrar.addComponent(INSTANCE, TooltipPosition.HEAD, ChoppedLogBlock.class);
+    public void register(ICommonRegistrar registrar) {
+        registrar.featureConfig(SHOW_TREE_BLOCKS, true);
+        registrar.featureConfig(SHOW_NUM_CHOPS_REMAINING, true);
+    }
+
+    @Override
+    public void register(IClientRegistrar registrar) {
+        registrar.body(INSTANCE, Block.class);
+        registrar.head(INSTANCE, Block.class);
     }
 
     @Override
