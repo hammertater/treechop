@@ -6,8 +6,6 @@ import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ClientRequestSettingsPacket;
-import ht.treechop.common.network.CustomPacket;
-import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.SettingsField;
@@ -41,15 +39,8 @@ public abstract class Client {
         chopSettings.set(SettingsField.CHOPPING, newValue);
     }
 
-    public static void toggleFelling() {
-        boolean newValue = !chopSettings.get(SettingsField.FELLING, Boolean.class);
-        chopSettings.set(SettingsField.FELLING, newValue);
-    }
-
     public static void cycleSneakBehavior() {
-        SneakBehavior newValue = ConfigHandler.CLIENT.showFellingOptions.get()
-                ? chopSettings.getSneakBehavior().cycle()
-                : (chopSettings.getSneakBehavior() == SneakBehavior.NONE ? SneakBehavior.INVERT_CHOPPING : SneakBehavior.NONE);
+        SneakBehavior newValue = chopSettings.getSneakBehavior() == SneakBehavior.NONE ? SneakBehavior.INVERT_CHOPPING : SneakBehavior.NONE;
         chopSettings.set(SettingsField.SNEAK_BEHAVIOR, newValue);
     }
 

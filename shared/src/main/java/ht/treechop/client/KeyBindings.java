@@ -19,7 +19,6 @@ public class KeyBindings {
 
     public static void registerKeyMappings(Consumer<KeyMapping> register) {
         registerKeyBinding("toggle_chopping", InputConstants.UNKNOWN, Client::toggleChopping, register);
-        registerKeyBinding("toggle_felling", InputConstants.UNKNOWN, Client::toggleFelling, register);
         registerKeyBinding("cycle_sneak_behavior", InputConstants.UNKNOWN, Client::cycleSneakBehavior, register);
         registerKeyBinding("open_settings_overlay", getKey(GLFW.GLFW_KEY_N), Client::toggleSettingsOverlay, register);
     }

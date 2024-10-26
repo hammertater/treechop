@@ -6,7 +6,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import ht.treechop.TreeChopException;
 import ht.treechop.common.chop.ChopUtil;
-import ht.treechop.common.chop.FellTreeResult;
 import ht.treechop.common.util.LevelUtil;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -52,7 +51,6 @@ public class ServerCommands {
                     ItemStack.EMPTY,
                     context,
                     numChops,
-                    true,
                     false
             );
 

@@ -25,18 +25,13 @@ public class ChopSettings {
     }
 
     public boolean getChoppingEnabled() { return get(SettingsField.CHOPPING, Boolean.class); }
-    public boolean getFellingEnabled() { return get(SettingsField.FELLING, Boolean.class); }
+
     public SneakBehavior getSneakBehavior() { return get(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.class); }
     public boolean getTreesMustHaveLeaves() { return get(SettingsField.TREES_MUST_HAVE_LEAVES, Boolean.class); }
     public boolean getChopInCreativeMode() { return get(SettingsField.CHOP_IN_CREATIVE_MODE, Boolean.class); }
 
     public ChopSettings setChoppingEnabled(boolean enabled) {
         set(SettingsField.CHOPPING, enabled);
-        return this;
-    }
-
-    public ChopSettings setFellingEnabled(boolean enabled) {
-        set(SettingsField.FELLING, enabled);
         return this;
     }
 

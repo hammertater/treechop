@@ -138,14 +138,6 @@ public class ChopEvent extends Event {
             chopData.setNumChops(numChops);
         }
 
-        public boolean getFelling() {
-            return chopData.getFelling();
-        }
-
-        public void setFelling(boolean felling) {
-            chopData.setFelling(felling);
-        }
-
         public Object getTrigger() {
             return trigger;
         }
@@ -166,10 +158,6 @@ public class ChopEvent extends Event {
 
         public int getNumChops() {
             return chopData.getNumChops();
-        }
-
-        public boolean getFelling() {
-            return chopData.getFelling();
         }
 
         public boolean getFelled() {

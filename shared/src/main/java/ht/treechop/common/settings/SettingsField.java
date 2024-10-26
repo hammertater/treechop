@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 public enum SettingsField {
     CHOPPING("choppingEnabled", "treechop.setting.chopping", Boolean.TRUE),
-    FELLING("fellingEnabled", "treechop.setting.felling", Boolean.TRUE),
     SNEAK_BEHAVIOR("sneakBehavior", "treechop.setting.sneak_behavior", SneakBehavior.INVERT_CHOPPING),
     TREES_MUST_HAVE_LEAVES("treeMustHaveLeaves", "treechop.setting.trees_must_have_leaves", Boolean.TRUE),
     CHOP_IN_CREATIVE_MODE("chopInCreativeMode", "treechop.setting.chop_in_creative_mode", Boolean.FALSE)

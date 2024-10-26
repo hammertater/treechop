@@ -6,13 +6,11 @@ import ht.treechop.api.TreeData;
 import java.util.Optional;
 
 public class ChopDataImpl implements ChopData {
-    private boolean felling;
     private int numChops;
     private TreeData tree;
 
-    public ChopDataImpl(int numChops, boolean felling, TreeData tree) {
+    public ChopDataImpl(int numChops, TreeData tree) {
         this.numChops = numChops;
-        this.felling = felling;
         this.tree = tree;
     }
 
@@ -24,16 +22,6 @@ public class ChopDataImpl implements ChopData {
     @Override
     public void setNumChops(int numChops) {
         this.numChops = numChops;
-    }
-
-    @Override
-    public boolean getFelling() {
-        return felling;
-    }
-
-    @Override
-    public void setFelling(boolean felling) {
-        this.felling = felling;
     }
 
     @Override

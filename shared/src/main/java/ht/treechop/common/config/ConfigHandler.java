@@ -58,7 +58,6 @@ public class ConfigHandler {
             RELOAD,
             () -> new ChopSettings()
                     .setChoppingEnabled(ConfigHandler.COMMON.fakePlayerChoppingEnabled.get())
-                    .setFellingEnabled(ConfigHandler.COMMON.fakePlayerFellingEnabled.get())
                     .setTreesMustHaveLeaves(ConfigHandler.COMMON.fakePlayerTreesMustHaveLeaves.get()));
     private static final Signal<Lazy<?>> UPDATE_TAGS = new Signal<>(Lazy::reset);
     public static Lazy<Boolean> removeBarkOnInteriorLogs = new Lazy<>(
@@ -228,7 +227,6 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
         public final ForgeConfigSpec.BooleanValue preventChopRecursion;
         public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
-        public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
         public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
         public final InitializedSupplier<Boolean> compatForCarryOn = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForProjectMMO = defaultValue(true);
@@ -473,9 +471,6 @@ public class ConfigHandler {
             fakePlayerChoppingEnabled = builder
                     .comment("Use with caution! May cause conflicts with some mods, e.g. https://github.com/hammertater/treechop/issues/71")
                     .define("choppingEnabled", false);
-            fakePlayerFellingEnabled = builder
-                    .comment("Felling only matters if chopping is enabled; probably best to leave this on")
-                    .define("fellingEnabled", true);
             fakePlayerTreesMustHaveLeaves = builder
                     .define("treesMustHaveLeaves", true);
             builder.pop();
@@ -573,7 +568,6 @@ public class ConfigHandler {
     public static class Client {
 
         public final ForgeConfigSpec.BooleanValue choppingEnabled;
-        public final ForgeConfigSpec.BooleanValue fellingEnabled;
         public final ForgeConfigSpec.EnumValue<SneakBehavior> sneakBehavior;
         public final ForgeConfigSpec.BooleanValue treesMustHaveLeaves;
         public final ForgeConfigSpec.BooleanValue chopInCreativeMode;
@@ -581,7 +575,6 @@ public class ConfigHandler {
         private final ForgeConfigSpec.BooleanValue removeBarkOnInteriorLogs;
         public final ForgeConfigSpec.IntValue indicatorXOffset;
         public final ForgeConfigSpec.IntValue indicatorYOffset;
-        public final ForgeConfigSpec.BooleanValue showFellingOptions;
         public final ForgeConfigSpec.BooleanValue showFeedbackMessages;
         public final ForgeConfigSpec.BooleanValue showTooltips;
 
@@ -592,9 +585,6 @@ public class ConfigHandler {
             choppingEnabled = builder
                     .comment("Default setting for whether or not the user wishes to chop (can be toggled in-game)")
                     .define("choppingEnabled", true);
-            fellingEnabled = builder
-                    .comment("Default setting for whether or not the user wishes to fell tree when chopping (can be toggled in-game)")
-                    .define("fellingEnabled", true);
             sneakBehavior = builder
                     .comment("Default setting for the effect that sneaking has on chopping (can be cycled in-game)")
                     .defineEnum("sneakBehavior", SneakBehavior.INVERT_CHOPPING);
@@ -625,9 +615,6 @@ public class ConfigHandler {
             builder.pop();
 
             builder.push("settingsScreen");
-            showFellingOptions = builder
-                    .comment("Show in-game options for enabling and disable felling (can be toggled in-game)")
-                    .define("showFellingOptions", false);
             showFeedbackMessages = builder
                     .comment("Show chat confirmations when using hotkeys to change chop settings (can be toggled in-game)")
                     .define("showFeedbackMessages", true);
@@ -635,16 +622,11 @@ public class ConfigHandler {
                     .comment("Show tooltips in the settings screen (can be toggled in-game)")
                     .define("showTooltips", true);
             builder.pop();
-
-//            treesMustBeUniform = builder
-//                    .comment("Whether to disallow different types of log blocks from belonging to the same tree")
-//                    .define("treesMustBeUniform", true);
         }
 
         public ChopSettings getChopSettings() {
             ChopSettings chopSettings = new ChopSettings();
             chopSettings.setChoppingEnabled(ConfigHandler.CLIENT.choppingEnabled.get());
-            chopSettings.setFellingEnabled(ConfigHandler.CLIENT.fellingEnabled.get());
             chopSettings.setSneakBehavior(ConfigHandler.CLIENT.sneakBehavior.get());
             chopSettings.setTreesMustHaveLeaves(ConfigHandler.CLIENT.treesMustHaveLeaves.get());
             chopSettings.setChopInCreativeMode(ConfigHandler.CLIENT.chopInCreativeMode.get());

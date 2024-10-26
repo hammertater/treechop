@@ -33,8 +33,7 @@ public abstract class MultiPlayerGameModeMixin {
                 if (ChopUtil.playerWantsToChop(player, Client.getChopSettings()) && ChopIndicator.blockCanBeChopped(pos)) {
                     TreeData tree = Client.treeCache.getTree(level, pos);
                     BlockState state = level.getBlockState(pos);
-                    boolean felled = ChopUtil.playerWantsToFell(player, Client.getChopSettings()) &&
-                            tree.readyToFell(tree.getChops() + ChopUtil.getNumChopsByTool(player.getMainHandItem(), state));
+                    boolean felled = tree.readyToFell(tree.getChops() + ChopUtil.getNumChopsByTool(player.getMainHandItem(), state));
 
                     if (!felled) {
                         ChopUtil.thwack(player, level, pos, state);

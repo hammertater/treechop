@@ -92,60 +92,19 @@ public class ClientSettingsScreen extends Screen {
                 )
         );
 
-        if (ConfigHandler.CLIENT.showFellingOptions.get()) {
-            optionRows.add(
-                    new LabeledGui(font,
-                            Component.translatable("treechop.gui.settings.label.felling"),
-                            makeToggleSettingRow(SettingsField.FELLING, "treechop.gui.settings.tooltip.felling")
-                    )
-            );
-
-            optionRows.add(
-                    new LabeledGui(font,
-                            Component.translatable("treechop.gui.settings.label.sneaking_inverts"),
-                            new ExclusiveButtonsGui.Builder()
-                                    .add(
-                                            Component.translatable("treechop.gui.settings.button.chopping"),
-                                            () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.INVERT_CHOPPING),
-                                            () -> StickyWidget.State.of(
-                                                    Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_CHOPPING,
-                                                    isSettingPermitted(SettingsField.CHOPPING, !Client.getChopSettings().getChoppingEnabled())
-                                                            && isSettingPermitted(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.INVERT_CHOPPING)
-                                            )
-                                    )
-                                    .add(
-                                            Component.translatable("treechop.gui.settings.button.felling"),
-                                            () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.INVERT_FELLING),
-                                            () -> StickyWidget.State.of(
-                                                    Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_FELLING,
-                                                    isSettingPermitted(SettingsField.FELLING, !Client.getChopSettings().getFellingEnabled())
-                                                            && isSettingPermitted(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.INVERT_FELLING)
-                                            )
-                                    )
-                                    .add(
-                                            Component.translatable("treechop.gui.settings.button.nothing"),
-                                            () -> Client.getChopSettings().setSneakBehavior(SneakBehavior.NONE),
-                                            () -> makeStickyWidgetState(SettingsField.SNEAK_BEHAVIOR, SneakBehavior.NONE)
-                                    )
-                                    .build(this::getSneakCycleTooltip)
-                    )
-            );
-        }
-        else {
-            optionRows.add(
-                    new LabeledGui(font,
-                            Component.translatable("treechop.gui.settings.label.sneaking_inverts_chopping"),
-                            new ToggleGui(
-                                    () -> Client.getChopSettings().setSneakBehavior(getNextSneakBehavior()),
-                                    () -> ToggleWidget.State.of(
-                                            Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_CHOPPING,
-                                            isSettingPermitted(SettingsField.SNEAK_BEHAVIOR, getNextSneakBehavior())
-                                    ),
-                                    this::getSneakCycleTooltip
-                            )
-                    )
-            );
-        }
+        optionRows.add(
+                new LabeledGui(font,
+                        Component.translatable("treechop.gui.settings.label.sneaking_inverts_chopping"),
+                        new ToggleGui(
+                                () -> Client.getChopSettings().setSneakBehavior(getNextSneakBehavior()),
+                                () -> ToggleWidget.State.of(
+                                        Client.getChopSettings().getSneakBehavior() == SneakBehavior.INVERT_CHOPPING,
+                                        isSettingPermitted(SettingsField.SNEAK_BEHAVIOR, getNextSneakBehavior())
+                                ),
+                                this::getSneakCycleTooltip
+                        )
+                )
+        );
 
         optionRows.add(
                 new LabeledGui(font,
@@ -202,31 +161,6 @@ public class ClientSettingsScreen extends Screen {
 
         optionRows.add(
                 new LabeledGui(font,
-                        Component.translatable("treechop.gui.settings.label.felling_options"),
-                        new ToggleGui(
-                                () -> {
-                                    boolean newValue = !ConfigHandler.CLIENT.showFellingOptions.get();
-                                    ConfigHandler.CLIENT.showFellingOptions.set(newValue);
-                                    if (!newValue) {
-                                        ClientChopSettings settings = Client.getChopSettings();
-                                        settings.setFellingEnabled(true);
-                                        if (settings.getSneakBehavior() == SneakBehavior.INVERT_FELLING) {
-                                            settings.setSneakBehavior(SneakBehavior.INVERT_CHOPPING);
-                                        }
-                                    }
-                                },
-                                () -> ToggleWidget.State.of(
-                                        ConfigHandler.CLIENT.showFellingOptions.get(),
-                                        Client.getServerPermissions().isPermitted(new Setting(SettingsField.FELLING, false))
-                                ),
-                                () -> Component.translatable("treechop.gui.settings.tooltip.felling_options"
-                                        + (ConfigHandler.CLIENT.showFellingOptions.get() ? ".on" : ".off"))
-                        )
-                )
-        );
-
-        optionRows.add(
-                new LabeledGui(font,
                         Component.translatable("treechop.gui.settings.label.tooltips"),
                         new ToggleGui(
                                 () -> ConfigHandler.CLIENT.showTooltips.set(!ConfigHandler.CLIENT.showTooltips.get()),
@@ -246,7 +180,6 @@ public class ClientSettingsScreen extends Screen {
         SettingsField field;
         switch (Client.getChopSettings().getSneakBehavior()) {
             case INVERT_CHOPPING -> field = SettingsField.CHOPPING;
-            case INVERT_FELLING -> field = SettingsField.FELLING;
             default -> {
                 return Component.translatable("treechop.gui.settings.tooltip.sneaking_does_nothing");
             }
