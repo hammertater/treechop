@@ -4,13 +4,13 @@ import ht.treechop.TreeChop;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
 public class ChoppedLogModelLoadingPlugin implements ModelLoadingPlugin {
-    private static final ModelResourceLocation CHOPPED_LOG = new ModelResourceLocation(TreeChop.resource("block/chopped_log"), "");
+    private static final ResourceLocation CHOPPED_LOG = TreeChop.resource("block/chopped_log");
     private final Supplier<ChoppedLogBakedModel> model;
 
     public ChoppedLogModelLoadingPlugin(Supplier<ChoppedLogBakedModel> model) {
@@ -20,8 +20,8 @@ public class ChoppedLogModelLoadingPlugin implements ModelLoadingPlugin {
     @Override
     public void onInitializeModelLoader(Context pluginContext) {
         pluginContext.modifyModelOnLoad().register((original, context) -> {
-            final ModelResourceLocation id = context.topLevelId();
-            if(id != null && id.equals(CHOPPED_LOG)) {
+            final ResourceLocation id = context.resourceId();
+            if(CHOPPED_LOG.equals(id)) {
                 return model.get();
             } else {
                 return original;

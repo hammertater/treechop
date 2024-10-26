@@ -42,7 +42,6 @@ public class FabricClient extends Client implements ClientModInitializer {
 
         registerPackets();
         registerKeybindings();
-
     }
 
     private void registerKeybindings() {
