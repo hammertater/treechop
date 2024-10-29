@@ -1,9 +1,7 @@
 package ht.treechop.compat;
 
-import com.sun.source.tree.Tree;
 import ht.treechop.TreeChop;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.config.ConfigHandler;
 import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.component.ItemComponent;
 import mcp.mobius.waila.api.component.WrappedComponent;

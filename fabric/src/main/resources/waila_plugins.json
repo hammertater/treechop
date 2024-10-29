@@ -1,8 +1,9 @@
 {
   "treechop:plugin": {
     "entrypoints" : {
+      "common": "ht.treechop.compat.Wthit",
       "client": "ht.treechop.compat.Wthit"
     },
-    "side": "client"
+    "side": "*"
   }
 }
