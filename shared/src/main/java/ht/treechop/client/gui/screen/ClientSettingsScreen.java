@@ -1,7 +1,5 @@
 package ht.treechop.client.gui.screen;
 
-import ht.treechop.client.settings.ClientChopSettings;
-import net.minecraft.client.gui.GuiGraphics;
 import ht.treechop.TreeChop;
 import ht.treechop.client.Client;
 import ht.treechop.client.gui.element.*;
@@ -14,7 +12,9 @@ import ht.treechop.common.settings.Setting;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -27,6 +27,7 @@ public class ClientSettingsScreen extends Screen {
     private static final boolean IS_PAUSE_SCREEN = true;
     private static final int SPACE_ABOVE_AND_BELOW_LIST = 10;
     private static final int MIN_HEIGHT = (GUIUtil.BUTTON_HEIGHT + ROW_SEPARATION) * 5 - ROW_SEPARATION;
+    private static final int TEXT_HEIGHT = 9;
 
     protected RowsGui optionsList;
     private Button doneButton;
@@ -63,6 +64,7 @@ public class ClientSettingsScreen extends Screen {
                 ROW_SEPARATION,
                 optionRows
         ));
+        placeOptionsList();
 
         final int doneButtonWidth = 200;
         doneButton = addRenderableWidget(new Button.Builder(Component.translatable("gui.done"), button -> onClose())
@@ -72,6 +74,18 @@ public class ClientSettingsScreen extends Screen {
                                 GUIUtil.BUTTON_HEIGHT)
                         .build()
         );
+
+        int titleTop = optionsList.getY() - SPACE_ABOVE_AND_BELOW_LIST - GUIUtil.TEXT_LINE_HEIGHT;
+        addRenderableWidget(new StringWidget(0, titleTop, this.width, TEXT_HEIGHT, this.title, this.font).alignCenter());
+    }
+
+    private void placeOptionsList() {
+        int top = 32;
+        int bottom = height - 32;
+        int middle = (top + bottom) / 2;
+        int listTop = middle - optionsList.getHeight() / 2;
+        int listBottom = middle + optionsList.getHeight() / 2;
+        optionsList.setBox(0, listTop, width, listBottom - listTop);
     }
 
     private void addBufferRows(List<NestedGui> rows) {
@@ -228,15 +242,8 @@ public class ClientSettingsScreen extends Screen {
             needToRebuild = false;
         }
 
-        renderBackground(gui);
-
         doneButton.setY(getDoneButtonTop());
 
-        int listTop = getListTop();
-        int listBottom = getListBottom();
-        optionsList.setBox(0, listTop, width, listBottom - listTop);
-        optionsList.render(gui, mouseX, mouseY, partialTicks);
-        gui.drawCenteredString(this.font, this.title, this.width / 2, getTitleTop(), 16777215);
         super.render(gui, mouseX, mouseY, partialTicks);
         // TODO: check out ClientSettingsScreen.func_243293_a for draw reordering; might be important for tooltips
 
@@ -245,52 +252,12 @@ public class ClientSettingsScreen extends Screen {
         }
     }
 
-    // Introduced in 1.20.2
-    public void renderBackground(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-        renderBackground(gui);
-    }
-
-    // Don't call super.renderBackground, it doesn't exist on 1.20.2+
-    // @Override
-    public void renderBackground(GuiGraphics gui) {
-
-        gui.fillGradient(0, 0, width, height, -1072689136, -804253680);
-    }
-
     @Override
     public boolean isPauseScreen() {
         return IS_PAUSE_SCREEN;
     }
 
-    protected int getTop() {
-        return 32;
-    }
-
-    protected int getBottom() {
-        return height - 32;
-    }
-
-    protected int getMiddleY() {
-        return (getTop() + getBottom()) / 2;
-    }
-
-    protected int getTitleTop() {
-        return getListTop() - SPACE_ABOVE_AND_BELOW_LIST - GUIUtil.TEXT_LINE_HEIGHT;
-    }
-
-    protected int getListTop() {
-        return getMiddleY() - getListHeight() / 2;
-    }
-
-    protected int getListHeight() {
-        return optionsList.getHeight();
-    }
-
-    protected int getListBottom() {
-        return getMiddleY() + getListHeight() / 2;
-    }
-
     protected int getDoneButtonTop() {
-        return getListBottom() + SPACE_ABOVE_AND_BELOW_LIST;
+        return optionsList.getBottom() + SPACE_ABOVE_AND_BELOW_LIST;
     }
 }
