@@ -33,7 +33,7 @@ public class FabricServer extends Server implements DedicatedServerModInitialize
 
     private void registerPackets() {
         ServerPlayNetworking.registerGlobalReceiver(ClientRequestSettingsPacket.TYPE, (payload, context) ->
-                payload.handle(context.player(),  responseChannel(context)));
+                payload.handle(context.player(), responseChannel(context)));
     }
 
     private PacketChannel responseChannel(ServerPlayNetworking.Context context) {

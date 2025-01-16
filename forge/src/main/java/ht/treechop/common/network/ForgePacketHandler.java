@@ -4,7 +4,6 @@ import ht.treechop.TreeChop;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.SimpleChannel;
 
@@ -19,7 +18,7 @@ public abstract class ForgePacketHandler {
                 ClientRequestSettingsPacket.STREAM_CODEC,
                 (payload, context) -> payload.handle(
                         context.getSender(),
-                        reply -> context.getConnection().send(new ServerboundCustomPayloadPacket(reply))
+                        reply -> HANDLER.send(reply, context.getConnection())
                 )
         );
 

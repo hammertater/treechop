@@ -1,4 +1,4 @@
-package ht.treechop.api.forge;
+package ht.treechop.api;
 
 import ht.treechop.api.*;
 import net.minecraft.core.BlockPos;
