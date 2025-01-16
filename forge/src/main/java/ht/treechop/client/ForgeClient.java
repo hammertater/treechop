@@ -24,11 +24,6 @@ public class ForgeClient extends Client {
     }
 
     @SubscribeEvent
-    public static void onRegisterOverlays(CustomizeGuiOverlayEvent event) {
-        ChopIndicator.render(event.getGuiGraphics(), event.getWindow().getWidth(), event.getWindow().getHeight());
-    }
-
-    @SubscribeEvent
     public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
         KeyBindings.registerKeyMappings(event::register);
     }
