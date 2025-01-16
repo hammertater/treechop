@@ -11,8 +11,7 @@ import net.minecraftforge.network.SimpleChannel;
 public abstract class ForgePacketHandler {
     public static final SimpleChannel HANDLER = ChannelBuilder
             .named(TreeChop.resource("channel"))
-            .simpleChannel()
-            .build();
+            .simpleChannel();
 
     public static void registerPackets() {
         registerClientToServerPacket(
@@ -41,6 +40,8 @@ public abstract class ForgePacketHandler {
                 ServerUpdateChopsPacket.STREAM_CODEC,
                 (payload, context) -> payload.handle()
         );
+
+        HANDLER.build();
     }
 
     private static <T> void registerClientToServerPacket(

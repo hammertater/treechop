@@ -40,7 +40,7 @@ public class KeyBindings {
         return InputConstants.getKey(key, 0);
     }
 
-    protected static class ActionableKeyBinding extends KeyMapping {
+    public static class ActionableKeyBinding extends KeyMapping {
 
         private final Runnable callback;
 

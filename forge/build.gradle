@@ -1,10 +1,32 @@
 plugins {
-    id "net.minecraftforge.gradle" version "[6.0,6.2)"
+    id "net.minecraftforge.gradle" version "[6.0.24, 6.2)"
     id "org.spongepowered.mixin" version "0.7-SNAPSHOT"
+}
+
+version = mod_version
+group = mod_group
+
+base {
+    archivesName = "$mod_name-$minecraft_version-$project.name"
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : mod_id,
+                "Specification-Vendor"    : mod_authors,
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : "$mod_id-$project.name",
+                "Implementation-Version"  : project.jar.archiveVersion,
+                "Implementation-Vendor"   : mod_authors,
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
 }
 
 minecraft {
     mappings channel: "official", version: minecraft_version
+    reobf = false
     copyIdeResources = true
 
     runs {
@@ -13,14 +35,6 @@ minecraft {
             workingDirectory project.file("run")
             property "forge.logging.markers", "REGISTRIES"
             property "forge.logging.console.level", "debug"
-
-            mods {
-                "$mod_id" {
-                    source sourceSets.main
-                    source project(":tuber").sourceSets.main
-                    source project(":shared").sourceSets.main
-                }
-            }
         }
 
         client {
@@ -44,30 +58,30 @@ minecraft {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+    implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
 
-    implementation project(":shared")
-    implementation project(":tuber")
+//    implementation project(":shared")
 
 //    runtimeOnly fg.deobf("curse.maven:create-328085:4835191")
 
     // compile against the API
-//    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-12.2.3")
+    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-12.4.2")
 
 //    // run against the full jar
-//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-12.2.3")
+//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-12.4.2")
 //    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.8.1")
 
 //    compileOnly fg.deobf("curse.maven:jade-324717:5591256")
 //    runtimeOnly fg.deobf("curse.maven:jade-324717:5591256")
 
-    compileOnly fg.deobf("curse.maven:the-one-probe-245211:5159287")
+//    compileOnly fg.deobf("curse.maven:the-one-probe-245211:5159287")
 //    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:5159287")
 
 //    compileOnly fg.deobf("curse.maven:rubidium-574856:4952685")
 //    runtimeOnly fg.deobf("curse.maven:rubidium-574856:4952685")
 
-    compileOnly fg.deobf("curse.maven:multi-mine-227887:5389052")
-    runtimeOnly fg.deobf("curse.maven:multi-mine-227887:5389052")
+    compileOnly fg.deobf("curse.maven:multi-mine-227887:5733859")
+//    runtimeOnly fg.deobf("curse.maven:multi-mine-227887:5733859")
 
 //    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4647094")
 //    runtimeOnly fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
@@ -77,8 +91,8 @@ dependencies {
 //    runtimeOnly fg.deobf("curse.maven:tropicraft-254794:4617294")
 //    runtimeOnly fg.deobf("curse.maven:mystics-biomes-397962:4677470")
 
-    compileOnly fg.deobf("curse.maven:project-mmo-353935:5501774") // https://github.com/Caltinor/Project-MMO-2.0
-//    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:5501774")
+//    compileOnly fg.deobf("curse.maven:project-mmo-353935:5694594") // https://github.com/Caltinor/Project-MMO-2.0
+//    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:5694594")
 
 //    compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
 //    runtimeOnly fg.deobf("curse.maven:carry-on-274259:4160388")
@@ -125,12 +139,13 @@ mixin {
 }
 
 tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
     source(project(":shared").sourceSets.main.allSource)
     source(project(":tuber").sourceSets.main.allSource)
 }
 
-// Example configuration to allow publishing using the maven-publish task
-// This is the preferred method to reobfuscate your jar file
-jar.finalizedBy("reobfJar")
-// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
-//publish.dependsOn("reobfJar")
+sourceSets.each {
+    def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
+    it.output.resourcesDir = dir
+    it.java.destinationDirectory = dir
+}

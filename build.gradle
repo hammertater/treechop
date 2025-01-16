@@ -1,6 +1,5 @@
 plugins {
     id "fabric-loom" version "1.7-SNAPSHOT" apply false
-    id "net.minecraftforge.gradle" version "[6.0,6.2)" apply false
     id "org.spongepowered.gradle.vanilla" version "0.2.1-SNAPSHOT" apply false
     id "org.spongepowered.mixin" version "0.7-SNAPSHOT" apply false
 }
@@ -12,27 +11,6 @@ subprojects {
     apply plugin: 'maven-publish'
 
     java.toolchain.languageVersion = JavaLanguageVersion.of(21)
-
-    version = mod_version
-    group = mod_group
-
-    base {
-        archivesName = "$mod_name-$minecraft_version-$project.name"
-    }
-
-    jar {
-        manifest {
-            attributes([
-                    "Specification-Title"     : mod_id,
-                    "Specification-Vendor"    : mod_authors,
-                    "Specification-Version"   : "1",
-                    "Implementation-Title"    : "$mod_id-$project.name",
-                    "Implementation-Version"  : project.jar.archiveVersion,
-                    "Implementation-Vendor"   : mod_authors,
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-            ])
-        }
-    }
 
     repositories {
         mavenCentral()

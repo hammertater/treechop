@@ -2,22 +2,15 @@ plugins {
     id "org.spongepowered.gradle.vanilla"
 }
 
-repositories {
-}
-
 dependencies {
     compileOnly "org.spongepowered:mixin:0.8.5"
     compileOnly "fuzs.forgeconfigapiport:forgeconfigapiport-common-forgeapi:$forgeconfigapiport_version"
+    compileOnly project(":tuber")
 }
 
 minecraft {
     version(minecraft_version)
 }
 
-dependencies {
-    implementation project(":tuber")
-}
-
 tasks.withType(JavaCompile) {
-    source(project(":tuber").sourceSets.main.allSource)
 }

@@ -1,5 +1,6 @@
-package ht.treechop.api;
+package ht.treechop.api.forge;
 
+import ht.treechop.api.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;

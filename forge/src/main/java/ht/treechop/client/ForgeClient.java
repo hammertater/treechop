@@ -1,9 +1,7 @@
 package ht.treechop.client;
 
 import ht.treechop.client.gui.screen.ChopIndicator;
-import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.network.ForgePacketHandler;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
@@ -36,7 +34,7 @@ public class ForgeClient extends Client {
     }
 
     @Override
-    void sendToServer(CustomPacketPayload payload) {
+    public void sendToServer(CustomPacketPayload payload) {
         ForgePacketHandler.HANDLER.send(payload, PacketDistributor.SERVER.noArg());
     }
 

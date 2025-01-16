@@ -63,7 +63,7 @@ public class FabricClient extends Client implements ClientModInitializer {
     }
 
     @Override
-    void sendToServer(CustomPacketPayload payload) {
+    public void sendToServer(CustomPacketPayload payload) {
         ClientPlayNetworking.send(payload);
     }
 }

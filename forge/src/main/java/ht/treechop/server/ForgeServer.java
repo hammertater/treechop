@@ -1,6 +1,5 @@
 package ht.treechop.server;
 
-import ht.treechop.common.network.CustomPacket;
 import ht.treechop.common.network.ForgePacketHandler;
 import ht.treechop.common.settings.ChoppingEntity;
 import ht.treechop.common.settings.SyncedChopData;
@@ -15,7 +14,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
 
 @Mod.EventBusSubscriber(bus = Bus.MOD)

@@ -1,6 +1,6 @@
 {
   "treechop:plugin": {
-    "initializer": "ht.treechop.compat.Wthit",
+    "initializer": "ht.treechop.forge.compat.Wthit",
     "side": "client"
   }
 }
