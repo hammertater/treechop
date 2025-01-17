@@ -13,7 +13,8 @@ public abstract class ForgePacketHandler {
             .simpleChannel();
 
     public static void registerPackets() {
-        registerClientToServerPacket(
+        registerPacket(
+                PacketFlow.SERVERBOUND,
                 ClientRequestSettingsPacket.class,
                 ClientRequestSettingsPacket.STREAM_CODEC,
                 (payload, context) -> payload.handle(
@@ -22,19 +23,22 @@ public abstract class ForgePacketHandler {
                 )
         );
 
-        registerServerToClientPacket(
+        registerPacket(
+                PacketFlow.CLIENTBOUND,
                 ServerConfirmSettingsPacket.class,
                 ServerConfirmSettingsPacket.STREAM_CODEC,
                 (payload, context) -> payload.handle()
         );
 
-        registerServerToClientPacket(
+        registerPacket(
+                PacketFlow.CLIENTBOUND,
                 ServerPermissionsPacket.class,
                 ServerPermissionsPacket.STREAM_CODEC,
                 (payload, context) -> payload.handle()
         );
 
-        registerServerToClientPacket(
+        registerPacket(
+                PacketFlow.CLIENTBOUND,
                 ServerUpdateChopsPacket.class,
                 ServerUpdateChopsPacket.STREAM_CODEC,
                 (payload, context) -> payload.handle()
@@ -43,25 +47,19 @@ public abstract class ForgePacketHandler {
         HANDLER.build();
     }
 
-    private static <T> void registerClientToServerPacket(
+    private static <T> void registerPacket(
+            PacketFlow direction,
             Class<T> packetClass,
             StreamCodec<FriendlyByteBuf, T> streamCodec,
             MessageHandler<T> handler) {
         HANDLER.messageBuilder(packetClass)
                 .codec(streamCodec)
-                .direction(PacketFlow.SERVERBOUND)
-                .consumer(handler::accept)
+                .direction(direction)
+                .consumer((payload, context) -> {
+                    context.enqueueWork(() -> handler.accept(payload, context));
+                    context.setPacketHandled(true);
+                })
                 .add();
     }
 
-    private static <T> void registerServerToClientPacket(
-            Class<T> packetClass,
-            StreamCodec<FriendlyByteBuf, T> streamCodec,
-            MessageHandler<T> handler) {
-        HANDLER.messageBuilder(packetClass)
-                .codec(streamCodec)
-                .direction(PacketFlow.CLIENTBOUND)
-                .consumer(handler::accept)
-                .add();
-    }
 }
