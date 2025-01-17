@@ -9,7 +9,8 @@
     "LootContextParamSetsAccess"
   ],
   "client": [
-    "MultiPlayerGameModeMixin"
+    "MultiPlayerGameModeMixin",
+    "GuiMixin"
   ],
   "injectors": {
     "defaultRequire": 1
