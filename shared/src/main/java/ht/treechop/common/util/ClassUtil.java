@@ -12,6 +12,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nullable;
 
 public class ClassUtil {
+    // TODO: get rid of this vile hackery. Build block(state) lists instead of type checking.
+
     @Nullable
     public static IChoppableBlock getChoppableBlock(BlockGetter level, BlockPos blockPos, BlockState blockState) {
         IChoppableBlock choppableBlock = getChoppableBlockUnchecked(blockState.getBlock());
@@ -83,6 +85,17 @@ public class ClassUtil {
             return treeBlock;
         } else if (TreeChop.api.getRegisteredChoppableBlockBehavior(block) instanceof ITreeBlock treeBlock) {
             return treeBlock;
+        } else {
+            return null;
+        }
+    }
+
+    @Nullable
+    public static ILeaveslikeBlock getLeaveslikeBlock(Block block) {
+        if (block instanceof ILeaveslikeBlock leaveslikeBlock) {
+            return leaveslikeBlock;
+        } else if (TreeChop.api.getRegisteredBlockBehavior(block) instanceof ILeaveslikeBlock leaveslikeBlock) {
+            return leaveslikeBlock;
         } else {
             return null;
         }

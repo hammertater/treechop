@@ -40,7 +40,7 @@ public interface TreeChopAPI {
      * <p>
      * <b>Log behaviors</b> - See {@link ISimpleChoppableBlock} for a default handler
      * implementation. For more advanced control, see {@link IChoppableBlock}, {@link IFellableBlock}, {@link
-     * IStrippableBlock}, and {@link ICylinderBlock}.
+     * IStrippableBlock}, {@link ICylinderBlock}, and {@link ITreeBlock}.
      * <p>
      * <b>Leaves behaviors</b> - See {@link ILeaveslikeBlock}.
      */

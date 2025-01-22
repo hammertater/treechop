@@ -1,7 +1,9 @@
 package ht.treechop.common.chop;
 
 import ht.treechop.TreeChop;
+import ht.treechop.api.ILeaveslikeBlock;
 import ht.treechop.api.TreeData;
+import ht.treechop.common.util.ClassUtil;
 import ht.treechop.common.util.LevelUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -91,13 +93,17 @@ public class FellTreeResult implements ChopResult {
         Consumer<BlockPos> leavesBreaker = pos -> {
             if (!player.blockActionRestricted(level, pos, gameType)) {
                 BlockState state = level.getBlockState(pos);
-                if (isVanillaLeaves(state)) {
+
+                ILeaveslikeBlock leavesLike = ClassUtil.getLeaveslikeBlock(state.getBlock());
+                if (leavesLike != null) {
+                    leavesLike.fell(player, level, pos, state);
+                } else if (shouldDecayLeaves(state)) {
                     decayLeavesInsteadOfBreaking(level, pos, state);
                 } else {
                     blockBreaker.accept(pos);
                 }
 
-                if (effects.size() == 0 || player.distanceToSqr(pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5) > 9.0) {
+                if (effects.isEmpty() || player.distanceToSqr(pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5) > 9.0) {
                     collectSomeBlocks(effects, pos, state, i, 8);
                 }
             }
@@ -125,7 +131,7 @@ public class FellTreeResult implements ChopResult {
         decayingState.randomTick(level, pos, level.random);
     }
 
-    private static boolean isVanillaLeaves(BlockState blockState) {
+    private static boolean shouldDecayLeaves(BlockState blockState) {
         return blockState.hasProperty(LeavesBlock.DISTANCE) && blockState.hasProperty(LeavesBlock.PERSISTENT)
                 && blockState.setValue(LeavesBlock.DISTANCE, 7).setValue(LeavesBlock.PERSISTENT, false).isRandomlyTicking(); // Catches modded leaves that don't decay
     }
