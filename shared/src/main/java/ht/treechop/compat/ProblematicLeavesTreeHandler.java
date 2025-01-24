@@ -32,7 +32,7 @@ public class ProblematicLeavesTreeHandler implements ITreeBlock {
         ProblematicLeavesTreeHandler handler = new ProblematicLeavesTreeHandler();
         logs.get().forEach(block -> {
             api.overrideChoppableBlock(block, true);
-            api.registerChoppableBlockBehavior(block, handler);
+            api.registerBlockBehavior(block, handler);
         });
         leaves.get().forEach(block -> {
             api.overrideLeavesBlock(block, true);

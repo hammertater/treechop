@@ -85,7 +85,7 @@ public interface TreeChopAPI {
 
     /**
      * Using default config settings, all logs and mushroom stems should be choppable, as well as any blocks that
-     * implement {@link IChoppableBlock}, have a registered handler (see {@link #registerChoppableBlockBehavior}), or
+     * implement {@link IChoppableBlock}, have a registered handler (see {@link #registerBlockBehavior}), or
      * have been made choppable using {@link #overrideChoppableBlock}.
      * <p>
      * Even if a block is choppable, a player may still choose not to chop it if, for example, it does not have
@@ -118,15 +118,15 @@ public interface TreeChopAPI {
     /**
      * @deprecated Use {@link TreeChopAPI#registerBlockBehavior} instead.
      */
-    void registerChoppableBlockBehavior(Block block, ITreeChopBlockBehavior handler);
+    @Deprecated void registerChoppableBlockBehavior(Block block, ITreeChopBlockBehavior handler);
 
     /**
-     * @deprecated Use {@link TreeChopAPI#registerBlockBehavior} instead.
+     * @deprecated Use {@link TreeChopAPI#deregisterBlockBehavior} instead.
      */
-    boolean deregisterChoppableBlockBehavior(Block block);
+    @Deprecated boolean deregisterChoppableBlockBehavior(Block block);
 
     /**
-     * @deprecated Use {@link TreeChopAPI#registerBlockBehavior} instead.
+     * @deprecated Use {@link TreeChopAPI#getRegisteredBlockBehavior} instead.
      */
-    ITreeChopBlockBehavior getRegisteredChoppableBlockBehavior(Block block);
+    @Deprecated ITreeChopBlockBehavior getRegisteredChoppableBlockBehavior(Block block);
 }

@@ -30,7 +30,7 @@ public class HugeMushroomHandler implements IStrippableBlock, ITreeBlock {
         HugeMushroomHandler handler = new HugeMushroomHandler();
         logs.get().forEach(block -> {
             api.overrideChoppableBlock(block, true);
-            api.registerChoppableBlockBehavior(block, handler);
+            api.registerBlockBehavior(block, handler);
         });
         leaves.get().forEach(block -> {
             api.overrideLeavesBlock(block, true);

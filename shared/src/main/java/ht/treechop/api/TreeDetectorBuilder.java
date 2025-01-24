@@ -11,7 +11,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 /**
- * Builds specialized {@link ITreeBlock} handlers for detecting non-standard trees. Enable block handlers using {@link TreeChopAPI#registerChoppableBlockBehavior}.
+ * Builds specialized {@link ITreeBlock} handlers for detecting non-standard trees. Enable block handlers using {@link TreeChopAPI#registerBlockBehavior}.
  */
 public class TreeDetectorBuilder {
     private BlockMatcher logMatcher = ChopUtil::isBlockALog;

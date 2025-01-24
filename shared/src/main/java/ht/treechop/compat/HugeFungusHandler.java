@@ -29,7 +29,7 @@ public class HugeFungusHandler implements ITreeBlock {
         HugeFungusHandler handler = new HugeFungusHandler();
         logs.get().forEach(block -> {
             api.overrideChoppableBlock(block, true);
-            api.registerChoppableBlockBehavior(block, handler);
+            api.registerBlockBehavior(block, handler);
         });
         leaves.get().forEach(block -> {
             api.overrideLeavesBlock(block, true);
