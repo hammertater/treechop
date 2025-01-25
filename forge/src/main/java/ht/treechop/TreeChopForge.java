@@ -54,8 +54,6 @@ public class TreeChopForge extends TreeChop {
 
         modBus.addListener((RegisterEvent event) -> event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> helper.register(CHOP_WOOD, CHOP_WOOD_EVENT.get())));
 
-        modBus.addListener((RegisterEvent event) -> event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> helper.register(CHOP_WOOD, CHOP_WOOD_EVENT.get())));
-
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> {
             Registry.register(BuiltInRegistries.LOOT_CONDITION_TYPE, CountBlockChopsLootItemCondition.ID, CountBlockChopsLootItemCondition.TYPE);
             Registry.register(BuiltInRegistries.LOOT_CONDITION_TYPE, TreeFelledLootItemCondition.ID, TreeFelledLootItemCondition.TYPE);
