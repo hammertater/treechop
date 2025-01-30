@@ -60,7 +60,8 @@ dependencies {
     annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
     implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
 
-//    implementation project(":shared")
+    compileOnly project(":shared")
+    compileOnly project(":tuber")
 
 //    runtimeOnly fg.deobf("curse.maven:create-328085:4835191")
 
