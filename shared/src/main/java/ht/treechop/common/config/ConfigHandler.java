@@ -9,7 +9,7 @@ import ht.treechop.common.util.AxeAccessor;
 import ht.treechop.compat.HugeFungusHandler;
 import ht.treechop.compat.HugeMushroomHandler;
 import ht.treechop.compat.ProblematicLeavesTreeHandler;
-import ht.treechop.compat.LeafDecayHandler;
+import ht.treechop.compat.LeafDecayOverrides;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -213,7 +213,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.BooleanValue dropLootOnFirstChop;
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
-        public final ForgeConfigSpec.BooleanValue breakLeaves;
+        public final ForgeConfigSpec.EnumValue<FellLeavesStrategy> fellLeavesStrategy;
         public final ForgeConfigSpec.BooleanValue ignorePersistentLeaves;
         public final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
         public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
@@ -356,9 +356,9 @@ public class ConfigHandler {
             maxNumLeavesBlocks = builder
                     .comment("Maximum number of leaves blocks that can destroyed when a tree is felled")
                     .defineInRange("maxLeavesBlocks", 1024, 1, 8096);
-            breakLeaves = builder
-                    .comment("Destroy leaves when a tree is felled")
-                    .define("breakLeaves", true);
+            fellLeavesStrategy = builder
+                    .comment("What to do with leaves blocks when a tree is felled")
+                    .defineEnum("breakOrDecayLeaves", FellLeavesStrategy.DECAY);
             ignorePersistentLeaves = builder
                     .comment("Non-decayable leaves are ignored when detecting leaves")
                     .define("ignorePersistentLeaves", true);
@@ -485,7 +485,7 @@ public class ConfigHandler {
             HugeMushroomHandler.MyConfigHandler.init(builder);
             HugeFungusHandler.MyConfigHandler.init(builder);
             ProblematicLeavesTreeHandler.MyConfigHandler.init(builder);
-            LeafDecayHandler.MyConfigHandler.init(builder);
+            LeafDecayOverrides.MyConfigHandler.init(builder);
             builder.pop();
 
             if (TreeChop.platform.uses(ModLoader.FORGE)) {

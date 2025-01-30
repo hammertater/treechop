@@ -4,10 +4,7 @@ import ht.treechop.TreeChop;
 import ht.treechop.TreeChopException;
 import ht.treechop.api.*;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.config.ChopCounting;
-import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.config.Lazy;
-import ht.treechop.common.config.TreeLeavesBehavior;
+import ht.treechop.common.config.*;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.util.AxeAccessor;
 import ht.treechop.common.util.BlockUtil;
@@ -233,7 +230,7 @@ public class ChopUtil {
                 pos,
                 chopData.getNumChops(),
                 treesMustHaveLeaves,
-                ConfigHandler.COMMON.breakLeaves.get(),
+                ConfigHandler.COMMON.fellLeavesStrategy.get() != FellLeavesStrategy.IGNORE,
                 tree
         );
 

@@ -3,6 +3,8 @@ package ht.treechop.common.chop;
 import ht.treechop.TreeChop;
 import ht.treechop.api.ILeaveslikeBlock;
 import ht.treechop.api.TreeData;
+import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.FellLeavesStrategy;
 import ht.treechop.common.util.ClassUtil;
 import ht.treechop.common.util.LevelUtil;
 import net.minecraft.core.BlockPos;
@@ -90,6 +92,7 @@ public class FellTreeResult implements ChopResult {
         AtomicInteger i = new AtomicInteger(0);
         PriorityQueue<Pair<BlockPos, BlockState>> effects = new PriorityQueue<>(Comparator.comparing(pair -> pair.getLeft().getY()));
 
+        boolean tryToDecay = ConfigHandler.COMMON.fellLeavesStrategy.get() == FellLeavesStrategy.DECAY;
         Consumer<BlockPos> leavesBreaker = pos -> {
             if (!player.blockActionRestricted(level, pos, gameType)) {
                 BlockState state = level.getBlockState(pos);
@@ -97,7 +100,7 @@ public class FellTreeResult implements ChopResult {
                 ILeaveslikeBlock leavesLike = ClassUtil.getLeaveslikeBlock(state.getBlock());
                 if (leavesLike != null) {
                     leavesLike.fell(player, level, pos, state);
-                } else if (shouldDecayLeaves(state)) {
+                } else if (tryToDecay && shouldDecayLeaves(state)) {
                     decayLeavesInsteadOfBreaking(level, pos, state);
                 } else {
                     blockBreaker.accept(pos);

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class LeafDecayHandler {
+public class LeafDecayOverrides {
 
     private static final Lazy<Set<Block>> nondecayableLeaves = new Lazy<>(
             ConfigHandler.RELOAD,
@@ -33,23 +33,17 @@ public class LeafDecayHandler {
 
     public static class MyConfigHandler {
         private static MyConfigHandler instance;
-
-        protected final ForgeConfigSpec.ConfigValue<Boolean> enabled;
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> nondecayableLeavesIds;
 
         public MyConfigHandler(ForgeConfigSpec.Builder builder) {
-            builder.push("decayLeaves");
-            enabled = builder
-                    .comment("When a tree is felled, immediately decay leaves instead of breaking them.")
-                    .define("enabled", true);
-
+            builder.push("leafDecayExceptions");
             nondecayableLeavesIds = builder
                     .comment(String.join("\n",
                             "Leaves in this list will break instead of decaying. This gives players credit " +
                                     "for breaking leaves, which is potentially useful for advanced loot tables and " +
                                     "functionalities added by other mods.",
                             "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
-                    .defineList("exceptions",
+                    .defineList("blocks",
                             List.of("#spectrum:colored_leaves"),
                             always -> true);
             builder.pop();
