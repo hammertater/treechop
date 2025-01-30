@@ -9,5 +9,6 @@
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "plugin": "ht.treechop.compat.mixin.TreeChopCompatMixinPlugin"
 }
