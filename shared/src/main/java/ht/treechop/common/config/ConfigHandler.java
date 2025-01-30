@@ -369,7 +369,7 @@ public class ConfigHandler {
             builder.push("logs");
             choppableBlocksList = builder
                     .comment(String.join("\n","Blocks that should be considered choppable", blockIdsHelp))
-                    .defineList("blocks",
+                    .defineListAllowEmpty("blocks",
                             List.of("#treechop:choppables",
                                     "#minecraft:logs"),
                             always -> true);
@@ -377,7 +377,7 @@ public class ConfigHandler {
                     .comment(String.join("\n",
                             "Blocks that should never be chopped, even if included in the list above",
                             "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
-                    .defineList("exceptions",
+                    .defineListAllowEmpty("exceptions",
                             List.of("minecraft:bamboo",
                                     "#dynamictrees:branches",
                                     "dynamictrees:trunk_shell"),
@@ -389,7 +389,7 @@ public class ConfigHandler {
                     .comment(String.join("\n",
                             "Blocks that should be considered leaves",
                             "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
-                    .defineList("blocks",
+                    .defineListAllowEmpty("blocks",
                             List.of("#treechop:leaves_like",
                                     "#minecraft:leaves",
                                     "pamhc2trees:pam[a-z]+"),
@@ -398,7 +398,7 @@ public class ConfigHandler {
                     .comment(String.join("\n",
                             "Blocks that should never be considered leaves, even if included in the list above",
                             "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
-                    .defineList("exceptions",
+                    .defineListAllowEmpty("exceptions",
                             List.of(),
                             always -> true);
             builder.pop();
@@ -454,7 +454,7 @@ public class ConfigHandler {
                     .comment(String.join("\n",
                             "List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not chop when used to break a log",
                             "- Items in this list that have special support for TreeChop will not be blacklisted; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#blacklist"))
-                    .defineList("items",
+                    .defineListAllowEmpty("items",
                             Arrays.asList(
                                     "botania:terra_axe",
                                     "@lumberjack",
