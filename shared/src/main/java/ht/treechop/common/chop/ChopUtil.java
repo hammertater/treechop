@@ -60,7 +60,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockLeaves(BlockState blockState) {
-        TreeLeavesBehavior behavior = ConfigHandler.COMMON.leavesBlocks.get().get(blockState.getBlock());
+        TreeLeavesBehavior behavior = ConfigHandler.COMMON.leavesBlocksAndBehaviors.get().get(blockState.getBlock());
         if (behavior != null) {
             return behavior.isLeaves(blockState);
         } else {

@@ -32,7 +32,7 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
     private static final Map<Block, Boolean> leavesBlockOverrides = new HashMap<>() {
         @Override
         public Boolean put(Block block, Boolean isLeaves) {
-            ConfigHandler.COMMON.leavesBlocks.reset();
+            ConfigHandler.COMMON.leavesBlocksAndBehaviors.reset();
             return super.put(block, isLeaves);
         }
     };

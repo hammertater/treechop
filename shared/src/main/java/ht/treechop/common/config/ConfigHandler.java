@@ -269,7 +269,7 @@ public class ConfigHandler {
         );
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksList;
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksExceptionsList;
-        public final Lazy<Map<Block, TreeLeavesBehavior>> leavesBlocks = new Lazy<>(
+        public final Lazy<Map<Block, TreeLeavesBehavior>> leavesBlocksAndBehaviors = new Lazy<>(
                 UPDATE_TAGS,
                 () -> {
                     Set<Block> exceptions = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksExceptionsList.get())
