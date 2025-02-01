@@ -53,10 +53,6 @@ public enum Sprite {
         blit(gui, x, y, width, height);
     }
 
-    public void blit(GuiGraphics gui, int x, int y, double scale) {
-        blit(gui, x, y, (int) (width * scale), (int) (height * scale));
-    }
-
     public void blit(GuiGraphics gui, int x, int y, int width, int height) {
         blit(gui, x, y, width, height, false);
     }

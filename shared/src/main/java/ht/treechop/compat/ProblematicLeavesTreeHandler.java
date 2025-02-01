@@ -34,9 +34,7 @@ public class ProblematicLeavesTreeHandler implements ITreeBlock {
             api.overrideChoppableBlock(block, true);
             api.registerBlockBehavior(block, handler);
         });
-        leaves.get().forEach(block -> {
-            api.overrideLeavesBlock(block, true);
-        });
+        leaves.get().forEach(block -> api.overrideLeavesBlock(block, true));
     }
 
     @Override
