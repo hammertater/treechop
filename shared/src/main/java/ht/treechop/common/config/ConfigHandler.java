@@ -8,8 +8,8 @@ import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;
 import ht.treechop.compat.HugeFungusHandler;
 import ht.treechop.compat.HugeMushroomHandler;
-import ht.treechop.compat.ProblematicLeavesTreeHandler;
 import ht.treechop.compat.LeafDecayOverrides;
+import ht.treechop.compat.ProblematicLeavesTreeHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -214,6 +214,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
         public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
         public final ForgeConfigSpec.EnumValue<FellLeavesStrategy> fellLeavesStrategy;
+        public final ForgeConfigSpec.EnumValue<FellCreditStrategy> fellCreditStrategy;
         public final ForgeConfigSpec.BooleanValue ignorePersistentLeaves;
         public final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
         public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
@@ -359,6 +360,11 @@ public class ConfigHandler {
             fellLeavesStrategy = builder
                     .comment("What to do with leaves blocks when a tree is felled")
                     .defineEnum("breakOrDecayLeaves", FellLeavesStrategy.DECAY);
+            fellCreditStrategy = builder
+                    .comment(String.join("\n",
+                            "Who to credit for breaking tree blocks (logs and leaves), which can change item drops, trigger enchantment effects, etc.",
+                            "Use with caution: may cause unexpected interactions with other mods"))
+                    .defineEnum("fellCredit", FellCreditStrategy.NONE);
             ignorePersistentLeaves = builder
                     .comment("Non-decayable leaves are ignored when detecting leaves")
                     .define("ignorePersistentLeaves", true);

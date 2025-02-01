@@ -4,6 +4,7 @@ import ht.treechop.TreeChop;
 import ht.treechop.api.ILeaveslikeBlock;
 import ht.treechop.api.TreeData;
 import ht.treechop.common.config.ConfigHandler;
+import ht.treechop.common.config.FellCreditStrategy;
 import ht.treechop.common.config.FellLeavesStrategy;
 import ht.treechop.common.util.ClassUtil;
 import ht.treechop.common.util.LevelUtil;
@@ -66,7 +67,9 @@ public class FellTreeResult implements ChopResult {
             BlockState air = Blocks.AIR.defaultBlockState();
             return pos -> level.setBlockAndUpdate(pos, air);
         } else {
-            return pos -> LevelUtil.harvestBlock(player, level, pos, ItemStack.EMPTY, false);
+            ServerPlayer creditPlayer = (ConfigHandler.COMMON.fellCreditStrategy.get() == FellCreditStrategy.NONE) ? null : player;
+            ItemStack creditTool = (ConfigHandler.COMMON.fellCreditStrategy.get() == FellCreditStrategy.PLAYER_AND_TOOL) ? player.getMainHandItem() : ItemStack.EMPTY;
+            return pos -> LevelUtil.harvestBlock(creditPlayer, level, pos, creditTool, false);
         }
     }
 
