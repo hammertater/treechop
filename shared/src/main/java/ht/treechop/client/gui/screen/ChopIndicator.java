@@ -38,6 +38,7 @@ public class ChopIndicator {
             ) {
                 BlockPos blockPos = ((BlockHitResult) mouseOver).getBlockPos();
                 if (blockCanBeChopped(blockPos)) {
+                    RenderSystem.enableBlend();
                     RenderSystem.blendFuncSeparate(
                             GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR,
                             GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR,
@@ -63,6 +64,7 @@ public class ChopIndicator {
                     );
 
                     RenderSystem.defaultBlendFunc();
+                    RenderSystem.disableBlend();
                 }
             }
         } catch (Exception e) {
