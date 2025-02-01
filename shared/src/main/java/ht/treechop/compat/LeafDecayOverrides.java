@@ -36,17 +36,15 @@ public class LeafDecayOverrides {
         protected final ForgeConfigSpec.ConfigValue<List<? extends String>> nondecayableLeavesIds;
 
         public MyConfigHandler(ForgeConfigSpec.Builder builder) {
-            builder.push("leafDecayExceptions");
             nondecayableLeavesIds = builder
                     .comment(String.join("\n",
                             "Leaves in this list will break instead of decaying. This gives players credit " +
                                     "for breaking leaves, which is potentially useful for advanced loot tables and " +
                                     "functionalities added by other mods.",
                             "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
-                    .defineList("blocks",
+                    .defineListAllowEmpty("leafDecayExceptions",
                             List.of("#spectrum:colored_leaves"),
                             always -> true);
-            builder.pop();
         }
 
         public static void init(ForgeConfigSpec.Builder builder) {

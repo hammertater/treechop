@@ -65,11 +65,11 @@ public class HugeFungusHandler implements ITreeBlock {
 
         public MyConfigHandler(ForgeConfigSpec.Builder builder) {
             builder.push("hugeFungi");
-            logIds = builder.defineList("logs", List.of(
+            logIds = builder.defineListAllowEmpty("logs", List.of(
                     "#minecraft:crimson_stems",
                     "#minecraft:warped_stems"
             ), always -> true);
-            leavesIds = builder.defineList("leaves", List.of(
+            leavesIds = builder.defineListAllowEmpty("leaves", List.of(
                     "#minecraft:wart_blocks",
                     "minecraft:shroomlight"
             ), always -> true);

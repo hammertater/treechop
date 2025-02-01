@@ -81,8 +81,8 @@ public class HugeMushroomHandler implements IStrippableBlock, ITreeBlock {
 
         public MyConfigHandler(ForgeConfigSpec.Builder builder) {
             builder.push("hugeMushrooms");
-            logIds = builder.defineList("logs", List.of(ConfigHandler.getCommonTagId("mushroom_stems")), always -> true);
-            leavesIds = builder.defineList("leaves", List.of(ConfigHandler.getCommonTagId("mushroom_caps")), always -> true);
+            logIds = builder.defineListAllowEmpty("logs", List.of(ConfigHandler.getCommonTagId("mushroom_stems")), always -> true);
+            leavesIds = builder.defineListAllowEmpty("leaves", List.of(ConfigHandler.getCommonTagId("mushroom_caps")), always -> true);
             builder.pop();
         }
 
