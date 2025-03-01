@@ -106,10 +106,10 @@ dependencies {
 //    runtimeOnly "lol.bai:badpackets:neo-0.8.1"
 
     compileOnly "curse.maven:jade-324717:5591256"
-    runtimeOnly "curse.maven:jade-324717:5591256"
+//    runtimeOnly "curse.maven:jade-324717:5591256"
 
-//    compileOnly "curse.maven:the-one-probe-245211:5159287"
-//    runtimeOnly "curse.maven:the-one-probe-245211:5159287"
+    compileOnly "curse.maven:the-one-probe-245211:5502323"
+    runtimeOnly "curse.maven:the-one-probe-245211:5502323"
 
 //    compileOnly "curse.maven:rubidium-574856:4952685"
 //    runtimeOnly "curse.maven:rubidium-574856:4952685"
