@@ -28,20 +28,31 @@ public class ClientSettingsScreen extends Screen {
     private static final int SPACE_ABOVE_AND_BELOW_LIST = 10;
     private static final int MIN_HEIGHT = (GUIUtil.BUTTON_HEIGHT + ROW_SEPARATION) * 5 - ROW_SEPARATION;
     private static final int TEXT_HEIGHT = 9;
+    private final Screen parent;
 
     protected RowsGui optionsList;
     private Button doneButton;
     private int optionsPage = 0;
     private boolean needToRebuild = false;
 
-    public ClientSettingsScreen() {
+    public ClientSettingsScreen(Screen parent) {
         super(Component.translatable("treechop.gui.settings.title", TreeChop.MOD_NAME));
+        this.parent = parent;
+    }
+
+    public ClientSettingsScreen() {
+        this(null);
     }
 
     @Override
     protected void init() {
         super.init();
         rebuild();
+    }
+
+    @Override
+    public void onClose() {
+        this.minecraft.setScreen(parent);
     }
 
     private void rebuild() {
