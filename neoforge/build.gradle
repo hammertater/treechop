@@ -102,11 +102,11 @@ dependencies {
     compileOnly "mcp.mobius.waila:wthit-api:neo-12.5.1"
 
     // Run against the full jar
-    runtimeOnly "mcp.mobius.waila:wthit:neo-12.5.1"
-    runtimeOnly "lol.bai:badpackets:neo-0.8.1"
+//    runtimeOnly "mcp.mobius.waila:wthit:neo-12.5.1"
+//    runtimeOnly "lol.bai:badpackets:neo-0.8.1"
 
-//    compileOnly "curse.maven:jade-324717:5591256"
-//    runtimeOnly "curse.maven:jade-324717:5591256"
+    compileOnly "curse.maven:jade-324717:5591256"
+    runtimeOnly "curse.maven:jade-324717:5591256"
 
 //    compileOnly "curse.maven:the-one-probe-245211:5159287"
 //    runtimeOnly "curse.maven:the-one-probe-245211:5159287"
@@ -168,4 +168,11 @@ sourceSets.each {
     def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
     it.output.resourcesDir = dir
     it.java.destinationDirectory = dir
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
 }
