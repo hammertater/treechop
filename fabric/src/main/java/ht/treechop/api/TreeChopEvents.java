@@ -46,6 +46,18 @@ public final class TreeChopEvents {
             }
     );
 
+    public static final Event<AfterFell> AFTER_FELL = EventFactory.createArrayBacked(AfterFell.class,
+            (listeners) -> (world, player, pos, fellData) -> {
+                for (AfterFell event : listeners) {
+                    if (!event.afterFell(world, player, pos, fellData)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+    );
+
     public static final Event<DetectTree> DETECT_TREE = EventFactory.createArrayBacked(DetectTree.class,
             (listeners) -> (world, player, pos, state, treeData) -> {
                 for (DetectTree listener : listeners) {
@@ -90,6 +102,14 @@ public final class TreeChopEvents {
          * @return {@code false} to prevent felling
          */
         boolean beforeFell(Level level, ServerPlayer player, BlockPos choppedPos, FellData fellData);
+    }
+
+    @FunctionalInterface
+    public interface AfterFell {
+        /**
+         * Signals that a tree has been felled.
+         */
+        boolean afterFell(Level level, ServerPlayer player, BlockPos choppedPos, FellData fellData);
     }
 
     @FunctionalInterface

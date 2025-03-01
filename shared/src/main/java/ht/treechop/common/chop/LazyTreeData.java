@@ -187,6 +187,12 @@ public class LazyTreeData extends AbstractTreeData {
     }
 
     @Override
+    public int numChopsNeededToFell() {
+        completeTree();
+        return ChopUtil.numChopsToFell(mass);
+    }
+
+    @Override
     public int getChops() {
         return chops;
     }

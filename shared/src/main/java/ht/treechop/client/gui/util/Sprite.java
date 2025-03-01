@@ -2,13 +2,14 @@ package ht.treechop.client.gui.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 
 public enum Sprite {
     CHOP_INDICATOR(0, 0, 20, 20),
     NO_FELL_INDICATOR(20, 0, 20, 20),
+    INDICATOR_ERROR(60, 0, 12, 12),
+    INDICATOR_WARNING(72, 0, 12, 12),
     TOGGLE_BUTTON_OFF(0, 20, 32, 20),
     TOGGLE_BUTTON_ON(32, 20, 32, 20),
     HIGHLIGHTED_TOGGLE_BUTTON_OFF(0, 40, 32, 20),
@@ -22,7 +23,7 @@ public enum Sprite {
     ;
 
     public static final ResourceLocation TEXTURE_PATH =
-            new ResourceLocation("treechop", "textures/gui/widgets.png");
+            ResourceLocation.fromNamespaceAndPath("treechop", "textures/gui/widgets.png");
     public static final int TEXTURE_WIDTH = 64;
     public static final int TEXTURE_HEIGHT = 120;
 
@@ -50,10 +51,6 @@ public enum Sprite {
 
     public void blit(GuiGraphics gui, int x, int y) {
         blit(gui, x, y, width, height);
-    }
-
-    public void blit(GuiGraphics gui, int x, int y, double scale) {
-        blit(gui, x, y, (int) (width * scale), (int) (height * scale));
     }
 
     public void blit(GuiGraphics gui, int x, int y, int width, int height) {

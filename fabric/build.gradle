@@ -1,9 +1,30 @@
 plugins {
-    id "fabric-loom" version "1.4-SNAPSHOT"
+    id "fabric-loom"
+}
+
+version = mod_version
+group = mod_group
+
+base {
+    archivesName = "$mod_name-$minecraft_version-$project.name"
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : mod_id,
+                "Specification-Vendor"    : mod_authors,
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : "$mod_id-$project.name",
+                "Implementation-Version"  : project.jar.archiveVersion,
+                "Implementation-Vendor"   : mod_authors,
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
 }
 
 repositories {
-    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
+    maven { url = uri('https://maven.fabricmc.net') }
     maven { url = "https://maven.terraformersmc.com/" }
 }
 
@@ -12,20 +33,19 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
     modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_api_version"
-    implementation "com.google.code.findbugs:jsr305:3.0.2"
 
     implementation project(":shared")
     implementation project(":tuber")
 
-    //{
-    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:8.0.0"
+    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:$forgeconfigapiport_version"
+    modApi "com.terraformersmc:modmenu:11.0.3"
 
-    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-8.4.3"
-    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-8.4.3"
-    modRuntimeOnly "lol.bai:badpackets:fabric-0.4.1"
+    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-12.4.2"
+    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-12.4.2"
+    modRuntimeOnly "lol.bai:badpackets:fabric-0.8.1"
 
-    modCompileOnly "curse.maven:jade-324717:4973433"
-//    modRuntimeOnly "curse.maven:jade-324717:4973433"
+    modCompileOnly "curse.maven:jade-324717:5571122"
+//    modRuntimeOnly "curse.maven:jade-324717:5571122"
 
 //    modRuntimeOnly "maven.modrinth:sodium:mc1.19.3-0.4.9" // Doesn't wanna work in IntelliJ
 //    modRuntimeOnly "curse.maven:indium-459496:3957480"
@@ -38,10 +58,9 @@ dependencies {
 //    modRuntimeOnly "curse.maven:bclib-495191:4677965"
 //    modRuntimeOnly "curse.maven:betterend-413596:4677967"
 
-    modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:8.0.0"
+    modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:10.0.0"
     //}
 }
-
 
 processResources {
     from project(":shared").sourceSets.main.resources

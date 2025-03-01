@@ -5,6 +5,7 @@ import ht.treechop.common.config.Lazy;
 import ht.treechop.common.platform.Platform;
 import ht.treechop.compat.HugeFungusHandler;
 import ht.treechop.compat.HugeMushroomHandler;
+import ht.treechop.compat.LeafDecayOverrides;
 import ht.treechop.compat.ProblematicLeavesTreeHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -29,6 +30,7 @@ public abstract class TreeChop {
         HugeMushroomHandler.register(api);
         HugeFungusHandler.register(api);
         ProblematicLeavesTreeHandler.register(api);
+        LeafDecayOverrides.register(api);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -37,7 +39,7 @@ public abstract class TreeChop {
     }
 
     public static ResourceLocation resource(String path) {
-        return new ResourceLocation(TreeChop.MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(TreeChop.MOD_ID, path);
     }
 
     public static void cry(Throwable e) {

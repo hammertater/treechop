@@ -1,9 +1,6 @@
 package ht.treechop;
 
-import ht.treechop.api.IChoppingItem;
-import ht.treechop.api.ITreeChopBlockBehavior;
-import ht.treechop.api.TreeChopAPI;
-import ht.treechop.api.TreeData;
+import ht.treechop.api.*;
 import ht.treechop.common.chop.ChopUtil;
 import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.core.BlockPos;
@@ -22,7 +19,8 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public abstract class TreeChopInternalAPI implements TreeChopAPI {
-    private static final Map<Block, ITreeChopBlockBehavior> choppableBlockBehaviors = new HashMap<>();
+    private static final Map<Block, ITreeChopBlockBehavior> blockBehaviors = new HashMap<>();
+
     private static final Map<Block, Boolean> choppableBlockOverrides = new HashMap<>() {
         @Override
         public Boolean put(Block block, Boolean isChoppable) {
@@ -34,7 +32,7 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
     private static final Map<Block, Boolean> leavesBlockOverrides = new HashMap<>() {
         @Override
         public Boolean put(Block block, Boolean isLeaves) {
-            ConfigHandler.COMMON.leavesBlocks.reset();
+            ConfigHandler.COMMON.leavesBlocksAndBehaviors.reset();
             return super.put(block, isLeaves);
         }
     };
@@ -81,23 +79,38 @@ public abstract class TreeChopInternalAPI implements TreeChopAPI {
     }
 
     @Override
-    public void registerChoppableBlockBehavior(Block block, ITreeChopBlockBehavior handler) {
-        choppableBlockBehaviors.put(block, handler);
+    public void registerBlockBehavior(Block block, ITreeChopBlockBehavior handler) {
+        blockBehaviors.put(block, handler);
         print(String.format("registered new behavior for block %s",
                 TreeChop.platform.getResourceLocationForBlock(block)));
     }
 
     @Override
-    public boolean deregisterChoppableBlockBehavior(Block block) {
-        ITreeChopBlockBehavior existing = choppableBlockBehaviors.remove(block);
+    public boolean deregisterBlockBehavior(Block block) {
+        ITreeChopBlockBehavior existing = blockBehaviors.remove(block);
         print(String.format("deregistered behavior for block %s",
                 TreeChop.platform.getResourceLocationForBlock(block)));
         return existing == null;
     }
 
     @Override
+    public ITreeChopBlockBehavior getRegisteredBlockBehavior(Block block) {
+        return blockBehaviors.get(block);
+    }
+
+    @Override
+    public void registerChoppableBlockBehavior(Block block, ITreeChopBlockBehavior handler) {
+        registerBlockBehavior(block, handler);
+    }
+
+    @Override
+    public boolean deregisterChoppableBlockBehavior(Block block) {
+        return deregisterBlockBehavior(block);
+    }
+
+    @Override
     public ITreeChopBlockBehavior getRegisteredChoppableBlockBehavior(Block block) {
-        return choppableBlockBehaviors.get(block);
+        return getRegisteredBlockBehavior(block);
     }
 
     @Override

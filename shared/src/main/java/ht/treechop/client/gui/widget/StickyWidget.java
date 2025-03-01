@@ -1,18 +1,19 @@
 package ht.treechop.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
 import ht.treechop.client.gui.util.GUIUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
 
 public class StickyWidget extends AbstractWidget {
 
+    public static final ResourceLocation WIDGETS_LOCATION = ResourceLocation.withDefaultNamespace("textures/gui/widgets.png");
     private final Supplier<State> stateSupplier;
     private final Runnable onPress;
 
@@ -20,13 +21,6 @@ public class StickyWidget extends AbstractWidget {
         super(x, y, Math.max(width, GUIUtil.getMinimumButtonWidth(name)), Math.max(height, GUIUtil.BUTTON_HEIGHT), name);
         this.onPress = onPress;
         this.stateSupplier = stateSupplier;
-    }
-
-    @Override
-    public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
-        this.active = stateSupplier.get() == State.Up;
-        this.height = Math.min(this.height, GUIUtil.BUTTON_HEIGHT);
-        super.render(gui, mouseX, mouseY, partialTicks);
     }
 
     public void onClick(double mouseX, double mouseY) {
@@ -40,6 +34,9 @@ public class StickyWidget extends AbstractWidget {
 
     @Override
     public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
+        this.active = stateSupplier.get() == State.Up;
+        this.height = Math.min(this.height, GUIUtil.BUTTON_HEIGHT);
+
         Minecraft minecraft = Minecraft.getInstance();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
 

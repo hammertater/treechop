@@ -8,6 +8,7 @@ import ht.treechop.common.settings.*;
 import ht.treechop.common.util.AxeAccessor;
 import ht.treechop.compat.HugeFungusHandler;
 import ht.treechop.compat.HugeMushroomHandler;
+import ht.treechop.compat.LeafDecayOverrides;
 import ht.treechop.compat.ProblematicLeavesTreeHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,7 +20,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.fml.config.IConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -33,9 +35,9 @@ import java.util.stream.Stream;
 public class ConfigHandler {
 
     public static final Common COMMON;
-    public static final ForgeConfigSpec COMMON_SPEC;
+    public static final ModConfigSpec COMMON_SPEC;
     public static final Client CLIENT;
-    public static final ForgeConfigSpec CLIENT_SPEC;
+    public static final ModConfigSpec CLIENT_SPEC;
     public static final Signal<Lazy<?>> RELOAD = new Signal<>(Lazy::reset);
     public final static Lazy<ChopSettings> defaultChopSettings = new Lazy<>(
             RELOAD,
@@ -58,7 +60,6 @@ public class ConfigHandler {
             RELOAD,
             () -> new ChopSettings()
                     .setChoppingEnabled(ConfigHandler.COMMON.fakePlayerChoppingEnabled.get())
-                    .setFellingEnabled(ConfigHandler.COMMON.fakePlayerFellingEnabled.get())
                     .setTreesMustHaveLeaves(ConfigHandler.COMMON.fakePlayerTreesMustHaveLeaves.get()));
     private static final Signal<Lazy<?>> UPDATE_TAGS = new Signal<>(Lazy::reset);
     public static Lazy<Boolean> removeBarkOnInteriorLogs = new Lazy<>(
@@ -78,13 +79,13 @@ public class ConfigHandler {
     private static org.apache.logging.log4j.Level logLevel = org.apache.logging.log4j.Level.ALL;
 
     static {
-        final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
+        final Pair<Common, ModConfigSpec> specPair = new ModConfigSpec.Builder().configure(Common::new);
         COMMON_SPEC = specPair.getRight();
         COMMON = specPair.getLeft();
     }
 
     static {
-        final Pair<Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
+        final Pair<Client, ModConfigSpec> specPair = new ModConfigSpec.Builder().configure(Client::new);
         CLIENT_SPEC = specPair.getRight();
         CLIENT = specPair.getLeft();
     }
@@ -142,7 +143,7 @@ public class ConfigHandler {
             String strippedPath = resource.getPath();
             String unstrippedPath = Arrays.stream(strippedPath.split("_")).filter(token -> !token.equals(filterTerm)).collect(Collectors.joining("_"));
             if (!strippedPath.equals(unstrippedPath)) {
-                return new ResourceLocation(resource.getNamespace(), unstrippedPath);
+                return ResourceLocation.fromNamespaceAndPath(resource.getNamespace(), unstrippedPath);
             }
         }
         return null;
@@ -207,29 +208,29 @@ public class ConfigHandler {
     }
 
     public static class Common {
-        public final ForgeConfigSpec.BooleanValue enabled;
-        public final ForgeConfigSpec.BooleanValue enableLogging;
-        public final ForgeConfigSpec.BooleanValue dropLootForChoppedBlocks;
-        public final ForgeConfigSpec.BooleanValue dropLootOnFirstChop;
-        public final ForgeConfigSpec.IntValue maxNumTreeBlocks;
-        public final ForgeConfigSpec.IntValue maxNumLeavesBlocks;
-        public final ForgeConfigSpec.BooleanValue breakLeaves;
-        public final ForgeConfigSpec.BooleanValue ignorePersistentLeaves;
-        public final ForgeConfigSpec.IntValue maxBreakLeavesDistance;
-        public final ForgeConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
-        public final ForgeConfigSpec.EnumValue<Rounder> chopCountRounding;
-        public final ForgeConfigSpec.BooleanValue canRequireMoreChopsThanBlocks;
-        public final ForgeConfigSpec.DoubleValue logarithmicA;
-        public final ForgeConfigSpec.DoubleValue linearM;
-        public final ForgeConfigSpec.DoubleValue linearB;
-        public final ForgeConfigSpec.EnumValue<ListType> itemsBlacklistOrWhitelist;
-        public final ForgeConfigSpec.BooleanValue mustUseCorrectToolForDrops;
-        public final ForgeConfigSpec.BooleanValue mustUseFastBreakingTool;
-        public final ForgeConfigSpec.BooleanValue preventChoppingOnRightClick;
-        public final ForgeConfigSpec.BooleanValue preventChopRecursion;
-        public final ForgeConfigSpec.BooleanValue fakePlayerChoppingEnabled;
-        public final ForgeConfigSpec.BooleanValue fakePlayerFellingEnabled;
-        public final ForgeConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
+        public final ModConfigSpec.BooleanValue enabled;
+        public final ModConfigSpec.BooleanValue enableLogging;
+        public final ModConfigSpec.BooleanValue dropLootForChoppedBlocks;
+        public final ModConfigSpec.BooleanValue dropLootOnFirstChop;
+        public final ModConfigSpec.IntValue maxNumTreeBlocks;
+        public final ModConfigSpec.IntValue maxNumLeavesBlocks;
+        public final ModConfigSpec.EnumValue<FellLeavesStrategy> fellLeavesStrategy;
+        public final ModConfigSpec.EnumValue<FellCreditStrategy> fellCreditStrategy;
+        public final ModConfigSpec.BooleanValue ignorePersistentLeaves;
+        public final ModConfigSpec.IntValue maxBreakLeavesDistance;
+        public final ModConfigSpec.EnumValue<ChopCountingAlgorithm> chopCountingAlgorithm;
+        public final ModConfigSpec.EnumValue<Rounder> chopCountRounding;
+        public final ModConfigSpec.BooleanValue canRequireMoreChopsThanBlocks;
+        public final ModConfigSpec.DoubleValue logarithmicA;
+        public final ModConfigSpec.DoubleValue linearM;
+        public final ModConfigSpec.DoubleValue linearB;
+        public final ModConfigSpec.EnumValue<ListType> itemsBlacklistOrWhitelist;
+        public final ModConfigSpec.BooleanValue mustUseCorrectToolForDrops;
+        public final ModConfigSpec.BooleanValue mustUseFastBreakingTool;
+        public final ModConfigSpec.BooleanValue preventChoppingOnRightClick;
+        public final ModConfigSpec.BooleanValue preventChopRecursion;
+        public final ModConfigSpec.BooleanValue fakePlayerChoppingEnabled;
+        public final ModConfigSpec.BooleanValue fakePlayerTreesMustHaveLeaves;
         public final InitializedSupplier<Boolean> compatForCarryOn = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForProjectMMO = defaultValue(true);
         public final InitializedSupplier<Boolean> compatForTheOneProbe = defaultValue(true);
@@ -242,10 +243,10 @@ public class ConfigHandler {
         public final InitializedSupplier<Integer> tinkersConstructTreeAOEChops = defaultValue(5);
         public final InitializedSupplier<Integer> tinkersConstructWoodAOEChops = defaultValue(5);
         public final InitializedSupplier<Double> tinkersConstructExpandedMultiplier = defaultValue(2.0);
-        public final ForgeConfigSpec.BooleanValue verboseAPI;
-        protected final List<Pair<Setting, ForgeConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksList;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppableBlocksExceptionsList;
+        public final ModConfigSpec.BooleanValue verboseAPI;
+        protected final List<Pair<Setting, ModConfigSpec.BooleanValue>> rawPermissions = new LinkedList<>();
+        protected final ModConfigSpec.ConfigValue<List<? extends String>> choppableBlocksList;
+        protected final ModConfigSpec.ConfigValue<List<? extends String>> choppableBlocksExceptionsList;
         public final Lazy<Set<Block>> choppableBlocks = new Lazy<>(
                 UPDATE_TAGS,
                 () -> {
@@ -267,9 +268,9 @@ public class ConfigHandler {
                     return blocks;
                 }
         );
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksList;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesBlocksExceptionsList;
-        public final Lazy<Map<Block, TreeLeavesBehavior>> leavesBlocks = new Lazy<>(
+        protected final ModConfigSpec.ConfigValue<List<? extends String>> leavesBlocksList;
+        protected final ModConfigSpec.ConfigValue<List<? extends String>> leavesBlocksExceptionsList;
+        public final Lazy<Map<Block, TreeLeavesBehavior>> leavesBlocksAndBehaviors = new Lazy<>(
                 UPDATE_TAGS,
                 () -> {
                     Set<Block> exceptions = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksExceptionsList.get())
@@ -277,7 +278,7 @@ public class ConfigHandler {
 
                     Map<Block, TreeLeavesBehavior> blocks = ConfigHandler.getIdentifiedBlocks(COMMON.leavesBlocksList.get())
                             .filter(block -> !exceptions.contains(block))
-                            .collect(Collectors.toMap(k -> k, v -> TreeLeavesBehavior.DEFAULT));
+                            .collect(Collectors.toConcurrentMap(k -> k, v -> TreeLeavesBehavior.DEFAULT, (a, b) -> b));
 
                     TreeChop.api.getLeavesBlockOverrides().forEach(blockIsLeaves -> {
                         if (blockIsLeaves.getValue()) {
@@ -290,7 +291,7 @@ public class ConfigHandler {
                     return blocks;
                 }
         );
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> choppingItemsToBlacklistOrWhitelist;
+        protected final ModConfigSpec.ConfigValue<List<? extends String>> choppingItemsToBlacklistOrWhitelist;
         public final Lazy<Set<Item>> choppingItemsList = new Lazy<>(
                 UPDATE_TAGS,
                 () -> {
@@ -312,7 +313,7 @@ public class ConfigHandler {
                 }
         );
 
-        public Common(ForgeConfigSpec.Builder builder) {
+        public Common(ModConfigSpec.Builder builder) {
             final String blockIdsHelp = String.join("\n",
                     "For block lists, specify using registry names (mod:block), tags (#mod:tag), namespaces (@mod), and Java-style regular expressions",
                     "Regular expressions must match the whole resource name, including the colon. Some simple examples are:",
@@ -335,7 +336,7 @@ public class ConfigHandler {
                 String fieldName = field.getConfigKey();
                 for (Object value : field.getValues()) {
                     String valueName = getPrettyValueName(value);
-                    ForgeConfigSpec.BooleanValue configHandle = builder.define(fieldName + ".canBe" + valueName, true);
+                    ModConfigSpec.BooleanValue configHandle = builder.define(fieldName + ".canBe" + valueName, true);
                     rawPermissions.add(Pair.of(new Setting(field, value), configHandle));
                 }
             }
@@ -357,9 +358,14 @@ public class ConfigHandler {
             maxNumLeavesBlocks = builder
                     .comment("Maximum number of leaves blocks that can destroyed when a tree is felled")
                     .defineInRange("maxLeavesBlocks", 1024, 1, 8096);
-            breakLeaves = builder
-                    .comment("Destroy leaves when a tree is felled")
-                    .define("breakLeaves", true);
+            fellLeavesStrategy = builder
+                    .comment("What to do with leaves blocks when a tree is felled")
+                    .defineEnum("breakOrDecayLeaves", FellLeavesStrategy.DECAY);
+            fellCreditStrategy = builder
+                    .comment(String.join("\n",
+                            "Who to credit for breaking tree blocks (logs and leaves), which can change item drops, trigger enchantment effects, etc.",
+                            "Use with caution: may cause unexpected interactions with other mods"))
+                    .defineEnum("fellCredit", FellCreditStrategy.NONE);
             ignorePersistentLeaves = builder
                     .comment("Non-decayable leaves are ignored when detecting leaves")
                     .define("ignorePersistentLeaves", true);
@@ -370,7 +376,7 @@ public class ConfigHandler {
             builder.push("logs");
             choppableBlocksList = builder
                     .comment(String.join("\n","Blocks that should be considered choppable", blockIdsHelp))
-                    .defineList("blocks",
+                    .defineListAllowEmpty("blocks",
                             List.of("#treechop:choppables",
                                     "#minecraft:logs"),
                             always -> true);
@@ -378,7 +384,7 @@ public class ConfigHandler {
                     .comment(String.join("\n",
                             "Blocks that should never be chopped, even if included in the list above",
                             "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
-                    .defineList("exceptions",
+                    .defineListAllowEmpty("exceptions",
                             List.of("minecraft:bamboo",
                                     "#dynamictrees:branches",
                                     "dynamictrees:trunk_shell"),
@@ -390,7 +396,7 @@ public class ConfigHandler {
                     .comment(String.join("\n",
                             "Blocks that should be considered leaves",
                             "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
-                    .defineList("blocks",
+                    .defineListAllowEmpty("blocks",
                             List.of("#treechop:leaves_like",
                                     "#minecraft:leaves",
                                     "pamhc2trees:pam[a-z]+"),
@@ -399,7 +405,7 @@ public class ConfigHandler {
                     .comment(String.join("\n",
                             "Blocks that should never be considered leaves, even if included in the list above",
                             "Specify using registry names (mod:block), tags (#mod:tag), and namespaces (@mod)"))
-                    .defineList("exceptions",
+                    .defineListAllowEmpty("exceptions",
                             List.of(),
                             always -> true);
             builder.pop();
@@ -455,7 +461,7 @@ public class ConfigHandler {
                     .comment(String.join("\n",
                             "List of item registry names (mod:item), tags (#mod:tag), and namespaces (@mod) for items that should not chop when used to break a log",
                             "- Items in this list that have special support for TreeChop will not be blacklisted; see https://github.com/hammertater/treechop/blob/main/docs/compatibility.md#blacklist"))
-                    .defineList("items",
+                    .defineListAllowEmpty("items",
                             Arrays.asList(
                                     "botania:terra_axe",
                                     "@lumberjack",
@@ -473,9 +479,6 @@ public class ConfigHandler {
             fakePlayerChoppingEnabled = builder
                     .comment("Use with caution! May cause conflicts with some mods, e.g. https://github.com/hammertater/treechop/issues/71")
                     .define("choppingEnabled", false);
-            fakePlayerFellingEnabled = builder
-                    .comment("Felling only matters if chopping is enabled; probably best to leave this on")
-                    .define("fellingEnabled", true);
             fakePlayerTreesMustHaveLeaves = builder
                     .define("treesMustHaveLeaves", true);
             builder.pop();
@@ -489,6 +492,7 @@ public class ConfigHandler {
             HugeMushroomHandler.MyConfigHandler.init(builder);
             HugeFungusHandler.MyConfigHandler.init(builder);
             ProblematicLeavesTreeHandler.MyConfigHandler.init(builder);
+            LeafDecayOverrides.MyConfigHandler.init(builder);
             builder.pop();
 
             if (TreeChop.platform.uses(ModLoader.FORGE)) {
@@ -572,29 +576,22 @@ public class ConfigHandler {
 
     public static class Client {
 
-        public final ForgeConfigSpec.BooleanValue choppingEnabled;
-        public final ForgeConfigSpec.BooleanValue fellingEnabled;
-        public final ForgeConfigSpec.EnumValue<SneakBehavior> sneakBehavior;
-        public final ForgeConfigSpec.BooleanValue treesMustHaveLeaves;
-        public final ForgeConfigSpec.BooleanValue chopInCreativeMode;
-        public final ForgeConfigSpec.BooleanValue showChoppingIndicators;
-        private final ForgeConfigSpec.BooleanValue removeBarkOnInteriorLogs;
-        public final ForgeConfigSpec.IntValue indicatorXOffset;
-        public final ForgeConfigSpec.IntValue indicatorYOffset;
-        public final ForgeConfigSpec.BooleanValue showFellingOptions;
-        public final ForgeConfigSpec.BooleanValue showFeedbackMessages;
-        public final ForgeConfigSpec.BooleanValue showTooltips;
+        public final ModConfigSpec.BooleanValue choppingEnabled;
+        public final ModConfigSpec.EnumValue<SneakBehavior> sneakBehavior;
+        public final ModConfigSpec.BooleanValue treesMustHaveLeaves;
+        public final ModConfigSpec.BooleanValue chopInCreativeMode;
+        public final ModConfigSpec.BooleanValue showChoppingIndicators;
+        private final ModConfigSpec.BooleanValue removeBarkOnInteriorLogs;
+        public final ModConfigSpec.IntValue indicatorXOffset;
+        public final ModConfigSpec.IntValue indicatorYOffset;
+        public final ModConfigSpec.BooleanValue showFeedbackMessages;
+        public final ModConfigSpec.BooleanValue showTooltips;
 
-//        public final ForgeConfigSpec.BooleanValue treesMustBeUniform; // TODO: a nice implementation requires chopped logs to be typed
-
-        public Client(ForgeConfigSpec.Builder builder) {
+        public Client(ModConfigSpec.Builder builder) {
             builder.push("chopping");
             choppingEnabled = builder
                     .comment("Default setting for whether or not the user wishes to chop (can be toggled in-game)")
                     .define("choppingEnabled", true);
-            fellingEnabled = builder
-                    .comment("Default setting for whether or not the user wishes to fell tree when chopping (can be toggled in-game)")
-                    .define("fellingEnabled", true);
             sneakBehavior = builder
                     .comment("Default setting for the effect that sneaking has on chopping (can be cycled in-game)")
                     .defineEnum("sneakBehavior", SneakBehavior.INVERT_CHOPPING);
@@ -625,9 +622,6 @@ public class ConfigHandler {
             builder.pop();
 
             builder.push("settingsScreen");
-            showFellingOptions = builder
-                    .comment("Show in-game options for enabling and disable felling (can be toggled in-game)")
-                    .define("showFellingOptions", false);
             showFeedbackMessages = builder
                     .comment("Show chat confirmations when using hotkeys to change chop settings (can be toggled in-game)")
                     .define("showFeedbackMessages", true);
@@ -635,16 +629,11 @@ public class ConfigHandler {
                     .comment("Show tooltips in the settings screen (can be toggled in-game)")
                     .define("showTooltips", true);
             builder.pop();
-
-//            treesMustBeUniform = builder
-//                    .comment("Whether to disallow different types of log blocks from belonging to the same tree")
-//                    .define("treesMustBeUniform", true);
         }
 
         public ChopSettings getChopSettings() {
             ChopSettings chopSettings = new ChopSettings();
             chopSettings.setChoppingEnabled(ConfigHandler.CLIENT.choppingEnabled.get());
-            chopSettings.setFellingEnabled(ConfigHandler.CLIENT.fellingEnabled.get());
             chopSettings.setSneakBehavior(ConfigHandler.CLIENT.sneakBehavior.get());
             chopSettings.setTreesMustHaveLeaves(ConfigHandler.CLIENT.treesMustHaveLeaves.get());
             chopSettings.setChopInCreativeMode(ConfigHandler.CLIENT.chopInCreativeMode.get());

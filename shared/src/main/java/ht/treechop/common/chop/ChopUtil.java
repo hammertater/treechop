@@ -4,10 +4,7 @@ import ht.treechop.TreeChop;
 import ht.treechop.TreeChopException;
 import ht.treechop.api.*;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.config.ChopCounting;
-import ht.treechop.common.config.ConfigHandler;
-import ht.treechop.common.config.Lazy;
-import ht.treechop.common.config.TreeLeavesBehavior;
+import ht.treechop.common.config.*;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.util.AxeAccessor;
 import ht.treechop.common.util.BlockUtil;
@@ -27,7 +24,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -64,7 +60,7 @@ public class ChopUtil {
     }
 
     public static boolean isBlockLeaves(BlockState blockState) {
-        TreeLeavesBehavior behavior = ConfigHandler.COMMON.leavesBlocks.get().get(blockState.getBlock());
+        TreeLeavesBehavior behavior = ConfigHandler.COMMON.leavesBlocksAndBehaviors.get().get(blockState.getBlock());
         if (behavior != null) {
             return behavior.isLeaves(blockState);
         } else {
@@ -76,15 +72,16 @@ public class ChopUtil {
         return ChopCounting.calculate((int) support) <= chops;
     }
 
-    public static int numChopsToFell(Level level, Stream<BlockPos> logs) {
-        int support = Math.max(
-                logs.map(pos -> getSupportFactor(level, pos))
-                        .reduce(Double::sum)
-                        .orElse(1.0).intValue(),
-                1
-        );
+    public static int numChopsToFell(double support) {
+        return ChopCounting.calculate(Math.max(1, Double.valueOf(support).intValue()));
+    }
 
-        return ChopCounting.calculate(support);
+    public static int numChopsToFell(Level level, Stream<BlockPos> logs) {
+        double support = logs.map(pos -> getSupportFactor(level, pos))
+                .reduce(Double::sum)
+                .orElse(1.0);
+
+        return numChopsToFell(support);
     }
 
     public static Optional<Double> getSupportFactor(Level level, Stream<BlockPos> blocks) {
@@ -101,14 +98,8 @@ public class ChopUtil {
                 : 1.0;
     }
 
-    public static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean fellIfPossible, boolean breakLeaves, TreeData tree) {
-        return fellIfPossible
-                ? getChopResult(level, origin, chopSettings, numChops, breakLeaves, tree)
-                : tryToChopWithoutFelling(level, origin, numChops);
-    }
-
-    private static ChopResult getChopResult(Level level, BlockPos origin, ChopSettings chopSettings, int numChops, boolean breakLeaves, TreeData tree) {
-        if (tree.isAProperTree(chopSettings.getTreesMustHaveLeaves())) {
+    private static ChopResult getChopResult(Level level, BlockPos origin, int numChops, boolean mustHaveLeaves, boolean breakLeaves, TreeData tree) {
+        if (tree.isAProperTree(mustHaveLeaves)) {
             return getChopResult(level, origin, tree, numChops, breakLeaves);
         } else {
             return ChopResult.IGNORED;
@@ -132,7 +123,8 @@ public class ChopUtil {
         }
 
         if (tree.readyToFell(tree.getChops() + numChops)) {
-            return new FellTreeResult(level, tree, breakLeaves);
+            int numChopsNeeded = Math.min(10, Math.max(0, tree.numChopsNeededToFell() - tree.getChops())); // Max 10 in case numChops is set super high for instant felling
+            return new FellTreeResult(level, tree, breakLeaves, tree.chop(origin, numChopsNeeded));
         } else {
             return new ChopTreeResult(level, tree.chop(origin, numChops));
         }
@@ -161,12 +153,6 @@ public class ChopUtil {
                 )
                 .reduce(Integer::sum)
                 .orElse(0);
-    }
-
-    private static ChopResult tryToChopWithoutFelling(Level level, BlockPos blockPos, int numChops) {
-        return (isBlockChoppable(level, blockPos))
-                ? new ChopTreeResult(level, Collections.singletonList(new Chop(blockPos, numChops)))
-                : ChopResult.IGNORED;
     }
 
     public static int blockDistance(BlockPos a, BlockPos b) {
@@ -205,34 +191,34 @@ public class ChopUtil {
         }
     }
 
-    public static boolean playerWantsToFell(Player player, ChopSettings chopSettings) {
-        return chopSettings.getFellingEnabled() ^ chopSettings.getSneakBehavior().shouldChangeFellBehavior(player);
+    public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) throws TreeChopException {
+        ChopSettings chopSettings = Server.instance().getPlayerChopData(agent).getSettings();
+        if (ChopUtil.playerWantsToChop(agent, chopSettings)) {
+            int numChops = ChopUtil.getNumChopsByTool(tool, blockState);
+            boolean treesMustHaveLeaves = chopSettings.getTreesMustHaveLeaves();
+            return chop(agent, level, pos, blockState, tool, trigger, numChops, treesMustHaveLeaves);
+        }
+
+        return false;
     }
 
-    public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) throws TreeChopException {
+    public static boolean chop(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger, int numChops, boolean treesMustHaveLeaves) throws TreeChopException {
         try {
-            return chopUnsafe(agent, level, pos, blockState, tool, trigger);
+            return chopUnsafe(agent, level, pos, blockState, tool, trigger, numChops, treesMustHaveLeaves);
         } catch (Exception e) {
-            throw new TreeChopException(String.format("Parameters: %s, %s, %s, %s, %s, %s", agent, level, pos, blockState, tool, trigger), e);
+            throw new TreeChopException(String.format("Parameters: %s, %s, %s, %s, %s, %s, %s, %s", agent, level, pos, blockState, tool, trigger, numChops, treesMustHaveLeaves), e);
         }
     }
 
-    public static boolean chopUnsafe(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger) {
-        ChopSettings chopSettings = Server.instance().getPlayerChopData(agent).getSettings();
+    public static boolean chopUnsafe(ServerPlayer agent, ServerLevel level, BlockPos pos, BlockState blockState, ItemStack tool, Object trigger, int numChops, boolean treesMustHaveLeaves) {
+
         if (!isBlockChoppable(level, pos, blockState)
-                || !ChopUtil.playerWantsToChop(agent, chopSettings)
                 || !ChopUtil.canChopWithTool(agent, tool, level, pos, blockState)) {
             return false;
         }
 
-        boolean felling = ChopUtil.playerWantsToFell(agent, chopSettings);
-        TreeData tree = felling ? getTree(level, pos) : null;
-
-        ChopData chopData = new ChopDataImpl(
-                ChopUtil.getNumChopsByTool(tool, blockState),
-                felling,
-                tree
-        );
+        TreeData tree = getTree(level, pos);
+        ChopData chopData = new ChopDataImpl(numChops, tree);
 
         boolean doChop = TreeChop.platform.startChopEvent(agent, level, pos, blockState, chopData, trigger);
         if (!doChop) {
@@ -242,10 +228,9 @@ public class ChopUtil {
         ChopResult chopResult = ChopUtil.getChopResult(
                 level,
                 pos,
-                chopSettings,
                 chopData.getNumChops(),
-                chopData.getFelling(),
-                ConfigHandler.COMMON.breakLeaves.get(),
+                treesMustHaveLeaves,
+                ConfigHandler.COMMON.fellLeavesStrategy.get() != FellLeavesStrategy.IGNORE,
                 tree
         );
 
@@ -266,10 +251,15 @@ public class ChopUtil {
     }
 
     public static void thwack(Player thwacker, Level level, BlockPos pos, BlockState state) {
-        final float volume = .5f;
-        final float pitch = 1f;
-        level.playSound(thwacker, pos, TreeChop.CHOP_WOOD_EVENT.get(), SoundSource.BLOCKS, volume, pitch);
-        level.addDestroyBlockEffect(pos, state);
+        IThwackableBlock thwackable = ClassUtil.getThwackableBlock(state.getBlock());
+        if (thwackable != null) {
+            thwackable.thwack(thwacker, level, pos, state);
+        } else {
+            final float volume = .3f;
+            final float pitch = 1f;
+            level.playSound(thwacker, pos, TreeChop.CHOP_WOOD_EVENT.get(), SoundSource.BLOCKS, volume, pitch);
+            level.addDestroyBlockEffect(pos, state);
+        }
     }
 
     public static BlockState getStrippedState(BlockAndTintGetter level, BlockPos pos, BlockState state) {

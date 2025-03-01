@@ -10,7 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.List;
 import java.util.Set;
@@ -29,11 +29,9 @@ public class HugeFungusHandler implements ITreeBlock {
         HugeFungusHandler handler = new HugeFungusHandler();
         logs.get().forEach(block -> {
             api.overrideChoppableBlock(block, true);
-            api.registerChoppableBlockBehavior(block, handler);
+            api.registerBlockBehavior(block, handler);
         });
-        leaves.get().forEach(block -> {
-            api.overrideLeavesBlock(block, true);
-        });
+        leaves.get().forEach(block -> api.overrideLeavesBlock(block, true));
     }
 
     @Override
@@ -60,23 +58,23 @@ public class HugeFungusHandler implements ITreeBlock {
 
     public static class MyConfigHandler {
         private static MyConfigHandler instance;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> logIds;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> leavesIds;
+        protected final ModConfigSpec.ConfigValue<List<? extends String>> logIds;
+        protected final ModConfigSpec.ConfigValue<List<? extends String>> leavesIds;
 
-        public MyConfigHandler(ForgeConfigSpec.Builder builder) {
+        public MyConfigHandler(ModConfigSpec.Builder builder) {
             builder.push("hugeFungi");
-            logIds = builder.defineList("logs", List.of(
+            logIds = builder.defineListAllowEmpty("logs", List.of(
                     "#minecraft:crimson_stems",
                     "#minecraft:warped_stems"
             ), always -> true);
-            leavesIds = builder.defineList("leaves", List.of(
+            leavesIds = builder.defineListAllowEmpty("leaves", List.of(
                     "#minecraft:wart_blocks",
                     "minecraft:shroomlight"
             ), always -> true);
             builder.pop();
         }
 
-        public static void init(ForgeConfigSpec.Builder builder) {
+        public static void init(ModConfigSpec.Builder builder) {
             instance = new MyConfigHandler(builder);
         }
     }

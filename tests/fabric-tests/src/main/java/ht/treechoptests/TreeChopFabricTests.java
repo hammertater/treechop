@@ -16,6 +16,6 @@ public class TreeChopFabricTests implements ModInitializer {
     }
 
     public static ResourceLocation resource(String path) {
-        return new ResourceLocation("treechoptests", path);
+        return ResourceLocation.fromNamespaceAndPath("treechoptests", path);
     }
 }

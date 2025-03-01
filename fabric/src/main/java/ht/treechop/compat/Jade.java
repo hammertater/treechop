@@ -2,7 +2,6 @@ package ht.treechop.compat;
 
 import ht.treechop.TreeChop;
 import ht.treechop.common.block.ChoppedLogBlock;
-import ht.treechop.common.registry.FabricModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -11,8 +10,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec2;
 import snownee.jade.api.*;
 import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.config.IWailaConfig;
+import snownee.jade.api.theme.IThemeHelper;
 import snownee.jade.api.ui.IElement;
+import snownee.jade.api.ui.IElementHelper;
+import snownee.jade.impl.ui.ItemStackElement;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -20,8 +21,8 @@ import java.util.List;
 @WailaPlugin
 public class Jade implements IWailaPlugin, IBlockComponentProvider {
 
-    public static final ResourceLocation SHOW_TREE_BLOCKS = new ResourceLocation(TreeChop.MOD_ID, "show_tree_block_counts");
-    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = new ResourceLocation(TreeChop.MOD_ID, "show_num_chops_remaining");
+    public static final ResourceLocation SHOW_TREE_BLOCKS = ResourceLocation.fromNamespaceAndPath(TreeChop.MOD_ID, "show_tree_block_counts");
+    public static final ResourceLocation SHOW_NUM_CHOPS_REMAINING = ResourceLocation.fromNamespaceAndPath(TreeChop.MOD_ID, "show_num_chops_remaining");
     private static final ResourceLocation UID = TreeChop.resource("plugin");
 
     @Override
@@ -50,7 +51,7 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
                     showChopsRemaining,
                     tooltip::add,
                     stack -> {
-                        IElement icon = tooltip.getElementHelper().item(stack, 1f, Integer.toString(stack.getCount()));
+                        IElement icon = IElementHelper.get().item(stack, 1f, Integer.toString(stack.getCount()));
                         tiles.add(icon.translate(new Vec2(0, -1.5f)));
                     }
             );
@@ -59,14 +60,14 @@ public class Jade implements IWailaPlugin, IBlockComponentProvider {
     }
 
     private static void changeBlockName(ITooltip tooltip, BlockAccessor accessor) {
-        final ResourceLocation OBJECT_NAME_COMPONENT_KEY = new ResourceLocation("jade", "object_name");
+        final ResourceLocation OBJECT_NAME_COMPONENT_KEY = ResourceLocation.fromNamespaceAndPath("jade", "object_name");
         if (accessor.getBlockEntity() instanceof ChoppedLogBlock.MyEntity choppedEntity) {
             // There's no API function to change the message, so let's replace it
             tooltip.clear();
 
             Component newName = WailaUtil.getPrefixedBlockName(choppedEntity);
-            IElement newNameElement = tooltip.getElementHelper()
-                    .text(IWailaConfig.get().getFormatting().title(newName))
+            IElement newNameElement = IElementHelper.get()
+                    .text(IThemeHelper.get().title(newName))
                     .tag(OBJECT_NAME_COMPONENT_KEY);
 
             tooltip.add(newNameElement);

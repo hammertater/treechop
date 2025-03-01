@@ -11,12 +11,11 @@
     "curseforge": "$mod_url_curseforge",
     "modrinth": "$mod_url_modrinth",
     "sources": "$mod_url_source",
-    "issues": "$mod_url_issues"
+    "issues": "$mod_url_issues",
+    "homepage": "$mod_url_source"
   },
-
   "license": "$mod_license",
   "icon": "logo.png",
-
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -30,27 +29,22 @@
     ],
     "jade": [
       "ht.treechop.compat.Jade"
+    ],
+    "modmenu": [
+      "ht.treechop.compat.ModMenu"
     ]
   },
   "mixins": [
     "${mod_id}.mixins.json",
     "${mod_id}.fabric.mixins.json"
   ],
-
   "depends": {
     "forgeconfigapiport": "*",
     "fabricloader": "*",
-    "fabric": "*",
+    "fabric-api": "*",
     "minecraft": "~${minecraft_version}",
-    "java": ">=17"
+    "java": ">=21"
   },
   "suggests": {
-  },
-  "custom": {
-    "waila:plugins": {
-      "id": "treechop:plugin",
-      "initializer": "ht.treechop.compat.Wthit",
-      "environment": "client"
-    }
   }
 }

@@ -1,20 +1,17 @@
 package ht.treechop.server;
 
 import ht.treechop.common.network.ClientRequestSettingsPacket;
-import ht.treechop.common.network.CustomPacket;
+import ht.treechop.common.network.PacketChannel;
 import ht.treechop.common.settings.ChoppingEntity;
 import ht.treechop.common.settings.SyncedChopData;
-import io.netty.buffer.Unpooled;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.ServerPlayerGameMode;
 
 public class FabricServer extends Server implements DedicatedServerModInitializer {
 
@@ -35,27 +32,23 @@ public class FabricServer extends Server implements DedicatedServerModInitialize
     }
 
     private void registerPackets() {
-        ServerPlayNetworking.registerGlobalReceiver(ClientRequestSettingsPacket.ID, (server, player, handler, buffer, sender) -> {
-            ClientRequestSettingsPacket packet = ClientRequestSettingsPacket.decode(buffer);
-            server.execute(() -> ClientRequestSettingsPacket.handle(packet, player, reply -> replyTo(sender, reply)));
-        });
+        ServerPlayNetworking.registerGlobalReceiver(ClientRequestSettingsPacket.TYPE, (payload, context) ->
+                payload.handle(context.player(), responseChannel(context)));
     }
 
-    private void replyTo(PacketSender sender, CustomPacket packet) {
-        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
-        sender.sendPacket(packet.getId(), packet.encode(buffer));
+    private PacketChannel responseChannel(ServerPlayNetworking.Context context) {
+        return reply -> ServerPlayNetworking.send(context.player(), reply);
     }
 
     @Override
-    public void broadcast(ServerLevel level, BlockPos pos, CustomPacket packet) {
+    public void broadcast(ServerLevel level, BlockPos pos, CustomPacketPayload payload) {
         for (ServerPlayer player : PlayerLookup.tracking(level, pos)) {
-            instance().sendTo(player, packet);
+            instance().sendTo(player, payload);
         }
     }
 
     @Override
-    public void sendTo(ServerPlayer player, CustomPacket packet) {
-        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
-        ServerPlayNetworking.send(player, packet.getId(), packet.encode(buffer));
+    public void sendTo(ServerPlayer player, CustomPacketPayload payload) {
+        ServerPlayNetworking.send(player, payload);
     }
 }

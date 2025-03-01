@@ -27,14 +27,14 @@ public class EntityChopSettingsMixin implements ChoppingEntity {
         return chopSettings;
     }
 
-    @Inject(method = "saveWithoutId", at = @At("HEAD"))
+    @Inject(method = "saveWithoutId", at = @At("HEAD"), remap = false)
     public void injectDataSaving(CompoundTag tag, CallbackInfoReturnable<CompoundTag> info) {
         if (chopSettings != null) {
             tag.put(KEY, chopSettings.makeSaveData());
         }
     }
 
-    @Inject(method = "load", at = @At("HEAD"))
+    @Inject(method = "load", at = @At("HEAD"), remap = false)
     public void injectDataLoading(CompoundTag tag, CallbackInfo info) {
         CompoundTag data = tag.getCompound(KEY);
         chopSettings = (new SyncedChopData(new ChopSettings())).readSaveData(data);

@@ -29,6 +29,11 @@ public interface TreeDataImmutable {
 
     boolean readyToFell(int numChops);
 
+    /**
+     * Use with caution, as this requires mapping out the whole tree. Use {@link TreeDataImmutable#readyToFell(int)} instead whenever possible to avoid unnecessary computations.
+     */
+    int numChopsNeededToFell();
+
     Collection<Chop> chop(BlockPos target, int numChops);
 
     void forEachLeaves(Consumer<BlockPos> consumer);

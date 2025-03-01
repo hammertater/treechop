@@ -1,2 +1,5 @@
 {
+  "variants": {
+    "chopped_log": { "model": "treechop:block/chopped_log" }
+  }
 }

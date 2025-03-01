@@ -34,23 +34,29 @@ public interface TreeChopAPI {
     void overrideChoppingItem(Item item, boolean canChop);
 
     /**
-     * Changes chop-related behaviors for a specified block. See {@link ISimpleChoppableBlock} for a default handler
+     * Changes TreeChop-related behaviors for a specified block. This <b>only</b> works for blocks that have the
+     * appropriate block tags to be considered choppable or leaveslike (see
+     * <a href="https://github.com/hammertater/treechop/wiki/Adding-compatibility-with-TreeChop">the wiki</a>).
+     * <p>
+     * <b>Log behaviors</b> - See {@link ISimpleChoppableBlock} for a default handler
      * implementation. For more advanced control, see {@link IChoppableBlock}, {@link IFellableBlock}, {@link
-     * IStrippableBlock}, and {@link ICylinderBlock}.
+     * IStrippableBlock}, {@link ICylinderBlock}, and {@link ITreeBlock}.
+     * <p>
+     * <b>Leaves behaviors</b> - See {@link ILeaveslikeBlock}.
      */
-    void registerChoppableBlockBehavior(Block block, ITreeChopBlockBehavior handler);
+    void registerBlockBehavior(Block block, ITreeChopBlockBehavior handler);
 
     /**
      * Removes a registered block handler.
      */
-    boolean deregisterChoppableBlockBehavior(Block block);
+    boolean deregisterBlockBehavior(Block block);
 
     /**
      * Retrieves a registered block handler.
      *
      * @return {@code null} if no handler is registered for {@code block}
      */
-    ITreeChopBlockBehavior getRegisteredChoppableBlockBehavior(Block block);
+    ITreeChopBlockBehavior getRegisteredBlockBehavior(Block block);
 
     /**
      * Changes chopping behaviors while holding a specified item.
@@ -79,7 +85,7 @@ public interface TreeChopAPI {
 
     /**
      * Using default config settings, all logs and mushroom stems should be choppable, as well as any blocks that
-     * implement {@link IChoppableBlock}, have a registered handler (see {@link #registerChoppableBlockBehavior}), or
+     * implement {@link IChoppableBlock}, have a registered handler (see {@link #registerBlockBehavior}), or
      * have been made choppable using {@link #overrideChoppableBlock}.
      * <p>
      * Even if a block is choppable, a player may still choose not to chop it if, for example, it does not have
@@ -108,4 +114,19 @@ public interface TreeChopAPI {
      * @return Always returns a {@link TreeData}, but it may be empty if {@code pos} is not part of a tree. Use {@link TreeData#isAProperTree(boolean)} to check whether it is a valid tree (e.g., connected to leaves) according to the {@code treechop-common.toml} configuration.
      */
     TreeData getTree(Level level, BlockPos pos);
+
+    /**
+     * @deprecated Use {@link TreeChopAPI#registerBlockBehavior} instead.
+     */
+    @Deprecated void registerChoppableBlockBehavior(Block block, ITreeChopBlockBehavior handler);
+
+    /**
+     * @deprecated Use {@link TreeChopAPI#deregisterBlockBehavior} instead.
+     */
+    @Deprecated boolean deregisterChoppableBlockBehavior(Block block);
+
+    /**
+     * @deprecated Use {@link TreeChopAPI#getRegisteredBlockBehavior} instead.
+     */
+    @Deprecated ITreeChopBlockBehavior getRegisteredChoppableBlockBehavior(Block block);
 }

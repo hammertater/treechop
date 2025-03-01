@@ -6,17 +6,17 @@ import ht.treechop.client.settings.ClientChopSettings;
 import ht.treechop.common.block.ChoppedLogBlock;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.network.ClientRequestSettingsPacket;
-import ht.treechop.common.network.CustomPacket;
-import ht.treechop.common.network.ServerUpdateChopsPacket;
 import ht.treechop.common.settings.ChopSettings;
 import ht.treechop.common.settings.Permissions;
 import ht.treechop.common.settings.SettingsField;
 import ht.treechop.common.settings.SneakBehavior;
 import ht.treechop.common.util.TreeCache;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 public abstract class Client {
     protected static final Permissions serverPermissions = new Permissions();
@@ -39,15 +39,8 @@ public abstract class Client {
         chopSettings.set(SettingsField.CHOPPING, newValue);
     }
 
-    public static void toggleFelling() {
-        boolean newValue = !chopSettings.get(SettingsField.FELLING, Boolean.class);
-        chopSettings.set(SettingsField.FELLING, newValue);
-    }
-
     public static void cycleSneakBehavior() {
-        SneakBehavior newValue = ConfigHandler.CLIENT.showFellingOptions.get()
-                ? chopSettings.getSneakBehavior().cycle()
-                : (chopSettings.getSneakBehavior() == SneakBehavior.NONE ? SneakBehavior.INVERT_CHOPPING : SneakBehavior.NONE);
+        SneakBehavior newValue = chopSettings.getSneakBehavior() == SneakBehavior.NONE ? SneakBehavior.INVERT_CHOPPING : SneakBehavior.NONE;
         chopSettings.set(SettingsField.SNEAK_BEHAVIOR, newValue);
     }
 
@@ -90,18 +83,10 @@ public abstract class Client {
         Client.instance().sendToServer(new ClientRequestSettingsPacket(chopSettings));
     }
 
-    public static void handleUpdateChopsPacket(ServerUpdateChopsPacket message) {
-        ServerUpdateChopsPacket.handle(message);
-        ClientLevel level = Minecraft.getInstance().level;
-        if (level != null && level.getBlockEntity(message.getPos()) instanceof ChoppedLogBlock.MyEntity entity) {
-            entity.update();
-        }
-    }
-
-    public static void forceChoppedLogUpdate(BlockPos pos) {
-        ClientLevel level = Minecraft.getInstance().level;
+    public static void handleUpdateChopsPacket(BlockPos pos, CompoundTag tag) {
+        Level level = Minecraft.getInstance().level;
         if (level != null && level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
-            entity.update();
+            entity.loadWithComponents(tag, level.registryAccess());
         }
     }
 
@@ -109,5 +94,5 @@ public abstract class Client {
         return Minecraft.getInstance().player;
     }
 
-    abstract void sendToServer(CustomPacket packet);
+    abstract public void sendToServer(CustomPacketPayload payload);
 }

@@ -31,7 +31,7 @@ public interface ISimpleChoppableBlock extends IChoppableBlock, ICylinderBlock {
 
     @Override
     default void chop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState blockState, int numChops, boolean felling) {
-        final ResourceLocation CHOPPED_LOG = new ResourceLocation("treechop", "chopped_log");
+        final ResourceLocation CHOPPED_LOG = ResourceLocation.fromNamespaceAndPath("treechop", "chopped_log");
         Block choppedLog = BuiltInRegistries.BLOCK.get(CHOPPED_LOG);
         if (choppedLog instanceof IChoppableBlock choppableBlock) {
             choppableBlock.chop(player, tool, level, pos, blockState, numChops, felling);

@@ -109,11 +109,10 @@ public enum ChoppedLogShape implements StringRepresentable {
                         this::bakeBoundingBox
                 ));
 
-        // NOTE: this must be kept independent of dynamics (e.g. level, pos) since it is used to bake models
         this.occlusionShape = Shapes.or(
                 Shapes.empty(),
                 Arrays.stream(Direction.values())
-                        .filter(direction -> direction.getAxis().isHorizontal() && !isSideOpen(direction))
+                        .filter(direction -> !isSideOpen(direction))
                         .map(direction -> Shapes.create(FaceShape.get(direction).toAABB()))
                         .toArray(VoxelShape[]::new)
         );
@@ -122,19 +121,6 @@ public enum ChoppedLogShape implements StringRepresentable {
 
     public static ChoppedLogShape forOpenSides(byte openSides) {
         return openSidesMap[openSides];
-    }
-
-    public Set<Direction> getSolidSides(BlockGetter level, BlockPos pos) {
-        return ConfigHandler.removeBarkOnInteriorLogs.get()
-                ? Arrays.stream(Direction.values())
-                .filter(direction -> direction.getAxis().isHorizontal() && !isSideOpen(direction))
-                .filter(direction -> {
-                    BlockPos neighborPos = pos.relative(direction);
-                    BlockState blockState = level.getBlockState(neighborPos);
-                    return blockState.isCollisionShapeFullBlock(level, neighborPos);
-                })
-                .collect(Collectors.toCollection(() -> EnumSet.noneOf(Direction.class)))
-                : Collections.emptySet();
     }
 
     public String toString() {
@@ -180,11 +166,5 @@ public enum ChoppedLogShape implements StringRepresentable {
 
     public boolean isSideOpen(Direction side) {
         return ((openSides >> side.ordinal()) & 0b1) == 1;
-    }
-
-    public VoxelShape getOcclusionShape() {
-        return (ConfigHandler.removeBarkOnInteriorLogs.get())
-                ? occlusionShape
-                : Shapes.empty();
     }
 }
