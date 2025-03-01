@@ -15,6 +15,6 @@ plugins {
 
 rootProject.name = mod_name
 
-include "tuber", "shared", "forge", "fabric", "neoforge"
+include "tuber", "shared", "fabric", "neoforge"
 //include 'tests:fabric-tests'
 //include 'tests:forge-tests'
