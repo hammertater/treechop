@@ -60,11 +60,11 @@ public class ClientRequestSettingsPacket implements CustomPacketPayload {
         return new ClientRequestSettingsPacket(settings, event);
     }
 
-    public void handle(ServerPlayer player, PacketChannel replyChannel) {
+    public void handle(Player player, PacketChannel replyChannel) {
         processSettingsRequest(Server.instance().getPlayerChopData(player), this, player, replyChannel);
     }
 
-    private static void processSettingsRequest(SyncedChopData chopData, ClientRequestSettingsPacket message, ServerPlayer player, PacketChannel replyChannel) {
+    private static void processSettingsRequest(SyncedChopData chopData, ClientRequestSettingsPacket message, Player player, PacketChannel replyChannel) {
         List<Setting> settings = (message.event == Event.FIRST_TIME_SYNC && chopData.isSynced())
                 ? chopData.getSettings().getAll()
                 : message.settings;
@@ -84,7 +84,7 @@ public class ClientRequestSettingsPacket implements CustomPacketPayload {
         }
     }
 
-    private static ConfirmedSetting processSingleSettingRequest(Setting setting, ServerPlayer player, ChopSettings chopSettings, Event requestEvent) {
+    private static ConfirmedSetting processSingleSettingRequest(Setting setting, Player player, ChopSettings chopSettings, Event requestEvent) {
         ConfirmedSetting.Event confirmEvent;
         if (playerHasPermission(player, setting)) {
             chopSettings.set(setting);
@@ -103,7 +103,7 @@ public class ClientRequestSettingsPacket implements CustomPacketPayload {
         return new ConfirmedSetting(new Setting(field, chopSettings.get(field)), confirmEvent);
     }
 
-    private static Setting getDefaultSetting(ServerPlayer player, Setting setting) {
+    private static Setting getDefaultSetting(Player player, Setting setting) {
         return Server.getDefaultPlayerSettings().getSetting(setting.getField());
     }
 
@@ -116,7 +116,7 @@ public class ClientRequestSettingsPacket implements CustomPacketPayload {
         return TYPE;
     }
 
-    private enum Event {
+    public enum Event {
         FIRST_TIME_SYNC,
         REQUEST;
 

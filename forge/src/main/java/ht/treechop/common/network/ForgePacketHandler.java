@@ -4,6 +4,7 @@ import ht.treechop.TreeChop;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.SimpleChannel;
 
@@ -62,4 +63,8 @@ public abstract class ForgePacketHandler {
                 .add();
     }
 
+    @FunctionalInterface
+    private interface MessageHandler<T> {
+        void accept(T message, CustomPayloadEvent.Context context);
+    }
 }

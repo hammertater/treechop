@@ -1,0 +1,171 @@
+plugins {
+    id "net.neoforged.moddev" version "2.0.77"
+}
+
+//tasks.named('wrapper', Wrapper).configure {
+    // Define wrapper values here so as to not have to always do so when updating gradlew.properties.
+    // Switching this to Wrapper.DistributionType.ALL will download the full gradle sources that comes with
+    // documentation attached on cursor hover of gradle classes and methods. However, this comes with increased
+    // file size for Gradle. If you do switch this to ALL, run the Gradle wrapper task twice afterwards.
+    // (Verify by checking gradle/wrapper/gradle-wrapper.properties to see if distributionUrl now points to `-all`)
+//    distributionType = Wrapper.DistributionType.BIN
+//}
+
+version = mod_version
+group = mod_group
+
+base {
+    archivesName = "$mod_name-$minecraft_version-$project.name"
+}
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    expand project.properties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+
+processResources {
+    from project(":shared").sourceSets.main.resources
+    filesMatching(["META-INF/neoforge.mods.toml", "pack.mcmeta"]) {
+        expand project.properties
+    }
+}
+
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+neoForge {
+    // Specify the version of NeoForge to use.
+    version = project.neo_version
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        // The gametest system is also enabled by default for other run configs under the /test command.
+        gameTestServer {
+            type = "gameTestServer"
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        data {
+            data()
+
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+
+        configureEach {
+            // "SCAN": For mods scan.
+            // "REGISTRIES": For firing of registry events.
+            // "REGISTRYDUMP": For getting the contents of all registries.
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+
+            // Related: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods { mod_id { sourceSet(sourceSets.main) } }
+}
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+dependencies {
+    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+    implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
+
+    implementation project(":shared")
+    implementation project(":tuber")
+
+    api "fuzs.forgeconfigapiport:forgeconfigapiport-neoforge:$forgeconfigapiport_version"
+
+//    runtimeOnly fg.deobf("curse.maven:create-328085:4835191")
+
+    // Compile against the API
+//    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-12.5.1")
+
+    // Run against the full jar
+//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-12.5.1")
+//    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.8.1")
+
+//    compileOnly fg.deobf("curse.maven:jade-324717:5591256")
+//    runtimeOnly fg.deobf("curse.maven:jade-324717:5591256")
+
+//    compileOnly fg.deobf("curse.maven:the-one-probe-245211:5159287")
+//    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:5159287")
+
+//    compileOnly fg.deobf("curse.maven:rubidium-574856:4952685")
+//    runtimeOnly fg.deobf("curse.maven:rubidium-574856:4952685")
+
+//    compileOnly fg.deobf("curse.maven:multi-mine-227887:5733859")
+//    runtimeOnly fg.deobf("curse.maven:multi-mine-227887:5733859")
+
+//    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4647094")
+//    runtimeOnly fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
+//    runtimeOnly fg.deobf("curse.maven:regions-unexplored-659110:4599808")
+//    runtimeOnly fg.deobf("curse.maven:pams-harvestcraft-2-trees-365460:4625518")
+//    runtimeOnly fg.deobf("curse.maven:oh-the-biomes-youll-go-247560:xxx")
+//    runtimeOnly fg.deobf("curse.maven:tropicraft-254794:4617294")
+//    runtimeOnly fg.deobf("curse.maven:mystics-biomes-397962:4677470")
+
+//    compileOnly fg.deobf("curse.maven:project-mmo-353935:5694594") // https://github.com/Caltinor/Project-MMO-2.0
+//    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:5694594")
+
+//    compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
+//    runtimeOnly fg.deobf("curse.maven:carry-on-274259:4160388")
+
+//    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4205732")
+//    runtimeOnly fg.deobf("curse.maven:regions-unexplored-659110:4406301")
+//    runtimeOnly fg.deobf("curse.maven:enhanced-farming-285105:4280679")
+
+//    runtimeOnly fg.deobf("curse.maven:selene-499980:4410933")
+//    runtimeOnly fg.deobf("curse.maven:immersive-weathering-forge-592449:4401359")
+
+//    runtimeOnly fg.deobf("curse.maven:structure-gel-api-378802:4029363")
+//    runtimeOnly fg.deobf("curse.maven:blue-skies-312918:3966273")
+//    runtimeOnly fg.deobf("curse.maven:caupona-656147:4036587")
+
+//    runtimeOnly fg.deobf("curse.maven:mutil-351914:3941314")
+//    runtimeOnly fg.deobf("curse.maven:tetra-289712:4379764")
+
+//    runtimeOnly fg.deobf("curse.maven:silent-lib-242998:4540305")
+//    runtimeOnly fg.deobf("curse.maven:silent-gear-297039:4543014")
+
+//    runtimeOnly fg.deobf("curse.maven:citadel-331936:4848887")
+//    runtimeOnly fg.deobf("curse.maven:alexs-caves-924854:4952948")
+
+//    runtimeOnly fg.deobf("curse.maven:the-twilight-forest-227639:4865711")
+}
+
+sourceSets.main.resources {
+    srcDir "src/generated/resources"
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+    source(project(":shared").sourceSets.main.allSource)
+    source(project(":tuber").sourceSets.main.allSource)
+}
+
+sourceSets.each {
+    def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
+    it.output.resourcesDir = dir
+    it.java.destinationDirectory = dir
+}

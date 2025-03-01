@@ -8,7 +8,6 @@ import ht.treechop.common.loot.CountBlockChopsLootItemCondition;
 import ht.treechop.common.loot.TreeFelledLootItemCondition;
 import ht.treechop.common.network.ForgePacketHandler;
 import ht.treechop.common.registry.ForgeModBlocks;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -55,11 +54,13 @@ public class TreeChopForge extends TreeChop {
         modBus.addListener((RegisterEvent event) -> event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> helper.register(CHOP_WOOD, CHOP_WOOD_EVENT.get())));
 
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> {
-            Registry.register(BuiltInRegistries.LOOT_CONDITION_TYPE, CountBlockChopsLootItemCondition.ID, CountBlockChopsLootItemCondition.TYPE);
-            Registry.register(BuiltInRegistries.LOOT_CONDITION_TYPE, TreeFelledLootItemCondition.ID, TreeFelledLootItemCondition.TYPE);
+            net.minecraft.core.Registry.register(BuiltInRegistries.LOOT_CONDITION_TYPE, CountBlockChopsLootItemCondition.ID, CountBlockChopsLootItemCondition.TYPE);
+            net.minecraft.core.Registry.register(BuiltInRegistries.LOOT_CONDITION_TYPE, TreeFelledLootItemCondition.ID, TreeFelledLootItemCondition.TYPE);
         }));
 
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ForgeClientProxy::init);
+
+        // TODO: register commands (see fabric)
     }
 
     private void processIMC(InterModProcessEvent event) {

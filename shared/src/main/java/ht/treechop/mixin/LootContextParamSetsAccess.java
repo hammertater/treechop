@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 
 @Mixin(LootContextParamSets.class)
 public interface LootContextParamSetsAccess {
-    @Invoker
+    @Invoker(remap = false)
     static LootContextParamSet callRegister(String pRegistryName, Consumer<LootContextParamSet.Builder> pBuilderConsumer) {
         throw new IllegalStateException();
     }

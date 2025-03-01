@@ -2,14 +2,19 @@ package ht.treechop.common.registry;
 
 import ht.treechop.TreeChop;
 import ht.treechop.common.block.ForgeChoppedLogBlock;
+import ht.treechop.common.loot.CountBlockChopsLootItemCondition;
+import ht.treechop.common.loot.TreeFelledLootItemCondition;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class ForgeModBlocks {
 

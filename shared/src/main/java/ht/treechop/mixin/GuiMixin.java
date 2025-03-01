@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Gui.class)
 public class GuiMixin {
-    @Inject(method = "renderCrosshair", at = @At("TAIL"))
+    @Inject(method = "renderCrosshair", at = @At("TAIL"), remap = false)
     public void injectChopIndicator(GuiGraphics gui, DeltaTracker delta, CallbackInfo info) {
         ChopIndicator.render(gui, gui.guiWidth(), gui.guiHeight());
     }
