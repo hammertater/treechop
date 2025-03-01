@@ -38,8 +38,7 @@ dependencies {
     implementation project(":tuber")
 
     modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:$forgeconfigapiport_version"
-
-    modImplementation("com.terraformersmc:modmenu:11.0.3")
+    modApi "com.terraformersmc:modmenu:11.0.3"
 
     modCompileOnly "mcp.mobius.waila:wthit-api:fabric-12.4.2"
     modRuntimeOnly "mcp.mobius.waila:wthit:fabric-12.4.2"

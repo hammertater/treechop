@@ -96,62 +96,62 @@ dependencies {
 
     api "fuzs.forgeconfigapiport:forgeconfigapiport-neoforge:$forgeconfigapiport_version"
 
-//    runtimeOnly fg.deobf("curse.maven:create-328085:4835191")
+//    runtimeOnly "curse.maven:create-328085:4835191"
 
     // Compile against the API
-//    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-12.5.1")
+    compileOnly "mcp.mobius.waila:wthit-api:neo-12.5.1"
 
     // Run against the full jar
-//    runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-12.5.1")
-//    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.8.1")
+    runtimeOnly "mcp.mobius.waila:wthit:neo-12.5.1"
+    runtimeOnly "lol.bai:badpackets:neo-0.8.1"
 
-//    compileOnly fg.deobf("curse.maven:jade-324717:5591256")
-//    runtimeOnly fg.deobf("curse.maven:jade-324717:5591256")
+//    compileOnly "curse.maven:jade-324717:5591256"
+//    runtimeOnly "curse.maven:jade-324717:5591256"
 
-//    compileOnly fg.deobf("curse.maven:the-one-probe-245211:5159287")
-//    runtimeOnly fg.deobf("curse.maven:the-one-probe-245211:5159287")
+//    compileOnly "curse.maven:the-one-probe-245211:5159287"
+//    runtimeOnly "curse.maven:the-one-probe-245211:5159287"
 
-//    compileOnly fg.deobf("curse.maven:rubidium-574856:4952685")
-//    runtimeOnly fg.deobf("curse.maven:rubidium-574856:4952685")
+//    compileOnly "curse.maven:rubidium-574856:4952685"
+//    runtimeOnly "curse.maven:rubidium-574856:4952685"
 
-//    compileOnly fg.deobf("curse.maven:multi-mine-227887:5733859")
-//    runtimeOnly fg.deobf("curse.maven:multi-mine-227887:5733859")
+    compileOnly "curse.maven:multi-mine-227887:5733888"
+    runtimeOnly "curse.maven:multi-mine-227887:5733888"
 
-//    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4647094")
-//    runtimeOnly fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
-//    runtimeOnly fg.deobf("curse.maven:regions-unexplored-659110:4599808")
-//    runtimeOnly fg.deobf("curse.maven:pams-harvestcraft-2-trees-365460:4625518")
-//    runtimeOnly fg.deobf("curse.maven:oh-the-biomes-youll-go-247560:xxx")
-//    runtimeOnly fg.deobf("curse.maven:tropicraft-254794:4617294")
-//    runtimeOnly fg.deobf("curse.maven:mystics-biomes-397962:4677470")
+//    runtimeOnly "curse.maven:terrablender-563928:4647094"
+//    runtimeOnly "curse.maven:biomes-o-plenty-220318:4617259"
+//    runtimeOnly "curse.maven:regions-unexplored-659110:4599808"
+//    runtimeOnly "curse.maven:pams-harvestcraft-2-trees-365460:4625518"
+//    runtimeOnly "curse.maven:oh-the-biomes-youll-go-247560:xxx"
+//    runtimeOnly "curse.maven:tropicraft-254794:4617294"
+//    runtimeOnly "curse.maven:mystics-biomes-397962:4677470"
 
-//    compileOnly fg.deobf("curse.maven:project-mmo-353935:5694594") // https://github.com/Caltinor/Project-MMO-2.0
-//    runtimeOnly fg.deobf("curse.maven:project-mmo-353935:5694594")
+//    compileOnly "curse.maven:project-mmo-353935:5694594" // https://github.com/Caltinor/Project-MMO-2.0
+//    runtimeOnly "curse.maven:project-mmo-353935:5694594"
 
-//    compileOnly fg.deobf("curse.maven:carry-on-274259:4160388")
-//    runtimeOnly fg.deobf("curse.maven:carry-on-274259:4160388")
+//    compileOnly "curse.maven:carry-on-274259:4160388"
+//    runtimeOnly "curse.maven:carry-on-274259:4160388"
 
-//    runtimeOnly fg.deobf("curse.maven:terrablender-563928:4205732")
-//    runtimeOnly fg.deobf("curse.maven:regions-unexplored-659110:4406301")
-//    runtimeOnly fg.deobf("curse.maven:enhanced-farming-285105:4280679")
+//    runtimeOnly "curse.maven:terrablender-563928:4205732"
+//    runtimeOnly "curse.maven:regions-unexplored-659110:4406301"
+//    runtimeOnly "curse.maven:enhanced-farming-285105:4280679"
 
-//    runtimeOnly fg.deobf("curse.maven:selene-499980:4410933")
-//    runtimeOnly fg.deobf("curse.maven:immersive-weathering-forge-592449:4401359")
+//    runtimeOnly "curse.maven:selene-499980:4410933"
+//    runtimeOnly "curse.maven:immersive-weathering-forge-592449:4401359"
 
-//    runtimeOnly fg.deobf("curse.maven:structure-gel-api-378802:4029363")
-//    runtimeOnly fg.deobf("curse.maven:blue-skies-312918:3966273")
-//    runtimeOnly fg.deobf("curse.maven:caupona-656147:4036587")
+//    runtimeOnly "curse.maven:structure-gel-api-378802:4029363"
+//    runtimeOnly "curse.maven:blue-skies-312918:3966273"
+//    runtimeOnly "curse.maven:caupona-656147:4036587"
 
-//    runtimeOnly fg.deobf("curse.maven:mutil-351914:3941314")
-//    runtimeOnly fg.deobf("curse.maven:tetra-289712:4379764")
+//    runtimeOnly "curse.maven:mutil-351914:3941314"
+//    runtimeOnly "curse.maven:tetra-289712:4379764"
 
-//    runtimeOnly fg.deobf("curse.maven:silent-lib-242998:4540305")
-//    runtimeOnly fg.deobf("curse.maven:silent-gear-297039:4543014")
+    runtimeOnly "curse.maven:silent-lib-242998:6040692"
+    runtimeOnly "curse.maven:silent-gear-297039:6196701"
 
-//    runtimeOnly fg.deobf("curse.maven:citadel-331936:4848887")
-//    runtimeOnly fg.deobf("curse.maven:alexs-caves-924854:4952948")
+//    runtimeOnly "curse.maven:citadel-331936:4848887"
+//    runtimeOnly "curse.maven:alexs-caves-924854:4952948"
 
-//    runtimeOnly fg.deobf("curse.maven:the-twilight-forest-227639:4865711")
+//    runtimeOnly "curse.maven:the-twilight-forest-227639:4865711"
 }
 
 sourceSets.main.resources {

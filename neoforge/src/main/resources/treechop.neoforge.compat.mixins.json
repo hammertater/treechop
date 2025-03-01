@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "ht.treechop.compat.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "treechop.mixins.refmap.json",
+  "mixins": [
+    "MultiMineMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "plugin": "ht.treechop.compat.mixin.TreeChopCompatMixinPlugin"
+}
