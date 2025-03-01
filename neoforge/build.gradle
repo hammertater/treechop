@@ -94,8 +94,6 @@ dependencies {
     implementation project(":shared")
     implementation project(":tuber")
 
-    api "fuzs.forgeconfigapiport:forgeconfigapiport-neoforge:$forgeconfigapiport_version"
-
 //    runtimeOnly "curse.maven:create-328085:4835191"
 
     // Compile against the API

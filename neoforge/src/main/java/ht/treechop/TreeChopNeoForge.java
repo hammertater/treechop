@@ -1,6 +1,5 @@
 package ht.treechop;
 
-import fuzs.forgeconfigapiport.neoforge.api.forge.v4.ForgeConfigRegistry;
 import ht.treechop.api.TreeChopAPI;
 import ht.treechop.client.NeoForgeClientProxy;
 import ht.treechop.common.NeoForgePlatform;
@@ -9,12 +8,14 @@ import ht.treechop.common.NeoForgeRegistry;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeConfig;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
@@ -24,12 +25,12 @@ import java.util.function.Supplier;
 @Mod(TreeChop.MOD_ID)
 public class TreeChopNeoForge extends TreeChop {
 
-    public TreeChopNeoForge(IEventBus modBus) {
+    public TreeChopNeoForge(ModContainer container, IEventBus modBus) {
         platform = new NeoForgePlatform();
         api = new TreeChopNeoForgeAPI(TreeChop.MOD_ID);
 
-        ForgeConfigRegistry.INSTANCE.register(TreeChop.MOD_ID, ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
-        ForgeConfigRegistry.INSTANCE.register(TreeChop.MOD_ID, ModConfig.Type.CLIENT, ConfigHandler.CLIENT_SPEC);
+        container.registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
+        container.registerConfig(ModConfig.Type.CLIENT, ConfigHandler.CLIENT_SPEC);
 
         NeoForgeRegistry.Blocks.REGISTRY.register(modBus);
         NeoForgeRegistry.BlockEntities.REGISTRY.register(modBus);

@@ -8,7 +8,7 @@ import ht.treechop.common.config.Lazy;
 import ht.treechop.common.util.LevelUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.List;
 import java.util.Set;
@@ -33,9 +33,9 @@ public class LeafDecayOverrides {
 
     public static class MyConfigHandler {
         private static MyConfigHandler instance;
-        protected final ForgeConfigSpec.ConfigValue<List<? extends String>> nondecayableLeavesIds;
+        protected final ModConfigSpec.ConfigValue<List<? extends String>> nondecayableLeavesIds;
 
-        public MyConfigHandler(ForgeConfigSpec.Builder builder) {
+        public MyConfigHandler(ModConfigSpec.Builder builder) {
             nondecayableLeavesIds = builder
                     .comment(String.join("\n",
                             "Leaves in this list will break instead of decaying. This gives players credit " +
@@ -47,7 +47,7 @@ public class LeafDecayOverrides {
                             always -> true);
         }
 
-        public static void init(ForgeConfigSpec.Builder builder) {
+        public static void init(ModConfigSpec.Builder builder) {
             instance = new MyConfigHandler(builder);
         }
     }
