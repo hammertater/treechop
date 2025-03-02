@@ -20,7 +20,6 @@ import net.neoforged.neoforge.common.util.FakePlayer;
 public class Apotheosis {
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
-
         if (ConfigHandler.COMMON.compatForApotheosis.get() && ModList.get().isLoaded("apothic_enchanting")) {
             NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, Apotheosis::onChop);
         }
