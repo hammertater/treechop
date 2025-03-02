@@ -124,7 +124,11 @@ dependencies {
 //    runtimeOnly "curse.maven:mystics-biomes-397962:4677470"
 
     compileOnly "curse.maven:project-mmo-353935:5425305" // https://github.com/Caltinor/Project-MMO-2.0
-    runtimeOnly "curse.maven:project-mmo-353935:5425305"
+//    runtimeOnly "curse.maven:project-mmo-353935:5425305"
+
+//    runtimeOnly "curse.maven:placebo-283644:6105436"
+//    runtimeOnly "curse.maven:apothic-attributes-898963:6148951"
+//    runtimeOnly "curse.maven:apothic-enchanting-1063926:6084297"
 
 //    compileOnly "curse.maven:carry-on-274259:4160388"
 //    runtimeOnly "curse.maven:carry-on-274259:4160388"
