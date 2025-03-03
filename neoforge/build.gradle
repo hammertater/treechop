@@ -115,6 +115,11 @@ dependencies {
     compileOnly "curse.maven:multi-mine-227887:5733888"
 //    runtimeOnly "curse.maven:multi-mine-227887:5733888"
 
+    compileOnly "curse.maven:integrated-dynamics-236307:6250036"
+//    runtimeOnly "curse.maven:integrated-dynamics-236307:6250036"
+//    runtimeOnly "curse.maven:common-capabilities-247007:6173956"
+//    runtimeOnly "curse.maven:cyclops-core-232758:6230091"
+
 //    runtimeOnly "curse.maven:terrablender-563928:4647094"
 //    runtimeOnly "curse.maven:biomes-o-plenty-220318:4617259"
 //    runtimeOnly "curse.maven:regions-unexplored-659110:4599808"
@@ -160,7 +165,7 @@ sourceSets.main.resources {
     srcDir "src/generated/resources"
 }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
     source(project(":shared").sourceSets.main.allSource)
     source(project(":tuber").sourceSets.main.allSource)

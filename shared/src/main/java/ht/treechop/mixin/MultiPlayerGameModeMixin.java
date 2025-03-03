@@ -20,11 +20,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MultiPlayerGameMode.class)
 public abstract class MultiPlayerGameModeMixin {
-    @Shadow(remap = false) @Final private Minecraft minecraft;
+    @Shadow() @Final private Minecraft minecraft;
 
-    @Shadow(remap = false) public abstract boolean isServerControlledInventory();
+    @Shadow() public abstract boolean isServerControlledInventory();
 
-    @Inject(method = "destroyBlock", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "destroyBlock", at = @At("HEAD"), cancellable = true)
     public void dontPredictBlockBreak(BlockPos pos, CallbackInfoReturnable<Boolean> info) {
         try {
             Player player = minecraft.player;
