@@ -63,7 +63,7 @@ dependencies {
 //    modRuntimeOnly "curse.maven:betterend-413596:4677967"
 
     modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:10.0.0"
-    //}
+
 }
 
 processResources {

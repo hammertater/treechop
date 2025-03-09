@@ -11,6 +11,3 @@ dependencies {
 minecraft {
     version(minecraft_version)
 }
-
-tasks.withType(JavaCompile) {
-}
