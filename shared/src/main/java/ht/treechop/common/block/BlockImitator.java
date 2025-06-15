@@ -43,9 +43,9 @@ public abstract class BlockImitator extends Block {
     }
 
     @Override
-    public @NotNull ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState blockState) {
+    public @NotNull ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState blockState, boolean includeData) {
         BlockState imitatedBlockState = getImitatedBlockState(level, pos);
-        return imitatedBlockState.getBlock().getCloneItemStack(level, pos, imitatedBlockState);
+        return imitatedBlockState.getCloneItemStack(level, pos, includeData);
     }
 
     @Override
@@ -55,8 +55,8 @@ public abstract class BlockImitator extends Block {
     }
 
     @Override
-    public int getLightBlock(BlockState blockState, BlockGetter level, BlockPos pos) {
-        return super.getLightBlock(blockState, level, pos);
+    public int getLightBlock(BlockState blockState) {
+        return super.getLightBlock(blockState);
     }
 
     @Override

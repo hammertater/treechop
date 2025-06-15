@@ -41,7 +41,7 @@ public class FabricChoppedLogEntityRenderer extends FabricChoppedLogBakedModel i
             BlockPos pos = entity.getBlockPos();
 
             this.blockRenderer.getModelRenderer().tesselateBlock(level,
-                    getQuadsAsBakedModel(level, entity.getOriginalState(), pos, () -> random),
+                    getQuadsAsBakedModel(level, entity.getOriginalState(), pos, random),
                     entity.getBlockState(),
                     pos,
                     poseStack,
@@ -53,7 +53,7 @@ public class FabricChoppedLogEntityRenderer extends FabricChoppedLogBakedModel i
         }
     }
 
-    private BakedModel getQuadsAsBakedModel(Level level, BlockState originalState, BlockPos pos, Supplier<RandomSource> random) {
+    private BakedModel getQuadsAsBakedModel(Level level, BlockState originalState, BlockPos pos, RandomSource random) {
         List<BakedQuad> quads = new LinkedList<>();
         emitBlockQuads(level, originalState, pos, random, quads::add);
         return new HiddenChoppedLogBakedModel(quads);

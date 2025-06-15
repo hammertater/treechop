@@ -1,25 +1,24 @@
 package ht.treechop.client.gui.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import ht.treechop.TreeChop;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 
 public enum Sprite {
-    CHOP_INDICATOR(0, 0, 20, 20),
-    NO_FELL_INDICATOR(20, 0, 20, 20),
-    INDICATOR_ERROR(60, 0, 12, 12),
-    INDICATOR_WARNING(72, 0, 12, 12),
-    TOGGLE_BUTTON_OFF(0, 20, 32, 20),
-    TOGGLE_BUTTON_ON(32, 20, 32, 20),
-    HIGHLIGHTED_TOGGLE_BUTTON_OFF(0, 40, 32, 20),
-    HIGHLIGHTED_TOGGLE_BUTTON_ON(32, 40, 32, 20),
-    LOCKED_TOGGLE_BUTTON_OFF(0, 60, 32, 20),
-    LOCKED_TOGGLE_BUTTON_ON(32, 60, 32, 20),
-    PAGE_ONE(0, 80, 32, 20),
-    HIGHLIGHTED_PAGE_ONE(32, 80, 32, 20),
-    PAGE_TWO(0, 100, 32, 20),
-    HIGHLIGHTED_PAGE_TWO(32, 100, 32, 20),
+    CHOP_INDICATOR(TreeChop.resource("widget/chop_indicator"), 20, 20),
+    TOGGLE_BUTTON_OFF(TreeChop.resource("widget/toggle_off"), 32, 20),
+    TOGGLE_BUTTON_ON(TreeChop.resource("widget/toggle_on"), 32, 20),
+    HIGHLIGHTED_TOGGLE_BUTTON_OFF(TreeChop.resource("widget/toggle_off_highlighted"), 32, 20),
+    HIGHLIGHTED_TOGGLE_BUTTON_ON(TreeChop.resource("widget/toggle_on_highlighted"), 32, 20),
+    LOCKED_TOGGLE_BUTTON_OFF(TreeChop.resource("widget/toggle_off_locked"), 32, 20),
+    LOCKED_TOGGLE_BUTTON_ON(TreeChop.resource("widget/toggle_on_locked"), 32, 20),
+    PAGE_ONE(TreeChop.resource("widget/page_one"), 32, 20),
+    HIGHLIGHTED_PAGE_ONE(TreeChop.resource("widget/page_one_highlighted"), 32, 20),
+    PAGE_TWO(TreeChop.resource("widget/page_two"), 32, 20),
+    HIGHLIGHTED_PAGE_TWO(TreeChop.resource("widget/page_two_highlighted"), 32, 20),
     ;
 
     public static final ResourceLocation TEXTURE_PATH =
@@ -27,20 +26,18 @@ public enum Sprite {
     public static final int TEXTURE_WIDTH = 64;
     public static final int TEXTURE_HEIGHT = 120;
 
-    private final int u;
-    private final int v;
+    private final ResourceLocation texture;
     public final int width;
     public final int height;
 
-    Sprite(int u, int v, int width, int height) {
-        this.u = u;
-        this.v = v;
+    Sprite(ResourceLocation texture, int width, int height) {
+        this.texture = texture;
         this.width = width;
         this.height = height;
     }
 
     public static void setRenderState(float alpha) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(CoreShaders.POSITION_TEX);
         RenderSystem.setShaderTexture(0, Sprite.TEXTURE_PATH);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
 
@@ -49,18 +46,14 @@ public enum Sprite {
         RenderSystem.enableDepthTest();
     }
 
-    public void blit(GuiGraphics gui, int x, int y) {
-        blit(gui, x, y, width, height);
+    public void blit(GuiGraphics gui, int x, int y, float alpha) {
+        gui.blitSprite(RenderType::guiTextured, this.texture, x, y, this.width, this.height, ARGB.white(alpha));
     }
 
-    public void blit(GuiGraphics gui, int x, int y, int width, int height) {
-        blit(gui, x, y, width, height, false);
-    }
-
-    public void blit(GuiGraphics gui, int x, int y, int width, int height, boolean mirror) {
-        float u = mirror ? this.u + this.width : this.u;
-        int uw = mirror ? -this.width : this.width;
-        gui.blit(TEXTURE_PATH, x, y, width, height, u, v, uw, this.height, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+    public void blitMirror(GuiGraphics gui, int x, int y, float alpha, float scale, boolean mirror) {
+        int mx = mirror ? x + (int) (this.width * scale) : x;
+        int mw = (int) ((mirror ? -this.width : this.width) * scale);
+        gui.blitSprite(RenderType::guiTextured, this.texture, mx, y, mw, (int) (this.height * scale), ARGB.white(alpha));
     }
 
 }

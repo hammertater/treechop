@@ -5,38 +5,30 @@ import ht.treechop.common.chop.ChopUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
-import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
-import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
-import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
+import net.fabricmc.fabric.api.renderer.v1.model.FabricBlockStateModel;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.Predicate;
 
 @Environment(EnvType.CLIENT)
-public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements FabricBakedModel {
+public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements FabricBlockStateModel {
     @Override
-    public boolean isVanillaAdapter() {
-        return false;
-    }
-
-    @Override
-    public void emitBlockQuads(BlockAndTintGetter level, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, RenderContext context) {
-        QuadEmitter emitter = context.getEmitter();
-        Renderer renderer = RendererAccess.INSTANCE.getRenderer();
+    public void emitQuads(QuadEmitter emitter, BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, Predicate<@Nullable Direction> cullTest) {
+        Renderer renderer = Renderer.get();
         if (renderer != null) {
-            RenderMaterial shaded = renderer.materialById(RenderMaterial.MATERIAL_STANDARD);
+            RenderMaterial shaded = renderer.materialById(RenderMaterial.STANDARD_ID);
             if (shaded != null) {
-                emitBlockQuads(level, state, pos, randomSupplier, quad -> {
+                emitBlockQuads(level, state, pos, random, quad -> {
                     emitter.fromVanilla(quad, shaded, null);
                     emitter.emit();
                 });
@@ -44,7 +36,7 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
         }
     }
 
-    public void emitBlockQuads(BlockAndTintGetter level, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, Consumer<BakedQuad> emitter) {
+    public void emitBlockQuads(BlockAndTintGetter level, BlockState state, BlockPos pos, RandomSource random, Consumer<BakedQuad> emitter) {
         if (level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity) {
             BlockState strippedState = ChopUtil.getStrippedState(level, pos, entity.getOriginalState());
             Map<Direction, BlockState> strippedNeighbors = getStrippedNeighbors(level, pos, entity);
@@ -52,7 +44,7 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
                     strippedState,
                     entity.getShape(),
                     entity.getRadius(),
-                    randomSupplier.get(),
+                    random,
                     strippedNeighbors
             )
                     .forEach(emitter);
@@ -60,6 +52,7 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
     }
 
     @Override
-    public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
+    public void resolveDependencies(Resolver resolver) {
+
     }
 }

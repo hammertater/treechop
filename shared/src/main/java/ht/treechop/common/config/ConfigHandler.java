@@ -11,6 +11,7 @@ import ht.treechop.compat.HugeMushroomHandler;
 import ht.treechop.compat.LeafDecayOverrides;
 import ht.treechop.compat.ProblematicLeavesTreeHandler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -20,7 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.fml.config.IConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -132,7 +132,8 @@ public class ConfigHandler {
         if (resource != null) {
             ResourceLocation unstripped = getFilteredResourceLocation(resource, "stripped");
             if (unstripped != null) {
-                return BuiltInRegistries.BLOCK.get(unstripped);
+                Optional<Holder.Reference<Block>> ref = BuiltInRegistries.BLOCK.get(unstripped);
+                return ref.map(Holder.Reference::value).orElse(Blocks.AIR);
             }
         }
         return Blocks.AIR;

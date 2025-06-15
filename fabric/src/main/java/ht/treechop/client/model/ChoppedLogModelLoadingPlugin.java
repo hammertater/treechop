@@ -18,9 +18,9 @@ public class ChoppedLogModelLoadingPlugin implements ModelLoadingPlugin {
     }
 
     @Override
-    public void onInitializeModelLoader(Context pluginContext) {
+    public void initialize(Context pluginContext) {
         pluginContext.modifyModelOnLoad().register((original, context) -> {
-            final ResourceLocation id = context.resourceId();
+            final ResourceLocation id = context.id();
             if(CHOPPED_LOG.equals(id)) {
                 return model.get();
             } else {

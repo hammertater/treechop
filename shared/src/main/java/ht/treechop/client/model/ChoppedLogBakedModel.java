@@ -8,8 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.TextureSlots;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
@@ -25,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,7 +43,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     protected static Map<Direction, BlockState> getStrippedNeighbors(BlockAndTintGetter level, BlockPos pos, ChoppedLogBlock.MyEntity entity) {
-        if (entity.getOriginalState().isSolidRender(level, pos)) {
+        if (entity.getOriginalState().isSolidRender()) {
             return entity.streamSolidSides(level, pos).collect(Collectors.toMap(
                     side -> side,
                     side -> getStrippedNeighbor(level, pos, side)
@@ -66,17 +65,8 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     @Override
-    public @NotNull Collection<ResourceLocation> getDependencies() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public void resolveParents(Function<ResourceLocation, UnbakedModel> function) {
-    }
-
-    @Override
-    public BakedModel bake(@NotNull ModelBaker modelBakery, Function<Material, TextureAtlasSprite> textureGetter, @NotNull ModelState modelState) {
-        defaultSprite = textureGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, DEFAULT_TEXTURE_RESOURCE));
+    public BakedModel bake(TextureSlots textureSlots, ModelBaker modelBaker, ModelState modelState, boolean b, boolean b1, ItemTransforms itemTransforms) {
+        defaultSprite = modelBaker.sprites().get(new Material(TextureAtlas.LOCATION_BLOCKS, DEFAULT_TEXTURE_RESOURCE));
         return this;
     }
 
@@ -101,11 +91,6 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     @Override
-    public boolean isCustomRenderer() {
-        return false;
-    }
-
-    @Override
     public @NotNull TextureAtlasSprite getParticleIcon() {
         return getDefaultSprite();
     }
@@ -113,11 +98,6 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     @Override
     public @NotNull ItemTransforms getTransforms() {
         return ItemTransforms.NO_TRANSFORMS;
-    }
-
-    @Override
-    public @NotNull ItemOverrides getOverrides() {
-        return ItemOverrides.EMPTY;
     }
 
     protected TextureAtlasSprite getDefaultSprite() {
@@ -141,7 +121,7 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
                             Direction side = entry.getKey();
                             BlockState strippedNeighbor = entry.getValue();
 
-                            Vec3i normal = side.getNormal().multiply(16);
+                            Vec3i normal = side.getUnitVec3i().multiply(16);
                             Vector3 transform = new Vector3(normal.getX(), normal.getY(), normal.getZ());
 
                             return getBlockModel(strippedNeighbor).getQuads(strippedNeighbor, side.getOpposite(), random).stream().map(quad -> ModelUtil.translateQuad(quad, transform));

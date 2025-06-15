@@ -25,4 +25,9 @@ public class HiddenChoppedLogBakedModel extends ChoppedLogBakedModel {
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, @NotNull RandomSource random) {
         return quads;
     }
+
+    @Override
+    public void resolveDependencies(Resolver resolver) {
+
+    }
 }

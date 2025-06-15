@@ -37,18 +37,19 @@ public class NeoForgeChoppedLogBakedModel extends ChoppedLogBakedModel implement
 
     public static void overrideBlockStateModels(ModelEvent.ModifyBakingResult event) {
         ModelResourceLocation oakLog = BlockModelShaper.stateToModelLocation(Blocks.OAK_LOG.defaultBlockState());
-        NeoForgeChoppedLogBakedModel.setDefaultSprite(event.getModels().get(oakLog).getParticleIcon());
+        Map<ModelResourceLocation, BakedModel> bakedModels = event.getBakingResult().blockStateModels();
+        NeoForgeChoppedLogBakedModel.setDefaultSprite(bakedModels.get(oakLog).getParticleIcon());
 
         for (BlockState blockState : NeoForgeRegistry.Blocks.CHOPPED_LOG.get().getStateDefinition().getPossibleStates()) {
             ModelResourceLocation variantMRL = BlockModelShaper.stateToModelLocation(blockState);
-            BakedModel existingModel = event.getModels().get(variantMRL);
+            BakedModel existingModel = bakedModels.get(variantMRL);
             if (existingModel == null) {
                 TreeChop.LOGGER.warn("Did not find the expected vanilla baked model(s) for treechop:chopped_log in registry");
             } else if (existingModel instanceof NeoForgeChoppedLogBakedModel) {
                 TreeChop.LOGGER.warn("Tried to replace ChoppedLogBakedModel twice");
             } else {
                 BakedModel customModel = new NeoForgeChoppedLogBakedModel();
-                event.getModels().put(variantMRL, customModel);
+                bakedModels.put(variantMRL, customModel);
             }
         }
     }
@@ -104,4 +105,8 @@ public class NeoForgeChoppedLogBakedModel extends ChoppedLogBakedModel implement
         return value != null ? value : fallback;
     }
 
+    @Override
+    public void resolveDependencies(Resolver resolver) {
+
+    }
 }

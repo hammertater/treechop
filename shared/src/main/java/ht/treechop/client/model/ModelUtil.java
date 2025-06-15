@@ -53,7 +53,7 @@ public class ModelUtil {
             float[] uvs,
             int uvRotation
     ) {
-        return new FaceBakery().bakeQuad(
+        return FaceBakery.bakeQuad(
                 toVector3f(posFrom),
                 toVector3f(posTo),
                 new BlockElementFace(culling, -1, "", new BlockFaceUV(uvs, uvRotation)),
@@ -61,7 +61,8 @@ public class ModelUtil {
                 orientation,
                 BlockModelRotation.X0_Y0,
                 null, // This is fine
-                true
+                true,
+                0 // Light emission
         );
     }
 
@@ -88,7 +89,8 @@ public class ModelUtil {
                 quad.getTintIndex(),
                 quad.getDirection(),
                 quad.getSprite(),
-                quad.isShade()
+                quad.isShade(),
+                quad.getLightEmission()
         );
     }
 
@@ -183,7 +185,7 @@ public class ModelUtil {
         translateVertex(vertexData, 2, translation);
         translateVertex(vertexData, 3, translation);
 
-        return new BakedQuad(vertexData, quad.getTintIndex(), quad.getDirection(), quad.getSprite(), quad.isShade());
+        return new BakedQuad(vertexData, quad.getTintIndex(), quad.getDirection(), quad.getSprite(), quad.isShade(), quad.getLightEmission());
     }
 
     private static void translateVertex(int[] vertexData, int index, Vector3 translation) {

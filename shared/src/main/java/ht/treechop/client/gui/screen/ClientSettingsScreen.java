@@ -5,7 +5,6 @@ import ht.treechop.client.Client;
 import ht.treechop.client.gui.element.*;
 import ht.treechop.client.gui.util.GUIUtil;
 import ht.treechop.client.gui.util.Sprite;
-import ht.treechop.client.gui.widget.StickyWidget;
 import ht.treechop.client.gui.widget.ToggleWidget;
 import ht.treechop.common.config.ConfigHandler;
 import ht.treechop.common.settings.Setting;
@@ -235,13 +234,6 @@ public class ClientSettingsScreen extends Screen {
 
     private boolean isSettingPermitted(SettingsField field, Object value) {
         return Client.getServerPermissions().isPermitted(new Setting(field, value));
-    }
-
-    private StickyWidget.State makeStickyWidgetState(SettingsField field, Object value) {
-        return StickyWidget.State.of(
-                Client.getChopSettings().get(field) == value,
-                Client.getServerPermissions().isPermitted(new Setting(field, value))
-        );
     }
 
     @SuppressWarnings("NullableProblems")

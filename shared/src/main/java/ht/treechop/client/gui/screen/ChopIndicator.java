@@ -53,7 +53,7 @@ public class ChopIndicator {
                     int imageWidth = (int) (sprite.width * IMAGE_SCALE);
                     int imageHeight = (int) (sprite.height * IMAGE_SCALE);
 
-                    sprite.blit(
+                    sprite.blitMirror(
                             gui,
                             indicatorCenterX - imageWidth / 2,
                             indicatorCenterY - imageHeight / 2,

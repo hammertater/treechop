@@ -4,9 +4,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import ht.treechop.TreeChop;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.level.storage.loot.IntRange;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
@@ -26,12 +26,12 @@ public record CountBlockChopsLootItemCondition(IntRange range) implements LootIt
         return TYPE;
     }
 
-    public Set<LootContextParam<?>> getReferencedContextParams() {
+    public Set<ContextKey<?>> getReferencedContextParams() {
         return range.getReferencedContextParams();
     }
 
     public boolean test(LootContext context) {
-        Integer count = context.getParamOrNull(TreeChopLootContextParams.BLOCK_CHOP_COUNT);
+        Integer count = context.getOptionalParameter(TreeChopLootContextParams.BLOCK_CHOP_COUNT);
         return count != null && this.range.test(context, count);
     }
 }

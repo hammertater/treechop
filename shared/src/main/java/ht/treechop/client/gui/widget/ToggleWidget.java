@@ -1,18 +1,32 @@
 package ht.treechop.client.gui.widget;
 
-import net.minecraft.client.gui.GuiGraphics;
 import ht.treechop.client.gui.util.Sprite;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import org.apache.commons.lang3.tuple.Pair;
+import net.minecraft.util.ARGB;
 
 import java.util.EnumMap;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ToggleWidget extends AbstractWidget {
+
+    private static final EnumMap<State, Sprite> spriteForState = new EnumMap<>(State.class);
+    static {
+        spriteForState.put(State.OFF, Sprite.TOGGLE_BUTTON_OFF);
+        spriteForState.put(State.ON, Sprite.TOGGLE_BUTTON_ON);
+        spriteForState.put(State.LOCKED_OFF, Sprite.LOCKED_TOGGLE_BUTTON_OFF);
+        spriteForState.put(State.LOCKED_ON, Sprite.LOCKED_TOGGLE_BUTTON_ON);
+    }
+
+    private static final EnumMap<State, Sprite> spriteForHoveredState = new EnumMap<>(State.class);
+    static {
+        spriteForHoveredState.put(State.OFF, Sprite.HIGHLIGHTED_TOGGLE_BUTTON_OFF);
+        spriteForHoveredState.put(State.ON, Sprite.HIGHLIGHTED_TOGGLE_BUTTON_ON);
+        spriteForHoveredState.put(State.LOCKED_OFF, Sprite.LOCKED_TOGGLE_BUTTON_OFF);
+        spriteForHoveredState.put(State.LOCKED_ON, Sprite.LOCKED_TOGGLE_BUTTON_ON);
+    }
 
     private final Supplier<State> stateSupplier;
     private final Runnable onPress;
@@ -32,24 +46,9 @@ public class ToggleWidget extends AbstractWidget {
         this.active = !stateSupplier.get().isLocked;
 
         Sprite.setRenderState(this.alpha);
-
-        final EnumMap<State, Sprite> spriteForState = new EnumMap<State, Sprite>(Stream.of(
-                Pair.of(State.OFF, Sprite.TOGGLE_BUTTON_OFF),
-                Pair.of(State.ON, Sprite.TOGGLE_BUTTON_ON),
-                Pair.of(State.LOCKED_OFF, Sprite.LOCKED_TOGGLE_BUTTON_OFF),
-                Pair.of(State.LOCKED_ON, Sprite.LOCKED_TOGGLE_BUTTON_ON)
-        ).collect(Collectors.toMap(Pair::getLeft, Pair::getRight)));
-
-        final EnumMap<State, Sprite> spriteForHoveredState = new EnumMap<State, Sprite>(Stream.of(
-                Pair.of(State.OFF, Sprite.HIGHLIGHTED_TOGGLE_BUTTON_OFF),
-                Pair.of(State.ON, Sprite.HIGHLIGHTED_TOGGLE_BUTTON_ON),
-                Pair.of(State.LOCKED_OFF, Sprite.LOCKED_TOGGLE_BUTTON_OFF),
-                Pair.of(State.LOCKED_ON, Sprite.LOCKED_TOGGLE_BUTTON_ON)
-        ).collect(Collectors.toMap(Pair::getLeft, Pair::getRight)));
-
         State state = stateSupplier.get();
         Sprite sprite = isHoveredOrFocused() ? spriteForHoveredState.get(state) : spriteForState.get(state);
-        sprite.blit(gui, getX(), getY());
+        sprite.blit(gui, getX(), getY(), ARGB.white(this.alpha));
     }
 
     @Override

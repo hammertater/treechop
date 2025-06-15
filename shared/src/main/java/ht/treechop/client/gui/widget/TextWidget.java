@@ -6,6 +6,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
 
 public class TextWidget extends AbstractWidget {
 
@@ -20,14 +21,13 @@ public class TextWidget extends AbstractWidget {
         renderWidget(gui, mouseX, mouseY, partialTicks, rightAligned ? -font.width(getMessage()) : 0);
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         renderWidget(gui, mouseX, mouseY, partialTicks, 0);
     }
 
     public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTicks, int xOffset) {
-        gui.drawString(font, getMessage(), getX() + xOffset, getY(), 0xFFFFFF);
+        gui.drawString(font, getMessage(), getX() + xOffset, getY(), ARGB.white(this.alpha));
     }
 
     @Override

@@ -23,13 +23,12 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
@@ -135,14 +134,11 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         }
     }
 
+
     @SuppressWarnings("deprecation")
     @Override
-    public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        if (ConfigHandler.removeBarkOnInteriorLogs.get() && level.getBlockEntity(pos) instanceof ChoppedLogBlock.MyEntity entity && entity.getOriginalState().isSolidRender(level, pos)) {
-            return entity.getOcclusionShape(level, pos);
-        } else {
-            return Shapes.empty();
-        }
+    public VoxelShape getOcclusionShape(BlockState state) {
+        return Shapes.empty();
     }
 
     @SuppressWarnings("deprecation")
@@ -265,30 +261,28 @@ public abstract class ChoppedLogBlock extends BlockImitator implements IChoppabl
         };
 
         return Arrays.stream(waterSourceDirections)
-                .filter(direction -> level.getFluidState(pos.offset(direction.getNormal())).isSource())
+                .filter(direction -> level.getFluidState(pos.offset(direction.getUnitVec3i())).isSource())
                 .limit(2)
                 .count() == 2;
     }
 
-    @SuppressWarnings("deprecation")
     public FluidState getFluidState(BlockState blockState) {
         return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
     }
 
-    @SuppressWarnings("deprecation")
-    public BlockState updateShape(BlockState blockState, Direction side, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    @Override
+    protected BlockState updateShape(BlockState blockState, LevelReader level, ScheduledTickAccess tickAccess, BlockPos pos, Direction side, BlockPos neighborPos, BlockState neighborState, RandomSource randomSource) {
         if (blockState.getValue(WATERLOGGED)) {
-            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            tickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
 
         if (level.getBlockEntity(pos) instanceof MyEntity entity) {
             entity.rerender();
         }
 
-        return super.updateShape(blockState, side, neighborState, level, pos, neighborPos);
+        return super.updateShape(blockState, level, tickAccess, pos, side, neighborPos, neighborState, randomSource);
     }
 
-    @SuppressWarnings("deprecation")
     @Nonnull
     @Override
     public List<ItemStack> getDrops(BlockState blockState, LootParams.Builder context) {

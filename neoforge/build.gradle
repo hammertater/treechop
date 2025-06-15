@@ -38,11 +38,6 @@ neoForge {
             type = "gameTestServer"
         }
 
-        data {
-            data()
-            programArguments.addAll "--mod", project.mod_id, "--all", "--output", file("src/generated/resources/").getAbsolutePath(), "--existing", file("src/main/resources/").getAbsolutePath()
-        }
-
         configureEach {
             // "SCAN": For mods scan.
             // "REGISTRIES": For firing of registry events.
