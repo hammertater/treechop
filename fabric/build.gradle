@@ -42,10 +42,10 @@ dependencies {
     implementation project(":tuber")
 
     modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:$forgeconfigapiport_version"
-    modApi "com.terraformersmc:modmenu:11.0.3"
+    modApi "com.terraformersmc:modmenu:13.0.3"
 
-    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-14.1.4"
-    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-14.1.4"
+    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-14.4.3"
+    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-14.4.3"
     modRuntimeOnly "lol.bai:badpackets:fabric-0.8.2"
 
     modCompileOnly "curse.maven:jade-324717:6155088"

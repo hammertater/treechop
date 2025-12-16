@@ -45,7 +45,6 @@ public class ToggleWidget extends AbstractWidget {
     public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         this.active = !stateSupplier.get().isLocked;
 
-        Sprite.setRenderState(this.alpha);
         State state = stateSupplier.get();
         Sprite sprite = isHoveredOrFocused() ? spriteForHoveredState.get(state) : spriteForState.get(state);
         sprite.blit(gui, getX(), getY(), ARGB.white(this.alpha));

@@ -43,7 +43,6 @@ public class ChopIndicator {
                             GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR,
                             GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
                     );
-                    RenderSystem.setShaderTexture(0, Sprite.TEXTURE_PATH);
 
                     boolean mirror = player.getMainArm() == HumanoidArm.LEFT;
                     int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset.get() * (mirror ? -1 : 1);

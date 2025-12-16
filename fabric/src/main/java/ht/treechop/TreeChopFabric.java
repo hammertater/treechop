@@ -1,7 +1,7 @@
 package ht.treechop;
 
-import fuzs.forgeconfigapiport.fabric.api.v5.ConfigRegistry;
-import fuzs.forgeconfigapiport.fabric.api.v5.ModConfigEvents;
+import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeConfigRegistry;
+import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeModConfigEvents;
 import ht.treechop.api.ITreeChopAPIProvider;
 import ht.treechop.common.FabricCommon;
 import ht.treechop.common.config.ConfigHandler;
@@ -39,9 +39,9 @@ public class TreeChopFabric extends TreeChop implements ModInitializer {
         CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> ConfigHandler.updateTags());
 
         // Config
-        ModConfigEvents.reloading(TreeChop.MOD_ID).register(TreeChopFabric::onReload);
-        ConfigRegistry.INSTANCE.register(TreeChop.MOD_ID, ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
-        ConfigRegistry.INSTANCE.register(TreeChop.MOD_ID, ModConfig.Type.CLIENT, ConfigHandler.CLIENT_SPEC);
+        NeoForgeModConfigEvents.reloading(TreeChop.MOD_ID).register(TreeChopFabric::onReload);
+        NeoForgeConfigRegistry.INSTANCE.register(TreeChop.MOD_ID, ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
+        NeoForgeConfigRegistry.INSTANCE.register(TreeChop.MOD_ID, ModConfig.Type.CLIENT, ConfigHandler.CLIENT_SPEC);
 
         Registry.register(BuiltInRegistries.BLOCK, resource("chopped_log"), FabricModBlocks.CHOPPED_LOG);
         Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, resource("chopped_log_entity"), FabricModBlocks.CHOPPED_LOG_ENTITY);

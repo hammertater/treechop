@@ -1,6 +1,6 @@
 package ht.treechop.compat;
 
-import com.terraformersmc.terraform.wood.block.BareSmallLogBlock;
+import com.terraformersmc.terraform.wood.api.block.BareSmallLogBlock;
 import ht.treechop.api.ISimpleChoppableBlock;
 import ht.treechop.api.ITreeChopBlockBehavior;
 import ht.treechop.api.TreeChopAPI;

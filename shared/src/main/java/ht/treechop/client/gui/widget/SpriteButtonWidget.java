@@ -27,9 +27,8 @@ public class SpriteButtonWidget extends AbstractWidget {
 
     @Override
     public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
-        Sprite.setRenderState(this.alpha);
         Sprite sprite = isHoveredOrFocused() ? highlightedSprite : this.sprite;
-        sprite.blit(gui, getX(), getY(), 1f);
+        sprite.blit(gui, getX(), getY(), this.alpha);
     }
 
     @Override

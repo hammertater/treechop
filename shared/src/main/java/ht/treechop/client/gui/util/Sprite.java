@@ -21,8 +21,6 @@ public enum Sprite {
     HIGHLIGHTED_PAGE_TWO(TreeChop.resource("widget/page_two_highlighted"), 32, 20),
     ;
 
-    public static final ResourceLocation TEXTURE_PATH =
-            ResourceLocation.fromNamespaceAndPath("treechop", "textures/gui/widgets.png");
     public static final int TEXTURE_WIDTH = 64;
     public static final int TEXTURE_HEIGHT = 120;
 
@@ -36,9 +34,9 @@ public enum Sprite {
         this.height = height;
     }
 
-    public static void setRenderState(float alpha) {
+    public void setRenderState(float alpha) {
         RenderSystem.setShader(CoreShaders.POSITION_TEX);
-        RenderSystem.setShaderTexture(0, Sprite.TEXTURE_PATH);
+        RenderSystem.setShaderTexture(0, this.texture);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
 
         RenderSystem.enableBlend();

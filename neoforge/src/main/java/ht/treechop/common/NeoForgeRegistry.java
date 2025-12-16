@@ -5,6 +5,7 @@ import ht.treechop.common.block.NeoForgeChoppedLogBlock;
 import ht.treechop.common.loot.CountBlockChopsLootItemCondition;
 import ht.treechop.common.loot.TreeFelledLootItemCondition;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -23,6 +24,7 @@ public class NeoForgeRegistry {
         public static final DeferredHolder<Block, NeoForgeChoppedLogBlock> CHOPPED_LOG = REGISTRY.register("chopped_log",
                 () -> new NeoForgeChoppedLogBlock(
                         Block.Properties.of()
+                                .setId(ResourceKey.create(Registries.BLOCK, TreeChop.resource("chopped_log")))
                                 .mapColor(blockState -> MapColor.WOOD)
                                 .instrument(NoteBlockInstrument.BASS)
                                 .strength(2.0F)
