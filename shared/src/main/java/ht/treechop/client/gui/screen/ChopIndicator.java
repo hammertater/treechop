@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
@@ -45,19 +46,20 @@ public class ChopIndicator {
                     );
 
                     boolean mirror = player.getMainArm() == HumanoidArm.LEFT;
-                    int indicatorCenterX = windowWidth / 2 + ConfigHandler.CLIENT.indicatorXOffset.get() * (mirror ? -1 : 1);
-                    int indicatorCenterY = windowHeight / 2 + ConfigHandler.CLIENT.indicatorYOffset.get();
+                    int indicatorCenterX = gui.guiWidth() / 2 + ConfigHandler.CLIENT.indicatorXOffset.get() * (mirror ? -1 : 1);
+                    int indicatorCenterY = gui.guiHeight() / 2 + ConfigHandler.CLIENT.indicatorYOffset.get();
 
                     Sprite sprite = Sprite.CHOP_INDICATOR;
                     int imageWidth = (int) (sprite.width * IMAGE_SCALE);
                     int imageHeight = (int) (sprite.height * IMAGE_SCALE);
 
                     sprite.blitMirror(
+                            RenderType::crosshair,
                             gui,
-                            indicatorCenterX - imageWidth / 2,
-                            indicatorCenterY - imageHeight / 2,
-                            imageWidth,
-                            imageHeight,
+                            indicatorCenterX - imageWidth / 2, //indicatorCenterX - imageWidth / 2,
+                            indicatorCenterY - imageHeight / 2, //indicatorCenterY - ,
+                            imageWidth / 16,
+                            imageHeight / 16,
                             mirror
                     );
 

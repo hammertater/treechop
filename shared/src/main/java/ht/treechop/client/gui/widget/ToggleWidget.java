@@ -4,6 +4,7 @@ import ht.treechop.client.gui.util.Sprite;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
 
@@ -47,7 +48,7 @@ public class ToggleWidget extends AbstractWidget {
 
         State state = stateSupplier.get();
         Sprite sprite = isHoveredOrFocused() ? spriteForHoveredState.get(state) : spriteForState.get(state);
-        sprite.blit(gui, getX(), getY(), ARGB.white(this.alpha));
+        sprite.blit(RenderType::guiTextured, gui, getX(), getY(), ARGB.white(this.alpha));
     }
 
     @Override

@@ -5,6 +5,7 @@ import ht.treechop.client.gui.util.Sprite;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 
 public class SpriteButtonWidget extends AbstractWidget {
@@ -28,7 +29,7 @@ public class SpriteButtonWidget extends AbstractWidget {
     @Override
     public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         Sprite sprite = isHoveredOrFocused() ? highlightedSprite : this.sprite;
-        sprite.blit(gui, getX(), getY(), this.alpha);
+        sprite.blit(RenderType::guiTextured, gui, getX(), getY(), this.alpha);
     }
 
     @Override

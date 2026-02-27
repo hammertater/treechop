@@ -7,6 +7,8 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
 
+import java.util.function.Function;
+
 public enum Sprite {
     CHOP_INDICATOR(TreeChop.resource("widget/chop_indicator"), 20, 20),
     TOGGLE_BUTTON_OFF(TreeChop.resource("widget/toggle_off"), 32, 20),
@@ -44,14 +46,14 @@ public enum Sprite {
         RenderSystem.enableDepthTest();
     }
 
-    public void blit(GuiGraphics gui, int x, int y, float alpha) {
-        gui.blitSprite(RenderType::guiTextured, this.texture, x, y, this.width, this.height, ARGB.white(alpha));
+    public void blit(Function<ResourceLocation, RenderType> renderType, GuiGraphics gui, int x, int y, float alpha) {
+        gui.blitSprite(renderType, this.texture, x, y, this.width, this.height, ARGB.white(alpha));
     }
 
-    public void blitMirror(GuiGraphics gui, int x, int y, float alpha, float scale, boolean mirror) {
+    public void blitMirror(Function<ResourceLocation, RenderType> renderType, GuiGraphics gui, int x, int y, float alpha, float scale, boolean mirror) {
         int mx = mirror ? x + (int) (this.width * scale) : x;
         int mw = (int) ((mirror ? -this.width : this.width) * scale);
-        gui.blitSprite(RenderType::guiTextured, this.texture, mx, y, mw, (int) (this.height * scale), ARGB.white(alpha));
+        gui.blitSprite(renderType, this.texture, mx, y, mw, (int) (this.height * scale), ARGB.white(alpha));
     }
 
 }
