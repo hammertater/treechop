@@ -66,15 +66,9 @@ public class NeoForgeChoppedLogBlock extends ChoppedLogBlock {
         return getImitatedBlockState(level, pos).canHarvestBlock(level, pos, player);
     }
 
-
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
-        return getImitatedBlockState(level, pos).getCloneItemStack(target, level, pos, player);
-    }
-
-    @Override
-    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState blockState) {
-        return getImitatedBlockState(level, pos).getBlock().getCloneItemStack(level, pos, blockState);
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
+        return getImitatedBlockState(level, pos).getCloneItemStack(pos, level, includeData, player);
     }
 
     @Override

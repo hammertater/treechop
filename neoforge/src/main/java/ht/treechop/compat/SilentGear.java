@@ -5,6 +5,7 @@ import ht.treechop.api.IChoppingItem;
 import ht.treechop.api.TreeChopAPI;
 import ht.treechop.common.config.ConfigHandler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -18,6 +19,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -29,20 +31,22 @@ public class SilentGear {
     public static void enqueueIMC(InterModEnqueueEvent event) {
         if (ConfigHandler.COMMON.compatForSilentGear.get() && ModList.get().isLoaded("silentgear")) {
             InterModComms.sendTo("treechop", "getTreeChopAPI", () -> (Consumer<TreeChopAPI>) api -> {
-                Item saw = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("silentgear", "saw"));
-                if (saw != null) {
-                    api.registerChoppingItemBehavior(saw, new IChoppingItem() {
-                        @Override
-                        public boolean canChop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState target) {
-                            return true;
-                        }
+                BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("silentgear", "saw"))
+                        .ifPresent(saw -> {
+                            if (saw.isBound()) {
+                                api.registerChoppingItemBehavior(saw.value(), new IChoppingItem() {
+                                    @Override
+                                    public boolean canChop(Player player, ItemStack tool, Level level, BlockPos pos, BlockState target) {
+                                        return true;
+                                    }
 
-                        @Override
-                        public int getNumChops(ItemStack tool, BlockState target) {
-                            return ConfigHandler.COMMON.silentGearSawChops.get();
-                        }
-                    });
-                }
+                                    @Override
+                                    public int getNumChops(ItemStack tool, BlockState target) {
+                                        return ConfigHandler.COMMON.silentGearSawChops.get();
+                                    }
+                                });
+                            }
+                        });
             });
         }
     }

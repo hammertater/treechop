@@ -36,8 +36,9 @@ public class NeoForgeRegistry {
 
     public static class BlockEntities {
         public static final DeferredRegister<BlockEntityType<?>> REGISTRY = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, TreeChop.MOD_ID);
-        public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<NeoForgeChoppedLogBlock.MyEntity>> CHOPPED_LOG_ENTITY = REGISTRY.register("chopped_log",
-                () -> BlockEntityType.Builder.of(NeoForgeChoppedLogBlock.MyEntity::new, Blocks.CHOPPED_LOG.get()).build(null)
+        public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<NeoForgeChoppedLogBlock.MyEntity>> CHOPPED_LOG_ENTITY = REGISTRY.register(
+                "chopped_log",
+                () -> new BlockEntityType<>(NeoForgeChoppedLogBlock.MyEntity::new, Blocks.CHOPPED_LOG.get())
         );
     }
 

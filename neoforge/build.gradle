@@ -64,7 +64,6 @@ configurations {
 }
 
 dependencies {
-    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
     implementation "net.sf.jopt-simple:jopt-simple:5.0.4"
 
     implementation project(":shared")
@@ -79,8 +78,8 @@ dependencies {
 //    localRuntime "mcp.mobius.waila:wthit:neo-12.5.1"
 //    localRuntime "lol.bai:badpackets:neo-0.8.1"
 
-    compileOnly "curse.maven:jade-324717:5591256"
-    localRuntime "curse.maven:jade-324717:5591256"
+    compileOnly "curse.maven:jade-324717:6170888"
+    localRuntime "curse.maven:jade-324717:6170888"
 
     compileOnly "curse.maven:the-one-probe-245211:5502323"
 //    localRuntime "curse.maven:the-one-probe-245211:5502323"
@@ -88,10 +87,10 @@ dependencies {
 //    compileOnly "curse.maven:rubidium-574856:4952685"
 //    localRuntime "curse.maven:rubidium-574856:4952685"
 
-    compileOnly "curse.maven:multi-mine-227887:5733888"
-//    localRuntime "curse.maven:multi-mine-227887:5733888"
+    compileOnly "curse.maven:multi-mine-227887:6036140"
+    localRuntime "curse.maven:multi-mine-227887:6036140"
 
-    compileOnly "curse.maven:integrated-dynamics-236307:6250036"
+    compileOnly "curse.maven:integrated-dynamics-236307:6678480"
 //    localRuntime "curse.maven:integrated-dynamics-236307:6250036"
 //    localRuntime "curse.maven:common-capabilities-247007:6173956"
 //    localRuntime "curse.maven:cyclops-core-232758:6230091"
