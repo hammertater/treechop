@@ -1,0 +1,31 @@
+services:
+  build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: treechop-build
+    # Use the host network stack directly. The Docker bridge mangled large
+    # downloads from the Sponge/NeoForge snapshot repos (reads timed out while
+    # the host downloaded fine); host networking sidesteps the bridge entirely.
+    network_mode: host
+    volumes:
+      # Build the current working-tree source.
+      - .:/workspace
+      # Persist Gradle downloads/caches across builds (no host pollution).
+      - treechop-gradle-cache:/gradle-home
+      # Finished jars land here on the host.
+      - ./build-output:/output
+    command:
+      - bash
+      - -c
+      - |
+        set -euo pipefail
+        gradle --no-daemon build \
+          -Dorg.gradle.internal.http.connectionTimeout=60000 \
+          -Dorg.gradle.internal.http.socketTimeout=60000
+        mkdir -p /output
+        find neoforge/build/libs fabric/build/libs -maxdepth 1 -name '*.jar' \
+          ! -name '*-sources.jar' ! -name '*-dev*.jar' -exec cp -v {} /output/ \;
+
+volumes:
+  treechop-gradle-cache:
