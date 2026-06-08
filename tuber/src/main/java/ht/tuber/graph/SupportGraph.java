@@ -53,14 +53,4 @@ public class SupportGraph<T> extends AbstractGraph<T> {
                 getNeighbors(node).flatMap(this::getSupport)
         );
     }
-
-    @Override
-    public boolean contains(T node) {
-        return false;
-    }
-
-    @Override
-    public Stream<T> getNeighbors(T node) {
-        return null;
-    }
 }
