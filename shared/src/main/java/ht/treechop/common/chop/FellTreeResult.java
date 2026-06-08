@@ -97,12 +97,18 @@ public class FellTreeResult implements ChopResult {
         PriorityQueue<Pair<BlockPos, BlockState>> effects = new PriorityQueue<>(Comparator.comparing(pair -> pair.getLeft().getY()));
 
         boolean tryToDecay = ConfigHandler.COMMON.fellLeavesStrategy.get() == FellLeavesStrategy.DECAY;
+        // When grouping drops, leaves must be actively broken (so their drops can
+        // be gathered at the chopped block) instead of left to decay or drop in
+        // place, both of which would scatter saplings/apples across the tree.
+        boolean group = ConfigHandler.COMMON.groupDrops.get();
         Consumer<BlockPos> leavesBreaker = pos -> {
             if (!player.blockActionRestricted(level, pos, gameType)) {
                 BlockState state = level.getBlockState(pos);
 
                 ILeaveslikeBlock leavesLike = ClassUtil.getLeaveslikeBlock(state.getBlock());
-                if (leavesLike != null) {
+                if (group) {
+                    blockBreaker.accept(pos);
+                } else if (leavesLike != null) {
                     leavesLike.fell(player, level, pos, state);
                 } else if (tryToDecay && shouldDecayLeaves(state)) {
                     decayLeavesInsteadOfBreaking(level, pos, state);
