@@ -174,6 +174,18 @@ public class ClientSettingsScreen extends Screen {
 
         optionRows.add(
                 new LabeledGui(font,
+                        Component.translatable("treechop.gui.settings.label.group_drops"),
+                        new ToggleGui(
+                                () -> ConfigHandler.COMMON.groupDrops.set(!ConfigHandler.COMMON.groupDrops.get()),
+                                () -> ToggleWidget.State.of(ConfigHandler.COMMON.groupDrops.get(), true),
+                                () -> Component.translatable("treechop.gui.settings.tooltip.group_drops"
+                                        + (ConfigHandler.COMMON.groupDrops.get() ? ".on" : ".off"))
+                        )
+                )
+        );
+
+        optionRows.add(
+                new LabeledGui(font,
                         Component.translatable("treechop.gui.settings.label.feedback_messages"),
                         new ToggleGui(
                                 () -> ConfigHandler.CLIENT.showFeedbackMessages.set(!ConfigHandler.CLIENT.showFeedbackMessages.get()),
