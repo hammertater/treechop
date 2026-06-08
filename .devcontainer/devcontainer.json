@@ -1,0 +1,29 @@
+{
+  "name": "Java Gradle Dev Container",
+  // Minimal Debian/Ubuntu base; Java + Gradle are added by the feature below.
+  "image": "mcr.microsoft.com/devcontainers/java:21",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "21",
+      "installGradle": true,
+      // Pin Gradle to match gradle/wrapper/gradle-wrapper.properties.
+      "gradleVersion": "8.9"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-gradle"
+      ]
+    }
+  },
+  // Use the host network stack. The Docker bridge mangles large Gradle
+  // downloads from the Sponge/NeoForge snapshot repos when Tailscale is up
+  // (reads time out); host networking sidesteps it, matching compose.yaml.
+  "runArgs": ["--network=host"],
+  // Not needed for building the mod; kept from the template for run configs
+  // (e.g. a dev server) you might forward later.
+  "forwardPorts": [8080],
+  "postCreateCommand": "gradle --version"
+}

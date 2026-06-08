@@ -14,7 +14,7 @@ services:
       # Persist Gradle downloads/caches across builds (no host pollution).
       - treechop-gradle-cache:/gradle-home
       # Finished jars land here on the host.
-      - ./build-output:/output
+      - ./build:/output
     command:
       - bash
       - -c
@@ -26,9 +26,12 @@ services:
         mkdir -p /output
         find neoforge/build/libs fabric/build/libs -maxdepth 1 -name '*.jar' \
           ! -name '*-sources.jar' ! -name '*-dev*.jar' -exec cp -v {} /output/ \;
-        # Hand the jars back to the host user (owner of the mounted workspace)
-        # so they aren't left root-owned and undeletable.
-        chown -R "$(stat -c '%u:%g' /workspace)" /output
+        # Hand the output and any Gradle-generated dirs back to the host user
+        # (owner of the mounted workspace) so they aren't left root-owned and
+        # undeletable, and so the devcontainer (non-root) can use them. The
+        # owner is read inline via $(...) because a shell variable like $owner
+        # would be eaten by Docker Compose's own $-interpolation.
+        chown -R "$(stat -c '%u:%g' /workspace)" /output /workspace/.gradle /workspace/*/build 2>/dev/null || true
 
 volumes:
   treechop-gradle-cache:

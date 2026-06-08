@@ -3,7 +3,7 @@
 .idea
 .gradle
 **/build
-build-output
+build
 run
 logs
 *.iml
