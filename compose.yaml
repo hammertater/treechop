@@ -26,6 +26,9 @@ services:
         mkdir -p /output
         find neoforge/build/libs fabric/build/libs -maxdepth 1 -name '*.jar' \
           ! -name '*-sources.jar' ! -name '*-dev*.jar' -exec cp -v {} /output/ \;
+        # Hand the jars back to the host user (owner of the mounted workspace)
+        # so they aren't left root-owned and undeletable.
+        chown -R "$(stat -c '%u:%g' /workspace)" /output
 
 volumes:
   treechop-gradle-cache:
