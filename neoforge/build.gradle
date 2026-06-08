@@ -69,7 +69,10 @@ configurations {
 }
 
 dependencies {
-    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+    // NeoForge applies mixins by official name and does not need a compile-time
+    // refmap. The SpongePowered AP only errors here trying to remap @Inject
+    // targets (no searge mappings exist in a Mojmap environment), so it is
+    // intentionally omitted. Fabric keeps remap = true via Loom's own AP.
     implementation "net.sf.jopt-simple:jopt-simple:5.0.4"
 
     implementation project(":shared")
@@ -152,7 +155,11 @@ sourceSets.each {
     it.java.destinationDirectory = dir
 }
 
-tasks.withType(JavaCompile).configureEach {
+// Compile the shared and tuber sources into the main jar only. Using
+// configureEach over all JavaCompile tasks also pulled these Minecraft-
+// referencing sources into compileTestJava, which has no Minecraft on its
+// classpath, breaking the build.
+tasks.named("compileJava") {
     source(project(":shared").sourceSets.main.allSource)
     source(project(":tuber").sourceSets.main.allSource)
 }
