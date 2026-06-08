@@ -18,7 +18,18 @@ public class LevelUtil {
             ItemStack tool,
             boolean loud
     ) {
-        if (level instanceof ServerLevel) {
+        harvestBlock(agent, level, pos, pos, tool, loud);
+    }
+
+    public static void harvestBlock(
+            Entity agent,
+            Level level,
+            BlockPos pos,
+            BlockPos dropPos,
+            ItemStack tool,
+            boolean loud
+    ) {
+        if (level instanceof ServerLevel serverLevel) {
             BlockState blockState = level.getBlockState(pos);
 
             // Plays particle and sound effects
@@ -28,7 +39,13 @@ public class LevelUtil {
 
             FluidState fluidStateOrAir = level.getFluidState(pos);
             blockState.getBlock().destroy(level, pos, blockState);
-            Block.dropResources(blockState, level, pos, level.getBlockEntity(pos), agent, tool); // Should drop XP
+            if (dropPos.equals(pos)) {
+                Block.dropResources(blockState, level, pos, level.getBlockEntity(pos), agent, tool); // Should drop XP
+            } else {
+                // Group drop: compute drops at the real pos but spawn them at dropPos
+                Block.getDrops(blockState, serverLevel, pos, level.getBlockEntity(pos), agent, tool)
+                        .forEach(stack -> Block.popResource(level, dropPos, stack));
+            }
             level.setBlockAndUpdate(pos, fluidStateOrAir.createLegacyBlock());
         }
     }

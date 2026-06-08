@@ -212,6 +212,7 @@ public class ConfigHandler {
         public final ModConfigSpec.BooleanValue enableLogging;
         public final ModConfigSpec.BooleanValue dropLootForChoppedBlocks;
         public final ModConfigSpec.BooleanValue dropLootOnFirstChop;
+        public final ModConfigSpec.BooleanValue groupDrops;
         public final ModConfigSpec.IntValue maxNumTreeBlocks;
         public final ModConfigSpec.IntValue maxNumLeavesBlocks;
         public final ModConfigSpec.EnumValue<FellLeavesStrategy> fellLeavesStrategy;
@@ -349,6 +350,9 @@ public class ConfigHandler {
             dropLootOnFirstChop = builder
                     .comment("If true, chopped logs will drop a log item immediately instead of waiting for the tree to be felled, restoring legacy behavior. Does nothing if dropLootForChoppedBlocks is false")
                     .define("dropLootOnFirstChop", false);
+            groupDrops = builder
+                    .comment("If true, all items dropped when felling a tree are gathered at the chopped block instead of scattering across the whole tree")
+                    .define("groupDrops", false);
             builder.pop();
 
             builder.push("treeDetection");

@@ -49,7 +49,7 @@ public class FellTreeResult implements ChopResult {
             chops.forEach(chop -> chop.apply(level, player, tool, fell));
 
             if (fell) {
-                Consumer<BlockPos> blockBreaker = makeBlockBreaker(player, serverLevel);
+                Consumer<BlockPos> blockBreaker = makeBlockBreaker(player, serverLevel, targetPos);
                 breakLogs(player, serverLevel, fellData.getTree(), gameType, blockBreaker, targetPos);
 
                 if (fellData.getBreakLeaves()) {
@@ -62,14 +62,15 @@ public class FellTreeResult implements ChopResult {
     }
 
     @NotNull
-    private static Consumer<BlockPos> makeBlockBreaker(ServerPlayer player, ServerLevel level) {
+    private static Consumer<BlockPos> makeBlockBreaker(ServerPlayer player, ServerLevel level, BlockPos targetPos) {
         if (player.isCreative()) {
             BlockState air = Blocks.AIR.defaultBlockState();
             return pos -> level.setBlockAndUpdate(pos, air);
         } else {
             ServerPlayer creditPlayer = (ConfigHandler.COMMON.fellCreditStrategy.get() == FellCreditStrategy.NONE) ? null : player;
             ItemStack creditTool = (ConfigHandler.COMMON.fellCreditStrategy.get() == FellCreditStrategy.PLAYER_AND_TOOL) ? player.getMainHandItem() : ItemStack.EMPTY;
-            return pos -> LevelUtil.harvestBlock(creditPlayer, level, pos, creditTool, false);
+            boolean group = ConfigHandler.COMMON.groupDrops.get();
+            return pos -> LevelUtil.harvestBlock(creditPlayer, level, pos, group ? targetPos : pos, creditTool, false);
         }
     }
 
