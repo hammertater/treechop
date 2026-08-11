@@ -110,7 +110,6 @@ dependencies {
 //    localRuntime "curse.maven:apothic-attributes-898963:6148951"
 //    localRuntime "curse.maven:apothic-enchanting-1063926:6084297"
 
-//    compileOnly "curse.maven:carry-on-274259:4160388"
 //    localRuntime "curse.maven:carry-on-274259:4160388"
 
 //    localRuntime "curse.maven:terrablender-563928:4205732"
