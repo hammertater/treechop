@@ -1,6 +1,8 @@
 package ht.treechop.client.model;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,7 +16,7 @@ public class HiddenChoppedLogBakedModel extends ChoppedLogBakedModel {
     private final List<BakedQuad> quads;
 
     public HiddenChoppedLogBakedModel() {
-        this(Collections.emptyList());
+        this.quads = Collections.emptyList();
     }
 
     public HiddenChoppedLogBakedModel(List<BakedQuad> quads) {
@@ -24,10 +26,5 @@ public class HiddenChoppedLogBakedModel extends ChoppedLogBakedModel {
     @Override
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, @NotNull RandomSource random) {
         return quads;
-    }
-
-    @Override
-    public void resolveDependencies(Resolver resolver) {
-
     }
 }

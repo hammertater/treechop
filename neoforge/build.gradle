@@ -72,11 +72,11 @@ dependencies {
 //    localRuntime "curse.maven:create-328085:4835191"
 
     // Compile against the API
-    compileOnly "mcp.mobius.waila:wthit-api:neo-12.5.1"
+    compileOnly "mcp.mobius.waila:wthit-api:neo-14.6.2"
 
     // Run against the full jar
-//    localRuntime "mcp.mobius.waila:wthit:neo-12.5.1"
-//    localRuntime "lol.bai:badpackets:neo-0.8.1"
+//    localRuntime "mcp.mobius.waila:wthit:neo-14.6.2"
+//    localRuntime "lol.bai:badpackets:neo-0.8.2"
 
     compileOnly "curse.maven:jade-324717:6170888"
     localRuntime "curse.maven:jade-324717:6170888"
@@ -84,22 +84,18 @@ dependencies {
     compileOnly "curse.maven:the-one-probe-245211:5502323"
 //    localRuntime "curse.maven:the-one-probe-245211:5502323"
 
-//    compileOnly "curse.maven:rubidium-574856:4952685"
-//    localRuntime "curse.maven:rubidium-574856:4952685"
-
     compileOnly "curse.maven:multi-mine-227887:6036140"
     localRuntime "curse.maven:multi-mine-227887:6036140"
 
     compileOnly "curse.maven:integrated-dynamics-236307:6678480"
-//    localRuntime "curse.maven:integrated-dynamics-236307:6250036"
-//    localRuntime "curse.maven:common-capabilities-247007:6173956"
-//    localRuntime "curse.maven:cyclops-core-232758:6230091"
+    localRuntime "curse.maven:integrated-dynamics-236307:6678480"
+    localRuntime "curse.maven:common-capabilities-247007:6678478"
+    localRuntime "curse.maven:cyclops-core-232758:6678515"
 
 //    localRuntime "curse.maven:terrablender-563928:4647094"
-//    localRuntime "curse.maven:biomes-o-plenty-220318:4617259"
+//    localRuntime "curse.maven:glitchcore-955399:6054289"
+//    localRuntime "curse.maven:biomes-o-plenty-220318:6384687"
 //    localRuntime "curse.maven:regions-unexplored-659110:4599808"
-//    localRuntime "curse.maven:pams-harvestcraft-2-trees-365460:4625518"
-//    localRuntime "curse.maven:oh-the-biomes-youll-go-247560:xxx"
 //    localRuntime "curse.maven:tropicraft-254794:4617294"
 //    localRuntime "curse.maven:mystics-biomes-397962:4677470"
 
@@ -110,16 +106,14 @@ dependencies {
 //    localRuntime "curse.maven:apothic-attributes-898963:6148951"
 //    localRuntime "curse.maven:apothic-enchanting-1063926:6084297"
 
-//    localRuntime "curse.maven:carry-on-274259:4160388"
+    localRuntime "curse.maven:carry-on-274259:6449626"
 
-//    localRuntime "curse.maven:terrablender-563928:4205732"
-//    localRuntime "curse.maven:regions-unexplored-659110:4406301"
-//    localRuntime "curse.maven:enhanced-farming-285105:4280679"
+//    localRuntime "curse.maven:enhanced-farming-285105:6893487"
 
 //    localRuntime "curse.maven:selene-499980:4410933"
 //    localRuntime "curse.maven:immersive-weathering-forge-592449:4401359"
 
-//    localRuntime "curse.maven:structure-gel-api-378802:4029363"
+//    localRuntime "curse.maven:structure-gel-api-378802:6128766"
 //    localRuntime "curse.maven:blue-skies-312918:3966273"
 //    localRuntime "curse.maven:caupona-656147:4036587"
 

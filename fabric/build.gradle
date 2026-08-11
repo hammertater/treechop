@@ -42,26 +42,24 @@ dependencies {
     implementation project(":tuber")
 
     modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:$forgeconfigapiport_version"
-    modApi "com.terraformersmc:modmenu:13.0.3"
+    modApi "com.terraformersmc:modmenu:13.0.4"
 
-    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-14.4.3"
-    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-14.4.3"
+    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-14.6.2"
+    modRuntimeOnly "mcp.mobius.waila:wthit:fabric-14.6.2"
     modRuntimeOnly "lol.bai:badpackets:fabric-0.8.2"
 
     modCompileOnly "curse.maven:jade-324717:6155088"
-    modRuntimeOnly "curse.maven:jade-324717:6155088"
+//    modRuntimeOnly "curse.maven:jade-324717:6155088"
 
 //    modRuntimeOnly "maven.modrinth:sodium:mc1.19.3-0.4.9" // Doesn't wanna work in IntelliJ
 //    modRuntimeOnly "curse.maven:indium-459496:3957480"
 //    modRuntimeOnly "curse.maven:irisshaders-455508:3981799"
 
-    modRuntimeOnly "curse.maven:carry-on-274259:6449642"
+//    modRuntimeOnly "curse.maven:carry-on-274259:6449642"
 
-//    modRuntimeOnly "curse.maven:terrablender-565956:4647092"
-//    modRuntimeOnly "curse.maven:bclib-495191:4677965"
-//    modRuntimeOnly "curse.maven:betterend-413596:4677967"
+//    modRuntimeOnly "curse.maven:terrablender-565956:6055020"
 
-    modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:11.0.0"
+    modCompileOnly "com.terraformersmc.terraform-api:terraform-wood-api-v1:13.0.0"
 
 }
 

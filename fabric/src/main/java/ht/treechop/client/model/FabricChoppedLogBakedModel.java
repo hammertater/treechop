@@ -55,9 +55,4 @@ public class FabricChoppedLogBakedModel extends ChoppedLogBakedModel implements 
         };
         this.emitBlockQuads(level, state, pos, randomSupplier.get(), bakedQuadEmitter);
     }
-
-    @Override
-    public void resolveDependencies(Resolver resolver) {
-
-    }
 }

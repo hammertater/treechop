@@ -9,10 +9,12 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.block.model.TextureSlots;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.*;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -28,13 +30,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
-    private static TextureAtlasSprite defaultSprite;
+public abstract class ChoppedLogBakedModel implements BakedModel {
+    public static TextureAtlasSprite defaultSprite;
     protected static final ResourceLocation DEFAULT_TEXTURE_RESOURCE = ResourceLocation.withDefaultNamespace("block/stripped_oak_log");
     public static final RenderType RENDER_TYPE = RenderType.cutout(); // Don't use translucent, looks nuts with shaders
 
-    public static void setDefaultSprite(TextureAtlasSprite defaultSprite) {
-        ChoppedLogBakedModel.defaultSprite = defaultSprite;
+    public ChoppedLogBakedModel() {
     }
 
     private static BlockState getStrippedNeighbor(BlockAndTintGetter level, BlockPos pos, Direction direction) {
@@ -65,12 +66,6 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
     }
 
     @Override
-    public BakedModel bake(TextureSlots textureSlots, ModelBaker modelBaker, ModelState modelState, boolean b, boolean b1, ItemTransforms itemTransforms) {
-        defaultSprite = modelBaker.sprites().get(new Material(TextureAtlas.LOCATION_BLOCKS, DEFAULT_TEXTURE_RESOURCE));
-        return this;
-    }
-
-    @Override
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, @NotNull RandomSource randomSource) {
         return Collections.emptyList();
     }
@@ -92,16 +87,12 @@ public abstract class ChoppedLogBakedModel implements UnbakedModel, BakedModel {
 
     @Override
     public @NotNull TextureAtlasSprite getParticleIcon() {
-        return getDefaultSprite();
+        return defaultSprite;
     }
 
     @Override
     public @NotNull ItemTransforms getTransforms() {
         return ItemTransforms.NO_TRANSFORMS;
-    }
-
-    protected TextureAtlasSprite getDefaultSprite() {
-        return defaultSprite;
     }
 
     protected Stream<BakedQuad> getQuads(BlockState strippedState, ChoppedLogShape shape, int radius, RandomSource random, Map<Direction, BlockState> strippedNeighbors) {

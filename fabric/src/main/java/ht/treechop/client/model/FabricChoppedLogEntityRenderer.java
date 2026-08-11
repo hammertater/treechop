@@ -22,15 +22,11 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class FabricChoppedLogEntityRenderer extends FabricChoppedLogBakedModel implements BlockEntityRenderer<FabricChoppedLogBlock.MyEntity> {
-    protected final TextureAtlasSprite defaultSprite;
     private final RandomSource random = RandomSource.create();
     private final BlockRenderDispatcher blockRenderer;
 
     @SuppressWarnings("deprecation")
     public FabricChoppedLogEntityRenderer(BlockEntityRendererProvider.Context context) {
-        this.defaultSprite = Minecraft.getInstance().getModelManager()
-                .getAtlas(TextureAtlas.LOCATION_BLOCKS)
-                .getSprite(DEFAULT_TEXTURE_RESOURCE);
         this.blockRenderer = context.getBlockRenderDispatcher();
     }
 

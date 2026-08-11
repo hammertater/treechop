@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -38,7 +39,7 @@ public class NeoForgeChoppedLogBakedModel extends ChoppedLogBakedModel implement
     public static void overrideBlockStateModels(ModelEvent.ModifyBakingResult event) {
         ModelResourceLocation oakLog = BlockModelShaper.stateToModelLocation(Blocks.OAK_LOG.defaultBlockState());
         Map<ModelResourceLocation, BakedModel> bakedModels = event.getBakingResult().blockStateModels();
-        NeoForgeChoppedLogBakedModel.setDefaultSprite(bakedModels.get(oakLog).getParticleIcon());
+        NeoForgeChoppedLogBakedModel.defaultSprite = bakedModels.get(oakLog).getParticleIcon();
 
         for (BlockState blockState : NeoForgeRegistry.Blocks.CHOPPED_LOG.get().getStateDefinition().getPossibleStates()) {
             ModelResourceLocation variantMRL = BlockModelShaper.stateToModelLocation(blockState);
@@ -103,10 +104,5 @@ public class NeoForgeChoppedLogBakedModel extends ChoppedLogBakedModel implement
 
     private <T> T or(T value, T fallback) {
         return value != null ? value : fallback;
-    }
-
-    @Override
-    public void resolveDependencies(Resolver resolver) {
-
     }
 }
