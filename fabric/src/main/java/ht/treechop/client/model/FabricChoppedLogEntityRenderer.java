@@ -40,8 +40,9 @@ public class FabricChoppedLogEntityRenderer extends FabricChoppedLogBakedModel i
         if (level != null) {
             BlockPos pos = entity.getBlockPos();
 
+            BakedModel bakedModel = getQuadsAsBakedModel(level, entity.getOriginalState(), pos, random);
             this.blockRenderer.getModelRenderer().tesselateBlock(level,
-                    getQuadsAsBakedModel(level, entity.getOriginalState(), pos, random),
+                    bakedModel,
                     entity.getBlockState(),
                     pos,
                     poseStack,

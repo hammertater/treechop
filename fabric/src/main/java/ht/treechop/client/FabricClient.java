@@ -16,9 +16,11 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+
+import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
 public class FabricClient extends Client implements ClientModInitializer {
@@ -28,16 +30,18 @@ public class FabricClient extends Client implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        Supplier<ChoppedLogBakedModel> modelGetter;
         if (FabricLoader.getInstance().isModLoaded("sodium") && !FabricLoader.getInstance().isModLoaded("indium")) {
             TreeChop.LOGGER.info("Sodium detected! Using alternative block renderer.");
             ConfigHandler.removeBarkOnInteriorLogs.override(false);
-            ModelLoadingPlugin.register(new ChoppedLogModelLoadingPlugin(HiddenChoppedLogBakedModel::new));
-            BlockEntityRendererRegistry.register(FabricModBlocks.CHOPPED_LOG_ENTITY, FabricChoppedLogEntityRenderer::new);
+            modelGetter = HiddenChoppedLogBakedModel::new;
+            BlockEntityRenderers.register(FabricModBlocks.CHOPPED_LOG_ENTITY, FabricChoppedLogEntityRenderer::new);
         } else {
-            ModelLoadingPlugin.register(new ChoppedLogModelLoadingPlugin(FabricChoppedLogBakedModel::new));
+            modelGetter = FabricChoppedLogBakedModel::new;
             BlockRenderLayerMap.INSTANCE.putBlock(FabricModBlocks.CHOPPED_LOG, ChoppedLogBakedModel.RENDER_TYPE);
         }
 
+        ModelLoadingPlugin.register(new ChoppedLogModelLoadingPlugin(modelGetter));
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> syncOnJoin());
 
         registerPackets();
