@@ -92,7 +92,7 @@ loom {
     }
 }
 
-tasks.withType(JavaCompile).configureEach {
-    source(project(":shared").sourceSets.main.allSource)
-    source(project(":tuber").sourceSets.main.allSource)
+tasks.named("compileJava", JavaCompile).configure {
+    source(project(":shared").sourceSets.main.java)
+    source(project(":tuber").sourceSets.main.java)
 }

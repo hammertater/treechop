@@ -45,7 +45,7 @@ neoForge {
             systemProperty "forge.logging.markers", "REGISTRIES"
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            systemProperty "neoforge.enabledGameTestNamespaces", project.mod_id
+//            systemProperty "neoforge.enabledGameTestNamespaces", project.mod_id
 
             // Related: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             logLevel = org.slf4j.event.Level.DEBUG
@@ -139,9 +139,9 @@ sourceSets.each {
     it.java.destinationDirectory = dir
 }
 
-tasks.withType(JavaCompile).configureEach {
-    source(project(":shared").sourceSets.main.allSource)
-    source(project(":tuber").sourceSets.main.allSource)
+tasks.named("compileJava", JavaCompile).configure {
+    source(project(":shared").sourceSets.main.java)
+    source(project(":tuber").sourceSets.main.java)
 }
 
 idea {
