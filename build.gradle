@@ -13,27 +13,6 @@ subprojects {
 
     java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-    version = mod_version
-    group = mod_group
-
-    base {
-        archivesName = "$mod_name-$minecraft_version-$project.name"
-    }
-
-    jar {
-        manifest {
-            attributes([
-                    "Specification-Title"     : mod_id,
-                    "Specification-Vendor"    : mod_authors,
-                    "Specification-Version"   : "1",
-                    "Implementation-Title"    : "$mod_id-$project.name",
-                    "Implementation-Version"  : project.jar.archiveVersion,
-                    "Implementation-Vendor"   : mod_authors,
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-            ])
-        }
-    }
-
     repositories {
         mavenCentral()
         maven { url "https://www.cursemaven.com" }

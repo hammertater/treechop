@@ -3,6 +3,20 @@ plugins {
     id "org.spongepowered.mixin" version "0.7-SNAPSHOT"
 }
 
+version = mod_version
+group = mod_group
+
+base {
+    archivesName = "$mod_name-$minecraft_version-$project.name"
+}
+
+processResources {
+    from project(":shared").sourceSets.main.resources
+    filesMatching(["META-INF/mods.toml", "pack.mcmeta"]) {
+        expand project.properties
+    }
+}
+
 minecraft {
     mappings channel: "official", version: minecraft_version
     copyIdeResources = true
@@ -42,6 +56,8 @@ minecraft {
 }
 
 dependencies {
+    implementation "net.sf.jopt-simple:jopt-simple:5.0.4"
+
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
 
@@ -110,13 +126,6 @@ sourceSets.main.resources {
     srcDir "src/generated/resources"
 }
 
-processResources {
-    from project(":shared").sourceSets.main.resources
-
-    filesMatching(["META-INF/mods.toml", "pack.mcmeta"]) {
-        expand project.properties
-    }
-}
 
 mixin {
     add(sourceSets.main, "${mod_id}.mixins.refmap.json")
@@ -125,8 +134,15 @@ mixin {
 }
 
 tasks.withType(JavaCompile) {
-    source(project(":shared").sourceSets.main.allSource)
-    source(project(":tuber").sourceSets.main.allSource)
+    source(project(":shared").sourceSets.main.java)
+    source(project(":tuber").sourceSets.main.java)
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
 }
 
 // Example configuration to allow publishing using the maven-publish task
