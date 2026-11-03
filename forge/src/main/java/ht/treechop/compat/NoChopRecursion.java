@@ -7,6 +7,8 @@ import ht.treechop.common.util.TickUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -26,6 +28,26 @@ public class NoChopRecursion {
     }
 
     private static class EventHandler {
+        @SubscribeEvent
+        public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+            lastChopTickByPlayers.remove(event.getEntity());
+        }
+
+        @SubscribeEvent
+        public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+            // The respawned player keeps the old entity id, which equals and hashCode use.
+            // Replace the old key object while preserving its tick.
+            Long tick = lastChopTickByPlayers.remove(event.getEntity());
+            if (tick != null) {
+                lastChopTickByPlayers.put(event.getEntity(), tick);
+            }
+        }
+
+        @SubscribeEvent
+        public static void onServerStopping(ServerStoppingEvent event) {
+            lastChopTickByPlayers.clear();
+        }
+
         @SubscribeEvent
         public static void onChop(ChopEvent.StartChopEvent event) {
             Player agent = event.getPlayer();
